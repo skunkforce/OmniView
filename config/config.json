@@ -63,8 +63,8 @@
                 "red": 0.8,
                 "transparency": 1.0
         }},
-        "sizex": 200,
-        "sizey": 50
+        "sizex": 180,
+        "sizey": 40
     },
 
     "menubar": {

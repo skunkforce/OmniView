@@ -1,25 +1,22 @@
 {   
-  "inputfin":
-    {
-    "label":"Fahrzeugidentnummer",
-    "fail":"Die eingegebene Fahrzeugidentnummer ist ungültig",
-    "complete": "Fahrzeugidentnummer vollständig"
+  "input":{
+      "fin":{
+        "label":"Fahrzeugidentnummer",
+        "fail":"Die eingegebene Fahrzeugidentnummer ist ungültig",
+        "complete": "Fahrzeugidentnummer vollständig"
+      },
+      "mileage":{
+        "label":"Laufleistung in km"
+      }
     },
 
   "button":
   {
-    "save":
-    {
-      "label":"speichern"
-    },
-    "send":
-    {
-      "label":"senden"
-    },
-    "measure":
-    {
-      "label":"messen"
-    }
+    "save":"speichern",
+    "send":"senden",
+    "measure":"messen",
+    "back":"zurück",
+    "ok":"ok"
   },
  
 

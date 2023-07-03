@@ -139,7 +139,8 @@ void set_button_style_to(nlohmann::json const& config, std::string const& name) 
 }
 
 int main() {
-    nlohmann::json config = load_json_file(configpath);
+    bool           savecontext = false;
+    nlohmann::json config      = load_json_file(configpath);
 
     std::vector<std::string> availableLanguages
       = getAvailableLanguages(load_json<std::string>(config, "languagepath"));
@@ -418,30 +419,7 @@ int main() {
                load_json<int>(config, "button", "sizex"),
                load_json<int>(config, "button", "sizey"))))
         {
-            //Datatype: std::map<Omniscope::Device, std::vector<std::pair<double, double>>> captureData;
-            //std::vector<std::pair<double,double>> vecTemp{};
-            now = std::chrono::system_clock::now();
-
-            now_time_t = std::chrono::system_clock::to_time_t(now);
-            now_tm     = *std::gmtime(&now_time_t);
-
-            std::string_view path_sv{path.data()};
-
-            std::string filename{fmt::format("{:%Y-%m-%dT%H:%M:%S_%z_%Z}.csv", now)};
-
-            std::filesystem::path path_path = path_sv;
-            //TODO Implement Feature later. Save the whole capture or the range which is displayed while paused
-            //if(!paused){
-            //save whole vector
-            save(captureData, path_path / filename);
-            savedFileNames.emplace_back(
-              path_path.string(),
-              fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
-            //}else{
-            //save only to xmax saved while paused
-            //std::ranges::copy_n(vector.begin(), xmax_paused, std::back_inserter(vecTemp));
-            //save(vecTemp, filename));
-            //}
+            savecontext = true;
         }
         ImGui::SameLine();
         ImGui::PushStyleColor(
@@ -478,9 +456,9 @@ int main() {
         {
             newDevices = Omniscope::queryDevices();
         }
+
         ImGui::EndChild();
-        //ImGui::BeginChild("test", ImVec2(300, -1));
-        //this has to die
+
         ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
 
         for(auto const& device : newDevices) {
@@ -490,10 +468,44 @@ int main() {
             };
         }
         ImGui::EndChild();
-
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        if(ImGui::BeginPopupModal("savetofile", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            char inputfin[18];
+            char mileage[10];
 
+            ImGui::SetItemDefaultFocus();
+            ImGui::InputText(
+              load_json<std::string>(language, "input", "fin", "label").c_str(),
+              inputfin,
+              sizeof(inputfin));
+            ImGui::InputText(
+              load_json<std::string>(language, "input", "mileage", "label").c_str(),
+              mileage,
+              sizeof(mileage));
+            /*legacy code
+
+                now = std::chrono::system_clock::now();
+
+                now_time_t = std::chrono::system_clock::to_time_t(now);
+                now_tm     = *std::gmtime(&now_time_t);
+
+                std::string_view path_sv{path.data()};
+
+                std::string filename{fmt::format("{:%Y-%m-%dT%H:%M:%S_%z_%Z}.csv", now)};
+
+                std::filesystem::path path_path = path_sv;
+                
+                save(captureData, path_path / filename);
+                savedFileNames.emplace_back(
+                path_path.string(),
+                fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
+                */
+            if(ImGui::Button("Ok", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
         if(ImGui::BeginPopupModal("Restart?", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("Restart with the this devices?");
             if(ImGui::BeginListBox("new Devices")) {
@@ -551,6 +563,7 @@ int main() {
         center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
+        //ImGui::CloseCurrentPopup();)
         if(ImGui::BeginPopupModal("Error!", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("Error with device!");
             ImGui::Text("Capture data is still valid you can save it!");
@@ -561,6 +574,59 @@ int main() {
             ImGui::EndPopup();
         }
         ImGui::EndChild();
+        ImGui::End();
+        if(savecontext == true) {
+            ImGui::SetNextWindowPos(ImVec2(0.0f, 20.0f));
+            ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+            ImGui::Begin(
+              "Savecontext",
+              nullptr,
+              ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
+                | ImGuiWindowFlags_NoMove);
+
+            static char inputfin[18] = "";
+            static char mileage[10]  = "";
+
+            ImGui::SetItemDefaultFocus();
+            ImGui::InputText(
+              load_json<std::string>(language, "input", "fin", "label").c_str(),
+              inputfin,
+              sizeof(inputfin));
+            ImGui::InputText(
+              load_json<std::string>(language, "input", "mileage", "label").c_str(),
+              mileage,
+              sizeof(mileage));
+
+            if(ImGui::Button(
+                 load_json<std::string>(language, "button", "save").c_str(),
+                 ImVec2(120, 0)))
+            {
+                now = std::chrono::system_clock::now();
+
+                now_time_t = std::chrono::system_clock::to_time_t(now);
+                now_tm     = *std::gmtime(&now_time_t);
+
+                std::string_view path_sv{path.data()};
+
+                std::string filename{fmt::format("{:%Y-%m-%dT%H:%M:%S_%z_%Z}.csv", now)};
+
+                std::filesystem::path path_path = path_sv;
+
+                save(captureData, path_path / filename);
+                savedFileNames.emplace_back(
+                  path_path.string(),
+                  fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
+                savecontext = false;
+            }
+            ImGui::SameLine();
+            if(ImGui::Button(
+                 load_json<std::string>(language, "button", "back").c_str(),
+                 ImVec2(120, 0)))
+            {
+                savecontext = false;
+            }
+        }
+
         ImGui::End();
     };
 
