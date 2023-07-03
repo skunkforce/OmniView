@@ -1,0 +1,113 @@
+{
+    "title":"Omniview 0.1",
+    "language": "Deutsch",
+    "languagepath" : "../languages/",
+
+    "button": {
+        "stop": {
+            "active": {
+            "blue": 0.0,
+            "green": 0.0,
+            "red": 0.6,
+            "transparency": 1.0
+        },
+        "hover": {
+            "blue": 0.0,
+            "green": 0.0,
+            "red": 0.7,
+            "transparency": 1.0
+        },
+        "normal": {
+            "blue": 0.0,
+            "green": 0.0,
+            "red": 0.8,
+            "transparency": 1.0
+        }
+        },
+        "start": {
+            "active": {
+                "blue": 0.0,
+                "green": 0.6,
+                "red": 0.0,
+                "transparency": 1.0
+            },
+            "hover": {
+                "blue": 0.0,
+                "green": 0.7,
+                "red": 0.0,
+                "transparency": 1.0
+            },
+            "normal": {
+                "blue": 0.0,
+                "green": 0.8,
+                "red": 0.0,
+                "transparency": 1.0
+            }
+        },
+        "standart":{
+            "active": {
+                "blue": 0.9,
+                "green": 0.6,
+                "red": 0.6,
+                "transparency": 1.0
+            },
+            "hover": {
+                "blue": 0.9,
+                "green": 0.9,
+                "red": 0.9,
+                "transparency": 1.0
+            },
+            "normal": {
+                "blue": 0.8,
+                "green": 0.8,
+                "red": 0.8,
+                "transparency": 1.0
+        }},
+        "sizex": 200,
+        "sizey": 50
+    },
+
+    "menubar": {
+        "main":{
+            "blue": 0.7,
+            "green": 0.7,
+            "red": 0.7,
+            "transparency": 1.0
+        },
+        "popup":{
+            "blue": 0.7,
+            "green": 0.7,
+            "red": 0.7,
+            "transparency": 1.0
+        }
+    },
+
+    "window": {
+        "color":{
+            "blue": 0.7,
+            "green": 0.7,
+            "red": 0.7,
+            "transparency": 1.0
+        }
+        ,
+        "sizex": 1920,
+        "sizey": 800
+    },
+    "text":{
+        "font":"comicsans",
+        "scale":3.0,
+        "color":{
+            "normal":{
+            "red":0.1,
+            "green":0.1,
+            "blue":0.1,
+            "transparency":1},
+
+            "inactive":{
+                "red":0.5,
+                "green":0.5,
+                "blue":0.5,
+                "transparency":1}
+        }
+    }
+}

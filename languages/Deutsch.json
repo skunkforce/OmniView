@@ -1,0 +1,46 @@
+{   
+  "inputfin":
+    {
+    "label":"Fahrzeugidentnummer",
+    "fail":"Die eingegebene Fahrzeugidentnummer ist ungültig",
+    "complete": "Fahrzeugidentnummer vollständig"
+    },
+
+  "button":
+  {
+    "save":
+    {
+      "label":"speichern"
+    },
+    "send":
+    {
+      "label":"senden"
+    },
+    "measure":
+    {
+      "label":"messen"
+    }
+  },
+ 
+
+  "menubar":{
+    "menu":{
+    "label":"Menü",
+    "cleardata":"Lösche gespeicherte Datein",
+    "clearcapture":"Lösche Aufzeichnung",
+    "reset":"reset",
+    "language_option":"Sprachoptionen",
+    "language":"Sprachen"},
+
+    "view":{
+      "label":"Ansicht",
+      "first":"erster menüpunkt",
+      "second":"zweiter menüpunkt"
+    },
+    "help":{
+      "label":"Hilfe",
+      "first":"erster menüpunkt",
+      "second":"zweiter menüpunkt"
+    }
+  } 
+}
