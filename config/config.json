@@ -6,24 +6,24 @@
     "button": {
         "stop": {
             "active": {
-            "blue": 0.0,
-            "green": 0.0,
-            "red": 0.6,
-            "transparency": 1.0
+                "blue": 0.0,
+                "green": 0.0,
+                "red": 0.6,
+                "transparency": 1.0
         },
-        "hover": {
-            "blue": 0.0,
-            "green": 0.0,
-            "red": 0.7,
-            "transparency": 1.0
-        },
-        "normal": {
-            "blue": 0.0,
-            "green": 0.0,
-            "red": 0.8,
-            "transparency": 1.0
-        }
-        },
+            "hover": {
+                "blue": 0.0,
+                "green": 0.0,
+                "red": 0.7,
+                "transparency": 1.0
+            },
+            "normal": {
+                "blue": 0.0,
+                "green": 0.0,
+                "red": 0.8,
+                "transparency": 1.0
+            }
+            },
         "start": {
             "active": {
                 "blue": 0.0,
@@ -63,8 +63,8 @@
                 "red": 0.8,
                 "transparency": 1.0
         }},
-        "sizex": 180,
-        "sizey": 40
+        "sizex": 180.0,
+        "sizey": 40.0
     },
 
     "menubar": {

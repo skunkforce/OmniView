@@ -7,7 +7,9 @@
       },
       "mileage":{
         "label":"Laufleistung in km"
-      }
+      },
+      "scantype":{
+        "label":"Messung"}
     },
 
   "button":

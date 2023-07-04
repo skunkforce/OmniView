@@ -18,7 +18,9 @@ const std::string configpath = "../config/config.json";
 struct Color : ImVec4 {
     using ImVec4::ImVec4;
 };
-using json = nlohmann::json;
+struct Size : ImVec2 {
+    using ImVec2::ImVec2;
+};
 
 void to_json(nlohmann::json& j, Color const& c) {
     j = nlohmann::json{
@@ -34,6 +36,17 @@ void from_json(nlohmann::json const& j, Color& c) {
     j.at("green").get_to(c.y);
     j.at("blue").get_to(c.z);
     j.at("transparency").get_to(c.w);
+}
+void to_json(nlohmann::json& j, Size const& s) {
+    j = nlohmann::json{
+      {"sizex", s.x},
+      {"sizey", s.y},
+    };
+}
+
+void from_json(nlohmann::json const& j, Size& s) {
+    j.at("sizex").get_to(s.x);
+    j.at("sizey").get_to(s.y);
 }
 
 nlohmann::json load_json_file(std::string const& path) {
@@ -382,38 +395,80 @@ int main() {
 
         ImGui::EndChild();
         ImGui::BeginChild("Buttonstripe", ImVec2(-1, 40));
+        if(ImGui::BeginPopupModal("savetofile", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::SetItemDefaultFocus();
+
+            static char inputfin[18]  = "";
+            static char mileage[10]   = "";
+            static char scantype[255] = "";
+            ImGui::SetItemDefaultFocus();
+            ImGui::InputText(
+              load_json<std::string>(language, "input", "fin", "label").c_str(),
+              inputfin,
+              sizeof(inputfin));
+            ImGui::InputText(
+              load_json<std::string>(language, "input", "mileage", "label").c_str(),
+              mileage,
+              sizeof(mileage));
+            ImGui::InputText(
+              load_json<std::string>(language, "input", "scantype", "label").c_str(),
+              scantype,
+              sizeof(scantype));
+
+            if(ImGui::Button(
+                 load_json<std::string>(language, "button", "save").c_str(),
+                 ImVec2(load_json<Size>(config, "button"))))
+            {
+                now = std::chrono::system_clock::now();
+
+                now_time_t = std::chrono::system_clock::to_time_t(now);
+                now_tm     = *std::gmtime(&now_time_t);
+
+                std::string_view path_sv{path.data()};
+
+                std::string filename{fmt::format("{:%Y-%m-%dT%H:%M:%S_%z_%Z}.csv", now)};
+
+                std::filesystem::path path_path = path_sv;
+                if(captureData.empty()) {
+                    ImGui::CloseCurrentPopup();
+                } else {
+                    save(captureData, path_path / filename);
+
+                    savedFileNames.emplace_back(
+                      path_path.string(),
+                      fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+            ImGui::SameLine();
+            if(ImGui::Button(
+                 load_json<std::string>(language, "button", "back").c_str(),
+                 ImVec2(load_json<Size>(config, "button"))))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
         if(paused == true) {
             set_button_style_to(config, "start");
 
-            if(ImGui::Button(
-                 "Start",
-                 ImVec2(
-                   load_json<int>(config, "button", "sizex"),
-                   load_json<int>(config, "button", "sizey"))))
-            {
+            if(ImGui::Button("Start", ImVec2(load_json<Size>(config, "button")))) {
                 paused = false;
             }
             set_button_style_to(config, "standart");
         } else {
             set_button_style_to(config, "stop");
-            if(ImGui::Button(
-                 "Stop",
-                 ImVec2(
-                   load_json<int>(config, "button", "sizex"),
-                   load_json<int>(config, "button", "sizey"))))
-            {
+            if(ImGui::Button("Stop", ImVec2(load_json<Size>(config, "button")))) {
                 paused = true;
             }
             set_button_style_to(config, "standart");
         }
         ImGui::SameLine();
-        if(ImGui::Button(
-             "Save to File",
-             ImVec2(
-               load_json<int>(config, "button", "sizex"),
-               load_json<int>(config, "button", "sizey"))))
-        {
-            savecontext = true;
+        if(ImGui::Button("Save to File", ImVec2(load_json<Size>(config, "button")))) {
+            //savecontext = true;//Opens new overlay
+            ImGui::OpenPopup("savetofile");
         }
         ImGui::SameLine();
         ImGui::PushStyleColor(
@@ -429,27 +484,14 @@ int main() {
             load_json<float>(config, "text", "color", "inactive", "blue"),
             load_json<float>(config, "text", "color", "inactive", "transparency")});
         */
-        ImGui::Button(
-          "Analyse Data",
-          ImVec2(
-            load_json<int>(config, "button", "sizex"),
-            load_json<int>(config, "button", "sizey")));
+        ImGui::Button("Analyse Data", ImVec2(load_json<Size>(config, "button")));
         ImGui::PushStyleColor(
           ImGuiCol_Text,
           ImVec4(load_json<Color>(config, "text", "color", "normal")));
         ImGui::SameLine();
-        ImGui::Button(
-          "Create Training Data",
-          ImVec2(
-            load_json<int>(config, "button", "sizex"),
-            load_json<int>(config, "button", "sizey")));
+        ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")));
         ImGui::SameLine();
-        if(ImGui::Button(
-             "Refresh Devicelist",
-             ImVec2(
-               load_json<int>(config, "button", "sizex"),
-               load_json<int>(config, "button", "sizey"))))
-        {
+        if(ImGui::Button("Refresh Devicelist", ImVec2(load_json<Size>(config, "button")))) {
             newDevices = Omniscope::queryDevices();
         }
 
@@ -466,42 +508,7 @@ int main() {
         ImGui::EndChild();
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-        if(ImGui::BeginPopupModal("savetofile", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-            char inputfin[18];
-            char mileage[10];
 
-            ImGui::SetItemDefaultFocus();
-            ImGui::InputText(
-              load_json<std::string>(language, "input", "fin", "label").c_str(),
-              inputfin,
-              sizeof(inputfin));
-            ImGui::InputText(
-              load_json<std::string>(language, "input", "mileage", "label").c_str(),
-              mileage,
-              sizeof(mileage));
-            /*legacy code
-
-                now = std::chrono::system_clock::now();
-
-                now_time_t = std::chrono::system_clock::to_time_t(now);
-                now_tm     = *std::gmtime(&now_time_t);
-
-                std::string_view path_sv{path.data()};
-
-                std::string filename{fmt::format("{:%Y-%m-%dT%H:%M:%S_%z_%Z}.csv", now)};
-
-                std::filesystem::path path_path = path_sv;
-                
-                save(captureData, path_path / filename);
-                savedFileNames.emplace_back(
-                path_path.string(),
-                fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
-                */
-            if(ImGui::Button("Ok", ImVec2(120, 0))) {
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
-        }
         if(ImGui::BeginPopupModal("Restart?", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("Restart with the this devices?");
             if(ImGui::BeginListBox("new Devices")) {
@@ -541,15 +548,6 @@ int main() {
             ImGui::OpenPopup("Restart?");
             //   }
         }
-        /*######################################################################
-        if(ImGui::BeginListBox("Saved files")) {
-            for(auto const& filename : savedFileNames) {
-                ImGui::TextUnformatted(
-                  fmt::format("{} {}", filename.first, filename.second).c_str());
-            }
-            ImGui::EndListBox();
-        }*/
-
         ImGui::EndChild();
 
         ImGui::SameLine();
@@ -595,7 +593,7 @@ int main() {
 
             if(ImGui::Button(
                  load_json<std::string>(language, "button", "save").c_str(),
-                 ImVec2(120, 0)))
+                 ImVec2(load_json<Size>(config, "button"))))
             {
                 now = std::chrono::system_clock::now();
 
@@ -617,7 +615,7 @@ int main() {
             ImGui::SameLine();
             if(ImGui::Button(
                  load_json<std::string>(language, "button", "back").c_str(),
-                 ImVec2(120, 0)))
+                 ImVec2(load_json<Size>(config, "button"))))
             {
                 savecontext = false;
             }
