@@ -161,8 +161,7 @@ void set_button_style_to(nlohmann::json const& config, std::string const& name) 
 }
 
 int main() {
-    bool           savecontext = false;
-    nlohmann::json config      = load_json_file(configpath);
+    nlohmann::json config = load_json_file(configpath);
 
     std::vector<std::string> availableLanguages
       = getAvailableLanguages(load_json<std::string>(config, "languagepath"));
@@ -471,23 +470,10 @@ int main() {
             ImGui::OpenPopup("savetofile");
         }
         ImGui::SameLine();
-        ImGui::PushStyleColor(
-          ImGuiCol_Text,
+        ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
 
-          load_json<Color>(config, "text", "color", "inactive"));
-
-        /*ImGui::PushStyleColor(
-          ImGuiCol_Text,
-          Color{
-            load_json<float>(config, "text", "color", "inactive", "red"),
-            load_json<float>(config, "text", "color", "inactive", "green"),
-            load_json<float>(config, "text", "color", "inactive", "blue"),
-            load_json<float>(config, "text", "color", "inactive", "transparency")});
-        */
         ImGui::Button("Analyse Data", ImVec2(load_json<Size>(config, "button")));
-        ImGui::PushStyleColor(
-          ImGuiCol_Text,
-          ImVec4(load_json<Color>(config, "text", "color", "normal")));
+        ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
         ImGui::SameLine();
         ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")));
         ImGui::SameLine();
@@ -569,57 +555,6 @@ int main() {
         }
         ImGui::EndChild();
         ImGui::End();
-        if(savecontext == true) {
-            ImGui::SetNextWindowPos(ImVec2(0.0f, 20.0f));
-            ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-            ImGui::Begin(
-              "Savecontext",
-              nullptr,
-              ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
-                | ImGuiWindowFlags_NoMove);
-
-            static char inputfin[18] = "";
-            static char mileage[10]  = "";
-
-            ImGui::SetItemDefaultFocus();
-            ImGui::InputText(
-              load_json<std::string>(language, "input", "fin", "label").c_str(),
-              inputfin,
-              sizeof(inputfin));
-            ImGui::InputText(
-              load_json<std::string>(language, "input", "mileage", "label").c_str(),
-              mileage,
-              sizeof(mileage));
-
-            if(ImGui::Button(
-                 load_json<std::string>(language, "button", "save").c_str(),
-                 ImVec2(load_json<Size>(config, "button"))))
-            {
-                now = std::chrono::system_clock::now();
-
-                now_time_t = std::chrono::system_clock::to_time_t(now);
-                now_tm     = *std::gmtime(&now_time_t);
-
-                std::string_view path_sv{path.data()};
-
-                std::string filename{fmt::format("{:%Y-%m-%dT%H:%M:%S_%z_%Z}.csv", now)};
-
-                std::filesystem::path path_path = path_sv;
-
-                save(captureData, path_path / filename);
-                savedFileNames.emplace_back(
-                  path_path.string(),
-                  fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
-                savecontext = false;
-            }
-            ImGui::SameLine();
-            if(ImGui::Button(
-                 load_json<std::string>(language, "button", "back").c_str(),
-                 ImVec2(load_json<Size>(config, "button"))))
-            {
-                savecontext = false;
-            }
-        }
 
         ImGui::End();
     };
