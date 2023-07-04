@@ -15,6 +15,27 @@
 
 const std::string configpath = "../config/config.json";
 
+struct Color : ImVec4 {
+    using ImVec4::ImVec4;
+};
+using json = nlohmann::json;
+
+void to_json(nlohmann::json& j, Color const& c) {
+    j = nlohmann::json{
+      {         "red", c.x},
+      {       "green", c.y},
+      {        "blue", c.z},
+      {"transparency", c.w}
+    };
+}
+
+void from_json(nlohmann::json const& j, Color& c) {
+    j.at("red").get_to(c.x);
+    j.at("green").get_to(c.y);
+    j.at("blue").get_to(c.z);
+    j.at("transparency").get_to(c.w);
+}
+
 nlohmann::json load_json_file(std::string const& path) {
     std::ifstream  json_file(path);
     nlohmann::json return_json;
@@ -117,25 +138,13 @@ static void save(
 void set_button_style_to(nlohmann::json const& config, std::string const& name) {
     ImGui::PushStyleColor(
       ImGuiCol_Button,
-      ImVec4(
-        load_json<float>(config, "button", name, "normal", "red"),
-        load_json<float>(config, "button", name, "normal", "green"),
-        load_json<float>(config, "button", name, "normal", "blue"),
-        load_json<float>(config, "button", name, "normal", "transparency")));
+      ImVec4(load_json<Color>(config, "button", name, "normal")));
     ImGui::PushStyleColor(
       ImGuiCol_ButtonHovered,
-      ImVec4(
-        load_json<float>(config, "button", name, "hover", "red"),
-        load_json<float>(config, "button", name, "hover", "green"),
-        load_json<float>(config, "button", name, "hover", "blue"),
-        load_json<float>(config, "button", name, "hover", "transparency")));
+      ImVec4(load_json<Color>(config, "button", name, "hover")));
     ImGui::PushStyleColor(
       ImGuiCol_ButtonActive,
-      ImVec4(
-        load_json<float>(config, "button", name, "active", "red"),
-        load_json<float>(config, "button", name, "active", "green"),
-        load_json<float>(config, "button", name, "active", "blue"),
-        load_json<float>(config, "button", name, "active", "transparency")));
+      ImVec4(load_json<Color>(config, "button", name, "active")));
 }
 
 int main() {
@@ -267,33 +276,17 @@ int main() {
         ImGui::SetWindowFontScale(load_json<float>(config, "text", "scale"));
         ImGui::PushStyleColor(
           ImGuiCol_MenuBarBg,
-          ImVec4(
-            load_json<float>(config, "menubar", "main", "red"),
-            load_json<float>(config, "menubar", "main", "green"),
-            load_json<float>(config, "menubar", "main", "blue"),
-            load_json<float>(config, "menubar", "main", "transparency")));
+          ImVec4(load_json<Color>(config, "menubar", "main")));
         ImGui::PushStyleColor(
           ImGuiCol_PopupBg,
-          ImVec4(
-            load_json<float>(config, "menubar", "popup", "red"),
-            load_json<float>(config, "menubar", "popup", "green"),
-            load_json<float>(config, "menubar", "popup", "blue"),
-            load_json<float>(config, "menubar", "popup", "transparency")));
+          ImVec4(load_json<Color>(config, "menubar", "popup")));
         ImGui::PushStyleColor(
           ImGuiCol_Text,
-          ImVec4(
-            load_json<float>(config, "text", "color", "normal", "red"),
-            load_json<float>(config, "text", "color", "normal", "green"),
-            load_json<float>(config, "text", "color", "normal", "blue"),
-            load_json<float>(config, "text", "color", "normal", "transparency")));
+          ImVec4(load_json<Color>(config, "text", "color", "normal")));
         ImGui::PushStyleColor(
           ImGuiCol_WindowBg,
-          ImVec4(
-            load_json<float>(config, "window", "color", "red"),
-            load_json<float>(config, "window", "color", "green"),
-            load_json<float>(config, "window", "color", "blue"),
-            load_json<float>(config, "window", "color", "transparency")));
-        set_button_style_to(config, "stop");
+          ImVec4(load_json<Color>(config, "window", "color")));
+        set_button_style_to(config, "standart");
 
         ImGui::BeginMainMenuBar();
         if(ImGui::BeginMenu(load_json<std::string>(language, "menubar", "menu", "label").c_str())) {
@@ -391,6 +384,7 @@ int main() {
         ImGui::BeginChild("Buttonstripe", ImVec2(-1, 40));
         if(paused == true) {
             set_button_style_to(config, "start");
+
             if(ImGui::Button(
                  "Start",
                  ImVec2(
@@ -424,11 +418,17 @@ int main() {
         ImGui::SameLine();
         ImGui::PushStyleColor(
           ImGuiCol_Text,
-          ImVec4(
+
+          load_json<Color>(config, "text", "color", "inactive"));
+
+        /*ImGui::PushStyleColor(
+          ImGuiCol_Text,
+          Color{
             load_json<float>(config, "text", "color", "inactive", "red"),
             load_json<float>(config, "text", "color", "inactive", "green"),
             load_json<float>(config, "text", "color", "inactive", "blue"),
-            load_json<float>(config, "text", "color", "inactive", "transparency")));
+            load_json<float>(config, "text", "color", "inactive", "transparency")});
+        */
         ImGui::Button(
           "Analyse Data",
           ImVec2(
@@ -436,11 +436,7 @@ int main() {
             load_json<int>(config, "button", "sizey")));
         ImGui::PushStyleColor(
           ImGuiCol_Text,
-          ImVec4(
-            load_json<float>(config, "text", "color", "normal", "red"),
-            load_json<float>(config, "text", "color", "normal", "green"),
-            load_json<float>(config, "text", "color", "normal", "blue"),
-            load_json<float>(config, "text", "color", "normal", "transparency")));
+          ImVec4(load_json<Color>(config, "text", "color", "normal")));
         ImGui::SameLine();
         ImGui::Button(
           "Create Training Data",
