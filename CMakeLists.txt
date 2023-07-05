@@ -19,3 +19,6 @@ target_link_libraries(OmniView PUBLIC fmt::fmt)
 
 find_package(Boost REQUIRED)
 target_link_libraries(OmniView PUBLIC Boost::boost)
+
+find_package(CURL REQUIRED)
+target_link_libraries(OmniView PUBLIC curl)

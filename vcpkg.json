@@ -13,6 +13,7 @@
         "boost-crc",
         "boost-asio",
         "boost-core",
-		"nlohmann-json"
+		"nlohmann-json",
+		"curl"
 	]
 }

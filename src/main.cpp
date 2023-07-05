@@ -3,6 +3,7 @@
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <algorithm>
 #include <boost/asio.hpp>
+#include <curl/curl.h>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -12,7 +13,6 @@
 #include <nlohmann/json_fwd.hpp>
 #include <set>
 #include <thread>
-
 const std::string configpath = "../config/config.json";
 
 struct Color : ImVec4 {
@@ -158,6 +158,65 @@ void set_button_style_to(nlohmann::json const& config, std::string const& name) 
     ImGui::PushStyleColor(
       ImGuiCol_ButtonActive,
       ImVec4(load_json<Color>(config, "button", name, "active")));
+}
+
+//template<typename T>
+bool send_to_api(
+  nlohmann::json const& config,
+  std::string const&    file,
+  std::string const&    vin,
+  std::string const&    scantype) {
+    CURL*    curl;
+    CURLcode res;
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+
+    if(curl) {
+        std::string url = "postapi.aw4null.de";
+
+        // Erstellung des POST-Request
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+        // Hinzufügen der Daten als Formfelder
+        curl_mime*     mime;
+        curl_mimepart* part;
+
+        mime = curl_mime_init(curl);
+
+        // String 1
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "vin");
+        curl_mime_data(part, vin.c_str(), CURL_ZERO_TERMINATED);
+
+        // String 2
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "scan_type");
+        curl_mime_data(part, scantype.c_str(), CURL_ZERO_TERMINATED);
+
+        // Datei
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "file");
+        curl_mime_filedata(part, file.c_str());
+
+        curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
+
+        // Senden der Anfrage
+        res = curl_easy_perform(curl);
+
+        // Überprüfung auf Fehler
+        if(res != CURLE_OK)
+            fmt::print("Fehler beim Hochladen der Datei:{}\n\r ", curl_easy_strerror(res));
+
+        // Aufräumen
+        curl_easy_cleanup(curl);
+    }
+
+    // Aufräumen von cURL
+    curl_global_cleanup();
+
+    return false;
 }
 
 int main() {
@@ -397,18 +456,18 @@ int main() {
         if(ImGui::BeginPopupModal("savetofile", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetItemDefaultFocus();
 
-            static char inputfin[18]  = "";
+            static char inputvin[18]  = "";
             static char mileage[10]   = "";
             static char scantype[255] = "";
             ImGui::SetItemDefaultFocus();
             ImGui::InputText(
               load_json<std::string>(language, "input", "fin", "label").c_str(),
-              inputfin,
-              sizeof(inputfin));
-            ImGui::InputText(
+              inputvin,
+              sizeof(inputvin));
+            /*ImGui::InputText(
               load_json<std::string>(language, "input", "mileage", "label").c_str(),
               mileage,
-              sizeof(mileage));
+              sizeof(mileage));*/
             ImGui::InputText(
               load_json<std::string>(language, "input", "scantype", "label").c_str(),
               scantype,
@@ -436,6 +495,8 @@ int main() {
                     savedFileNames.emplace_back(
                       path_path.string(),
                       fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
+
+                    send_to_api(config, path_path / filename, inputvin, scantype);
                     ImGui::CloseCurrentPopup();
                 }
             }
