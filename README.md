@@ -11,3 +11,27 @@ Die konkreten Entwicklungsschritte werden im [https://github.com/orgs/skunkforce
 Auf [https://moodle.aw4null.de/](unserer Lernplattform) finden sich weitere Hilfen und Ressourcen zum aw4null Projekt. Ansprechpartner ist @wasilina83 
 
 ## Teilnehmen und Mitarbeiten
+
+
+## Buildprozess
+-installiere vcpkg
+
+-ins OmniView Verzeichnis wechseln
+
+-submodule updaten und initalisieren:
+`git submodule update --init --recursive`
+
+-buildordner erstellen:
+`mkdir build`
+
+-in den buildorner navigieren:
+`cd build`
+
+-cmake ausführen mit dem pfad zu vcpgk:
+`cmake .. -DCMAKE_TOOLCHAIN_FILE=<vcpk_root>/scripts/buildsystems/vcpkg.cmake`
+
+-make ausführen:
+`make`
+
+-fertig
+
