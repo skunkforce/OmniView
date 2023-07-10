@@ -13,7 +13,7 @@ Auf [https://moodle.aw4null.de/](unserer Lernplattform) finden sich weitere Hilf
 ## Teilnehmen und Mitarbeiten
 
 
-## Buildprozess
+## Buildprozess Linux
 -installiere vcpkg
 
 -ins OmniView Verzeichnis wechseln
