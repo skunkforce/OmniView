@@ -8,7 +8,7 @@ Der Prototype wird kontinuierlich geupdated und soll das Entwicklungsergebnis vi
 Die konkreten Entwicklungsschritte werden im [https://github.com/orgs/skunkforce/projects/1](Projektplan) festgehalten, welcher von @markuskae gepflegt wird.
 
 ## Hilfe und Onboarding
-Auf [https://moodle.aw4null.de/](unserer Lernplattform) finden sich weitere Hilfen und Ressourcen zum aw4null Projekt. Ansprechpartner ist @wasilina83 
+Auf [ https://moodle.aw4null.de/ ](unserer Lernplattform) finden sich weitere Hilfen und Ressourcen zum aw4null Projekt. Ansprechpartner ist @wasilina83 
 
 ## Teilnehmen und Mitarbeiten
 
