@@ -13,6 +13,10 @@
 #include <nlohmann/json_fwd.hpp>
 #include <set>
 #include <thread>
+// clang-format off
+#include <imfilebrowser.h>
+// clang-format on
+
 const std::string configpath = "../config/config.json";
 
 struct Color : ImVec4 {
@@ -544,7 +548,22 @@ int main() {
         ImGui::Button("Analyse Data", ImVec2(load_json<Size>(config, "button")));
         ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
         ImGui::SameLine();
-        ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")));
+        ImGui::FileBrowser fileBrowser;
+        if(ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")))) {
+            fileBrowser.Open();
+        }
+
+        fileBrowser.Display();
+        if(fileBrowser.HasSelected()) {
+            // Hier kannst du auf die ausgewählten Dateien zugreifen
+            for(const auto& selectedFile : fileBrowser.GetSelected()) {
+                std::string filename = selectedFile.string();
+                // Verarbeite die ausgewählte Datei
+                // ...
+            }
+
+            fileBrowser.ClearSelected();
+        }
         ImGui::SameLine();
         if(ImGui::Button("Refresh Devicelist", ImVec2(load_json<Size>(config, "button")))) {
             newDevices = Omniscope::queryDevices();

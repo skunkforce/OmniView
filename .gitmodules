@@ -7,3 +7,6 @@
 [submodule "ImGuiInstance"]
 	path = ImGuiInstance
 	url = https://github.com/skunkforce/ImGuiInstance.git
+[submodule "imgui-filebrowser"]
+	path = imgui-filebrowser
+	url = https://github.com/AirGuanZ/imgui-filebrowser.git

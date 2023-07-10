@@ -22,3 +22,12 @@ target_link_libraries(OmniView PUBLIC Boost::boost)
 
 find_package(CURL REQUIRED)
 target_link_libraries(OmniView PUBLIC curl)
+
+set(IMGUI_FILEBROWSER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui-filebrowser)
+
+add_library(imgui-filebrowser INTERFACE)
+target_include_directories(imgui-filebrowser INTERFACE ${IMGUI_FILEBROWSER_INCLUDE_DIR})
+
+target_link_libraries(OmniView PUBLIC imgui-filebrowser)
+
+
