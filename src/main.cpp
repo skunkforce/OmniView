@@ -166,6 +166,7 @@ bool send_to_api(
   std::string const&    file,
   std::string const&    vin,
   std::string const&    scantype) {
+    fmt::print("send to api\n\r");
     CURL*    curl;
     CURLcode res;
 
@@ -173,49 +174,51 @@ bool send_to_api(
     curl = curl_easy_init();
 
     if(curl) {
-        std::string url = "postapi.aw4null.de";
+        std::string url
+          = "https://postapi.aw4null.de/v1/uploadFile/?vin=" + vin + "&scan_type=" + scantype;
 
-        // Erstellung des POST-Request
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        fmt::print("url: {}\n\r", url);
 
         // Hinzufügen der Daten als Formfelder
-        curl_mime*     mime;
+        curl_mime*     mime = curl_mime_init(curl);
         curl_mimepart* part;
-
-        mime = curl_mime_init(curl);
-
-        // String 1
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "vin");
-        curl_mime_data(part, vin.c_str(), CURL_ZERO_TERMINATED);
-
-        // String 2
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "scan_type");
-        curl_mime_data(part, scantype.c_str(), CURL_ZERO_TERMINATED);
+        fmt::print("mime init\n\r");
 
         // Datei
+
         part = curl_mime_addpart(mime);
         curl_mime_name(part, "file");
         curl_mime_filedata(part, file.c_str());
 
+        struct curl_slist* header_list = NULL;
+        header_list = curl_slist_append(header_list, "Content-Type: multipart/form-data");
+        header_list = curl_slist_append(header_list, "Accept: application/json");
+
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header_list);
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
 
         // Senden der Anfrage
+        fmt::print("senden der Anfrage\n\r");
         res = curl_easy_perform(curl);
 
         // Überprüfung auf Fehler
+        fmt::print("prüfe auf fehler\n\r");
         if(res != CURLE_OK)
             fmt::print("Fehler beim Hochladen der Datei:{}\n\r ", curl_easy_strerror(res));
 
         // Aufräumen
         curl_easy_cleanup(curl);
+        curl_slist_free_all(header_list);
+    } else {
+        fmt::print("senden erfoldgreich\n\r");
     }
 
     // Aufräumen von cURL
-    curl_global_cleanup();
 
+    curl_global_cleanup();
+    fmt::print("schließe send to api\n\r");
     return false;
 }
 
