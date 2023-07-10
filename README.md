@@ -14,24 +14,25 @@ Auf [https://moodle.aw4null.de/](unserer Lernplattform) finden sich weitere Hilf
 
 
 ## Buildprozess Linux
--installiere vcpkg
+installiere vcpkg
 
--ins OmniView Verzeichnis wechseln
+ins OmniView Verzeichnis wechseln
 
--submodule updaten und initalisieren:
+submodule updaten und initalisieren:
 `git submodule update --init --recursive`
 
 -buildordner erstellen:
 `mkdir build`
 
--in den buildorner navigieren:
+in den buildordner navigieren:
 `cd build`
 
--cmake ausführen mit dem pfad zu vcpgk:
+cmake ausführen mit dem pfad zu vcpgk:
 `cmake .. -DCMAKE_TOOLCHAIN_FILE=<vcpk_root>/scripts/buildsystems/vcpkg.cmake`
 
--make ausführen:
+make ausführen:
 `make`
 
--fertig
+OmniView ausführen:
+`./OmniView`
 
