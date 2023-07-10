@@ -3,6 +3,15 @@
     "language": "Deutsch",
     "languagepath" : "../languages/",
 
+    "api":{
+        "url":"https://postapi.aw4null.de/v1/uploadFile/",
+        "header1":"Content-Type: multipart/form-data",
+        "header2":"Accept: application/json",
+        "input1":"vin",
+        "input2":"scan_type"
+
+
+    },
     "button": {
         "stop": {
             "active": {

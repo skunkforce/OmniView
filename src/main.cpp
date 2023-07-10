@@ -174,8 +174,9 @@ bool send_to_api(
     curl = curl_easy_init();
 
     if(curl) {
-        std::string url
-          = "https://postapi.aw4null.de/v1/uploadFile/?vin=" + vin + "&scan_type=" + scantype;
+        std::string url = load_json<std::string>(config, "api", "url") + "?"
+                        + load_json<std::string>(config, "api", "input1") + "=" + vin + "&"
+                        + load_json<std::string>(config, "api", "input2") + "=" + scantype;
 
         fmt::print("url: {}\n\r", url);
 
@@ -191,12 +192,16 @@ bool send_to_api(
         curl_mime_filedata(part, file.c_str());
 
         struct curl_slist* header_list = NULL;
-        header_list = curl_slist_append(header_list, "Content-Type: multipart/form-data");
-        header_list = curl_slist_append(header_list, "Accept: application/json");
+        header_list                    = curl_slist_append(
+          header_list,
+          load_json<std::string>(config, "api", "header1").c_str());
+        header_list = curl_slist_append(
+          header_list,
+          load_json<std::string>(config, "api", "header2").c_str());
 
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header_list);
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
 
         // Senden der Anfrage
