@@ -539,15 +539,10 @@ int main() {
         }
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-
-        ImGui::Button("Analyse Data", ImVec2(load_json<Size>(config, "button")));
-        ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
-        ImGui::SameLine();
         ImGui::FileBrowser fileBrowser;
-        if(ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")))) {
+        if(ImGui::Button("Analyse Data", ImVec2(load_json<Size>(config, "button")))) {
             fileBrowser.Open();
         }
-
         fileBrowser.Display();
         if(fileBrowser.HasSelected()) {
             // Hier kannst du auf die ausgewählten Dateien zugreifen
@@ -559,6 +554,12 @@ int main() {
 
             fileBrowser.ClearSelected();
         }
+        ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
+        ImGui::SameLine();
+
+        if(ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")))) {
+        }
+
         ImGui::SameLine();
         if(ImGui::Button("Refresh Devicelist", ImVec2(load_json<Size>(config, "button")))) {
             newDevices = Omniscope::queryDevices();
