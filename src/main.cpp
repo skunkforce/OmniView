@@ -170,7 +170,6 @@ bool send_to_api(
   std::string const&    file,
   std::string const&    vin,
   std::string const&    scantype) {
-    fmt::print("send to api\n\r");
     CURL*    curl;
     CURLcode res;
 
@@ -182,12 +181,9 @@ bool send_to_api(
                         + load_json<std::string>(config, "api", "input1") + "=" + vin + "&"
                         + load_json<std::string>(config, "api", "input2") + "=" + scantype;
 
-        fmt::print("url: {}\n\r", url);
-
         // Hinzufügen der Daten als Formfelder
         curl_mime*     mime = curl_mime_init(curl);
         curl_mimepart* part;
-        fmt::print("mime init\n\r");
 
         // Datei
 
@@ -209,11 +205,11 @@ bool send_to_api(
         curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
 
         // Senden der Anfrage
-        fmt::print("senden der Anfrage\n\r");
+
         res = curl_easy_perform(curl);
 
         // Überprüfung auf Fehler
-        fmt::print("prüfe auf fehler\n\r");
+
         if(res != CURLE_OK)
             fmt::print("Fehler beim Hochladen der Datei:{}\n\r ", curl_easy_strerror(res));
 
@@ -221,13 +217,12 @@ bool send_to_api(
         curl_easy_cleanup(curl);
         curl_slist_free_all(header_list);
     } else {
-        fmt::print("senden erfoldgreich\n\r");
     }
 
     // Aufräumen von cURL
 
     curl_global_cleanup();
-    fmt::print("schließe send to api\n\r");
+
     return false;
 }
 
