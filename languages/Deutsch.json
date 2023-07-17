@@ -9,7 +9,9 @@
         "label":"Laufleistung in km"
       },
       "scantype":{
-        "label":"Messung"}
+        "label":"Messung"},
+        "comment":{"label":"Kommentar"}
+
     },
 
   "button":
