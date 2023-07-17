@@ -564,6 +564,7 @@ int main() {
 
         ImGui::EndChild();
         ImGui::BeginChild("Buttonstripe", ImVec2(-1, 40));
+
         if(ImGui::BeginPopupModal("savetofile", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetItemDefaultFocus();
 
@@ -644,7 +645,8 @@ int main() {
         ImGui::SameLine();
         if(ImGui::Button("Save to File", ImVec2(load_json<Size>(config, "button")))) {
             //savecontext = true;//Opens new overlay
-            ImGui::OpenPopup("savetofile");
+
+            //ImGui::OpenPopup("savetofile");
         }
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
