@@ -1,4 +1,4 @@
-{   
+{
   "input":{
       "fin":{
         "label":"Fahrzeugidentnummer",
@@ -23,13 +23,17 @@
     "ok":"ok"
   },
  
-
+  "settings":{
+    "title":"Einstellungen",
+    "fontsize":"Schriftgröße"
+  },
   "menubar":{
     "menu":{
     "label":"Menü",
     "cleardata":"Lösche gespeicherte Datein",
     "clearcapture":"Lösche Aufzeichnung",
     "reset":"reset",
+    "settings":"Einstellungen",
     "language_option":"Sprachoptionen",
     "language":"Sprachen"},
 

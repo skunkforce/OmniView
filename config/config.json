@@ -1,4 +1,5 @@
 {
+
     "title":"Omniview 0.1",
     "language": "Deutsch",
     "languagepath" : "../languages/",
@@ -105,6 +106,7 @@
     "text":{
         "font":"comicsans",
         "scale":3.0,
+        "minscale":1.0,
         "color":{
             "normal":{
             "red":0.1,

@@ -332,7 +332,30 @@ void popup_create_training_data_compression(
     ImGui::Columns(1);
     ImGui::EndChild();
 }
+void popup_settings(nlohmann::json& config, nlohmann::json& language) {
+    static float fontscale;
+    if(fontscale < load_json<float>(config, "text", "minscale")) {
+        fontscale = load_json<float>(config, "text", "scale");
+    }
+    ImGui::SetWindowFontScale(fontscale);
 
+    ImGui::Text(load_json<std::string>(language, "settings", "fontsize").c_str());
+    ImGui::SameLine();
+    if(ImGui::Button("+")) {
+        fontscale += 0.1f;
+    }
+    ImGui::SameLine();
+    if(ImGui::Button("-")) {
+        fontscale -= 0.1f;
+    }
+    if(ImGui::Button(load_json<std::string>(language, "button", "save").c_str())) {
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::SameLine();
+    if(ImGui::Button(load_json<std::string>(language, "button", "back").c_str())) {
+        ImGui::CloseCurrentPopup();
+    }
+}
 /*
 ###########################################################################
 ############# INT MAIN BEGINN #############################################
@@ -361,10 +384,10 @@ int main() {
     std::time_t now_time_t     = std::chrono::system_clock::to_time_t(now);
     std::tm     now_tm         = *std::gmtime(&now_time_t);
 
-    double xmax_paused{0};
-
-    bool captureWindowOpen = true;
-    bool paused            = false;
+    double      xmax_paused{0};
+    static bool open_settings     = false;
+    bool        captureWindowOpen = true;
+    bool        paused            = false;
 
     std::map<Omniscope::Device, std::vector<std::pair<double, double>>> captureData;
 
@@ -493,7 +516,11 @@ int main() {
 
                 ImGui::EndMenu();
             }
-
+            if(ImGui::MenuItem(
+                 load_json<std::string>(language, "menubar", "menu", "settings").c_str()))
+            {
+                open_settings = true;
+            }
             if(ImGui::MenuItem(
                  load_json<std::string>(language, "menubar", "menu", "cleardata").c_str()))
             {
@@ -680,7 +707,20 @@ int main() {
         }
         ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
         ImGui::SameLine();
-
+        std::string settingstitle = load_json<std::string>(language, "settings", "title");
+        if(open_settings == true) {
+            ImGui::OpenPopup(settingstitle.c_str());
+            open_settings = false;
+        }
+        if(ImGui::BeginPopupModal(
+             settingstitle.c_str(),
+             nullptr,
+             ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::SetItemDefaultFocus();
+            popup_settings(config, language);
+            ImGui::EndPopup();
+        }
         if(ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")))) {
             ImGui::OpenPopup("createtrainingdata");
         }
