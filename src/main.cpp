@@ -226,14 +226,22 @@ bool send_to_api(
     return false;
 }
 
-void create_training_data_compression(
+void popup_create_training_data_compression(
   nlohmann::json const& config,
   nlohmann::json const& language) {
     static ImGui::FileBrowser fileBrowser;
     static ImGui::FileBrowser fileBrowser2;
-    static char               inputvin[18]  = "";
-    static char               mileage[10]   = "";
-    static char               comment[1000] = "";
+    static bool               first_job = true;
+
+    if(first_job) {
+        fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
+        fileBrowser2.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
+        first_job = false;
+    }
+
+    static char inputvin[18]  = "";
+    static char mileage[10]   = "";
+    static char comment[1000] = "";
     ImGui::SetItemDefaultFocus();
     ImGui::BeginChild("trainingleft", ImVec2(500, 300));
     ImGui::Text("stammdaten");
@@ -269,6 +277,7 @@ void create_training_data_compression(
     ImGui::SameLine();
 
     ImGui::BeginChild("trainingright", ImVec2(500, 300));
+
     static float z1, z2, z3, z4;
     static char  path1[255];
     static char  path2[255];
@@ -576,10 +585,10 @@ int main() {
               load_json<std::string>(language, "input", "fin", "label").c_str(),
               inputvin,
               sizeof(inputvin));
-            /*ImGui::InputText(
+            ImGui::InputText(
               load_json<std::string>(language, "input", "mileage", "label").c_str(),
               mileage,
-              sizeof(mileage));*/
+              sizeof(mileage));
             ImGui::InputText(
               load_json<std::string>(language, "input", "scantype", "label").c_str(),
               scantype,
@@ -595,20 +604,24 @@ int main() {
                 now_tm     = *std::gmtime(&now_time_t);
 
                 std::string_view path_sv{path.data()};
-
-                std::string filename{fmt::format("{:%Y-%m-%dT%H:%M:%S_%z_%Z}.csv", now)};
-
+                std::string      filename{fmt::format("{}-{:%Y-%m-%dT%H:%M}.csv", mileage, now)};
                 std::filesystem::path path_path = path_sv;
                 if(captureData.empty()) {
                     ImGui::CloseCurrentPopup();
                 } else {
-                    save(captureData, path_path / filename);
+                    // create the given folder_structure
+                    std::filesystem::path first_folder
+                      = load_json<std::filesystem::path>(config, "scanfolder");
+                    std::filesystem::path complete_path = first_folder / inputvin / scantype;
+                    std::filesystem::create_directories(complete_path);
+
+                    save(captureData, path_path / complete_path / filename);
 
                     savedFileNames.emplace_back(
                       path_path.string(),
                       fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
 
-                    send_to_api(config, path_path / filename, inputvin, scantype);
+                    //send_to_api(config, path_path / filename, inputvin, scantype);
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -625,7 +638,7 @@ int main() {
         if(ImGui::BeginPopupModal("createtrainingdata", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::SetItemDefaultFocus();
-            create_training_data_compression(config, language);
+            popup_create_training_data_compression(config, language);
             ImGui::EndPopup();
         }
         if(paused == true) {
@@ -646,7 +659,7 @@ int main() {
         if(ImGui::Button("Save to File", ImVec2(load_json<Size>(config, "button")))) {
             //savecontext = true;//Opens new overlay
 
-            //ImGui::OpenPopup("savetofile");
+            ImGui::OpenPopup("savetofile");
         }
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));

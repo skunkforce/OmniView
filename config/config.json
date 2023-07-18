@@ -2,7 +2,7 @@
     "title":"Omniview 0.1",
     "language": "Deutsch",
     "languagepath" : "../languages/",
-
+    "scanfolder":"../saves",
     "api":{
         "url":"https://postapi.aw4null.de/v1/uploadFile/",
         "header1":"Content-Type: multipart/form-data",
