@@ -332,28 +332,60 @@ void popup_create_training_data_compression(
     ImGui::Columns(1);
     ImGui::EndChild();
 }
-void popup_settings(nlohmann::json& config, nlohmann::json& language) {
-    static float fontscale;
-    if(fontscale < load_json<float>(config, "text", "minscale")) {
-        fontscale = load_json<float>(config, "text", "scale");
-    }
-    ImGui::SetWindowFontScale(fontscale);
+void load_settings(nlohmann::json const& config) {
+    ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(load_json<Color>(config, "menubar", "main")));
+    ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(load_json<Color>(config, "menubar", "popup")));
+    ImGui::PushStyleColor(
+      ImGuiCol_Text,
+      ImVec4(load_json<Color>(config, "text", "color", "normal")));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(load_json<Color>(config, "window", "color")));
 
-    ImGui::Text(load_json<std::string>(language, "settings", "fontsize").c_str());
+    set_button_style_to(config, "standart");
+
+    ImGuiIO& io        = ImGui::GetIO();
+    io.FontGlobalScale = load_json<float>(config, "text", "scale");
+}
+
+void popup_settings(nlohmann::json& config, nlohmann::json& language) {
+    static float          fontscale;
+    static nlohmann::json newconfig = 0;
+    if(newconfig == 0) {
+        newconfig = config;
+    }
+    if(fontscale < load_json<float>(newconfig, "text", "minscale")) {
+        fontscale = load_json<float>(newconfig, "text", "scale");
+    }
+    ImGuiIO& io                 = ImGui::GetIO();
+    io.FontGlobalScale          = fontscale;
+    std::string fontscalestring = fmt::format(
+      "{} {:.1f}",
+      load_json<std::string>(language, "settings", "fontsize"),
+      fontscale);
+    ImGui::Text(fontscalestring.c_str());
     ImGui::SameLine();
     if(ImGui::Button("+")) {
         fontscale += 0.1f;
+        newconfig["text"]["scale"] = fontscale;
     }
     ImGui::SameLine();
     if(ImGui::Button("-")) {
         fontscale -= 0.1f;
+        newconfig["text"]["scale"] = fontscale;
     }
+
     if(ImGui::Button(load_json<std::string>(language, "button", "save").c_str())) {
+        write_json_file(configpath, newconfig);
+        config = newconfig;
         ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
-    if(ImGui::Button(load_json<std::string>(language, "button", "back").c_str())) {
+    if(ImGui::Button(load_json<std::string>(language, "button", "cancel").c_str())) {
         ImGui::CloseCurrentPopup();
+    }
+    ImGui::SameLine();
+    if(ImGui::Button(load_json<std::string>(language, "button", "restore").c_str())) {
+        newconfig = config;
+        fontscale = load_json<float>(newconfig, "text", "scale");
     }
 }
 /*
@@ -487,20 +519,7 @@ int main() {
         };
 
     auto render = [&]() {
-        ImGui::SetWindowFontScale(load_json<float>(config, "text", "scale"));
-        ImGui::PushStyleColor(
-          ImGuiCol_MenuBarBg,
-          ImVec4(load_json<Color>(config, "menubar", "main")));
-        ImGui::PushStyleColor(
-          ImGuiCol_PopupBg,
-          ImVec4(load_json<Color>(config, "menubar", "popup")));
-        ImGui::PushStyleColor(
-          ImGuiCol_Text,
-          ImVec4(load_json<Color>(config, "text", "color", "normal")));
-        ImGui::PushStyleColor(
-          ImGuiCol_WindowBg,
-          ImVec4(load_json<Color>(config, "window", "color")));
-        set_button_style_to(config, "standart");
+        load_settings(config);
 
         ImGui::BeginMainMenuBar();
         if(ImGui::BeginMenu(load_json<std::string>(language, "menubar", "menu", "label").c_str())) {

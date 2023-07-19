@@ -20,7 +20,9 @@
     "send":"senden",
     "measure":"messen",
     "back":"zurück",
-    "ok":"ok"
+    "cancel":"abbrechen",
+    "ok":"ok",
+    "restore":"zurücksetzen"
   },
  
   "settings":{
