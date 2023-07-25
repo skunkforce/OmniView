@@ -1,0 +1,82 @@
+name: C++ CI
+
+on: [push]
+
+jobs:
+  build:
+    name: ${{ matrix.os }}-${{ github.workflow }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            triplet: x64-windows
+          - os: ubuntu-latest
+            triplet: x64-linux
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      VCPKG_BINARY_SOURCES: 'default'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: setup
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler }}
+          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
+          cmake: true
+
+      - name: install deps
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        with:
+          packages: libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
+          version: 1.0
+
+      - name: get vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: vcpkg.json
+          vcpkgGitCommitId: 'a7b6122f6b6504d16d96117336a0562693579933'
+
+      # On Windows runners, let's ensure to have the Developer Command Prompt environment setup correctly.
+      # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: CMake configure
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        run: cmake -S . -B ./build -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE="Release"
+
+      - name: build
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        run: cmake --build ./build
+
+      - name: vcpkg init baseline
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        run: vcpkg x-update-baseline --add-initial-baseline
+
+      - name: CMake configure
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        run: cmake -S . -B ./build -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET="x64-windows-static"
+
+      - name: build
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        run: cmake --build ./build --config Release
+
+      - name: upload executable (Linux)
+        uses: actions/upload-artifact@v3
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        with:
+          name: executable-linux
+          path: build/OmniscopeGui
+
+      - name: upload executable (Windows)
+        uses: actions/upload-artifact@v3
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        with:
+          name: executable-windows
+          path: build/Release/OmniscopeGui.exe
