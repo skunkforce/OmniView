@@ -15,7 +15,7 @@ add_subdirectory(aglio)
 target_link_libraries(OmniView PUBLIC aglio::aglio)
 
 find_package(fmt CONFIG REQUIRED)
-target_link_libraries(OmniView PUBLIC fmt::fmt)
+target_link_libraries(OmniView PUBLIC fmt::fmt-header-only)
 
 find_package(Boost REQUIRED)
 target_link_libraries(OmniView PUBLIC Boost::boost)
