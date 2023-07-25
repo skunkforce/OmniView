@@ -21,7 +21,7 @@ find_package(Boost REQUIRED)
 target_link_libraries(OmniView PUBLIC Boost::boost)
 
 find_package(CURL REQUIRED)
-target_link_libraries(OmniView PUBLIC curl)
+target_link_libraries(OmniView PUBLIC ${CURL_LIBRARY})
 
 set(IMGUI_FILEBROWSER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui-filebrowser)
 
@@ -30,4 +30,5 @@ target_include_directories(imgui-filebrowser INTERFACE ${IMGUI_FILEBROWSER_INCLU
 
 target_link_libraries(OmniView PUBLIC imgui-filebrowser)
 
-
+target_compile_definitions(OmniView PUBLIC BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
+target_compile_features(OmniView PUBLIC cxx_std_20)

@@ -693,13 +693,15 @@ int main() {
             if(ImGui::Button("Start", ImVec2(load_json<Size>(config, "button")))) {
                 paused = false;
             }
-            set_button_style_to(config, "standart");
+            ImGui::PopStyleColor(3);
+            //set_button_style_to(config, "standart");
         } else {
             set_button_style_to(config, "stop");
             if(ImGui::Button("Stop", ImVec2(load_json<Size>(config, "button")))) {
                 paused = true;
             }
-            set_button_style_to(config, "standart");
+            ImGui::PopStyleColor(3);
+            //set_button_style_to(config, "standart");
         }
         ImGui::SameLine();
         if(ImGui::Button("Save to File", ImVec2(load_json<Size>(config, "button")))) {
@@ -724,6 +726,7 @@ int main() {
 
             fileBrowser.ClearSelected();
         }
+        ImGui::PopStyleColor();
         ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
         ImGui::SameLine();
         std::string settingstitle = load_json<std::string>(language, "settings", "title");
@@ -743,14 +746,14 @@ int main() {
         if(ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")))) {
             ImGui::OpenPopup("createtrainingdata");
         }
-
+        ImGui::PopStyleColor();
         ImGui::SameLine();
         if(ImGui::Button("Refresh Devicelist", ImVec2(load_json<Size>(config, "button")))) {
             newDevices = Omniscope::queryDevices();
         }
 
         ImGui::EndChild();
-
+        
         ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
 
         for(auto const& device : newDevices) {
@@ -759,7 +762,7 @@ int main() {
                 initRunner();
             };
         }
-        ImGui::EndChild();
+        //ImGui::EndChild();
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
@@ -805,7 +808,7 @@ int main() {
         ImGui::EndChild();
 
         ImGui::SameLine();
-
+        
         ImGui::BeginChild("Live Capture", ImVec2(-1, -1));
 
         center = ImGui::GetMainViewport()->GetCenter();
@@ -820,11 +823,11 @@ int main() {
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
-        }
-        ImGui::EndChild();
+        }  
+        ImGui::EndChild();   
         ImGui::End();
-
-        ImGui::End();
+        ImGui::PopStyleColor(7);
+        //ImGui::End();
     };
 
     ImGuiInstance window{1280, 760, load_json<std::string>(config, "title")};
