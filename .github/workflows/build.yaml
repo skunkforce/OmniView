@@ -72,11 +72,11 @@ jobs:
         if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
           name: executable-linux
-          path: build/OmniscopeGui
+          path: build/OmniView
 
       - name: upload executable (Windows)
         uses: actions/upload-artifact@v3
         if: ${{ contains(matrix.os, 'windows' ) }}
         with:
           name: executable-windows
-          path: build/Release/OmniscopeGui.exe
+          path: build/Release/OmniView.exe

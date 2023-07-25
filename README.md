@@ -11,6 +11,8 @@ Die konkreten Entwicklungsschritte werden im [https://github.com/orgs/skunkforce
 Auf [ https://moodle.aw4null.de/ ](unserer Lernplattform) finden sich weitere Hilfen und Ressourcen zum aw4null Projekt. Ansprechpartner ist @wasilina83 
 
 ## Teilnehmen und Mitarbeiten
+## Buildstatus
+![example workflow](https://github.com/skunkforce/omniview/actions/workflows/build.yaml/badge.svg)
 
 
 ## Buildprozess Linux
