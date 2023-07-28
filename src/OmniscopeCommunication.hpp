@@ -18,6 +18,8 @@
 #include <tuple>
 #include <vector>
 
+#include "OmniscopeCommands.hpp"
+
 namespace Omniscope {
 
 struct PacketCrc {
@@ -174,9 +176,16 @@ private:
         }
 
         void start_async_read_some() {
+
             auto&      buffer  = recvBuffers[currentRecvBuffer];
             auto const oldSize = buffer.size();
             buffer.resize(oldSize + ReadSize);
+            
+            std::vector<std::byte> writeStartBuff{};
+            Packager::pack(writeStartBuff, Omniscope::HostToUCTypes{Omniscope::Start{}});
+            auto writeStartBuffer = boost::asio::buffer(writeStartBuff, writeStartBuff.size());
+
+            serialPort.write_some(writeStartBuffer);
 
             serialPort.async_read_some(
               boost::asio::buffer(buffer.data() + oldSize, ReadSize),
