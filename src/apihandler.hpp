@@ -52,7 +52,10 @@ bool send_to_api(
         // Überprüfung auf Fehler
 
         if(res != CURLE_OK)
-            fmt::print("Fehler beim Hochladen der Datei:{}\n\r ", curl_easy_strerror(res));
+            fmt::print(
+              "Fehler beim Hochladen der Datei:{}\n\r Fehler:{} \n\r ",
+              file,
+              curl_easy_strerror(res));
 
         // Aufräumen
         curl_easy_cleanup(curl);

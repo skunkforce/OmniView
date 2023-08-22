@@ -226,10 +226,15 @@ void popup_create_training_data_compression(
     }
     fileBrowser.Display();
     if(fileBrowser.HasSelected()) {
+        std::string filepath;
         for(auto const& selectedFile : fileBrowser.GetSelected()) {
-            std::string filename = selectedFile.string();
-            strcpy(path1, filename.c_str());
+            if(!filepath.empty()) {
+                filepath += "/";
+            }
+            filepath += selectedFile.string();
         }
+
+        strcpy(path1, filepath.c_str());
 
         fileBrowser.ClearSelected();
     }
@@ -241,11 +246,14 @@ void popup_create_training_data_compression(
     }
     fileBrowser2.Display();
     if(fileBrowser2.HasSelected()) {
+        std::string filepath;
         for(auto const& selectedFile : fileBrowser2.GetSelected()) {
-            std::string filename = selectedFile.string();
-            strcpy(path2, filename.c_str());
+            if(!filepath.empty()) {
+                filepath += "/";
+            }
+            filepath += selectedFile.string();
         }
-
+        strcpy(path2, filepath.c_str());
         fileBrowser2.ClearSelected();
     }
     ImGui::Columns(1);
