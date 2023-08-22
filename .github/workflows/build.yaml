@@ -81,7 +81,7 @@ jobs:
           name: executable-windows
           path: build/Release/OmniView.exe
 
-      - name: upload executable (WindowsWithFiles)
+      - name: upload executable (Windows)
         if: ${{ contains(matrix.os, 'windows' ) }}
         run: |
           mkdir packaged_executable
