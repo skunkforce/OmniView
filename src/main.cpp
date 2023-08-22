@@ -1,10 +1,10 @@
 #include "OmniscopeCommunication.hpp"
+#include "apihandler.hpp"
 #include "jasonhandler.hpp"
 
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <algorithm>
 #include <boost/asio.hpp>
-#include <curl/curl.h>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -19,76 +19,7 @@
 // clang-format on
 
 const std::string configpath = "../config/config.json";
-/*
-struct Color : ImVec4 {
-    using ImVec4::ImVec4;
-};
-struct Size : ImVec2 {
-    using ImVec2::ImVec2;
-};
 
-void to_json(nlohmann::json& j, Color const& c) {
-    j = nlohmann::json{
-      {         "red", c.x},
-      {       "green", c.y},
-      {        "blue", c.z},
-      {"transparency", c.w}
-    };
-}
-
-void from_json(nlohmann::json const& j, Color& c) {
-    j.at("red").get_to(c.x);
-    j.at("green").get_to(c.y);
-    j.at("blue").get_to(c.z);
-    j.at("transparency").get_to(c.w);
-}
-void to_json(nlohmann::json& j, Size const& s) {
-    j = nlohmann::json{
-      {"sizex", s.x},
-      {"sizey", s.y},
-    };
-}
-
-void from_json(nlohmann::json const& j, Size& s) {
-    j.at("sizex").get_to(s.x);
-    j.at("sizey").get_to(s.y);
-}
-
-nlohmann::json load_json_file(std::string const& path) {
-    std::ifstream  json_file(path);
-    nlohmann::json return_json;
-    json_file >> return_json;
-    return return_json;
-}
-
-void write_json_file(std::string const& path, nlohmann::json const& json_data) {
-    std::ofstream json_file(path);
-    json_file << json_data.dump(4);
-    json_file.close();
-}
-
-template<typename T>
-T load_json(nlohmann::json const& configjson, std::string const& key) {
-    if(configjson.contains(key)) {
-        return configjson[key].get<T>();
-    } else {
-        fmt::print("key {} not found\n\r", key);
-        if constexpr(std::is_same_v<T, std::string>) {
-            return T{key};
-        } else {
-            return T{};
-        }
-    }
-}
-
-template<typename T, typename... Args>
-T load_json(nlohmann::json const& config, std::string const& key, Args... keylist) {
-    nlohmann::json unpackme = config[key];
-    T              returnme = load_json<T>(unpackme, keylist...);
-
-    return returnme;
-}
-*/
 std::vector<std::string> getAvailableLanguages(std::string const& languageFolder) {
     std::vector<std::string> languages;
     for(auto const& entry : std::filesystem::directory_iterator(languageFolder)) {
@@ -165,6 +96,7 @@ void set_button_style_to(nlohmann::json const& config, std::string const& name) 
       ImVec4(load_json<Color>(config, "button", name, "active")));
 }
 
+/*
 //template<typename T>
 bool send_to_api(
   nlohmann::json const& config,
@@ -226,6 +158,7 @@ bool send_to_api(
 
     return false;
 }
+*/
 
 void popup_create_training_data_compression(
   nlohmann::json const& config,
@@ -259,21 +192,6 @@ void popup_create_training_data_compression(
       comment,
       sizeof(comment));
 
-    if(ImGui::Button(
-         load_json<std::string>(language, "button", "send").c_str(),
-         ImVec2(load_json<Size>(config, "button"))))
-    {
-        //Api muss angepasst werden und die funktion send to api ebenso
-        //send_to_api(config, const std::string &file, const std::string &vin, const std::string &scantype)
-    }
-
-    ImGui::SameLine();
-    if(ImGui::Button(
-         load_json<std::string>(language, "button", "back").c_str(),
-         ImVec2(load_json<Size>(config, "button"))))
-    {
-        ImGui::CloseCurrentPopup();
-    }
     ImGui::EndChild();
     ImGui::SameLine();
 
@@ -331,6 +249,22 @@ void popup_create_training_data_compression(
         fileBrowser2.ClearSelected();
     }
     ImGui::Columns(1);
+
+    if(ImGui::Button(
+         load_json<std::string>(language, "button", "send").c_str(),
+         ImVec2(load_json<Size>(config, "button"))))
+    {
+        //Api muss angepasst werden und die funktion send to api ebenso
+        send_to_api(config, path1, inputvin, "kompressionsmessung");
+    }
+
+    ImGui::SameLine();
+    if(ImGui::Button(
+         load_json<std::string>(language, "button", "back").c_str(),
+         ImVec2(load_json<Size>(config, "button"))))
+    {
+        ImGui::CloseCurrentPopup();
+    }
     ImGui::EndChild();
 }
 void load_settings(nlohmann::json const& config) {
@@ -667,7 +601,7 @@ int main() {
                     savedFileNames.emplace_back(
                       path_path.string(),
                       fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
-
+                    // nicht mehr im save-kontext, sondern in create training data
                     //send_to_api(config, path_path / filename, inputvin, scantype);
                     ImGui::CloseCurrentPopup();
                 }
