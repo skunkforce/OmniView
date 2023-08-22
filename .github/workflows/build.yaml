@@ -81,20 +81,4 @@ jobs:
           name: executable-windows
           path: build/Release/OmniView.exe
 
-      - name: upload executable (Windows)
-        if: ${{ contains(matrix.os, 'windows' ) }}
-        run: |
-          mkdir packaged_executable
-          cp build/Release/OmniView.exe packaged_executable/
-          cp -r config packaged_executable/
-          cp -r languages packaged_executable/
-          cd packaged_executable
-          7z a -r windows-executable.zip *
-        working-directory: my-repo
 
-      - name: upload ZIP executable (Windows)
-      uses: actions/upload-artifact@v3
-      if: ${{ contains(matrix.os, 'windows' ) }}
-      with:
-        name: windows-executable
-        path: packaged_executable/windows-executable.zip
