@@ -1,4 +1,5 @@
 #include "OmniscopeCommunication.hpp"
+#include "jasonhandler.hpp"
 
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <algorithm>
@@ -18,7 +19,7 @@
 // clang-format on
 
 const std::string configpath = "../config/config.json";
-
+/*
 struct Color : ImVec4 {
     using ImVec4::ImVec4;
 };
@@ -87,7 +88,7 @@ T load_json(nlohmann::json const& config, std::string const& key, Args... keylis
 
     return returnme;
 }
-
+*/
 std::vector<std::string> getAvailableLanguages(std::string const& languageFolder) {
     std::vector<std::string> languages;
     for(auto const& entry : std::filesystem::directory_iterator(languageFolder)) {
@@ -753,7 +754,7 @@ int main() {
         }
 
         ImGui::EndChild();
-        
+
         ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
 
         for(auto const& device : newDevices) {
@@ -808,7 +809,7 @@ int main() {
         ImGui::EndChild();
 
         ImGui::SameLine();
-        
+
         ImGui::BeginChild("Live Capture", ImVec2(-1, -1));
 
         center = ImGui::GetMainViewport()->GetCenter();
@@ -823,8 +824,8 @@ int main() {
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
-        }  
-        ImGui::EndChild();   
+        }
+        ImGui::EndChild();
         ImGui::End();
         ImGui::PopStyleColor(7);
         //ImGui::End();
