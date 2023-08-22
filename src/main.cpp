@@ -163,6 +163,7 @@ bool send_to_api(
 void popup_create_training_data_compression(
   nlohmann::json const& config,
   nlohmann::json const& language) {
+    static std::string        api_message = " ";
     static ImGui::FileBrowser fileBrowser;
     static ImGui::FileBrowser fileBrowser2;
     static bool               first_job = true;
@@ -263,7 +264,7 @@ void popup_create_training_data_compression(
          ImVec2(load_json<Size>(config, "button"))))
     {
         //Api muss angepasst werden und die funktion send to api ebenso
-        send_to_api(config, path1, inputvin, "kompressionsmessung");
+        api_message = send_to_api(config, path1, inputvin, "kompressionsmessung");
     }
 
     ImGui::SameLine();
@@ -273,7 +274,9 @@ void popup_create_training_data_compression(
     {
         ImGui::CloseCurrentPopup();
     }
+
     ImGui::EndChild();
+    ImGui::Text(api_message.c_str());
 }
 void load_settings(nlohmann::json const& config) {
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(load_json<Color>(config, "menubar", "main")));

@@ -6,13 +6,15 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
-bool send_to_api(
+std::string send_to_api(
+
   nlohmann::json const& config,
   std::string const&    file,
   std::string const&    vin,
   std::string const&    scantype) {
-    CURL*    curl;
-    CURLcode res;
+    std::string api_message = "empty";
+    CURL*       curl;
+    CURLcode    res;
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
@@ -51,12 +53,14 @@ bool send_to_api(
 
         // Überprüfung auf Fehler
 
-        if(res != CURLE_OK)
-            fmt::print(
+        if(res != CURLE_OK) {
+            api_message = fmt::format(
               "Fehler beim Hochladen der Datei:{}\n\r Fehler:{} \n\r ",
               file,
               curl_easy_strerror(res));
-
+        } else {
+            api_message = fmt::format("Hochladen der Datei:{}\n\r erfolgreich \n\r ", file);
+        }
         // Aufräumen
         curl_easy_cleanup(curl);
         curl_slist_free_all(header_list);
@@ -67,5 +71,5 @@ bool send_to_api(
 
     curl_global_cleanup();
 
-    return false;
+    return api_message;
 }
