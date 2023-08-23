@@ -35,6 +35,12 @@ cmake ausführen mit dem pfad zu vcpgk:
 make ausführen:
 `make`
 
+
+
 OmniView ausführen:
-`./OmniView`
+`Sudo ./OmniView`
+
+OmniView funktioniert auch ohne den Sudobefehl. Noch kann die Software aber so nicht mit angeschlossenen Omniscopes kommunizieren.
+
+
 
