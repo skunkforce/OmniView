@@ -7,8 +7,8 @@
         "url": "https://postapi.aw4null.de/v1/uploadFile/"
     },
     "button": {
-        "sizex": 180.0,
-        "sizey": 40.0,
+        "sizex": 192.0,
+        "sizey": 51.0,
         "standart": {
             "active": {
                 "blue": 0.9,
