@@ -1,6 +1,28 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
+include(FetchContent)
+FetchContent_Populate(
+  vcpkg
+  GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
+  GIT_TAG        master
+  SOURCE_DIR     "${CMAKE_SOURCE_DIR}/vcpkg"
+)
+
+list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
+list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
+
+set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
+
 project("OmniscopeGui")
+
+if(MSVC)
+    add_compile_options(
+        $<$<CONFIG:>:/MT> #---------|
+        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+        $<$<CONFIG:Release>:/MT> #--|
+    )
+endif()
+
 
 include(cmake_helpers/BuildOptions.cmake)
 
