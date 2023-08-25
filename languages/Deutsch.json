@@ -1,0 +1,58 @@
+{ "general":{
+  "size" : "Größe",
+  "height" : "Höhe",
+  "width" : "Breite"
+},
+  "input":{
+      "fin":{
+        "label":"Fahrzeugidentnummer",
+        "fail":"Die eingegebene Fahrzeugidentnummer ist ungültig",
+        "complete": "Fahrzeugidentnummer vollständig"
+      },
+      "mileage":{
+        "label":"Laufleistung in km"
+      },
+      "scantype":{
+        "label":"Messung"},
+        "comment":{"label":"Kommentar"}
+
+    },
+
+  "button":
+  {
+    "save":"speichern",
+    "send":"senden",
+    "measure":"messen",
+    "back":"zurück",
+    "cancel":"abbrechen",
+    "ok":"ok",
+    "restore":"zurücksetzen"
+
+  },
+ 
+  "settings":{
+    "title":"Einstellungen",
+    "fontsize":"Schriftgröße"
+  },
+  "menubar":{
+    "menu":{
+    "label":"Menü",
+    "cleardata":"Lösche gespeicherte Datein",
+    "clearcapture":"Lösche Aufzeichnung",
+    "reset":"reset",
+    "settings":"Einstellungen",
+    "language_option":"Sprachoptionen",
+    "language":"Sprachen"},
+
+    "view":{
+      "label":"Ansicht",
+      "first":"erster menüpunkt",
+      "second":"zweiter menüpunkt"
+    },
+    "help":{
+      "label":"Hilfe",
+      "first":"erster menüpunkt",
+      "second":"zweiter menüpunkt"
+    }
+  } 
+}

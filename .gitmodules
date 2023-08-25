@@ -1,0 +1,12 @@
+[submodule "aglio"]
+	path = aglio
+	url = https://github.com/dominicpoeschko/aglio.git
+[submodule "cmake_helpers"]
+	path = cmake_helpers
+	url = https://github.com/dominicpoeschko/cmake_helpers.git
+[submodule "ImGuiInstance"]
+	path = ImGuiInstance
+	url = https://github.com/skunkforce/ImGuiInstance.git
+[submodule "imgui-filebrowser"]
+	path = imgui-filebrowser
+	url = https://github.com/AirGuanZ/imgui-filebrowser.git

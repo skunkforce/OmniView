@@ -1,0 +1,120 @@
+{
+    "api": {
+        "header1": "Content-Type: multipart/form-data",
+        "header2": "Accept: application/json",
+        "input1": "vin",
+        "input2": "scan_type",
+        "url": "https://postapi.aw4null.de/v1/uploadFile/"
+    },
+    "button": {
+        "sizex": 192.0,
+        "sizey": 51.0,
+        "standart": {
+            "active": {
+                "blue": 0.9,
+                "green": 0.6,
+                "red": 0.6,
+                "transparency": 1.0
+            },
+            "hover": {
+                "blue": 0.9,
+                "green": 0.9,
+                "red": 0.9,
+                "transparency": 1.0
+            },
+            "normal": {
+                "blue": 0.8,
+                "green": 0.8,
+                "red": 0.8,
+                "transparency": 1.0
+            }
+        },
+        "start": {
+            "active": {
+                "blue": 0.0,
+                "green": 0.6,
+                "red": 0.0,
+                "transparency": 1.0
+            },
+            "hover": {
+                "blue": 0.0,
+                "green": 0.7,
+                "red": 0.0,
+                "transparency": 1.0
+            },
+            "normal": {
+                "blue": 0.0,
+                "green": 0.8,
+                "red": 0.0,
+                "transparency": 1.0
+            }
+        },
+        "stop": {
+            "active": {
+                "blue": 0.0,
+                "green": 0.0,
+                "red": 0.6,
+                "transparency": 1.0
+            },
+            "hover": {
+                "blue": 0.0,
+                "green": 0.0,
+                "red": 0.7,
+                "transparency": 1.0
+            },
+            "normal": {
+                "blue": 0.0,
+                "green": 0.0,
+                "red": 0.8,
+                "transparency": 1.0
+            }
+        }
+    },
+    "language": "Deutsch",
+    "languagepath": "../languages/",
+    "menubar": {
+        "main": {
+            "blue": 0.7,
+            "green": 0.7,
+            "red": 0.7,
+            "transparency": 1.0
+        },
+        "popup": {
+            "blue": 0.7,
+            "green": 0.7,
+            "red": 0.7,
+            "transparency": 1.0
+        }
+    },
+    "scanfolder": "../saves",
+    "text": {
+        "color": {
+            "inactive": {
+                "blue": 0.5,
+                "green": 0.5,
+                "red": 0.5,
+                "transparency": 1
+            },
+            "normal": {
+                "blue": 0.1,
+                "green": 0.1,
+                "red": 0.1,
+                "transparency": 1
+            }
+        },
+        "font": "comicsans",
+        "minscale": 0.5,
+        "scale": 0.9999996423721313
+    },
+    "title": "Omniview 0.1",
+    "window": {
+        "color": {
+            "blue": 0.7,
+            "green": 0.7,
+            "red": 0.7,
+            "transparency": 1.0
+        },
+        "sizex": 1920,
+        "sizey": 800
+    }
+}
