@@ -1,5 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
+# Searching for VCPKG-installation and download if needed
 include(FetchContent)
 FetchContent_Populate(
   vcpkg
@@ -8,6 +9,7 @@ FetchContent_Populate(
   SOURCE_DIR     "${CMAKE_SOURCE_DIR}/vcpkg"
 )
 
+# saves vcpkg build artifacts in vcpkg directory
 list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
 

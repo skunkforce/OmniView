@@ -16,8 +16,31 @@ Auf [ https://moodle.aw4null.de/ ](unserer Lernplattform) finden sich weitere Hi
 
 
 ## Buildprozess Linux
-installiere vcpkg
+ins OmniView Verzeichnis wechseln
 
+submodule updaten und initalisieren:
+```shell
+git submodule update --init --recursive
+```
+-buildordner erstellen:
+`mkdir build`
+
+in den buildordner navigieren:
+`cd build`
+
+cmake ausführen:
+`cmake ..`
+
+make ausführen:
+`cmake --build .`
+
+
+OmniView ausführen:
+`Sudo ./OmniView`
+
+OmniView funktioniert auch ohne den Sudobefehl. Noch kann die Software aber so nicht mit angeschlossenen Omniscopes kommunizieren.
+
+## Buildprozess Windows
 ins OmniView Verzeichnis wechseln
 
 submodule updaten und initalisieren:
@@ -29,18 +52,13 @@ submodule updaten und initalisieren:
 in den buildordner navigieren:
 `cd build`
 
-cmake ausführen mit dem pfad zu vcpgk:
-`cmake .. -DCMAKE_TOOLCHAIN_FILE=<vcpk_root>/scripts/buildsystems/vcpkg.cmake`
+cmake ausführen:
+`cmake .. -DVCPKG_TARGET_TRIPLET="x64-windows-static"`
 
 make ausführen:
-`make`
+`cmake --build .`
 
-
-
-OmniView ausführen:
-`Sudo ./OmniView`
-
-OmniView funktioniert auch ohne den Sudobefehl. Noch kann die Software aber so nicht mit angeschlossenen Omniscopes kommunizieren.
-
+Die Executable landet nicht in '/omniview/build/', sondern in '/omniview/build/debug/'.
+Sie muss momentan nach '/omniview/build/' verschoben werden, damit die Pfade stimmen.
 
 
