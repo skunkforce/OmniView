@@ -22,21 +22,30 @@ submodule updaten und initalisieren:
 ```shell
 git submodule update --init --recursive
 ```
--buildordner erstellen:
-`mkdir build`
+buildordner erstellen:
+```shell
+mkdir build
+```
 
 in den buildordner navigieren:
-`cd build`
-
+```shell
+cd build
+```
 cmake ausführen:
-`cmake ..`
+```shell
+cmake ..
+```
 
 make ausführen:
-`cmake --build .`
+```shell
+cmake --build .
+```
 
 
 OmniView ausführen:
-`Sudo ./OmniView`
+```shell
+Sudo ./OmniView
+```
 
 OmniView funktioniert auch ohne den Sudobefehl. Noch kann die Software aber so nicht mit angeschlossenen Omniscopes kommunizieren.
 
@@ -44,20 +53,29 @@ OmniView funktioniert auch ohne den Sudobefehl. Noch kann die Software aber so n
 ins OmniView Verzeichnis wechseln
 
 submodule updaten und initalisieren:
-`git submodule update --init --recursive`
+```shell
+git submodule update --init --recursive
+```
 
--buildordner erstellen:
-`mkdir build`
+buildordner erstellen:
+```shell
+mkdir build
+```
 
 in den buildordner navigieren:
-`cd build`
+```shell
+cd build
+```
 
 cmake ausführen:
-`cmake .. -DVCPKG_TARGET_TRIPLET="x64-windows-static"`
+```shell
+cmake .. -DVCPKG_TARGET_TRIPLET="x64-windows-static"
+```
 
 make ausführen:
-`cmake --build .`
-
+```shell
+cmake --build .
+```
 Die Executable landet nicht in '/omniview/build/', sondern in '/omniview/build/debug/'.
 Sie muss momentan nach '/omniview/build/' verschoben werden, damit die Pfade stimmen.
 
