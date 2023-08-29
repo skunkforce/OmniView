@@ -103,6 +103,7 @@ void popup_create_training_data_compression(
     static ImGui::FileBrowser fileBrowser;
     static ImGui::FileBrowser fileBrowser2;
     static bool               first_job = true;
+    static nlohmann::json metadata;
 
     if(first_job) {
         fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
@@ -200,7 +201,16 @@ void popup_create_training_data_compression(
          ImVec2(load_json<Size>(config, "button"))))
     {
         //Api muss angepasst werden und die funktion send to api ebenso
-        api_message = send_to_api(config, path1, inputvin, "kompressionsmessung");
+        metadata["z1"]=z1;
+        metadata["z2"]=z2;
+        metadata["z3"]=z3;
+        metadata["z4"]=z4;
+        metadata["kommentar"]=comment;
+        metadata["laufleistung"]=mileage;
+        metadata["zündung"]="unterdrückt";
+        api_message = send_to_api(config, path1, inputvin, "kompressionsmessung",metadata);
+        metadata["zündung"]="aktiviert";
+        api_message += send_to_api(config, path2, inputvin, "kompressionsmessung",metadata);
     }
 
     ImGui::SameLine();
