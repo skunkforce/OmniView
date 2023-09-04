@@ -1,7 +1,7 @@
 #include "OmniscopeCommunication.hpp"
 #include "apihandler.hpp"
 #include "jasonhandler.hpp"
-
+#include "settingspopup.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <algorithm>
 #include <boost/asio.hpp>
@@ -238,118 +238,10 @@ void load_settings(nlohmann::json const& config) {
     io.FontGlobalScale = load_json<float>(config, "text", "scale");
 }
 
-void popup_settings(nlohmann::json& config, nlohmann::json& language) {
-    static float          fontscale;
-    static nlohmann::json newconfig = 0;
-    if(newconfig == 0) {
-        newconfig = config;
-    }
-    if(fontscale < load_json<float>(newconfig, "text", "minscale")) {
-        fontscale = load_json<float>(newconfig, "text", "scale");
-    }
-    ImGuiIO& io                 = ImGui::GetIO();
-    io.FontGlobalScale          = fontscale;
-    std::string fontscalestring = fmt::format(
-      "{} {:.1f}",
-      load_json<std::string>(language, "settings", "fontsize"),
-      fontscale);
-    ImGui::Text(fontscalestring.c_str());
-    ImGui::SameLine();
-    if(ImGui::Button("+")) {
-        fontscale += 0.1f;
-        newconfig["text"]["scale"] = fontscale;
-    }
-    ImGui::SameLine();
-    if(ImGui::Button("-")) {
-        fontscale -= 0.1f;
-        newconfig["text"]["scale"] = fontscale;
-    }
-    /*
-    if(ImGui::Button(load_json<std::string>(language, "button", "save").c_str())) {
-        write_json_file(configpath, newconfig);
-        config = newconfig;
-        ImGui::CloseCurrentPopup();
-    }
-    ImGui::SameLine();
-    if(ImGui::Button(load_json<std::string>(language, "button", "cancel").c_str())) {
-        ImGui::CloseCurrentPopup();
-    }
-    ImGui::SameLine();
-    if(ImGui::Button(load_json<std::string>(language, "button", "restore").c_str())) {
-        newconfig = config;
-        fontscale = load_json<float>(newconfig, "text", "scale");
-    }*/
-    //####################################################################################
-    //                          Button Size
-    //####################################################################################
-    static float ButtonSizeX = load_json<float>(config, "button", "sizex");
-    static float ButtonSizeY = load_json<float>(config, "button", "sizey");
+//###########################################################################
+//############# INT MAIN BEGINN #############################################
+//###########################################################################
 
-    std::string buttonXsizestring
-      = fmt::format("{} {:.1f}", load_json<std::string>(language, "general", "width"), ButtonSizeX);
-    std::string buttonYsizestring = fmt::format(
-      "{} {:.1f}",
-      load_json<std::string>(language, "general", "height"),
-      ButtonSizeY);
-
-    ImGui::Text(buttonXsizestring.c_str());
-
-    ImGui::SameLine();
-    if(ImGui::Button("X+")) {
-        ButtonSizeX += 1.0f;
-        newconfig["button"]["sizex"] = ButtonSizeX;
-    }
-
-    ImGui::SameLine();
-    if(ImGui::Button("X-")) {
-        ButtonSizeX -= 1.0f;
-        newconfig["button"]["sizex"] = ButtonSizeX;
-    }
-
-    ImGui::Text(buttonYsizestring.c_str());
-    ImGui::SameLine();
-    if(ImGui::Button("Y+")) {
-        ButtonSizeY += 1.0f;
-        newconfig["button"]["sizey"] = ButtonSizeY;
-    }
-
-    ImGui::SameLine();
-    if(ImGui::Button("Y-")) {
-        ButtonSizeY -= 1.0f;
-        newconfig["button"]["sizey"] = ButtonSizeY;
-    }
-
-    if(ImGui::Button(
-         load_json<std::string>(language, "button", "save").c_str(),
-         ImVec2(ButtonSizeX, ButtonSizeY)))
-    {
-        write_json_file(configpath, newconfig);
-        config = newconfig;
-        ImGui::CloseCurrentPopup();
-    }
-    ImGui::SameLine();
-    if(ImGui::Button(
-         load_json<std::string>(language, "button", "cancel").c_str(),
-         ImVec2(ButtonSizeX, ButtonSizeY)))
-    {
-        ImGui::CloseCurrentPopup();
-    }
-    ImGui::SameLine();
-    if(ImGui::Button(
-         load_json<std::string>(language, "button", "restore").c_str(),
-         ImVec2(ButtonSizeX, ButtonSizeY)))
-    {
-        newconfig   = config;
-        fontscale   = load_json<float>(newconfig, "text", "scale");
-        ButtonSizeX = load_json<float>(config, "button", "sizex");
-        ButtonSizeY = load_json<float>(config, "button", "sizey");
-    }
-}
-/*
-###########################################################################
-############# INT MAIN BEGINN #############################################
-###########################################################################
-*/
 
 int main() {
     nlohmann::json config = load_json_file(configpath);
@@ -377,6 +269,8 @@ int main() {
     static bool open_settings     = false;
     bool        captureWindowOpen = true;
     bool        paused            = false;
+
+    static ImVec2 mainMenuBarSize;
 
     std::map<Omniscope::Device, std::vector<std::pair<double, double>>> captureData;
 
@@ -477,7 +371,14 @@ int main() {
 
     auto render = [&]() {
         load_settings(config);
-
+        ImGui::SetNextWindowPos(ImVec2(0.0f, mainMenuBarSize.y ));
+        ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+        ImGui::Begin(
+          "OmniScopev2 Data Capture Tool",
+          nullptr,
+          ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
+            | ImGuiWindowFlags_NoMove); //
+       
         ImGui::BeginMainMenuBar();
         if(ImGui::BeginMenu(load_json<std::string>(language, "menubar", "menu", "label").c_str())) {
             if(ImGui::BeginMenu(
@@ -527,16 +428,12 @@ int main() {
             ImGui::MenuItem(load_json<std::string>(language, "menubar", "help", "second").c_str());
             ImGui::EndMenu();
         }
-
+        mainMenuBarSize = ImGui::GetItemRectSize();
         ImGui::EndMainMenuBar();
-
-        ImGui::SetNextWindowPos(ImVec2(0.0f, 20.0f));
-        ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-        ImGui::Begin(
-          "OmniScopev2 Data Capture Tool",
-          nullptr,
-          ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
-            | ImGuiWindowFlags_NoMove);
+        
+        
+        
+        
 
         //main menu
         ImGui::BeginChild("Live Capture", ImVec2(-1, 400));
@@ -575,7 +472,8 @@ int main() {
         }
 
         ImGui::EndChild();
-        ImGui::BeginChild("Buttonstripe", ImVec2(-1, 40));
+        
+        ImGui::BeginChild("Buttonstripe", ImVec2(-1, ImVec2(load_json<Size>(config, "button")).y));
 
         if(ImGui::BeginPopupModal("savetofile", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetItemDefaultFocus();
@@ -697,7 +595,7 @@ int main() {
              ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::SetItemDefaultFocus();
-            popup_settings(config, language);
+            popup_settings(config, language, configpath);
             ImGui::EndPopup();
         }
         if(ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")))) {

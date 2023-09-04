@@ -7,8 +7,8 @@
         "url": "https://postapi.aw4null.de/v1/uploadFile/"
     },
     "button": {
-        "sizex": 192.0,
-        "sizey": 51.0,
+        "sizex": 300,
+        "sizey": 60,
         "standart": {
             "active": {
                 "blue": 0.9,
@@ -104,7 +104,7 @@
         },
         "font": "comicsans",
         "minscale": 0.5,
-        "scale": 0.9999996423721313
+        "scale": 2.9999990463256836
     },
     "title": "Omniview 0.2",
     "window": {
