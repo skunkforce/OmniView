@@ -20,7 +20,7 @@
 #include <imfilebrowser.h>
 // clang-format on
 
-std::string configpath = "../config.json";
+std::string configpath = "../config/config.json";
 
 std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
@@ -123,20 +123,23 @@ void load_settings(nlohmann::json const &config) {
 // ###########################################################################
 
 int main() {
+  nlohmann::json config;
   std::string addpath = "";
   if (std::filesystem::exists("../config/config.json")) {
     configpath = "../config/config.json";
-    fmt::println("linux\n\r");
+    config = load_json_file(configpath);
+
   } else if (std::filesystem::exists("../../config/config.json")) {
     configpath = "../../config/config.json";
     addpath = "../";
-    fmt::println("windows\n\r");
+    config = load_json_file(configpath);
+
   } else {
     // close programm and with a message, no configfile found
     return 1; // Rückgabewert 1 signalisiert einen Fehler
   }
 
-  nlohmann::json config = load_json_file(configpath);
+  config = load_json_file(configpath);
 
   std::vector<std::string> availableLanguages = getAvailableLanguages(
       addpath + load_json<std::string>(config, ("languagepath")));

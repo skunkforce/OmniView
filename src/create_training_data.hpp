@@ -18,9 +18,9 @@ void show_standart_input(nlohmann::json const &config,
   char mileage[10];
   char comment[1000];
 
-  strncpy(inputvin, inputvin_string.c_str(), sizeof(inputvin));
-  strncpy(mileage, mileage_string.c_str(), sizeof(mileage));
-  strncpy(comment, comment_string.c_str(), sizeof(comment));
+  strncpy_s(inputvin, inputvin_string.c_str(), sizeof(inputvin));
+  strncpy_s(mileage, mileage_string.c_str(), sizeof(mileage));
+  strncpy_s(comment, comment_string.c_str(), sizeof(comment));
 
   ImVec2 windowSize = ImGui::GetWindowSize();
   ImGui::BeginChild("trainingleft",
