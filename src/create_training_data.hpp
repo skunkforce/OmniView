@@ -1,6 +1,4 @@
 #pragma once
-
-#include <imgui.h>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
@@ -9,6 +7,76 @@
 #include <imfilebrowser.h>
 // clang-format on
 
+void show_standart_input(nlohmann::json const& config,
+  nlohmann::json const& language,std::string & inputvin_string, std::string & mileage_string, std::string & comment_string){
+    char inputvin[18];
+    char mileage[10];
+    char comment[1000];
+    
+    strncpy(inputvin, inputvin_string.c_str(), sizeof(inputvin));
+    strncpy(mileage, mileage_string.c_str(), sizeof(mileage));
+    strncpy(comment, comment_string.c_str(), sizeof(comment));
+
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImGui::BeginChild("trainingleft", ImVec2(windowSize.x*0.5, windowSize.y*0.8));
+    ImGui::Text("stammdaten");
+    ImGui::InputText(
+      load_json<std::string>(language, "input", "fin", "label").c_str(),
+      inputvin,
+      sizeof(inputvin));
+    ImGui::InputText(
+      load_json<std::string>(language, "input", "mileage", "label").c_str(),
+      mileage,
+      sizeof(mileage));
+      static bool problem = false;
+      static bool maintenance = !problem;
+      
+      static bool electric_on = false;
+      static bool electric_off = !electric_on;
+
+      static bool expected = false;
+      static bool anomaly = !expected;
+    ImGui::Text("Grund des Werkstattbesuchs:");
+    ImGui::Checkbox("Wartung", &problem);
+    if (problem == maintenance ) {
+       maintenance = !problem;
+    }
+    ImGui::SameLine();
+    ImGui::Checkbox("Problem", &maintenance);
+    if (maintenance == problem) {
+       problem =!maintenance;
+    }
+  
+    ImGui::Text("Elekrische Verbraucher:");
+    ImGui::Checkbox("Ausgeschaltet", &electric_off);
+    if(electric_off==electric_on){
+        electric_on =!electric_off;
+    }
+    ImGui::SameLine();
+    ImGui::Checkbox("Eingeschaltet", &electric_on);
+    if(electric_on==electric_off){
+        electric_off = !electric_on;
+    }
+    ImGui::Text("Bewertung:");
+    ImGui::Checkbox("Regelfall", &expected);
+    if(expected ==anomaly){
+        anomaly = !expected;
+    }
+    ImGui::SameLine();
+    ImGui::Checkbox("Anomalie", &anomaly);
+    if (anomaly==expected){
+        expected =!anomaly;
+    }
+    ImGui::InputTextMultiline(
+      load_json<std::string>(language, "input", "comment", "label").c_str(),
+      comment,
+      sizeof(comment));
+
+    ImGui::EndChild();
+    inputvin_string=inputvin;
+    mileage_string=mileage;
+    comment_string=comment;
+}
 
 void popup_create_training_data_compression(
   nlohmann::json const& config,
@@ -25,29 +93,15 @@ void popup_create_training_data_compression(
         first_job = false;
     }
 
-    static char inputvin[18]  = "";
-    static char mileage[10]   = "";
-    static char comment[1000] = "";
+    static std::string inputvin  = "";
+    static std::string mileage  = "";
+    static std::string comment = "";
+
     ImGui::SetItemDefaultFocus();
-    ImGui::BeginChild("trainingleft", ImVec2(500, 300));
-    ImGui::Text("stammdaten");
-    ImGui::InputText(
-      load_json<std::string>(language, "input", "fin", "label").c_str(),
-      inputvin,
-      sizeof(inputvin));
-    ImGui::InputText(
-      load_json<std::string>(language, "input", "mileage", "label").c_str(),
-      mileage,
-      sizeof(mileage));
-    ImGui::InputTextMultiline(
-      load_json<std::string>(language, "input", "comment", "label").c_str(),
-      comment,
-      sizeof(comment));
-
-    ImGui::EndChild();
+    show_standart_input(config,language, inputvin, mileage,comment);
     ImGui::SameLine();
-
-    ImGui::BeginChild("trainingright", ImVec2(500, 300));
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImGui::BeginChild("trainingright", ImVec2(windowSize.x*0.5, windowSize.y*0.8));
 
     static float z1, z2, z3, z4;
     static char  path1[255];
