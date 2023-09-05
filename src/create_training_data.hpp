@@ -8,7 +8,7 @@
 // clang-format on
 
 void show_standart_input(nlohmann::json const& config,
-  nlohmann::json const& language,std::string & inputvin_string, std::string & mileage_string, std::string & comment_string){
+  nlohmann::json const& language,nlohmann::json & metadata,std::string & inputvin_string, std::string & mileage_string, std::string & comment_string){
     char inputvin[18];
     char mileage[10];
     char comment[1000];
@@ -76,9 +76,13 @@ void show_standart_input(nlohmann::json const& config,
     inputvin_string=inputvin;
     mileage_string=mileage;
     comment_string=comment;
+    metadata["Elektrische Verbraucher ausgeschaltet:"]=electric_off;
+    metadata["Grund des Werkstattbesuchs Wartung"] = maintenance ;
+    metadata["Anormales Verhalten"]=anomaly;
 }
 
 void popup_create_training_data_compression(
+
   nlohmann::json const& config,
   nlohmann::json const& language) {
     static std::string        api_message = " ";
@@ -98,7 +102,7 @@ void popup_create_training_data_compression(
     static std::string comment = "";
 
     ImGui::SetItemDefaultFocus();
-    show_standart_input(config,language, inputvin, mileage,comment);
+    show_standart_input(config,language,metadata, inputvin, mileage,comment);
     ImGui::SameLine();
     ImVec2 windowSize = ImGui::GetWindowSize();
     ImGui::BeginChild("trainingright", ImVec2(windowSize.x*0.5, windowSize.y*0.8));

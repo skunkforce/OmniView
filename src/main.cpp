@@ -414,9 +414,10 @@ int main() {
 
             ImGui::EndPopup();
         }
-        if(ImGui::BeginPopupModal("createtrainingdata", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        if(ImGui::BeginPopupModal("createtrainingdata", nullptr, ImGuiWindowFlags_AlwaysAutoResize| ImGuiWindowFlags_NoMove))
         {
             ImGui::SetItemDefaultFocus();
+            
             popup_create_training_data_compression(config, language);
             ImGui::EndPopup();
         }
@@ -477,6 +478,7 @@ int main() {
             ImGui::EndPopup();
         }
         if(ImGui::Button("Create Training Data", ImVec2(load_json<Size>(config, "button")))) {
+            ImGui::SetNextWindowSize(ImVec2(1000,1000));
             ImGui::OpenPopup("createtrainingdata");
         }
         ImGui::PopStyleColor();
