@@ -379,6 +379,13 @@ int main() {
           ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
             | ImGuiWindowFlags_NoMove); //
        
+        
+        
+        
+        
+        
+
+        //main menu
         ImGui::BeginMainMenuBar();
         if(ImGui::BeginMenu(load_json<std::string>(language, "menubar", "menu", "label").c_str())) {
             if(ImGui::BeginMenu(
@@ -430,12 +437,9 @@ int main() {
         }
         mainMenuBarSize = ImGui::GetItemRectSize();
         ImGui::EndMainMenuBar();
-        
-        
-        
-        
 
-        //main menu
+
+
         ImGui::BeginChild("Live Capture", ImVec2(-1, 400));
         if(runner && captureWindowOpen == true) {
             if(!paused) {
@@ -473,7 +477,7 @@ int main() {
 
         ImGui::EndChild();
         
-        ImGui::BeginChild("Buttonstripe", ImVec2(-1, ImVec2(load_json<Size>(config, "button")).y));
+        ImGui::BeginChild("Buttonstripe", ImVec2(-1, ImGui::GetTextLineHeightWithSpacing()));
 
         if(ImGui::BeginPopupModal("savetofile", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetItemDefaultFocus();
