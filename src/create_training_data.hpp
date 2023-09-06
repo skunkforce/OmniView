@@ -14,13 +14,9 @@ void show_standart_input(nlohmann::json const &config,
                          nlohmann::json &metadata, std::string &inputvin_string,
                          std::string &mileage_string,
                          std::string &comment_string) {
-  char inputvin[18];
-  char mileage[10];
-  char comment[1000];
-
-  strncpy_s(inputvin, inputvin_string.c_str(), sizeof(inputvin));
-  strncpy_s(mileage, mileage_string.c_str(), sizeof(mileage));
-  strncpy_s(comment, comment_string.c_str(), sizeof(comment));
+  static char inputvin[18];
+  static char mileage[10];
+  static char comment[1000];
 
   ImVec2 windowSize = ImGui::GetWindowSize();
   ImGui::BeginChild("trainingleft",
@@ -191,6 +187,7 @@ void popup_create_training_data_compression(
   ImGui::SameLine();
   if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
                     ImVec2(load_json<Size>(config, "button")))) {
+    fmt::println("{}\n\r", inputvin);
     ImGui::CloseCurrentPopup();
   }
 
