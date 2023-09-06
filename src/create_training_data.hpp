@@ -161,7 +161,7 @@ void popup_create_training_data_compression(
       }
       filepath += selectedFile.string();
     }
-    strcpy_s(path2, sizeof(path2), filepath.c_str());
+    strcpy(path2, filepath.c_str());
 
     fileBrowser2.ClearSelected();
   }
