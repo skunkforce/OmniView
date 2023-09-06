@@ -123,17 +123,13 @@ void load_settings(nlohmann::json const &config) {
 // ###########################################################################
 
 int main() {
+
   nlohmann::json config;
   std::string addpath = "";
 
-  try {
-    configpath = "../config/config.json";
-    config = load_json_file(configpath);
-  } catch (const std::exception &e) {
-    configpath = "../../config/config.json";
-    addpath = "../";
-    config = load_json_file(configpath);
-  }
+  configpath = "../../config/config.json";
+  addpath = "../";
+  config = load_json_file(configpath);
 
   std::vector<std::string> availableLanguages = getAvailableLanguages(
       addpath + load_json<std::string>(config, ("languagepath")));
