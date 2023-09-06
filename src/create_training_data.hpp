@@ -9,8 +9,7 @@
 #include <imfilebrowser.h>
 // clang-format on
 
-void show_standart_input(nlohmann::json const &config,
-                         nlohmann::json const &language,
+void show_standart_input(nlohmann::json const &language,
                          nlohmann::json &metadata, std::string &inputvin_string,
                          std::string &mileage_string,
                          std::string &comment_string) {
@@ -20,7 +19,7 @@ void show_standart_input(nlohmann::json const &config,
 
   ImVec2 windowSize = ImGui::GetWindowSize();
   ImGui::BeginChild("trainingleft",
-                    ImVec2(windowSize.x * 0.5, windowSize.y * 0.8));
+                    ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
   ImGui::Text("stammdaten");
   ImGui::InputText(
       load_json<std::string>(language, "input", "fin", "label").c_str(),
@@ -100,11 +99,11 @@ void popup_create_training_data_compression(
   static std::string comment = "";
 
   ImGui::SetItemDefaultFocus();
-  show_standart_input(config, language, metadata, inputvin, mileage, comment);
+  show_standart_input(language, metadata, inputvin, mileage, comment);
   ImGui::SameLine();
   ImVec2 windowSize = ImGui::GetWindowSize();
   ImGui::BeginChild("trainingright",
-                    ImVec2(windowSize.x * 0.5, windowSize.y * 0.8));
+                    ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
 
   static float z1, z2, z3, z4;
   static char path1[255];
@@ -143,7 +142,7 @@ void popup_create_training_data_compression(
       filepath += selectedFile.string();
     }
 
-    strcpy(path1, filepath.c_str());
+    strcpy_s(path1, sizeof(path1), filepath.c_str());
 
     fileBrowser.ClearSelected();
   }
@@ -162,7 +161,8 @@ void popup_create_training_data_compression(
       }
       filepath += selectedFile.string();
     }
-    strcpy(path2, filepath.c_str());
+    strcpy_s(path2, sizeof(path2), filepath.c_str());
+
     fileBrowser2.ClearSelected();
   }
   ImGui::Columns(1);
