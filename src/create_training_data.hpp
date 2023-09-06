@@ -189,7 +189,7 @@ void popup_create_training_data_compression(
   ImGui::SameLine();
   if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
                     ImVec2(load_json<Size>(config, "button")))) {
-    fmt::println("{}\n\r", inputvin);
+
     ImGui::CloseCurrentPopup();
   }
 
