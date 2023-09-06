@@ -125,7 +125,7 @@ void load_settings(nlohmann::json const &config) {
 int main() {
   nlohmann::json config;
   std::string addpath = "";
-  configpath = "../config/config.json";
+
   try {
     configpath = "../config/config.json";
     config = load_json_file(configpath);

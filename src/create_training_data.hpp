@@ -1,5 +1,7 @@
 #pragma once
+
 #include "jasonhandler.hpp"
+#include <ImGuiInstance/ImGuiInstance.hpp>
 #include <fmt/format.h>
 #include <imgui.h>
 #include <nlohmann/json.hpp>
@@ -142,7 +144,7 @@ void popup_create_training_data_compression(
       filepath += selectedFile.string();
     }
 
-    strcpy_s(path1, sizeof(path1), filepath.c_str());
+    strcpy(path1, filepath.c_str());
 
     fileBrowser.ClearSelected();
   }
