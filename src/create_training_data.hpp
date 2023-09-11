@@ -35,17 +35,17 @@ void show_standart_input(nlohmann::json const &language,
   static bool electric_on = false;
   static bool electric_off = !electric_on;
 
-  static bool expected = false;
+  static bool expected = true;
   static bool anomaly = !expected;
   ImGui::Text("Grund des Werkstattbesuchs:");
-  ImGui::Checkbox("Wartung", &problem);
-  if (problem == maintenance) {
-    maintenance = !problem;
-  }
-  ImGui::SameLine();
-  ImGui::Checkbox("Problem", &maintenance);
+  ImGui::Checkbox("Wartung", &maintenance);
   if (maintenance == problem) {
     problem = !maintenance;
+  }
+  ImGui::SameLine();
+  ImGui::Checkbox("Problem", &problem);
+  if (problem == maintenance) {
+    maintenance = !problem;
   }
 
   ImGui::Text("Elekrische Verbraucher:");
@@ -172,11 +172,15 @@ void selected_compression_data(nlohmann::json const &config,
     metadata["kommentar"] = comment;
     metadata["laufleistung"] = mileage;
     metadata["zündung"] = "unterdrückt";
-    api_message =
-        send_to_api(config, path1, inputvin, "kompressionsmessung", metadata);
+    api_message = send_to_api(
+        config, path1, inputvin,
+        load_json<std::string>(language, "measuretype", "compression"),
+        metadata);
     metadata["zündung"] = "aktiviert";
-    api_message +=
-        send_to_api(config, path2, inputvin, "kompressionsmessung", metadata);
+    api_message += send_to_api(
+        config, path2, inputvin,
+        load_json<std::string>(language, "measuretype", "compression"),
+        metadata);
   }
 
   ImGui::SameLine();
@@ -191,6 +195,11 @@ void popup_create_training_data_select(nlohmann::json const &config,
                                        nlohmann::json const &language) {
 
   static int selectedOption = 0; // Standardauswahl
+  /*
+  load_json<std::string>(language, "measuretype", "compression").c_str(),
+  load_json<std::string>(language, "measuretype", "battery").c_str(),
+  load_json<std::string>(language, "measuretype", "vcds").c_str()
+  */
   const char *options[] = {"Kompressionsmessung", "Batteriemessung",
                            "VCDS-Datei"};
   ImGui::Combo("Messung", &selectedOption, options, IM_ARRAYSIZE(options));
