@@ -138,13 +138,14 @@ void popup_create_training_data_compression(
   if (fileBrowser.HasSelected()) {
     std::string filepath;
     for (auto const &selectedFile : fileBrowser.GetSelected()) {
+
       if (!filepath.empty()) {
         filepath += "/";
       }
       filepath += selectedFile.string();
     }
-
-    strcpy(path1, filepath.c_str());
+    // test
+    strncpy_s(path1, filepath.c_str(), sizeof(path1) - 1);
 
     fileBrowser.ClearSelected();
   }
