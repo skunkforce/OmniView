@@ -419,13 +419,16 @@ int main() {
 
       ImGui::EndPopup();
     }
+    ImGui::SetNextWindowPos(ImVec2(0, 100));
+    ImGui::SetNextWindowSize(ImVec2(0, 800));
     if (ImGui::BeginPopupModal("createtrainingdata", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize |
+                                   ImGuiWindowFlags_NoSavedSettings |
                                    ImGuiWindowFlags_NoMove)) {
 
       ImGui::SetItemDefaultFocus();
 
-      popup_create_training_data_compression(config, language);
+      popup_create_training_data_select(config, language);
       ImGui::EndPopup();
     }
     if (paused == true) {

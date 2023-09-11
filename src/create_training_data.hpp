@@ -80,32 +80,25 @@ void show_standart_input(nlohmann::json const &language,
   metadata["Grund des Werkstattbesuchs Wartung"] = maintenance;
   metadata["Anormales Verhalten"] = anomaly;
 }
+void selected_vcds_data() { ImGui::Text("VCDS ist noch nicht implementiert"); }
+void selected_battery_measurement() {
+  ImGui::Text("Die Batteriemessung ist noch nicht implementiert");
+}
+void selected_compression_data(nlohmann::json const &config,
+                               nlohmann::json const &language,
+                               nlohmann::json &metadata, std::string &inputvin,
+                               std::string &mileage, std::string &comment,
+                               std::string &api_message) {
 
-void popup_create_training_data_compression(
-
-    nlohmann::json const &config, nlohmann::json const &language) {
-  static std::string api_message = " ";
   static ImGui::FileBrowser fileBrowser;
   static ImGui::FileBrowser fileBrowser2;
   static bool first_job = true;
-  static nlohmann::json metadata;
 
   if (first_job) {
     fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
     fileBrowser2.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
     first_job = false;
   }
-
-  static std::string inputvin = "";
-  static std::string mileage = "";
-  static std::string comment = "";
-
-  ImGui::SetItemDefaultFocus();
-  show_standart_input(language, metadata, inputvin, mileage, comment);
-  ImGui::SameLine();
-  ImVec2 windowSize = ImGui::GetWindowSize();
-  ImGui::BeginChild("trainingright",
-                    ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
 
   static float z1, z2, z3, z4;
   static char path1[255];
@@ -144,8 +137,7 @@ void popup_create_training_data_compression(
       }
       filepath += selectedFile.string();
     }
-    // test
-    strncpy_s(path1, filepath.c_str(), sizeof(path1) - 1);
+    strcpy(path1, filepath.c_str());
 
     fileBrowser.ClearSelected();
   }
@@ -192,6 +184,42 @@ void popup_create_training_data_compression(
                     ImVec2(load_json<Size>(config, "button")))) {
 
     ImGui::CloseCurrentPopup();
+  }
+}
+
+void popup_create_training_data_select(nlohmann::json const &config,
+                                       nlohmann::json const &language) {
+
+  static int selectedOption = 0; // Standardauswahl
+  const char *options[] = {"Kompressionsmessung", "Batteriemessung",
+                           "VCDS-Datei"};
+  ImGui::Combo("Messung", &selectedOption, options, IM_ARRAYSIZE(options));
+
+  static std::string inputvin = "";
+  static std::string mileage = "";
+  static std::string comment = "";
+  static nlohmann::json metadata;
+  static std::string api_message = " ";
+  ImGui::SetItemDefaultFocus();
+  show_standart_input(language, metadata, inputvin, mileage, comment);
+  ImGui::SameLine();
+
+  ImVec2 windowSize = ImGui::GetWindowSize();
+  ImGui::BeginChild("trainingright",
+                    ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
+  switch (selectedOption) {
+  case 0:
+    selected_compression_data(config, language, metadata, inputvin, mileage,
+                              comment, api_message);
+    break;
+  case 1:
+    selected_battery_measurement();
+    break;
+  case 2:
+    selected_vcds_data();
+    break;
+  default:
+    ImGui::Text("Fehler, Switchcase mit unerwarteter Auswahl");
   }
 
   ImGui::EndChild();
