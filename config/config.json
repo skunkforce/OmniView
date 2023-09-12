@@ -7,8 +7,8 @@
         "url": "https://postapi.aw4null.de/v1/uploadFile/"
     },
     "button": {
-        "sizex": 192.0,
-        "sizey": 51.0,
+        "sizex": 0.0,
+        "sizey": 0.0,
         "standart": {
             "active": {
                 "blue": 0.9,
@@ -70,6 +70,7 @@
             }
         }
     },
+    "firststart": true,
     "language": "Deutsch",
     "languagepath": "../languages/",
     "menubar": {
@@ -104,9 +105,9 @@
         },
         "font": "comicsans",
         "minscale": 0.5,
-        "scale": 0.9999996423721313
+        "scale": 1.9999998807907104
     },
-    "title": "Omniview 0.1",
+    "title": "Omniview 0.3",
     "window": {
         "color": {
             "blue": 0.7,

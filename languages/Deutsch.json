@@ -1,58 +1,87 @@
-{ "general":{
-  "size" : "Größe",
-  "height" : "Höhe",
-  "width" : "Breite"
-},
-  "input":{
-      "fin":{
-        "label":"Fahrzeugidentnummer",
-        "fail":"Die eingegebene Fahrzeugidentnummer ist ungültig",
-        "complete": "Fahrzeugidentnummer vollständig"
-      },
-      "mileage":{
-        "label":"Laufleistung in km"
-      },
-      "scantype":{
-        "label":"Messung"},
-        "comment":{"label":"Kommentar"}
-
+{
+    "general": {
+        "size": "Größe",
+        "height": "Höhe",
+        "width": "Breite"
     },
-
-  "button":
-  {
-    "save":"speichern",
-    "send":"senden",
-    "measure":"messen",
-    "back":"zurück",
-    "cancel":"abbrechen",
-    "ok":"ok",
-    "restore":"zurücksetzen"
-
-  },
- 
-  "settings":{
-    "title":"Einstellungen",
-    "fontsize":"Schriftgröße"
-  },
-  "menubar":{
-    "menu":{
-    "label":"Menü",
-    "cleardata":"Lösche gespeicherte Datein",
-    "clearcapture":"Lösche Aufzeichnung",
-    "reset":"reset",
-    "settings":"Einstellungen",
-    "language_option":"Sprachoptionen",
-    "language":"Sprachen"},
-
-    "view":{
-      "label":"Ansicht",
-      "first":"erster menüpunkt",
-      "second":"zweiter menüpunkt"
+    "input": {
+        "fin": {
+            "label": "Fin/Vin",
+            "fail": "Die eingegebene Fin/Vin ist ungültig",
+            "complete": "Fin/Vin vollständig"
+        },
+        "mileage": {
+            "label": "Kilometerstand"
+        },
+        "scantype": {
+            "label": "Messung"
+        },
+        "comment": {
+            "label": "Kommentar"
+        }
     },
-    "help":{
-      "label":"Hilfe",
-      "first":"erster menüpunkt",
-      "second":"zweiter menüpunkt"
+    "measuretype": {
+        "compression": "Kompressionsmessung",
+        "battery": "Batteriemessung",
+        "vcds": "VCDS-Datei"
+    },
+    "button": {
+        "save": "speichern",
+        "send": "senden",
+        "measure": "messen",
+        "back": "zurück",
+        "cancel": "abbrechen",
+        "ok": "ok",
+        "restore": "zurücksetzen",
+        "file": "Datei"
+    },
+    "settings": {
+        "title": "Einstellungen",
+        "fontsize": "Schriftgröße"
+    },
+    "menubar": {
+        "menu": {
+            "label": "Menü",
+            "cleardata": "Lösche gespeicherte Dateien",
+            "clearcapture": "Lösche Aufzeichnung",
+            "reset": "reset",
+            "settings": "Einstellungen",
+            "language_option": "Sprachoptionen",
+            "language": "Sprachen"
+        },
+        "view": {
+            "label": "Ansicht",
+            "first": "erster Menüpunkt",
+            "second": "zweiter Menüpunkt"
+        },
+        "help": {
+            "label": "Hilfe",
+            "first": "erster Menüpunkt",
+            "second": "zweiter Menüpunkt"
+        }
+    },
+    "explanation": {
+        "upload": {
+            "vcds": "Bitte gewünschte VCDS Datei auswälen",
+            "battery": "Bitte gewünschte Batteriemessdatei auswählen"
+        }
+    },
+    "training": {
+        "base_data": "Stammdaten",
+        "reason": "Grund des Werkstattbesuchs:",
+        "maintenance": "Wartung",
+        "problem": "Problem",
+        "electrical_consumer": "Elektrische Verbraucher",
+        "switched_off": "Ausgeschaltet",
+        "switched_on": "Eingeschaltet",
+        "evaluation": "Bewertung",
+        "normal_case": "Regelfall",
+        "anomaly": "Anomalie",
+        "compression": {
+            "cylinder": "Zylinder",
+            "max_compression": "Maximalkompression in Bar",
+            "ignition_suspended": "Zündung unterdrückt",
+            "ignition_active": "Zündung aktiv"
+        }
     }
-  } 
 }
