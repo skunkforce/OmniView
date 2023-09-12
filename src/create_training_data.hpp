@@ -22,7 +22,8 @@ void show_standart_input(nlohmann::json const &language,
   ImVec2 windowSize = ImGui::GetWindowSize();
   ImGui::BeginChild("trainingleft",
                     ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
-  ImGui::Text("stammdaten");
+  ImGui::Text(
+      load_json<std::string>(language, "training", "base_data").c_str());
   ImGui::InputText(
       load_json<std::string>(language, "input", "fin", "label").c_str(),
       inputvin, sizeof(inputvin));
@@ -37,34 +38,49 @@ void show_standart_input(nlohmann::json const &language,
 
   static bool expected = true;
   static bool anomaly = !expected;
-  ImGui::Text("Grund des Werkstattbesuchs:");
-  ImGui::Checkbox("Wartung", &maintenance);
+  ImGui::Text(load_json<std::string>(language, "training", "reason").c_str());
+  ImGui::Checkbox(
+      load_json<std::string>(language, "training", "maintenance").c_str(),
+      &maintenance);
   if (maintenance == problem) {
     problem = !maintenance;
   }
   ImGui::SameLine();
-  ImGui::Checkbox("Problem", &problem);
+  ImGui::Checkbox(
+      load_json<std::string>(language, "training", "problem").c_str(),
+      &problem);
   if (problem == maintenance) {
     maintenance = !problem;
   }
 
-  ImGui::Text("Elekrische Verbraucher:");
-  ImGui::Checkbox("Ausgeschaltet", &electric_off);
+  ImGui::Text(
+      load_json<std::string>(language, "training", "electrical_consumer")
+          .c_str());
+  ImGui::Checkbox(
+      load_json<std::string>(language, "training", "switched_off").c_str(),
+      &electric_off);
   if (electric_off == electric_on) {
     electric_on = !electric_off;
   }
   ImGui::SameLine();
-  ImGui::Checkbox("Eingeschaltet", &electric_on);
+  ImGui::Checkbox(
+      load_json<std::string>(language, "training", "switched_on").c_str(),
+      &electric_on);
   if (electric_on == electric_off) {
     electric_off = !electric_on;
   }
-  ImGui::Text("Bewertung:");
-  ImGui::Checkbox("Regelfall", &expected);
+  ImGui::Text(
+      load_json<std::string>(language, "training", "evaluation").c_str());
+  ImGui::Checkbox(
+      load_json<std::string>(language, "training", "normal_case").c_str(),
+      &expected);
   if (expected == anomaly) {
     anomaly = !expected;
   }
   ImGui::SameLine();
-  ImGui::Checkbox("Anomalie", &anomaly);
+  ImGui::Checkbox(
+      load_json<std::string>(language, "training", "anomaly").c_str(),
+      &anomaly);
   if (anomaly == expected) {
     expected = !anomaly;
   }
@@ -213,28 +229,50 @@ void selected_compression_data(nlohmann::json const &config,
   static float z1, z2, z3, z4;
   static char path1[255];
   static char path2[255];
-  ImGui::Text("Maximalkommpression in bar");
-  ImGui::Text("Zylinder 1: ");
+  const std::string cylinder =
+      load_json<std::string>(language, "training", "compression", "cylinder");
+
+  ImGui::Text(load_json<std::string>(language, "training", "compression",
+                                     "max_compression")
+                  .c_str());
+
+  ImGui::Text(cylinder.c_str());
+  ImGui::SameLine();
+  ImGui::Text("1:");
   ImGui::SameLine();
   ImGui::InputFloat("##Zylinder1", &z1, 0.0f, 0.0f, "%.2f bar");
-  ImGui::Text("Zylinder 2: ");
+  ImGui::Text(cylinder.c_str());
+  ImGui::SameLine();
+  ImGui::Text("2:");
   ImGui::SameLine();
   ImGui::InputFloat("##Zylinder2", &z2, 0.0f, 0.0f, "%.2f bar");
-  ImGui::Text("Zylinder 3: ");
+  ImGui::Text(cylinder.c_str());
+  ImGui::SameLine();
+  ImGui::Text("3:");
   ImGui::SameLine();
   ImGui::InputFloat("##Zylinder3", &z3, 0.0f, 0.0f, "%.2f bar");
-  ImGui::Text("Zylinder 4: ");
+  ImGui::Text(cylinder.c_str());
+  ImGui::SameLine();
+  ImGui::Text("4:");
   ImGui::SameLine();
   ImGui::InputFloat("##Zylinder4", &z4, 0.0f, 0.0f, "%.2f bar");
 
   ImGui::Columns(2);
-  ImGui::Text("Unterdrückte Zündung");
-  ImGui::Text("mit Zündung");
+  ImGui::Text(load_json<std::string>(language, "training", "compression",
+                                     "ignition_suspended")
+                  .c_str());
+  ImGui::Text(load_json<std::string>(language, "training", "compression",
+                                     "ignition_active")
+                  .c_str());
   ImGui::NextColumn();
 
   ImGui::InputText("##path1", path1, sizeof(path1));
   ImGui::SameLine();
-  if (ImGui::Button("File1")) {
+  const std::string button1 =
+      load_json<std::string>(language, "button", "file") + " 1";
+  const std::string button2 =
+      load_json<std::string>(language, "button", "file") + " 2";
+  if (ImGui::Button(button1.c_str())) {
     fileBrowser.Open();
   }
   fileBrowser.Display();
@@ -254,7 +292,7 @@ void selected_compression_data(nlohmann::json const &config,
 
   ImGui::InputText("##path2", path2, sizeof(path2));
   ImGui::SameLine();
-  if (ImGui::Button("File2")) {
+  if (ImGui::Button(button2.c_str())) {
     fileBrowser2.Open();
   }
   fileBrowser2.Display();
@@ -296,7 +334,6 @@ void selected_compression_data(nlohmann::json const &config,
   ImGui::SameLine();
   if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
                     ImVec2(load_json<Size>(config, "button")))) {
-
     ImGui::CloseCurrentPopup();
   }
 }

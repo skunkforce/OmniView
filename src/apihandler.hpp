@@ -60,6 +60,7 @@ std::string send_to_api(nlohmann::json const &config, std::string const &file,
     curl_easy_cleanup(curl);
     curl_slist_free_all(header_list);
   } else {
+    // implement failed curl routine
   }
 
   // Aufräumen von cURL
@@ -127,6 +128,7 @@ std::string send_to_api(nlohmann::json const &config, std::string const &file,
     curl_easy_cleanup(curl);
     curl_slist_free_all(header_list);
   } else {
+    // implement failed curl routine
   }
 
   // Aufräumen von cURL

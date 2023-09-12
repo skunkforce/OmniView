@@ -32,7 +32,8 @@
         "back": "zurück",
         "cancel": "abbrechen",
         "ok": "ok",
-        "restore": "zurücksetzen"
+        "restore": "zurücksetzen",
+        "file": "Datei"
     },
     "settings": {
         "title": "Einstellungen",
@@ -41,7 +42,7 @@
     "menubar": {
         "menu": {
             "label": "Menü",
-            "cleardata": "Lösche gespeicherte Datein",
+            "cleardata": "Lösche gespeicherte Dateien",
             "clearcapture": "Lösche Aufzeichnung",
             "reset": "reset",
             "settings": "Einstellungen",
@@ -50,19 +51,37 @@
         },
         "view": {
             "label": "Ansicht",
-            "first": "erster menüpunkt",
-            "second": "zweiter menüpunkt"
+            "first": "erster Menüpunkt",
+            "second": "zweiter Menüpunkt"
         },
         "help": {
             "label": "Hilfe",
-            "first": "erster menüpunkt",
-            "second": "zweiter menüpunkt"
+            "first": "erster Menüpunkt",
+            "second": "zweiter Menüpunkt"
         }
     },
     "explanation": {
         "upload": {
             "vcds": "Bitte gewünschte VCDS Datei auswälen",
             "battery": "Bitte gewünschte Batteriemessdatei auswählen"
+        }
+    },
+    "training": {
+        "base_data": "Stammdaten",
+        "reason": "Grund des Werkstattbesuchs:",
+        "maintenance": "Wartung",
+        "problem": "Problem",
+        "electrical_consumer": "Elektrische Verbraucher",
+        "switched_off": "Ausgeschaltet",
+        "switched_on": "Eingeschaltet",
+        "evaluation": "Bewertung",
+        "normal_case": "Regelfall",
+        "anomaly": "Anomalie",
+        "compression": {
+            "cylinder": "Zylinder",
+            "max_compression": "Maximalkompression in Bar",
+            "ignition_suspended": "Zündung unterdrückt",
+            "ignition_active": "Zündung aktiv"
         }
     }
 }
