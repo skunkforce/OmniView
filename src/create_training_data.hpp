@@ -80,9 +80,119 @@ void show_standart_input(nlohmann::json const &language,
   metadata["Grund des Werkstattbesuchs Wartung"] = maintenance;
   metadata["Anormales Verhalten"] = anomaly;
 }
-void selected_vcds_data() { ImGui::Text("VCDS ist noch nicht implementiert"); }
-void selected_battery_measurement() {
-  ImGui::Text("Die Batteriemessung ist noch nicht implementiert");
+void selected_vcds_data(nlohmann::json const &config,
+                        nlohmann::json const &language,
+                        nlohmann::json &metadata, std::string &inputvin,
+                        std::string &mileage, std::string &comment,
+                        std::string &api_message) {
+  ImGui::Text(load_json<std::string>(language, "explanation", "upload", "vcds")
+                  .c_str());
+  static ImGui::FileBrowser fileBrowser;
+  static bool first_job = true;
+
+  if (first_job) {
+    fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
+    first_job = false;
+  }
+
+  static char path1[255];
+
+  ImGui::InputText("##path1", path1, sizeof(path1));
+  ImGui::SameLine();
+  if (ImGui::Button("File1")) {
+    fileBrowser.Open();
+  }
+  fileBrowser.Display();
+  if (fileBrowser.HasSelected()) {
+    std::string filepath;
+    for (auto const &selectedFile : fileBrowser.GetSelected()) {
+
+      if (!filepath.empty()) {
+        filepath += "/";
+      }
+      filepath += selectedFile.string();
+    }
+    strcpy(path1, filepath.c_str());
+
+    fileBrowser.ClearSelected();
+  }
+  ImGui::Columns(1);
+
+  if (ImGui::Button(load_json<std::string>(language, "button", "send").c_str(),
+                    ImVec2(load_json<Size>(config, "button")))) {
+    // Api muss angepasst werden und die funktion send to api ebenso
+
+    metadata["kommentar"] = comment;
+    metadata["laufleistung"] = mileage;
+    api_message = send_to_api(
+        config, path1, inputvin,
+        load_json<std::string>(language, "measuretype", "vcds"), metadata);
+  }
+
+  ImGui::SameLine();
+  if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
+                    ImVec2(load_json<Size>(config, "button")))) {
+
+    ImGui::CloseCurrentPopup();
+  }
+}
+void selected_battery_measurement(nlohmann::json const &config,
+                                  nlohmann::json const &language,
+                                  nlohmann::json &metadata,
+                                  std::string &inputvin, std::string &mileage,
+                                  std::string &comment,
+                                  std::string &api_message) {
+  ImGui::Text(
+      load_json<std::string>(language, "explanation", "upload", "battery")
+          .c_str());
+  static ImGui::FileBrowser fileBrowser;
+  static bool first_job = true;
+
+  if (first_job) {
+    fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
+    first_job = false;
+  }
+
+  static char path1[255];
+
+  ImGui::InputText("##path1", path1, sizeof(path1));
+  ImGui::SameLine();
+  if (ImGui::Button("File1")) {
+    fileBrowser.Open();
+  }
+  fileBrowser.Display();
+  if (fileBrowser.HasSelected()) {
+    std::string filepath;
+    for (auto const &selectedFile : fileBrowser.GetSelected()) {
+
+      if (!filepath.empty()) {
+        filepath += "/";
+      }
+      filepath += selectedFile.string();
+    }
+    strcpy(path1, filepath.c_str());
+
+    fileBrowser.ClearSelected();
+  }
+  ImGui::Columns(1);
+
+  if (ImGui::Button(load_json<std::string>(language, "button", "send").c_str(),
+                    ImVec2(load_json<Size>(config, "button")))) {
+    // Api muss angepasst werden und die funktion send to api ebenso
+
+    metadata["kommentar"] = comment;
+    metadata["laufleistung"] = mileage;
+    api_message = send_to_api(
+        config, path1, inputvin,
+        load_json<std::string>(language, "measuretype", "battery"), metadata);
+  }
+
+  ImGui::SameLine();
+  if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
+                    ImVec2(load_json<Size>(config, "button")))) {
+
+    ImGui::CloseCurrentPopup();
+  }
 }
 void selected_compression_data(nlohmann::json const &config,
                                nlohmann::json const &language,
@@ -222,10 +332,12 @@ void popup_create_training_data_select(nlohmann::json const &config,
                               comment, api_message);
     break;
   case 1:
-    selected_battery_measurement();
+    selected_battery_measurement(config, language, metadata, inputvin, mileage,
+                                 comment, api_message);
     break;
   case 2:
-    selected_vcds_data();
+    selected_vcds_data(config, language, metadata, inputvin, mileage, comment,
+                       api_message);
     break;
   default:
     ImGui::Text("Fehler, Switchcase mit unerwarteter Auswahl");

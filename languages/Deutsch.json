@@ -58,5 +58,11 @@
             "first": "erster menüpunkt",
             "second": "zweiter menüpunkt"
         }
+    },
+    "explanation": {
+        "upload": {
+            "vcds": "Bitte gewünschte VCDS Datei auswälen",
+            "battery": "Bitte gewünschte Batteriemessdatei auswählen"
+        }
     }
 }
