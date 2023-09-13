@@ -135,9 +135,9 @@ int main() {
     addpath = "../";
     fmt::print("windows\n\r");
   } else {
-    fmt::print("did not find config.json")
-        // close programm and with a message, no configfile found
-        return 1; // Rückgabewert 1 signalisiert einen Fehler
+    fmt::print("did not find config.json");
+    // close programm and with a message, no configfile found
+    return 1; // Rückgabewert 1 signalisiert einen Fehler
   }
   config = load_json_file(configpath);
 
