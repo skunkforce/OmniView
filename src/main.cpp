@@ -22,7 +22,6 @@
 
 std::string configpath = "../config/config.json";
 
-std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
   std::vector<std::string> languages;
   for (auto const &entry :
@@ -129,11 +128,11 @@ int main() {
 
   if (std::filesystem::exists("../config/config.json")) {
     configpath = "../config/config.json";
-    fmt::print("linux\n\r");
+
   } else if (std::filesystem::exists("../../config/config.json")) {
     configpath = "../../config/config.json";
     addpath = "../";
-    fmt::print("windows\n\r");
+
   } else {
     fmt::print("did not find config.json");
     // close programm and with a message, no configfile found
