@@ -127,18 +127,17 @@ int main() {
   nlohmann::json config;
   std::string addpath = "";
 
-  configpath = "../../config/config.json";
-  addpath = "";
   if (std::filesystem::exists("../config/config.json")) {
     configpath = "../config/config.json";
-    fmt::println("linux\n\r");
+    fmt::print("linux\n\r");
   } else if (std::filesystem::exists("../../config/config.json")) {
     configpath = "../../config/config.json";
     addpath = "../";
-    fmt::println("windows\n\r");
+    fmt::print("windows\n\r");
   } else {
-    // close programm and with a message, no configfile found
-    return 1; // Rückgabewert 1 signalisiert einen Fehler
+    fmt::print("did not find config.json")
+        // close programm and with a message, no configfile found
+        return 1; // Rückgabewert 1 signalisiert einen Fehler
   }
   config = load_json_file(configpath);
 
