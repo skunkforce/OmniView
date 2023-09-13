@@ -367,7 +367,7 @@ int main() {
     ImGui::EndChild();
 
     ImGui::BeginChild("Buttonstripe",
-                      ImVec2(-1, ImGui::GetTextLineHeightWithSpacing()));
+                      ImVec2(-1, ImGui::GetTextLineHeightWithSpacing() * 1.1));
 
     if (ImGui::BeginPopupModal("savetofile", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
