@@ -76,7 +76,5 @@ make ausführen:
 ```shell
 cmake --build .
 ```
-Die Executable landet nicht in '/omniview/build/', sondern in '/omniview/build/debug/'.
-Sie muss momentan nach '/omniview/build/' verschoben werden, damit die Pfade stimmen.
 
 

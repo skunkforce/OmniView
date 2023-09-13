@@ -127,8 +127,18 @@ int main() {
   nlohmann::json config;
   std::string addpath = "";
 
-  configpath = "../../config/config.json";
-  addpath = "../";
+  if (std::filesystem::exists("../config/config.json")) {
+    configpath = "../config/config.json";
+
+  } else if (std::filesystem::exists("../../config/config.json")) {
+    configpath = "../../config/config.json";
+    addpath = "../";
+
+  } else {
+    fmt::print("did not find config.json");
+    // close programm and with a message, no configfile found
+    return 1; // Rückgabewert 1 signalisiert einen Fehler
+  }
   config = load_json_file(configpath);
 
   std::vector<std::string> availableLanguages = getAvailableLanguages(
