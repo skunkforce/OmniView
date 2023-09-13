@@ -22,6 +22,7 @@
 
 std::string configpath = "../config/config.json";
 
+std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
   std::vector<std::string> languages;
   for (auto const &entry :
