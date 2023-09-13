@@ -128,7 +128,18 @@ int main() {
   std::string addpath = "";
 
   configpath = "../../config/config.json";
-  addpath = "../";
+  addpath = "";
+  if (std::filesystem::exists("../config/config.json")) {
+    configpath = "../config/config.json";
+    fmt::println("linux\n\r");
+  } else if (std::filesystem::exists("../../config/config.json")) {
+    configpath = "../../config/config.json";
+    addpath = "../";
+    fmt::println("windows\n\r");
+  } else {
+    // close programm and with a message, no configfile found
+    return 1; // Rückgabewert 1 signalisiert einen Fehler
+  }
   config = load_json_file(configpath);
 
   std::vector<std::string> availableLanguages = getAvailableLanguages(
