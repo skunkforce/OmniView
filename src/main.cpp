@@ -327,16 +327,18 @@ int main() {
 
     ImGui::BeginChild("Live Capture", ImVec2(-1, 400));
     if (captureWindowOpen == true) {
-            /*
       if (!paused) {
-        if (!sampler.copyOut(captureData)) {
+        sampler.copyOut(captureData);
+        /*
+                if (!sampler.copyOut(captureData)) {
           //sampler.reset();
           deviceManager.clearDevices();
           captureWindowOpen = true;
           ImGui::OpenPopup("Error!");
         }
+        */
       }
-*/
+
       addPlots("Capture", captureData,
                [&paused, &xmax_paused](auto x_min, auto x_max) {
                  if (!paused) {
@@ -510,7 +512,7 @@ int main() {
     ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
     for (auto const &device : newDevices) {
       if (ImGui::Button(
-              fmt::format("device-{}", device->getId()).c_str())) {
+              fmt::format("device-").c_str())) {
         devices.push_back(device);
       };
     }
@@ -524,7 +526,7 @@ int main() {
       if (ImGui::BeginListBox("new Devices")) {
         for (auto const &device : newDevices) {
           ImGui::TextUnformatted(
-              fmt::format("device-{}", device->getId()).c_str());
+              fmt::format("device-").c_str());
         }
         ImGui::EndListBox();
       }
@@ -545,7 +547,7 @@ int main() {
     if (ImGui::BeginListBox("Current Devices")) {
         for (auto const &device : devices) {
         ImGui::TextUnformatted(
-            fmt::format("device-{}", device->getId()).c_str());
+            fmt::format("device-").c_str());
       }
       ImGui::EndListBox();
     }
