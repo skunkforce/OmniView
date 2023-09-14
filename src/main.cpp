@@ -1,11 +1,14 @@
-#include "OmniscopeCommunication.hpp"
+//#include "OmniscopeCommunication.hpp"
+// clang-format off
+#include <boost/asio.hpp>
+//clang-format on
+#include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
 #include "apihandler.hpp"
 #include "create_training_data.hpp"
 #include "jasonhandler.hpp"
 #include "settingspopup.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <algorithm>
-#include <boost/asio.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -15,7 +18,6 @@
 #include <nlohmann/json_fwd.hpp>
 #include <set>
 #include <thread>
-
 // clang-format off
 #include <imfilebrowser.h>
 // clang-format on
@@ -39,7 +41,7 @@ getAvailableLanguages(std::string const &languageFolder) {
 }
 
 static void
-save(std::map<Omniscope::Device, std::vector<std::pair<double, double>>> const
+save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
          &alignedData,
      std::filesystem::path const &outFile) {
   auto minSize = std::numeric_limits<std::size_t>::max();
@@ -148,12 +150,17 @@ int main() {
       load_json_file(addpath + load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
 
-  static constexpr std::size_t captureDataReserve = 1 << 26;
-  std::vector<Omniscope::Device> devices;
-  std::vector<Omniscope::Device> newDevices;
+  static constexpr int VID = 0x2e8au;
+  static constexpr int PID = 0x000au;
+  //static constexpr std::size_t captureDataReserve = 1 << 26;
+  //std::vector<Omniscope::Device> devices;
+  //std::vector<Omniscope::Device> newDevices;
+  OmniscopeDeviceManager deviceManager{};
+  auto devices = deviceManager.getDevices(VID, PID);
+  auto newDevices = devices;
 
   std::vector<std::pair<std::string, std::string>> savedFileNames{};
-  std::optional<Omniscope::DeviceRunner> runner;
+  //std::optional<Omniscope::DeviceRunner> runner;
 
   auto startTimepoint = std::chrono::system_clock::now();
   auto now = std::chrono::system_clock::now();
@@ -167,26 +174,12 @@ int main() {
 
   static ImVec2 mainMenuBarSize;
 
-  std::map<Omniscope::Device, std::vector<std::pair<double, double>>>
+  OmniscopeSampler sampler(deviceManager, std::move(devices));
+  std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
       captureData;
 
   std::string path;
   path.resize(256);
-
-  auto initRunner = [&]() {
-    if (!devices.empty()) {
-      try {
-        runner.emplace(devices);
-        captureData.clear();
-        for (auto const &dev : devices) {
-          captureData[dev].reserve(captureDataReserve);
-        }
-      } catch (std::exception const &e) {
-        runner.reset();
-        fmt::print(stderr, "Error starting capture: {}\n", e.what());
-      }
-    }
-  };
 
   auto addPlots = [firstRun = std::set<std::string>{}](auto const &name,
                                                        auto const &plots,
@@ -303,8 +296,7 @@ int main() {
       if (ImGui::MenuItem(
               load_json<std::string>(language, "menubar", "menu", "reset")
                   .c_str())) {
-        runner.reset();
-        devices.clear();
+        deviceManager.clearDevices();
         captureData.clear();
         captureWindowOpen = true;
       }
@@ -334,16 +326,17 @@ int main() {
     ImGui::EndMainMenuBar();
 
     ImGui::BeginChild("Live Capture", ImVec2(-1, 400));
-    if (runner && captureWindowOpen == true) {
+    if (captureWindowOpen == true) {
+            /*
       if (!paused) {
-        if (!runner->copyOut(captureData)) {
-          runner.reset();
-          devices.clear();
+        if (!sampler.copyOut(captureData)) {
+          //sampler.reset();
+          deviceManager.clearDevices();
           captureWindowOpen = true;
           ImGui::OpenPopup("Error!");
         }
       }
-
+*/
       addPlots("Capture", captureData,
                [&paused, &xmax_paused](auto x_min, auto x_max) {
                  if (!paused) {
@@ -359,8 +352,8 @@ int main() {
                });
 
     } else {
-      runner.reset();
-      devices.clear();
+      //sampler.reset();
+      deviceManager.clearDevices();
       captureWindowOpen = true;
     }
 
@@ -509,18 +502,16 @@ int main() {
     ImGui::SameLine();
     if (ImGui::Button("Refresh Devicelist",
                       ImVec2(load_json<Size>(config, "button")))) {
-      newDevices = Omniscope::queryDevices();
+        newDevices = deviceManager.getDevices(VID, PID);
     }
 
     ImGui::EndChild();
 
     ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
-
     for (auto const &device : newDevices) {
       if (ImGui::Button(
-              fmt::format("{}-{}", device.type, device.serial).c_str())) {
+              fmt::format("device-{}", device->getId()).c_str())) {
         devices.push_back(device);
-        initRunner();
       };
     }
     // ImGui::EndChild();
@@ -533,7 +524,7 @@ int main() {
       if (ImGui::BeginListBox("new Devices")) {
         for (auto const &device : newDevices) {
           ImGui::TextUnformatted(
-              fmt::format("{}-{}", device.type, device.serial).c_str());
+              fmt::format("device-{}", device->getId()).c_str());
         }
         ImGui::EndListBox();
       }
@@ -541,7 +532,6 @@ int main() {
       if (ImGui::Button("OK", ImVec2(120, 0))) {
         devices = newDevices;
         newDevices.clear();
-        initRunner();
         ImGui::CloseCurrentPopup();
       }
       ImGui::SetItemDefaultFocus();
@@ -553,9 +543,9 @@ int main() {
     }
 
     if (ImGui::BeginListBox("Current Devices")) {
-      for (auto const &device : devices) {
+        for (auto const &device : devices) {
         ImGui::TextUnformatted(
-            fmt::format("{}-{}", device.type, device.serial).c_str());
+            fmt::format("device-{}", device->getId()).c_str());
       }
       ImGui::EndListBox();
     }
@@ -563,10 +553,10 @@ int main() {
     ImGui::InputText("Path", path.data(), path.size());
 
     if (ImGui::Button("Search new Devices")) {
-      newDevices = Omniscope::queryDevices();
-      //     if(devices != newDevices) {
-      ImGui::OpenPopup("Restart?");
-      //   }
+        newDevices = deviceManager.getDevices(VID, PID);
+        if(devices != newDevices) {
+            ImGui::OpenPopup("Restart?");
+        }
     }
     ImGui::EndChild();
 

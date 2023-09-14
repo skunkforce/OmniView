@@ -52,6 +52,10 @@ set(IMGUI_FILEBROWSER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui-filebrowser)
 add_library(imgui-filebrowser INTERFACE)
 target_include_directories(imgui-filebrowser INTERFACE ${IMGUI_FILEBROWSER_INCLUDE_DIR})
 
+find_package(libusb CONFIG REQUIRED)
+target_include_directories(OmniView PUBLIC ${LIBUSB_INCLUDE_DIRS})
+target_link_libraries(OmniView PUBLIC ${LIBUSB_LIBRARIES})
+
 target_link_libraries(OmniView PUBLIC imgui-filebrowser)
 
 target_compile_definitions(OmniView PUBLIC BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
