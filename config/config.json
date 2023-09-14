@@ -72,7 +72,7 @@
     },
     "firststart": true,
     "language": "Deutsch",
-    "languagepath": "../languages/",
+    "languagepath": "languages/",
     "menubar": {
         "main": {
             "blue": 0.7,

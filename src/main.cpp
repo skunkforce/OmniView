@@ -1,6 +1,7 @@
 #include "OmniscopeCommunication.hpp"
 #include "apihandler.hpp"
 #include "create_training_data.hpp"
+#include "get_from_github.hpp"
 #include "jasonhandler.hpp"
 #include "settingspopup.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
@@ -19,8 +20,6 @@
 // clang-format off
 #include <imfilebrowser.h>
 // clang-format on
-
-std::string configpath = "../config/config.json";
 
 std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
@@ -125,27 +124,20 @@ void load_settings(nlohmann::json const &config) {
 int main() {
 
   nlohmann::json config;
-  std::string addpath = "";
-
-  if (std::filesystem::exists("../config/config.json")) {
-    configpath = "../config/config.json";
-
-  } else if (std::filesystem::exists("../../config/config.json")) {
-    configpath = "../../config/config.json";
-    addpath = "../";
-
+  const std::string configpath = "config/config.json";
+  if (std::filesystem::exists(configpath)) {
+    // all good
   } else {
-    fmt::print("did not find config.json");
-    // close programm and with a message, no configfile found
-    return 1; // Rückgabewert 1 signalisiert einen Fehler
+    fmt::print("did not find config.json... so download from Github");
+    update_yourself_from_github();
   }
-  config = load_json_file(configpath);
 
-  std::vector<std::string> availableLanguages = getAvailableLanguages(
-      addpath + load_json<std::string>(config, ("languagepath")));
+  config = load_json_file(configpath);
+  std::vector<std::string> availableLanguages =
+      getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
 
   nlohmann::json language =
-      load_json_file(addpath + load_json<std::string>(config, "languagepath") +
+      load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
 
   static constexpr std::size_t captureDataReserve = 1 << 26;
