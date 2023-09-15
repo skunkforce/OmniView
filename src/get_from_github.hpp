@@ -53,11 +53,12 @@ bool update_yourself_from_github() {
   std::filesystem::create_directories("config");
   std::filesystem::create_directories("languages");
 
-  bool downloaded_config = downloadFileFromGitHub(
-      "https://github.com/skunkforce/omniview/blob/master/config/config.json",
-      "config/config.json");
+  bool downloaded_config =
+      downloadFileFromGitHub("https://raw.githubusercontent.com/skunkforce/"
+                             "omniview/ds/update-method/config/config.json",
+                             "config/config.json");
   bool dowloaded_langfiles =
-      downloadFileFromGitHub("https://github.com/skunkforce/omniview/blob/"
-                             "master/languages/Deutsch.json",
+      downloadFileFromGitHub("https://raw.githubusercontent.com/skunkforce/"
+                             "omniview/ds/update-method/languages/Deutsch.json",
                              "languages/Deutsch.json");
 }
