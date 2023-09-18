@@ -100,7 +100,7 @@ void selected_vcds_data(nlohmann::json const &config,
                         nlohmann::json const &language,
                         nlohmann::json &metadata, std::string &inputvin,
                         std::string &mileage, std::string &comment,
-                        std::string &api_message) {
+                        std::string &api_message, bool &upload_success) {
   ImGui::Text(load_json<std::string>(language, "explanation", "upload", "vcds")
                   .c_str());
   static ImGui::FileBrowser fileBrowser;
@@ -152,12 +152,10 @@ void selected_vcds_data(nlohmann::json const &config,
     ImGui::CloseCurrentPopup();
   }
 }
-void selected_battery_measurement(nlohmann::json const &config,
-                                  nlohmann::json const &language,
-                                  nlohmann::json &metadata,
-                                  std::string &inputvin, std::string &mileage,
-                                  std::string &comment,
-                                  std::string &api_message) {
+void selected_battery_measurement(
+    nlohmann::json const &config, nlohmann::json const &language,
+    nlohmann::json &metadata, std::string &inputvin, std::string &mileage,
+    std::string &comment, std::string &api_message, bool &upload_success) {
   ImGui::Text(
       load_json<std::string>(language, "explanation", "upload", "battery")
           .c_str());
@@ -201,6 +199,8 @@ void selected_battery_measurement(nlohmann::json const &config,
     api_message = send_to_api(
         config, path1, inputvin,
         load_json<std::string>(language, "measuretype", "battery"), metadata);
+    upload_success = true;
+    ImGui::CloseCurrentPopup();
   }
 
   ImGui::SameLine();
@@ -214,7 +214,7 @@ void selected_compression_data(nlohmann::json const &config,
                                nlohmann::json const &language,
                                nlohmann::json &metadata, std::string &inputvin,
                                std::string &mileage, std::string &comment,
-                               std::string &api_message) {
+                               std::string &api_message, bool &upload_success) {
 
   static ImGui::FileBrowser fileBrowser;
   static ImGui::FileBrowser fileBrowser2;
@@ -329,6 +329,8 @@ void selected_compression_data(nlohmann::json const &config,
         config, path2, inputvin,
         load_json<std::string>(language, "measuretype", "compression"),
         metadata);
+    upload_success = true;
+    ImGui::CloseCurrentPopup();
   }
 
   ImGui::SameLine();
@@ -339,7 +341,8 @@ void selected_compression_data(nlohmann::json const &config,
 }
 
 void popup_create_training_data_select(nlohmann::json const &config,
-                                       nlohmann::json const &language) {
+                                       nlohmann::json const &language,
+                                       bool &upload_success) {
 
   static int selectedOption = 0; // Standardauswahl
   /*
@@ -366,15 +369,15 @@ void popup_create_training_data_select(nlohmann::json const &config,
   switch (selectedOption) {
   case 0:
     selected_compression_data(config, language, metadata, inputvin, mileage,
-                              comment, api_message);
+                              comment, api_message, upload_success);
     break;
   case 1:
     selected_battery_measurement(config, language, metadata, inputvin, mileage,
-                                 comment, api_message);
+                                 comment, api_message, upload_success);
     break;
   case 2:
     selected_vcds_data(config, language, metadata, inputvin, mileage, comment,
-                       api_message);
+                       api_message, upload_success);
     break;
   default:
     ImGui::Text("Fehler, Switchcase mit unerwarteter Auswahl");

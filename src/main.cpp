@@ -154,6 +154,7 @@ int main() {
 
   double xmax_paused{0};
   static bool open_settings = false;
+  static bool upload_success = false;
   bool captureWindowOpen = true;
   bool paused = false;
 
@@ -430,7 +431,25 @@ int main() {
 
       ImGui::SetItemDefaultFocus();
 
-      popup_create_training_data_select(config, language);
+      popup_create_training_data_select(config, language, upload_success);
+      ImGui::EndPopup();
+    }
+    if (upload_success == true) {
+      ImGui::OpenPopup("upload_success");
+    }
+    if (ImGui::BeginPopupModal("upload_success", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize |
+                                   ImGuiWindowFlags_NoSavedSettings |
+                                   ImGuiWindowFlags_NoMove)) {
+      ImGui::Text(load_json<std::string>(language, "training", "upload_success")
+                      .c_str());
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "ok").c_str())) {
+        ImGui::CloseCurrentPopup();
+        upload_success = false;
+      }
+
+      ImGui::SetItemDefaultFocus();
       ImGui::EndPopup();
     }
     if (paused == true) {
