@@ -88,6 +88,7 @@ static void save(
     std::ofstream file{outFile};
     // fmt::print("{}\n", fileContent);
     file << fileContent;
+    file.flush();
     file.close();
 
     fmt::print("finished save\n");
@@ -158,7 +159,6 @@ int main() {
     auto devices = deviceManager.getDevices(VID, PID);
     // auto newDevices = devices;
 
-    std::vector<std::pair<std::string, std::string>> savedFileNames{};
 
     auto startTimepoint = std::chrono::system_clock::now();
     auto now = std::chrono::system_clock::now();
@@ -285,11 +285,6 @@ int main() {
                 open_settings = true;
             }
             if (ImGui::MenuItem(load_json<std::string>(language, "menubar",
-                                                       "menu", "cleardata")
-                                    .c_str())) {
-                savedFileNames.clear();
-            }
-            if (ImGui::MenuItem(load_json<std::string>(language, "menubar",
                                                        "menu", "clearcapture")
                                     .c_str())) {
                 captureData.clear();
@@ -329,7 +324,7 @@ int main() {
 
         // ############################ Live Capture
         // ##############################
-        ImGui::BeginChild("Live Capture", ImVec2(-1, 400));
+        ImGui::BeginChild("Live Capture", ImVec2(-1, 620));
         if (sampler.has_value()) {
             sampler->copyOut(captureData);
         }
@@ -388,7 +383,7 @@ int main() {
 
                 std::string_view path_sv{path.data()};
                 std::string filename{
-                    fmt::format("{}-{:%Y-%m-%dT%H:%M}.csv", mileage, now)};
+                    fmt::format("{}-{:%Y-%m-%dT%H-%M}.csv", mileage, now)};
                 std::filesystem::path path_path = path_sv;
                 if (captureData.empty()) {
                     ImGui::CloseCurrentPopup();
@@ -402,10 +397,6 @@ int main() {
 
                     save(captureData, path_path / complete_path / filename);
 
-                    savedFileNames.emplace_back(
-                        path_path.string(),
-                        fmt::format("{:%T}-{:%T}", startTimepoint, now)
-                            .c_str());
                     // nicht mehr im save-kontext, sondern in create training
                     // data send_to_api(config, path_path / filename, inputvin,
                     // scantype);
@@ -545,18 +536,24 @@ int main() {
         // ############################ Devicelist
         // ##############################
         ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
-        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
-                                ImVec2(0.5f, 0.5f));
+        //ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        //ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
+          //                      ImVec2(0.5f, 0.5f));
 
-        if (ImGui::BeginListBox("Current Devices")) {
+        ImGui::Text("gefundene Geräte:");
+        if (ImGui::BeginListBox("", ImVec2(760, -1))) {
             for (auto &device : devices) {
                 ImGui::TextUnformatted(
-                    fmt::format("{}-{} v{}.{}.{}", device->getId().value().type,
-                                device->getId().value().serial,
-                                device->getId().value().hwVersion.major,
-                                device->getId().value().hwVersion.minor,
-                                device->getId().value().hwVersion.patch)
+                    fmt::format(
+                        "{}-{}\t\tHardware: v{}.{}.{}\tSoftware: v{}.{}.{}",
+                        device->getId().value().type,
+                        device->getId().value().serial,
+                        device->getId().value().hwVersion.major,
+                        device->getId().value().hwVersion.minor,
+                        device->getId().value().hwVersion.patch,
+                        device->getId().value().swVersion.major,
+                        device->getId().value().swVersion.minor,
+                        device->getId().value().swVersion.patch)
                         .c_str());
             }
             ImGui::EndListBox();
