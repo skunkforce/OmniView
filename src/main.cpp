@@ -359,8 +359,17 @@ int main() {
 
     ImGui::EndChild();
 
-    ImGui::BeginChild("Buttonstripe",
-                      ImVec2(-1, ImGui::GetTextLineHeightWithSpacing() * 1.1));
+    float optimal_buttonstripe_height;
+    if (load_json<float>(config, "button", "sizey") <
+        (ImGui::GetTextLineHeightWithSpacing() * 1.1)) {
+      optimal_buttonstripe_height =
+          (ImGui::GetTextLineHeightWithSpacing() * 1.1);
+    } else {
+      optimal_buttonstripe_height =
+          load_json<float>(config, "button", "sizey") * 1.1;
+    }
+    ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
+                      false, ImGuiWindowFlags_NoScrollbar);
 
     if (ImGui::BeginPopupModal("savetofile", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -512,6 +521,7 @@ int main() {
     }
     if (ImGui::Button("Create Training Data",
                       ImVec2(load_json<Size>(config, "button")))) {
+      paused = true;
       ImGui::SetNextWindowPos(ImVec2(0, 0));
       ImGui::SetNextWindowSize(ImVec2(0, 0));
       ImGui::OpenPopup("createtrainingdata");
@@ -525,7 +535,8 @@ int main() {
 
     ImGui::EndChild();
 
-    ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
+    ImGui::BeginChild("Devicelist", ImVec2(-1, 0), false,
+                      ImGuiWindowFlags_NoScrollbar);
 
     for (auto const &device : newDevices) {
       if (ImGui::Button(
@@ -571,6 +582,7 @@ int main() {
       ImGui::EndListBox();
     }
 
+    /*
     ImGui::InputText("Path", path.data(), path.size());
 
     if (ImGui::Button("Search new Devices")) {
@@ -578,7 +590,7 @@ int main() {
       //     if(devices != newDevices) {
       ImGui::OpenPopup("Restart?");
       //   }
-    }
+    }*/
     ImGui::EndChild();
 
     ImGui::SameLine();
@@ -605,7 +617,7 @@ int main() {
     // ImGui::End();
   };
 
-  ImGuiInstance window{1280, 760, load_json<std::string>(config, "title")};
+  ImGuiInstance window{1920, 1080, load_json<std::string>(config, "title")};
   while (window.run(render)) {
   }
   return 0;

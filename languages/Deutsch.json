@@ -1,7 +1,7 @@
 {
     "general": {
         "size": "Größe",
-        "height": "Höhe",
+        "height": "Höhe  ",
         "width": "Breite"
     },
     "input": {
@@ -37,7 +37,8 @@
     },
     "settings": {
         "title": "Einstellungen",
-        "fontsize": "Schriftgröße"
+        "fontsize": "Schriftgröße",
+        "buttonexplain": "Buttongröße 0 = automagisch"
     },
     "menubar": {
         "menu": {
