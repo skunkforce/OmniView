@@ -41,8 +41,15 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
-          packages: libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config libudev-dev autoconf
+          packages: libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
           version: 1.0
+
+      - name: setup prerequisites
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install autoconf libudev-dev
 
       - name: get vcpkg
         uses: lukka/run-vcpkg@v11
