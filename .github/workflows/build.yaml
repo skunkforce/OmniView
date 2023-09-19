@@ -41,7 +41,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
-          packages: libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoreconf libudev
+          packages: libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config libudev-dev autoconf
           version: 1.0
 
       - name: get vcpkg
