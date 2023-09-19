@@ -23,6 +23,12 @@ jobs:
         with:
           submodules: true
 
+      - name: add ssh private keys for submodule repositories
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: |
+             ${{ secrets.SSH_KEY_SUBMODULE_AI_OMNISCOPE_V2 }}
+
       - name: setup
         uses: aminya/setup-cpp@v1
         with:
