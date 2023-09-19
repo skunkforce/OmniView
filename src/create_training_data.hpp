@@ -11,7 +11,7 @@
 #include <imfilebrowser.h>
 // clang-format on
 
-void show_standart_input(nlohmann::json const &language,
+static void show_standart_input(nlohmann::json const &language,
                          nlohmann::json &metadata, std::string &inputvin_string,
                          std::string &mileage_string,
                          std::string &comment_string) {
@@ -22,7 +22,7 @@ void show_standart_input(nlohmann::json const &language,
   ImVec2 windowSize = ImGui::GetWindowSize();
   ImGui::BeginChild("trainingleft",
                     ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
-  ImGui::Text(
+  ImGui::TextUnformatted(
       load_json<std::string>(language, "training", "base_data").c_str());
   ImGui::InputText(
       load_json<std::string>(language, "input", "fin", "label").c_str(),
@@ -38,7 +38,7 @@ void show_standart_input(nlohmann::json const &language,
 
   static bool expected = true;
   static bool anomaly = !expected;
-  ImGui::Text(load_json<std::string>(language, "training", "reason").c_str());
+  ImGui::TextUnformatted(load_json<std::string>(language, "training", "reason").c_str());
   ImGui::Checkbox(
       load_json<std::string>(language, "training", "maintenance").c_str(),
       &maintenance);
@@ -53,7 +53,7 @@ void show_standart_input(nlohmann::json const &language,
     maintenance = !problem;
   }
 
-  ImGui::Text(
+  ImGui::TextUnformatted(
       load_json<std::string>(language, "training", "electrical_consumer")
           .c_str());
   ImGui::Checkbox(
@@ -69,7 +69,7 @@ void show_standart_input(nlohmann::json const &language,
   if (electric_on == electric_off) {
     electric_off = !electric_on;
   }
-  ImGui::Text(
+  ImGui::TextUnformatted(
       load_json<std::string>(language, "training", "evaluation").c_str());
   ImGui::Checkbox(
       load_json<std::string>(language, "training", "normal_case").c_str(),
@@ -96,12 +96,12 @@ void show_standart_input(nlohmann::json const &language,
   metadata["Grund des Werkstattbesuchs Wartung"] = maintenance;
   metadata["Anormales Verhalten"] = anomaly;
 }
-void selected_vcds_data(nlohmann::json const &config,
+static void selected_vcds_data(nlohmann::json const &config,
                         nlohmann::json const &language,
                         nlohmann::json &metadata, std::string &inputvin,
                         std::string &mileage, std::string &comment,
                         std::string &api_message) {
-  ImGui::Text(load_json<std::string>(language, "explanation", "upload", "vcds")
+  ImGui::TextUnformatted(load_json<std::string>(language, "explanation", "upload", "vcds")
                   .c_str());
   static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
@@ -152,13 +152,13 @@ void selected_vcds_data(nlohmann::json const &config,
     ImGui::CloseCurrentPopup();
   }
 }
-void selected_battery_measurement(nlohmann::json const &config,
+static void selected_battery_measurement(nlohmann::json const &config,
                                   nlohmann::json const &language,
                                   nlohmann::json &metadata,
                                   std::string &inputvin, std::string &mileage,
                                   std::string &comment,
                                   std::string &api_message) {
-  ImGui::Text(
+  ImGui::TextUnformatted(
       load_json<std::string>(language, "explanation", "upload", "battery")
           .c_str());
   static ImGui::FileBrowser fileBrowser;
@@ -210,7 +210,7 @@ void selected_battery_measurement(nlohmann::json const &config,
     ImGui::CloseCurrentPopup();
   }
 }
-void selected_compression_data(nlohmann::json const &config,
+static void selected_compression_data(nlohmann::json const &config,
                                nlohmann::json const &language,
                                nlohmann::json &metadata, std::string &inputvin,
                                std::string &mileage, std::string &comment,
@@ -232,36 +232,36 @@ void selected_compression_data(nlohmann::json const &config,
   const std::string cylinder =
       load_json<std::string>(language, "training", "compression", "cylinder");
 
-  ImGui::Text(load_json<std::string>(language, "training", "compression",
+  ImGui::TextUnformatted(load_json<std::string>(language, "training", "compression",
                                      "max_compression")
                   .c_str());
 
-  ImGui::Text(cylinder.c_str());
+  ImGui::TextUnformatted(cylinder.c_str());
   ImGui::SameLine();
   ImGui::Text("1:");
   ImGui::SameLine();
   ImGui::InputFloat("##Zylinder1", &z1, 0.0f, 0.0f, "%.2f bar");
-  ImGui::Text(cylinder.c_str());
+  ImGui::TextUnformatted(cylinder.c_str());
   ImGui::SameLine();
   ImGui::Text("2:");
   ImGui::SameLine();
   ImGui::InputFloat("##Zylinder2", &z2, 0.0f, 0.0f, "%.2f bar");
-  ImGui::Text(cylinder.c_str());
+  ImGui::TextUnformatted(cylinder.c_str());
   ImGui::SameLine();
   ImGui::Text("3:");
   ImGui::SameLine();
   ImGui::InputFloat("##Zylinder3", &z3, 0.0f, 0.0f, "%.2f bar");
-  ImGui::Text(cylinder.c_str());
+  ImGui::TextUnformatted(cylinder.c_str());
   ImGui::SameLine();
   ImGui::Text("4:");
   ImGui::SameLine();
   ImGui::InputFloat("##Zylinder4", &z4, 0.0f, 0.0f, "%.2f bar");
 
   ImGui::Columns(2);
-  ImGui::Text(load_json<std::string>(language, "training", "compression",
+  ImGui::TextUnformatted(load_json<std::string>(language, "training", "compression",
                                      "ignition_suspended")
                   .c_str());
-  ImGui::Text(load_json<std::string>(language, "training", "compression",
+  ImGui::TextUnformatted(load_json<std::string>(language, "training", "compression",
                                      "ignition_active")
                   .c_str());
   ImGui::NextColumn();
@@ -338,7 +338,7 @@ void selected_compression_data(nlohmann::json const &config,
   }
 }
 
-void popup_create_training_data_select(nlohmann::json const &config,
+static void popup_create_training_data_select(nlohmann::json const &config,
                                        nlohmann::json const &language) {
 
   static int selectedOption = 0; // Standardauswahl
@@ -381,5 +381,5 @@ void popup_create_training_data_select(nlohmann::json const &config,
   }
 
   ImGui::EndChild();
-  ImGui::Text(api_message.c_str());
+  ImGui::TextUnformatted(api_message.c_str());
 }

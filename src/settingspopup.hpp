@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
-void popup_settings(nlohmann::json &config, nlohmann::json &language,
+static void popup_settings(nlohmann::json &config, nlohmann::json &language,
                     std::string const &configpath) {
   static float fontscale;
   static nlohmann::json newconfig = 0;
@@ -21,7 +21,7 @@ void popup_settings(nlohmann::json &config, nlohmann::json &language,
   std::string fontscalestring = fmt::format(
       "{} {:.1f}", load_json<std::string>(language, "settings", "fontsize"),
       fontscale);
-  ImGui::Text(fontscalestring.c_str());
+  ImGui::TextUnformatted(fontscalestring.c_str());
   ImGui::SameLine();
   if (ImGui::Button("+")) {
     fontscale += 0.1f;
@@ -46,7 +46,7 @@ void popup_settings(nlohmann::json &config, nlohmann::json &language,
       "{} {:.1f}", load_json<std::string>(language, "general", "height"),
       ButtonSizeY);
 
-  ImGui::Text(buttonXsizestring.c_str());
+  ImGui::TextUnformatted(buttonXsizestring.c_str());
 
   ImGui::SameLine();
   if (ImGui::Button("X+")) {
@@ -60,7 +60,7 @@ void popup_settings(nlohmann::json &config, nlohmann::json &language,
     newconfig["button"]["sizex"] = ButtonSizeX;
   }
 
-  ImGui::Text(buttonYsizestring.c_str());
+  ImGui::TextUnformatted(buttonYsizestring.c_str());
   ImGui::SameLine();
   if (ImGui::Button("Y+")) {
     ButtonSizeY += 1.0f;

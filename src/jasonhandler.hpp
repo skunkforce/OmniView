@@ -13,7 +13,7 @@ struct Size : ImVec2 {
     using ImVec2::ImVec2;
 };
 
-void to_json(nlohmann::json& j, Color const& c) {
+inline void to_json(nlohmann::json& j, Color const& c) {
     j = nlohmann::json{
       {         "red", c.x},
       {       "green", c.y},
@@ -22,32 +22,32 @@ void to_json(nlohmann::json& j, Color const& c) {
     };
 }
 
-void from_json(nlohmann::json const& j, Color& c) {
+static void from_json(nlohmann::json const& j, Color& c) {
     j.at("red").get_to(c.x);
     j.at("green").get_to(c.y);
     j.at("blue").get_to(c.z);
     j.at("transparency").get_to(c.w);
 }
-void to_json(nlohmann::json& j, Size const& s) {
+inline void to_json(nlohmann::json& j, Size const& s) {
     j = nlohmann::json{
       {"sizex", s.x},
       {"sizey", s.y},
     };
 }
 
-void from_json(nlohmann::json const& j, Size& s) {
+static void from_json(nlohmann::json const& j, Size& s) {
     j.at("sizex").get_to(s.x);
     j.at("sizey").get_to(s.y);
 }
 
-nlohmann::json load_json_file(std::string const& path) {
+static nlohmann::json load_json_file(std::string const& path) {
     std::ifstream  json_file(path);
     nlohmann::json return_json;
     json_file >> return_json;
     return return_json;
 }
 
-void write_json_file(std::string const& path, nlohmann::json const& json_data) {
+static void write_json_file(std::string const& path, nlohmann::json const& json_data) {
     std::ofstream json_file(path);
     json_file << json_data.dump(4);
     json_file.close();
