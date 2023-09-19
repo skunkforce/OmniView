@@ -87,7 +87,7 @@
             "transparency": 1.0
         }
     },
-    "scanfolder": "../saves",
+    "scanfolder": "saves",
     "text": {
         "color": {
             "inactive": {

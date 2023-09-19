@@ -344,7 +344,7 @@ void popup_create_training_data_select(nlohmann::json const &config,
                                        nlohmann::json const &language,
                                        bool &upload_success) {
 
-  static int selectedOption = 0; // Standardauswahl
+  static int selectedOption = 1; // Standardauswahl
   /*
   load_json<std::string>(language, "measuretype", "compression").c_str(),
   load_json<std::string>(language, "measuretype", "battery").c_str(),

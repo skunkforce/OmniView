@@ -377,7 +377,7 @@ int main() {
 
       static char inputvin[18] = "";
       static char mileage[10] = "";
-      static char scantype[255] = "";
+      static char scantype;
       ImGui::SetItemDefaultFocus();
       ImGui::InputText(
           load_json<std::string>(language, "input", "fin", "label").c_str(),
@@ -385,10 +385,14 @@ int main() {
       ImGui::InputText(
           load_json<std::string>(language, "input", "mileage", "label").c_str(),
           mileage, sizeof(mileage));
-      ImGui::InputText(
+      /*ImGui::InputText(
           load_json<std::string>(language, "input", "scantype", "label")
               .c_str(),
-          scantype, sizeof(scantype));
+          scantype, sizeof(scantype));*/
+      static int selectedOption = 0; // Standardauswahl
+      const char *options[] = {"Kompressionsmessung", "Batteriemessung",
+                               "VCDS-Datei"};
+      ImGui::Combo("Messung", &selectedOption, options, IM_ARRAYSIZE(options));
 
       if (ImGui::Button(
               load_json<std::string>(language, "button", "save").c_str(),
@@ -403,13 +407,14 @@ int main() {
             fmt::format("{}-{:%Y-%m-%dT%H:%M}.csv", mileage, now)};
         std::filesystem::path path_path = path_sv;
         if (captureData.empty()) {
+
           ImGui::CloseCurrentPopup();
         } else {
           // create the given folder_structure
           std::filesystem::path first_folder =
               load_json<std::filesystem::path>(config, "scanfolder");
           std::filesystem::path complete_path =
-              first_folder / inputvin / scantype;
+              first_folder / inputvin / options[selectedOption];
           std::filesystem::create_directories(complete_path);
 
           save(captureData, path_path / complete_path / filename);
