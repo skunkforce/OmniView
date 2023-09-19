@@ -148,7 +148,7 @@ int main() {
     static constexpr int PID = 0x000au;
     // static constexpr std::size_t captureDataReserve = 1 << 26;
     OmniscopeDeviceManager deviceManager{};
-    auto                   devices = deviceManager.getDevices(VID, PID);
+    std::vector<std::shared_ptr<OmniscopeDevice>>                   devices;// = deviceManager.getDevices(VID, PID);
     // auto newDevices = devices;
 
     //   auto startTimepoint = std::chrono::system_clock::now();
@@ -163,11 +163,14 @@ int main() {
     std::optional<OmniscopeSampler>                                 sampler{};
     std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
 
+    std::map<Omniscope::Id, std::array<float, 3>> colorMap;
+
     std::string path;
     path.resize(256);
 
     auto addPlots
-      = [firstRun
+      = [&,
+         firstRun
          = std::set<std::string>{}](auto const& name, auto const& plots, auto axesSetup) mutable {
             auto const plotRegion = ImGui::GetContentRegionAvail();
             if(ImPlot::BeginPlot(name, plotRegion)) {
@@ -235,8 +238,12 @@ int main() {
                 };
 
                 for(auto const& plot : plots) {
+                    ImPlot::SetNextLineStyle(ImVec4{
+                      colorMap[plot.first][0],
+                      colorMap[plot.first][1],
+                      colorMap[plot.first][2],
+                      1.0f});
                     addPlot(plot);
-                    ImPlot::NextColormapColor();
                 }
 
                 ImPlot::EndPlot();
@@ -417,7 +424,24 @@ int main() {
             }
             // Start nur wenn Devices vorhanden soind, sonst Suche Geräte
             if(ImGui::Button("Suche Geräte", ImVec2(load_json<Size>(config, "button")))) {
+                devices.clear();
+                deviceManager.clearDevices();
                 devices = deviceManager.getDevices(VID, PID);
+
+                for(auto& device : devices) {
+                    auto id = device->getId().value();
+                    if(!colorMap.contains(id)) {
+                        auto c=ImPlot::GetColormapColor(colorMap.size());
+                        colorMap[id] = std::array<float, 3>{c.x, c.y, c.z};
+                    }
+
+                    auto& color = colorMap[id];
+                    fmt::print("col {}\n",color);
+                    device->send(Omniscope::SetRgb{
+                      static_cast<std::uint8_t>(color[0] * 255),
+                      static_cast<std::uint8_t>(color[1] * 255),
+                      static_cast<std::uint8_t>(color[2] * 255)});
+                }
             }
 
             if(!devices.empty()) {
@@ -528,12 +552,26 @@ int main() {
         ImGui::Text("gefundene Geräte:");
         if(ImGui::BeginListBox("", ImVec2(1024, -1))) {
             for(auto& device : devices) {
+                auto& color = colorMap[device->getId().value()];
+                if(ImGui::ColorEdit3(
+                     fmt::format(
+                       "{:<32}",
+                       fmt::format(
+                         "{}-{}",
+                         device->getId().value().type,
+                         device->getId().value().serial))
+                       .c_str(),
+                     color.data(),
+                     ImGuiColorEditFlags_NoInputs))
+                {
+                    device->send(Omniscope::SetRgb{
+                      static_cast<std::uint8_t>(color[0] * 255),
+                      static_cast<std::uint8_t>(color[1] * 255),
+                      static_cast<std::uint8_t>(color[2] * 255)});
+                }
+                ImGui::SameLine();
                 ImGui::TextUnformatted(fmt::format(
-                                         "{:<32}    HW: v{}.{}.{} SW: v{}.{}.{}",
-                                         fmt::format(
-                                           "{}-{}",
-                                           device->getId().value().type,
-                                           device->getId().value().serial),
+                                         "HW: v{}.{}.{} SW: v{}.{}.{}",
                                          device->getId().value().hwVersion.major,
                                          device->getId().value().hwVersion.minor,
                                          device->getId().value().hwVersion.patch,
