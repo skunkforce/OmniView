@@ -98,6 +98,7 @@ static void show_standart_input(nlohmann::json const &language,
   metadata["Grund des Werkstattbesuchs Wartung"] = maintenance;
   metadata["Anormales Verhalten"] = anomaly;
 }
+
 static void selected_vcds_data(nlohmann::json const &config,
                                nlohmann::json const &language,
                                nlohmann::json &metadata, std::string &inputvin,
@@ -145,15 +146,12 @@ static void selected_vcds_data(nlohmann::json const &config,
     api_message = send_to_api(
         config, path1, inputvin,
         load_json<std::string>(language, "measuretype", "vcds"), metadata);
-  }
-
-  ImGui::SameLine();
-  if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
-                    ImVec2(load_json<Size>(config, "button")))) {
-
+    upload_success = true;
     ImGui::CloseCurrentPopup();
   }
+  ImGui::EndChild();
 }
+
 void selected_battery_measurement(
     nlohmann::json const &config, nlohmann::json const &language,
     nlohmann::json &metadata, std::string &inputvin, std::string &mileage,
@@ -194,8 +192,6 @@ void selected_battery_measurement(
 
   if (ImGui::Button(load_json<std::string>(language, "button", "send").c_str(),
                     ImVec2(load_json<Size>(config, "button")))) {
-    // Api muss angepasst werden und die funktion send to api ebenso
-
     metadata["kommentar"] = comment;
     metadata["laufleistung"] = mileage;
     api_message = send_to_api(
@@ -205,12 +201,7 @@ void selected_battery_measurement(
     ImGui::CloseCurrentPopup();
   }
 
-  ImGui::SameLine();
-  if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
-                    ImVec2(load_json<Size>(config, "button")))) {
-
-    ImGui::CloseCurrentPopup();
-  }
+  ImGui::EndChild();
 }
 static void selected_compression_data(
     nlohmann::json const &config, nlohmann::json const &language,
@@ -336,12 +327,7 @@ static void selected_compression_data(
     upload_success = true;
     ImGui::CloseCurrentPopup();
   }
-
-  ImGui::SameLine();
-  if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
-                    ImVec2(load_json<Size>(config, "button")))) {
-    ImGui::CloseCurrentPopup();
-  }
+  ImGui::EndChild();
 }
 
 void popup_create_training_data_select(nlohmann::json const &config,
@@ -349,11 +335,6 @@ void popup_create_training_data_select(nlohmann::json const &config,
                                        bool &upload_success) {
 
   static int selectedOption = 1; // Standardauswahl
-  /*
-  load_json<std::string>(language, "measuretype", "compression").c_str(),
-  load_json<std::string>(language, "measuretype", "battery").c_str(),
-  load_json<std::string>(language, "measuretype", "vcds").c_str()
-  */
   const char *options[] = {"Kompressionsmessung", "Batteriemessung",
                            "VCDS-Datei"};
   ImGui::Combo("Messung", &selectedOption, options, IM_ARRAYSIZE(options));
@@ -386,7 +367,10 @@ void popup_create_training_data_select(nlohmann::json const &config,
   default:
     ImGui::Text("Fehler, Switchcase mit unerwarteter Auswahl");
   }
+  if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
+                    ImVec2(load_json<Size>(config, "button")))) {
+    ImGui::CloseCurrentPopup();
+  }
 
-  ImGui::EndChild();
   ImGui::TextUnformatted(api_message.c_str());
 }

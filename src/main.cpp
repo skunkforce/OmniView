@@ -160,7 +160,7 @@ int main() {
 
   double xmax_paused{0};
   static bool open_settings = false;
-
+  static bool upload_success = false;
   static ImVec2 mainMenuBarSize;
   std::optional<OmniscopeSampler> sampler{};
   std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
@@ -406,8 +406,27 @@ int main() {
                                      ImGuiWindowFlags_NoSavedSettings |
                                      ImGuiWindowFlags_NoMove)) {
         ImGui::SetItemDefaultFocus();
-        static bool upload_success = false;
+
         popup_create_training_data_select(config, language, upload_success);
+        ImGui::EndPopup();
+      }
+      if (upload_success == true) {
+        ImGui::OpenPopup("upload_success");
+      }
+      if (ImGui::BeginPopupModal("upload_success", nullptr,
+                                 ImGuiWindowFlags_AlwaysAutoResize |
+                                     ImGuiWindowFlags_NoSavedSettings |
+                                     ImGuiWindowFlags_NoMove)) {
+        ImGui::Text(
+            load_json<std::string>(language, "training", "upload_success")
+                .c_str());
+        if (ImGui::Button(
+                load_json<std::string>(language, "button", "ok").c_str())) {
+          ImGui::CloseCurrentPopup();
+          upload_success = false;
+        }
+
+        ImGui::SetItemDefaultFocus();
         ImGui::EndPopup();
       }
       // Start nur wenn Devices vorhanden soind, sonst Suche Geräte
