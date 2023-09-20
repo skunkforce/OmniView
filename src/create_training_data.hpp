@@ -104,7 +104,7 @@ static void selected_vcds_data(nlohmann::json const &config,
                                nlohmann::json &metadata, std::string &inputvin,
                                std::string &mileage, std::string &comment,
                                std::string &api_message, bool &upload_success) {
-  ImGui::Text(load_json<std::string>(language, "explanation", "upload", "vcds")
+  ImGui::TextUnformatted(load_json<std::string>(language, "explanation", "upload", "vcds")
                   .c_str());
   static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
@@ -152,11 +152,11 @@ static void selected_vcds_data(nlohmann::json const &config,
   ImGui::EndChild();
 }
 
-void selected_battery_measurement(
+inline void selected_battery_measurement(
     nlohmann::json const &config, nlohmann::json const &language,
     nlohmann::json &metadata, std::string &inputvin, std::string &mileage,
     std::string &comment, std::string &api_message, bool &upload_success) {
-  ImGui::Text(
+  ImGui::TextUnformatted(
       load_json<std::string>(language, "explanation", "upload", "battery")
           .c_str());
   static ImGui::FileBrowser fileBrowser;
@@ -329,7 +329,7 @@ static void selected_compression_data(
   ImGui::EndChild();
 }
 
-void popup_create_training_data_select(nlohmann::json const &config,
+inline void popup_create_training_data_select(nlohmann::json const &config,
                                        nlohmann::json const &language,
                                        bool &upload_success) {
 
