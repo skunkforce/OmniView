@@ -6,7 +6,7 @@
 #include "apihandler.hpp"
 #include "create_training_data.hpp"
 #include "get_from_github.hpp"
-#include "helppopup.hpp"
+
 #include "jasonhandler.hpp"
 #include "settingspopup.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
@@ -171,7 +171,7 @@ int main() {
 
   double xmax_paused{0};
   static bool open_settings = false;
-  static bool open_help = false;
+
   static bool upload_success = false;
 
   static ImVec2 mainMenuBarSize;
@@ -577,19 +577,6 @@ int main() {
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
       popup_settings(config, language, configpath);
-      ImGui::EndPopup();
-    }
-
-    if (open_help == true) {
-      open_help = false;
-
-      ImGui::OpenPopup("Hilfelink");
-    }
-
-    if (ImGui::BeginPopupModal("Hilfelink", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGui::SetItemDefaultFocus();
-      open_help_popup(config, language);
       ImGui::EndPopup();
     }
 
