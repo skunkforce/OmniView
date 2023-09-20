@@ -352,12 +352,12 @@ int main() {
           load_json<std::string>(language, "input", "fin", "label").c_str(),
           inputvin, sizeof(inputvin));
       ImGui::InputText(
-          load_json<std::string>(language, "input", "mileage", "label").c_str(),
-          mileage, sizeof(mileage));
-      ImGui::InputText(
           load_json<std::string>(language, "input", "scantype", "label")
               .c_str(),
           scantype, sizeof(scantype));
+      ImGui::InputText(
+          load_json<std::string>(language, "input", "mileage", "label").c_str(),
+          mileage, sizeof(mileage));
 
       if (ImGui::Button(
               load_json<std::string>(language, "button", "save").c_str(),
