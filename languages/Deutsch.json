@@ -4,6 +4,7 @@
         "height": "Höhe  ",
         "width": "Breite"
     },
+    "helplink": "Klicken sie auf den Button um zur Hilfeseite zu gelangen",
     "input": {
         "fin": {
             "label": "Fin/Vin",

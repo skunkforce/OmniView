@@ -6,6 +6,7 @@
 #include "apihandler.hpp"
 #include "create_training_data.hpp"
 #include "get_from_github.hpp"
+#include "helppopup.hpp"
 #include "jasonhandler.hpp"
 #include "settingspopup.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
@@ -170,7 +171,9 @@ int main() {
 
   double xmax_paused{0};
   static bool open_settings = false;
+  static bool open_help = false;
   static bool upload_success = false;
+
   static ImVec2 mainMenuBarSize;
   std::optional<OmniscopeSampler> sampler{};
   std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
@@ -297,15 +300,19 @@ int main() {
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "view", "label")
                 .c_str())) {
-
-      ImGui::EndMenu();
     }
+
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "help", "label")
                 .c_str())) {
+      if (ImGui::MenuItem(load_json<std::string>(config, "helplink").c_str())) {
+
+        system(("start " + load_json<std::string>(config, "helplink")).c_str());
+      }
 
       ImGui::EndMenu();
     }
+
     mainMenuBarSize = ImGui::GetItemRectSize();
     ImGui::EndMainMenuBar();
 
@@ -416,7 +423,7 @@ int main() {
         ImGui::EndPopup();
       }
       if (upload_success == true) {
-        ImGui::OpenPopup("upload_success");
+        ImGui::OpenPopup("##upload_success");
       }
       if (ImGui::BeginPopupModal("upload_success", nullptr,
                                  ImGuiWindowFlags_AlwaysAutoResize |
@@ -505,6 +512,7 @@ int main() {
               ImVec2(load_json<Size>(config, "button")))) {
         // fileBrowser.Open();
       }
+
       /*
       //fileBrowser.Display();
       if (fileBrowser.HasSelected()) {
@@ -569,6 +577,19 @@ int main() {
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
       popup_settings(config, language, configpath);
+      ImGui::EndPopup();
+    }
+
+    if (open_help == true) {
+      open_help = false;
+
+      ImGui::OpenPopup("Hilfelink");
+    }
+
+    if (ImGui::BeginPopupModal("Hilfelink", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      ImGui::SetItemDefaultFocus();
+      open_help_popup(config, language);
       ImGui::EndPopup();
     }
 
