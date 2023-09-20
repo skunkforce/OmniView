@@ -50,6 +50,7 @@ bool downloadFileFromGitHub(const std::string &githubUrl,
 }
 
 bool update_yourself_from_github() {
+
   std::filesystem::create_directories("config");
   std::filesystem::create_directories("languages");
 
@@ -57,6 +58,7 @@ bool update_yourself_from_github() {
       downloadFileFromGitHub("https://raw.githubusercontent.com/skunkforce/"
                              "omniview/ds/update-method/config/config.json",
                              "config/config.json");
+
   bool dowloaded_langfiles =
       downloadFileFromGitHub("https://raw.githubusercontent.com/skunkforce/"
                              "omniview/ds/update-method/languages/Deutsch.json",

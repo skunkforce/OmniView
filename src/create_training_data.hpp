@@ -12,9 +12,10 @@
 // clang-format on
 
 static void show_standart_input(nlohmann::json const &language,
-                         nlohmann::json &metadata, std::string &inputvin_string,
-                         std::string &mileage_string,
-                         std::string &comment_string) {
+                                nlohmann::json &metadata,
+                                std::string &inputvin_string,
+                                std::string &mileage_string,
+                                std::string &comment_string) {
   static char inputvin[18];
   static char mileage[10];
   static char comment[1000];
@@ -38,7 +39,8 @@ static void show_standart_input(nlohmann::json const &language,
 
   static bool expected = true;
   static bool anomaly = !expected;
-  ImGui::TextUnformatted(load_json<std::string>(language, "training", "reason").c_str());
+  ImGui::TextUnformatted(
+      load_json<std::string>(language, "training", "reason").c_str());
   ImGui::Checkbox(
       load_json<std::string>(language, "training", "maintenance").c_str(),
       &maintenance);
@@ -97,16 +99,11 @@ static void show_standart_input(nlohmann::json const &language,
   metadata["Anormales Verhalten"] = anomaly;
 }
 static void selected_vcds_data(nlohmann::json const &config,
-                        nlohmann::json const &language,
-                        nlohmann::json &metadata, std::string &inputvin,
-                        std::string &mileage, std::string &comment,
-<<<<<<< HEAD
-                        std::string &api_message) {
-  ImGui::TextUnformatted(load_json<std::string>(language, "explanation", "upload", "vcds")
-=======
-                        std::string &api_message, bool &upload_success) {
+                               nlohmann::json const &language,
+                               nlohmann::json &metadata, std::string &inputvin,
+                               std::string &mileage, std::string &comment,
+                               std::string &api_message, bool &upload_success) {
   ImGui::Text(load_json<std::string>(language, "explanation", "upload", "vcds")
->>>>>>> merch_try
                   .c_str());
   static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
@@ -157,21 +154,11 @@ static void selected_vcds_data(nlohmann::json const &config,
     ImGui::CloseCurrentPopup();
   }
 }
-<<<<<<< HEAD
-static void selected_battery_measurement(nlohmann::json const &config,
-                                  nlohmann::json const &language,
-                                  nlohmann::json &metadata,
-                                  std::string &inputvin, std::string &mileage,
-                                  std::string &comment,
-                                  std::string &api_message) {
-  ImGui::TextUnformatted(
-=======
 void selected_battery_measurement(
     nlohmann::json const &config, nlohmann::json const &language,
     nlohmann::json &metadata, std::string &inputvin, std::string &mileage,
     std::string &comment, std::string &api_message, bool &upload_success) {
   ImGui::Text(
->>>>>>> merch_try
       load_json<std::string>(language, "explanation", "upload", "battery")
           .c_str());
   static ImGui::FileBrowser fileBrowser;
@@ -225,11 +212,10 @@ void selected_battery_measurement(
     ImGui::CloseCurrentPopup();
   }
 }
-static void selected_compression_data(nlohmann::json const &config,
-                               nlohmann::json const &language,
-                               nlohmann::json &metadata, std::string &inputvin,
-                               std::string &mileage, std::string &comment,
-                               std::string &api_message, bool &upload_success) {
+static void selected_compression_data(
+    nlohmann::json const &config, nlohmann::json const &language,
+    nlohmann::json &metadata, std::string &inputvin, std::string &mileage,
+    std::string &comment, std::string &api_message, bool &upload_success) {
 
   static ImGui::FileBrowser fileBrowser;
   static ImGui::FileBrowser fileBrowser2;
@@ -247,9 +233,10 @@ static void selected_compression_data(nlohmann::json const &config,
   const std::string cylinder =
       load_json<std::string>(language, "training", "compression", "cylinder");
 
-  ImGui::TextUnformatted(load_json<std::string>(language, "training", "compression",
-                                     "max_compression")
-                  .c_str());
+  ImGui::TextUnformatted(load_json<std::string>(language, "training",
+                                                "compression",
+                                                "max_compression")
+                             .c_str());
 
   ImGui::TextUnformatted(cylinder.c_str());
   ImGui::SameLine();
@@ -273,12 +260,14 @@ static void selected_compression_data(nlohmann::json const &config,
   ImGui::InputFloat("##Zylinder4", &z4, 0.0f, 0.0f, "%.2f bar");
 
   ImGui::Columns(2);
-  ImGui::TextUnformatted(load_json<std::string>(language, "training", "compression",
-                                     "ignition_suspended")
-                  .c_str());
-  ImGui::TextUnformatted(load_json<std::string>(language, "training", "compression",
-                                     "ignition_active")
-                  .c_str());
+  ImGui::TextUnformatted(load_json<std::string>(language, "training",
+                                                "compression",
+                                                "ignition_suspended")
+                             .c_str());
+  ImGui::TextUnformatted(load_json<std::string>(language, "training",
+                                                "compression",
+                                                "ignition_active")
+                             .c_str());
   ImGui::NextColumn();
 
   ImGui::InputText("##path1", path1, sizeof(path1));
@@ -355,14 +344,9 @@ static void selected_compression_data(nlohmann::json const &config,
   }
 }
 
-<<<<<<< HEAD
-static void popup_create_training_data_select(nlohmann::json const &config,
-                                       nlohmann::json const &language) {
-=======
 void popup_create_training_data_select(nlohmann::json const &config,
                                        nlohmann::json const &language,
                                        bool &upload_success) {
->>>>>>> merch_try
 
   static int selectedOption = 1; // Standardauswahl
   /*
