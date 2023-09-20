@@ -275,11 +275,7 @@ int main() {
                   .c_str())) {
         open_settings = true;
       }
-      if (ImGui::MenuItem(load_json<std::string>(language, "menubar", "menu",
-                                                 "clearcapture")
-                              .c_str())) {
-        captureData.clear();
-      }
+
       if (ImGui::MenuItem(
               load_json<std::string>(language, "menubar", "menu", "reset")
                   .c_str())) {
@@ -291,21 +287,13 @@ int main() {
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "view", "label")
                 .c_str())) {
-      ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "view", "first").c_str());
-      ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "view", "second")
-              .c_str());
+
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "help", "label")
                 .c_str())) {
-      ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "help", "first").c_str());
-      ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "help", "second")
-              .c_str());
+
       ImGui::EndMenu();
     }
     mainMenuBarSize = ImGui::GetItemRectSize();
@@ -333,10 +321,17 @@ int main() {
              });
 
     ImGui::EndChild();
-
-    ImGui::BeginChild("Buttonstripe",
-                      ImVec2(-1, ImGui::GetTextLineHeightWithSpacing()), false,
-                      ImGuiWindowFlags_NoScrollbar);
+    float optimal_buttonstripe_height;
+    if (load_json<float>(config, "button", "sizey") <
+        (ImGui::GetTextLineHeightWithSpacing() * 1.1)) {
+      optimal_buttonstripe_height =
+          (ImGui::GetTextLineHeightWithSpacing() * 1.1);
+    } else {
+      optimal_buttonstripe_height =
+          load_json<float>(config, "button", "sizey") * 1.1;
+    }
+    ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
+                      false, ImGuiWindowFlags_NoScrollbar);
 
     // ############################ Popup Speichern
     // ##############################
@@ -459,7 +454,9 @@ int main() {
         // ############################ Start Button
         // ##############################
         set_button_style_to(config, "start");
-        if (ImGui::Button("Start", ImVec2(load_json<Size>(config, "button")))) {
+        if (ImGui::Button(
+                load_json<std::string>(language, "button", "start").c_str(),
+                ImVec2(load_json<Size>(config, "button")))) {
           // sampler anlegen
           // std::optinal<OmniscopeSampler> sampler{};
           sampler.emplace(deviceManager, std::move(devices));
@@ -471,7 +468,9 @@ int main() {
       // ############################ Stop Button
       // ##############################
       set_button_style_to(config, "stop");
-      if (ImGui::Button("Stop", ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "stop").c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
         sampler.reset();
       }
       ImGui::PopStyleColor(3);
@@ -479,8 +478,9 @@ int main() {
     }
     if (!sampler.has_value()) {
       ImGui::SameLine();
-      if (ImGui::Button("Speichern",
-                        ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "save").c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
         // savecontext = true;//Opens new overlay
 
         ImGui::OpenPopup("Speichern der aufgenommenen Daten");
@@ -489,8 +489,10 @@ int main() {
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
       // ImGui::FileBrowser fileBrowser;
-      if (ImGui::Button("Analysiere Daten",
-                        ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "analyse_data")
+                  .c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
         // fileBrowser.Open();
       }
       /*
@@ -513,8 +515,10 @@ int main() {
 
       // ############################ Button create trainings data
       // ##############################
-      if (ImGui::Button("Erstelle Lerndatensatz",
-                        ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "create_training_data")
+                  .c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(0, 0));
         ImGui::OpenPopup("Erstellung Lerndatensatz");
@@ -524,16 +528,21 @@ int main() {
       ImGui::SameLine();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-      if (ImGui::Button("Speichern",
-                        ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "save").c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
       }
       ImGui::SameLine();
-      if (ImGui::Button("Analysiere Daten",
-                        ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "analyse_data")
+                  .c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
       }
       ImGui::SameLine();
-      if (ImGui::Button("Erstelle Lerndatensatz",
-                        ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "create_training_data")
+                  .c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
       }
       ImGui::PopStyleColor();
     }
@@ -555,7 +564,7 @@ int main() {
 
     // ############################ Devicelist
     // ##############################
-    ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
+    ImGui::BeginChild("Devicelist", ImVec2(-1, 0));
     // ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     // ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
     //                       ImVec2(0.5f, 0.5f));

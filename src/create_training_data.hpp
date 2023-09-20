@@ -200,7 +200,6 @@ void selected_battery_measurement(
     upload_success = true;
     ImGui::CloseCurrentPopup();
   }
-
   ImGui::EndChild();
 }
 static void selected_compression_data(
