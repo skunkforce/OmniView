@@ -1,11 +1,15 @@
-#include "OmniscopeCommunication.hpp"
+// #include "OmniscopeCommunication.hpp"
+// clang-format off
+#include <boost/asio.hpp>
+//clang-format on
+#include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
 #include "apihandler.hpp"
 #include "create_training_data.hpp"
+#include "get_from_github.hpp"
 #include "jasonhandler.hpp"
 #include "settingspopup.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <algorithm>
-#include <boost/asio.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -15,14 +19,11 @@
 #include <nlohmann/json_fwd.hpp>
 #include <set>
 #include <thread>
-
 // clang-format off
 #include <imfilebrowser.h>
 // clang-format on
 
-std::string configpath = "../config/config.json";
-
-std::vector<std::string>
+static std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
   std::vector<std::string> languages;
   for (auto const &entry :
@@ -39,7 +40,7 @@ getAvailableLanguages(std::string const &languageFolder) {
 }
 
 static void
-save(std::map<Omniscope::Device, std::vector<std::pair<double, double>>> const
+save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
          &alignedData,
      std::filesystem::path const &outFile) {
   auto minSize = std::numeric_limits<std::size_t>::max();
@@ -84,14 +85,16 @@ save(std::map<Omniscope::Device, std::vector<std::pair<double, double>>> const
 
   fmt::print("start save {}\n", outFile.string());
   std::ofstream file{outFile};
+  // fmt::print("{}\n", fileContent);
   file << fileContent;
+  file.flush();
   file.close();
 
   fmt::print("finished save\n");
 }
 
-void set_button_style_to(nlohmann::json const &config,
-                         std::string const &name) {
+static void set_button_style_to(nlohmann::json const &config,
+                                std::string const &name) {
   ImGui::PushStyleColor(
       ImGuiCol_Button,
       ImVec4(load_json<Color>(config, "button", name, "normal")));
@@ -103,7 +106,7 @@ void set_button_style_to(nlohmann::json const &config,
       ImVec4(load_json<Color>(config, "button", name, "active")));
 }
 
-void load_settings(nlohmann::json const &config) {
+static void load_settings(nlohmann::json const &config) {
   ImGui::PushStyleColor(ImGuiCol_MenuBarBg,
                         ImVec4(load_json<Color>(config, "menubar", "main")));
   ImGui::PushStyleColor(ImGuiCol_PopupBg,
@@ -125,72 +128,51 @@ void load_settings(nlohmann::json const &config) {
 int main() {
 
   nlohmann::json config;
-  std::string addpath = "";
-
-  if (std::filesystem::exists("../config/config.json")) {
-    configpath = "../config/config.json";
-
-  } else if (std::filesystem::exists("../../config/config.json")) {
-    configpath = "../../config/config.json";
-    addpath = "../";
+  const std::string configpath = "config/config.json";
+  if (std::filesystem::exists(configpath)) {
+    fmt::print("alles toll ich lad trotzdem \n\r");
 
   } else {
-    fmt::print("did not find config.json");
-    // close programm and with a message, no configfile found
-    return 1; // Rückgabewert 1 signalisiert einen Fehler
+    fmt::print("did not find config.json... so download from Github");
+    update_yourself_from_github();
   }
-  config = load_json_file(configpath);
 
-  std::vector<std::string> availableLanguages = getAvailableLanguages(
-      addpath + load_json<std::string>(config, ("languagepath")));
+  config = load_json_file(configpath);
+  std::vector<std::string> availableLanguages =
+      getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
 
   nlohmann::json language =
-      load_json_file(addpath + load_json<std::string>(config, "languagepath") +
+      load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
 
-  static constexpr std::size_t captureDataReserve = 1 << 26;
-  std::vector<Omniscope::Device> devices;
-  std::vector<Omniscope::Device> newDevices;
+  static constexpr int VID = 0x2e8au;
+  static constexpr int PID = 0x000au;
+  // static constexpr std::size_t captureDataReserve = 1 << 26;
+  OmniscopeDeviceManager deviceManager{};
+  std::vector<std::shared_ptr<OmniscopeDevice>>
+      devices; // = deviceManager.getDevices(VID, PID);
+  // auto newDevices = devices;
 
-  std::vector<std::pair<std::string, std::string>> savedFileNames{};
-  std::optional<Omniscope::DeviceRunner> runner;
-
-  auto startTimepoint = std::chrono::system_clock::now();
+  //   auto startTimepoint = std::chrono::system_clock::now();
   auto now = std::chrono::system_clock::now();
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   std::tm now_tm = *std::gmtime(&now_time_t);
 
   double xmax_paused{0};
   static bool open_settings = false;
-  bool captureWindowOpen = true;
-  bool paused = false;
-
+  static bool upload_success = false;
   static ImVec2 mainMenuBarSize;
+  std::optional<OmniscopeSampler> sampler{};
+  std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
 
-  std::map<Omniscope::Device, std::vector<std::pair<double, double>>>
-      captureData;
+  std::map<Omniscope::Id, std::array<float, 3>> colorMap;
 
   std::string path;
   path.resize(256);
 
-  auto initRunner = [&]() {
-    if (!devices.empty()) {
-      try {
-        runner.emplace(devices);
-        captureData.clear();
-        for (auto const &dev : devices) {
-          captureData[dev].reserve(captureDataReserve);
-        }
-      } catch (std::exception const &e) {
-        runner.reset();
-        fmt::print(stderr, "Error starting capture: {}\n", e.what());
-      }
-    }
-  };
-
-  auto addPlots = [firstRun = std::set<std::string>{}](auto const &name,
-                                                       auto const &plots,
-                                                       auto axesSetup) mutable {
+  auto addPlots = [&, firstRun = std::set<std::string>{}](
+                      auto const &name, auto const &plots,
+                      auto axesSetup) mutable {
     auto const plotRegion = ImGui::GetContentRegionAvail();
     if (ImPlot::BeginPlot(name, plotRegion)) {
       double x_min = std::numeric_limits<double>::max();
@@ -252,8 +234,10 @@ int main() {
       };
 
       for (auto const &plot : plots) {
+        ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.first][0],
+                                        colorMap[plot.first][1],
+                                        colorMap[plot.first][2], 1.0f});
         addPlot(plot);
-        ImPlot::NextColormapColor();
       }
 
       ImPlot::EndPlot();
@@ -268,7 +252,8 @@ int main() {
                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove); //
 
-    // main menu
+    // ############################ Menu bar ##############################
+    //  main menu
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "menu", "label")
@@ -290,86 +275,67 @@ int main() {
                   .c_str())) {
         open_settings = true;
       }
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "menubar", "menu", "cleardata")
-                  .c_str())) {
-        savedFileNames.clear();
-      }
-      if (ImGui::MenuItem(load_json<std::string>(language, "menubar", "menu",
-                                                 "clearcapture")
-                              .c_str())) {
-        captureData.clear();
-      }
+
       if (ImGui::MenuItem(
               load_json<std::string>(language, "menubar", "menu", "reset")
                   .c_str())) {
-        runner.reset();
-        devices.clear();
+        sampler.reset();
         captureData.clear();
-        captureWindowOpen = true;
       }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "view", "label")
                 .c_str())) {
-      ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "view", "first").c_str());
-      ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "view", "second")
-              .c_str());
+
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "help", "label")
                 .c_str())) {
-      ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "help", "first").c_str());
-      ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "help", "second")
-              .c_str());
+
       ImGui::EndMenu();
     }
     mainMenuBarSize = ImGui::GetItemRectSize();
     ImGui::EndMainMenuBar();
 
-    ImGui::BeginChild("Live Capture", ImVec2(-1, 400));
-    if (runner && captureWindowOpen == true) {
-      if (!paused) {
-        if (!runner->copyOut(captureData)) {
-          runner.reset();
-          devices.clear();
-          captureWindowOpen = true;
-          ImGui::OpenPopup("Error!");
-        }
-      }
-
-      addPlots("Capture", captureData,
-               [&paused, &xmax_paused](auto x_min, auto x_max) {
-                 if (!paused) {
-                   ImPlot::SetupAxes("x [data points]", "y [ADC value]",
-                                     ImPlotAxisFlags_AutoFit,
-                                     ImPlotAxisFlags_AutoFit);
-                   ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 2000000,
-                                           x_max + 1500, ImGuiCond_Always);
-                 } else {
-                   xmax_paused = x_max;
-                   ImPlot::SetupAxes("x [data points]", "y [ADC value]", 0, 0);
-                 }
-               });
-
-    } else {
-      runner.reset();
-      devices.clear();
-      captureWindowOpen = true;
+    // ############################ Live Capture
+    // ##############################
+    ImGui::BeginChild("Live Capture", ImVec2(-1, 620));
+    if (sampler.has_value()) {
+      sampler->copyOut(captureData);
     }
 
+    addPlots("Aufnahme der Daten", captureData,
+             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
+               if (sampler.has_value()) {
+                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]",
+                                   ImPlotAxisFlags_AutoFit,
+                                   ImPlotAxisFlags_AutoFit);
+                 ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+                                         ImGuiCond_Always);
+               } else {
+                 xmax_paused = x_max;
+                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]", 0, 0);
+               }
+             });
+
     ImGui::EndChild();
+    float optimal_buttonstripe_height;
+    if (load_json<float>(config, "button", "sizey") <
+        (ImGui::GetTextLineHeightWithSpacing() * 1.1)) {
+      optimal_buttonstripe_height =
+          (ImGui::GetTextLineHeightWithSpacing() * 1.1);
+    } else {
+      optimal_buttonstripe_height =
+          load_json<float>(config, "button", "sizey") * 1.1;
+    }
+    ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
+                      false, ImGuiWindowFlags_NoScrollbar);
 
-    ImGui::BeginChild("Buttonstripe",
-                      ImVec2(-1, ImGui::GetTextLineHeightWithSpacing()));
-
-    if (ImGui::BeginPopupModal("savetofile", nullptr,
+    // ############################ Popup Speichern
+    // ##############################
+    if (ImGui::BeginPopupModal("Speichern der aufgenommenen Daten", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
 
@@ -381,12 +347,12 @@ int main() {
           load_json<std::string>(language, "input", "fin", "label").c_str(),
           inputvin, sizeof(inputvin));
       ImGui::InputText(
-          load_json<std::string>(language, "input", "mileage", "label").c_str(),
-          mileage, sizeof(mileage));
-      ImGui::InputText(
           load_json<std::string>(language, "input", "scantype", "label")
               .c_str(),
           scantype, sizeof(scantype));
+      ImGui::InputText(
+          load_json<std::string>(language, "input", "mileage", "label").c_str(),
+          mileage, sizeof(mileage));
 
       if (ImGui::Button(
               load_json<std::string>(language, "button", "save").c_str(),
@@ -398,7 +364,7 @@ int main() {
 
         std::string_view path_sv{path.data()};
         std::string filename{
-            fmt::format("{}-{:%Y-%m-%dT%H:%M}.csv", mileage, now)};
+            fmt::format("{}-{:%Y-%m-%dT%H-%M}.csv", mileage, now)};
         std::filesystem::path path_path = path_sv;
         if (captureData.empty()) {
           ImGui::CloseCurrentPopup();
@@ -412,11 +378,9 @@ int main() {
 
           save(captureData, path_path / complete_path / filename);
 
-          savedFileNames.emplace_back(
-              path_path.string(),
-              fmt::format("{:%T}-{:%T}", startTimepoint, now).c_str());
-          // nicht mehr im save-kontext, sondern in create training data
-          // send_to_api(config, path_path / filename, inputvin, scantype);
+          // nicht mehr im save-kontext, sondern in create training
+          // data send_to_api(config, path_path / filename, inputvin,
+          // scantype);
           ImGui::CloseCurrentPopup();
         }
       }
@@ -431,62 +395,160 @@ int main() {
     }
     ImGui::SetNextWindowPos(ImVec2(0, 100));
     ImGui::SetNextWindowSize(ImVec2(0, 800));
-    if (ImGui::BeginPopupModal("createtrainingdata", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize |
-                                   ImGuiWindowFlags_NoSavedSettings |
-                                   ImGuiWindowFlags_NoMove)) {
+    if (!sampler.has_value()) {
+      if (ImGui::BeginPopupModal("Erstellung Lerndatensatz", nullptr,
+                                 ImGuiWindowFlags_AlwaysAutoResize |
+                                     ImGuiWindowFlags_NoSavedSettings |
+                                     ImGuiWindowFlags_NoMove)) {
+        ImGui::SetItemDefaultFocus();
 
-      ImGui::SetItemDefaultFocus();
-
-      popup_create_training_data_select(config, language);
-      ImGui::EndPopup();
-    }
-    if (paused == true) {
-      set_button_style_to(config, "start");
-
-      if (ImGui::Button("Start", ImVec2(load_json<Size>(config, "button")))) {
-        paused = false;
+        popup_create_training_data_select(config, language, upload_success);
+        ImGui::EndPopup();
       }
-      ImGui::PopStyleColor(3);
+      if (upload_success == true) {
+        ImGui::OpenPopup("upload_success");
+      }
+      if (ImGui::BeginPopupModal("upload_success", nullptr,
+                                 ImGuiWindowFlags_AlwaysAutoResize |
+                                     ImGuiWindowFlags_NoSavedSettings |
+                                     ImGuiWindowFlags_NoMove)) {
+        ImGui::Text(
+            load_json<std::string>(language, "training", "upload_success")
+                .c_str());
+        if (ImGui::Button(
+                load_json<std::string>(language, "button", "ok").c_str())) {
+          ImGui::CloseCurrentPopup();
+          upload_success = false;
+        }
+
+        ImGui::SetItemDefaultFocus();
+        ImGui::EndPopup();
+      }
+      // Start nur wenn Devices vorhanden soind, sonst Suche Geräte
+      if (ImGui::Button("Suche Geräte",
+                        ImVec2(load_json<Size>(config, "button")))) {
+        devices.clear();
+        deviceManager.clearDevices();
+        devices = deviceManager.getDevices(VID, PID);
+
+        for (auto &device : devices) {
+          auto id = device->getId().value();
+          if (!colorMap.contains(id)) {
+            ImPlot::PushColormap(ImPlotColormap_Dark);
+            auto c = ImPlot::GetColormapColor(colorMap.size());
+            colorMap[id] = std::array<float, 3>{c.x, c.y, c.z};
+            ImPlot::PopColormap();
+          }
+
+          auto &color = colorMap[id];
+          fmt::print("col {}\n", color);
+          device->send(
+              Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
+                                static_cast<std::uint8_t>(color[1] * 255),
+                                static_cast<std::uint8_t>(color[2] * 255)});
+        }
+      }
+
+      if (!devices.empty()) {
+        ImGui::SameLine();
+        // ############################ Start Button
+        // ##############################
+        set_button_style_to(config, "start");
+        if (ImGui::Button(
+                load_json<std::string>(language, "button", "start").c_str(),
+                ImVec2(load_json<Size>(config, "button")))) {
+          // sampler anlegen
+          // std::optinal<OmniscopeSampler> sampler{};
+          sampler.emplace(deviceManager, std::move(devices));
+        }
+        ImGui::PopStyleColor(3);
+      }
       // set_button_style_to(config, "standart");
     } else {
+      // ############################ Stop Button
+      // ##############################
       set_button_style_to(config, "stop");
-      if (ImGui::Button("Stop", ImVec2(load_json<Size>(config, "button")))) {
-        paused = true;
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "stop").c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
+        sampler.reset();
       }
       ImGui::PopStyleColor(3);
       // set_button_style_to(config, "standart");
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Save to File",
-                      ImVec2(load_json<Size>(config, "button")))) {
-      // savecontext = true;//Opens new overlay
+    if (!sampler.has_value()) {
+      ImGui::SameLine();
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "save").c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
+        // savecontext = true;//Opens new overlay
 
-      ImGui::OpenPopup("savetofile");
-    }
-    ImGui::SameLine();
-    ImGui::PushStyleColor(
-        ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-    ImGui::FileBrowser fileBrowser;
-    if (ImGui::Button("Analyse Data",
-                      ImVec2(load_json<Size>(config, "button")))) {
-      fileBrowser.Open();
-    }
-    fileBrowser.Display();
-    if (fileBrowser.HasSelected()) {
-      // Hier kannst du auf die ausgewählten Dateien zugreifen
-      for (const auto &selectedFile : fileBrowser.GetSelected()) {
-        std::string filename = selectedFile.string();
-        // Verarbeite die ausgewählte Datei
-        // ...
+        ImGui::OpenPopup("Speichern der aufgenommenen Daten");
       }
+      ImGui::SameLine();
+      ImGui::PushStyleColor(
+          ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+      // ImGui::FileBrowser fileBrowser;
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "analyse_data")
+                  .c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
+        // fileBrowser.Open();
+      }
+      /*
+      //fileBrowser.Display();
+      if (fileBrowser.HasSelected()) {
+          // Hier kannst du auf die ausgewählten Dateien zugreifen
+          for (const auto &selectedFile : fileBrowser.GetSelected()) {
+              std::string filename = selectedFile.string();
+              // Verarbeite die ausgewählte Datei
+              // ...
+          }
 
-      fileBrowser.ClearSelected();
+          fileBrowser.ClearSelected();
+      }
+      */
+      ImGui::PopStyleColor();
+      ImGui::PushStyleColor(
+          ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
+      ImGui::SameLine();
+
+      // ############################ Button create trainings data
+      // ##############################
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "create_training_data")
+                  .c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(0, 0));
+        ImGui::OpenPopup("Erstellung Lerndatensatz");
+      }
+      ImGui::PopStyleColor();
+    } else {
+      ImGui::SameLine();
+      ImGui::PushStyleColor(
+          ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "save").c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
+      }
+      ImGui::SameLine();
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "analyse_data")
+                  .c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
+      }
+      ImGui::SameLine();
+      if (ImGui::Button(
+              load_json<std::string>(language, "button", "create_training_data")
+                  .c_str(),
+              ImVec2(load_json<Size>(config, "button")))) {
+      }
+      ImGui::PopStyleColor();
     }
-    ImGui::PopStyleColor();
-    ImGui::PushStyleColor(ImGuiCol_Text,
-                          load_json<Color>(config, "text", "color", "normal"));
-    ImGui::SameLine();
+    ImGui::EndChild();
+    // ############################ Settings Menu
+    // ##############################
     std::string settingstitle =
         load_json<std::string>(language, "settings", "title");
     if (open_settings == true) {
@@ -499,102 +561,51 @@ int main() {
       popup_settings(config, language, configpath);
       ImGui::EndPopup();
     }
-    if (ImGui::Button("Create Training Data",
-                      ImVec2(load_json<Size>(config, "button")))) {
-      ImGui::SetNextWindowPos(ImVec2(0, 0));
-      ImGui::SetNextWindowSize(ImVec2(0, 0));
-      ImGui::OpenPopup("createtrainingdata");
-    }
-    ImGui::PopStyleColor();
-    ImGui::SameLine();
-    if (ImGui::Button("Refresh Devicelist",
-                      ImVec2(load_json<Size>(config, "button")))) {
-      newDevices = Omniscope::queryDevices();
-    }
 
-    ImGui::EndChild();
+    // ############################ Devicelist
+    // ##############################
+    ImGui::BeginChild("Devicelist", ImVec2(-1, 0));
+    // ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    // ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
+    //                       ImVec2(0.5f, 0.5f));
 
-    ImGui::BeginChild("Devicelist", ImVec2(-1, 300));
-
-    for (auto const &device : newDevices) {
-      if (ImGui::Button(
-              fmt::format("{}-{}", device.type, device.serial).c_str())) {
-        devices.push_back(device);
-        initRunner();
-      };
-    }
-    // ImGui::EndChild();
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-    if (ImGui::BeginPopupModal("Restart?", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGui::Text("Restart with the this devices?");
-      if (ImGui::BeginListBox("new Devices")) {
-        for (auto const &device : newDevices) {
-          ImGui::TextUnformatted(
-              fmt::format("{}-{}", device.type, device.serial).c_str());
+    ImGui::Text("gefundene Geräte:");
+    if (ImGui::BeginListBox("##", ImVec2(1024, -1))) {
+      for (auto &device : devices) {
+        auto &color = colorMap[device->getId().value()];
+        if (ImGui::ColorEdit3(
+                fmt::format("{:<32}",
+                            fmt::format("{}-{}", device->getId().value().type,
+                                        device->getId().value().serial))
+                    .c_str(),
+                color.data(),
+                ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker |
+                    ImGuiColorEditFlags_NoTooltip)) {
+          device->send(
+              Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
+                                static_cast<std::uint8_t>(color[1] * 255),
+                                static_cast<std::uint8_t>(color[2] * 255)});
         }
-        ImGui::EndListBox();
-      }
-
-      if (ImGui::Button("OK", ImVec2(120, 0))) {
-        devices = newDevices;
-        newDevices.clear();
-        initRunner();
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::SetItemDefaultFocus();
-      ImGui::SameLine();
-      if (ImGui::Button("Cancel", ImVec2(120, 0))) {
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::EndPopup();
-    }
-
-    if (ImGui::BeginListBox("Current Devices")) {
-      for (auto const &device : devices) {
+        ImGui::SameLine();
         ImGui::TextUnformatted(
-            fmt::format("{}-{}", device.type, device.serial).c_str());
+            fmt::format("HW: v{}.{}.{} SW: v{}.{}.{}",
+                        device->getId().value().hwVersion.major,
+                        device->getId().value().hwVersion.minor,
+                        device->getId().value().hwVersion.patch,
+                        device->getId().value().swVersion.major,
+                        device->getId().value().swVersion.minor,
+                        device->getId().value().swVersion.patch)
+                .c_str());
       }
       ImGui::EndListBox();
     }
-
-    ImGui::InputText("Path", path.data(), path.size());
-
-    if (ImGui::Button("Search new Devices")) {
-      newDevices = Omniscope::queryDevices();
-      //     if(devices != newDevices) {
-      ImGui::OpenPopup("Restart?");
-      //   }
-    }
     ImGui::EndChild();
-
     ImGui::SameLine();
-
-    ImGui::BeginChild("Live Capture", ImVec2(-1, -1));
-
-    center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-    // ImGui::CloseCurrentPopup();)
-    if (ImGui::BeginPopupModal("Error!", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGui::Text("Error with device!");
-      ImGui::Text("Capture data is still valid you can save it!");
-      ImGui::SetItemDefaultFocus();
-      if (ImGui::Button("Ok", ImVec2(120, 0))) {
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::EndPopup();
-    }
-    ImGui::EndChild();
     ImGui::End();
     ImGui::PopStyleColor(7);
-    // ImGui::End();
   };
 
-  ImGuiInstance window{1280, 760, load_json<std::string>(config, "title")};
+  ImGuiInstance window{1920, 1080, load_json<std::string>(config, "title")};
   while (window.run(render)) {
   }
   return 0;

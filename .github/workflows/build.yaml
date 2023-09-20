@@ -20,8 +20,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: add ssh private keys for submodule repositories
+        uses: webfactory/ssh-agent@v0.7.0
         with:
-          submodules: true
+          ssh-private-key: |
+             ${{ secrets.SSH_KEY_SUBMODULE_AI_OMNISCOPE_V2 }}
+
+      - name: checkout submodules
+        run: git submodule update --init --recursive
 
       - name: setup
         uses: aminya/setup-cpp@v1
@@ -37,6 +44,13 @@ jobs:
           packages: libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
           version: 1.0
 
+      - name: setup prerequisites
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install autoconf libudev-dev
+
       - name: get vcpkg
         uses: lukka/run-vcpkg@v11
         with:
@@ -46,6 +60,7 @@ jobs:
       # On Windows runners, let's ensure to have the Developer Command Prompt environment setup correctly.
       # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
       - uses: ilammy/msvc-dev-cmd@v1
+
 
       - name: CMake configure
         if: ${{ !contains(matrix.os, 'windows' ) }}

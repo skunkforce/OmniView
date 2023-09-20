@@ -14,6 +14,7 @@
         "boost-asio",
         "boost-core",
 		"nlohmann-json",
-		"curl"
+		"curl",
+        "libusb"
 	]
 }

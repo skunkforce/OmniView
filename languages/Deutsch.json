@@ -1,7 +1,7 @@
 {
     "general": {
         "size": "Größe",
-        "height": "Höhe",
+        "height": "Höhe  ",
         "width": "Breite"
     },
     "input": {
@@ -26,25 +26,30 @@
         "vcds": "VCDS-Datei"
     },
     "button": {
-        "save": "speichern",
-        "send": "senden",
-        "measure": "messen",
-        "back": "zurück",
-        "cancel": "abbrechen",
-        "ok": "ok",
-        "restore": "zurücksetzen",
-        "file": "Datei"
+        "save": "Speichern",
+        "send": "Senden",
+        "measure": "Messen",
+        "back": "Zurück",
+        "cancel": "Abbrechen",
+        "ok": "Ok",
+        "restore": "Zurücksetzen",
+        "file": "Datei",
+        "analyse_data": "Analysiere Daten",
+        "create_training_data": "Erstelle Lerndatensatz",
+        "stop": "Stop",
+        "start": "Start"
     },
     "settings": {
         "title": "Einstellungen",
-        "fontsize": "Schriftgröße"
+        "fontsize": "Schriftgröße",
+        "buttonexplain": "Buttongröße 0 = automagisch"
     },
     "menubar": {
         "menu": {
             "label": "Menü",
             "cleardata": "Lösche gespeicherte Dateien",
             "clearcapture": "Lösche Aufzeichnung",
-            "reset": "reset",
+            "reset": "Zurücksetzen",
             "settings": "Einstellungen",
             "language_option": "Sprachoptionen",
             "language": "Sprachen"
@@ -82,6 +87,8 @@
             "max_compression": "Maximalkompression in Bar",
             "ignition_suspended": "Zündung unterdrückt",
             "ignition_active": "Zündung aktiv"
-        }
+        },
+        "switchfail": "Fehler, Switchcase mit unerwarteter Auswahl",
+        "upload_success": "Upload erfolgreich!"
     }
 }
