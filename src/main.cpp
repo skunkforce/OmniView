@@ -130,14 +130,24 @@ int main() {
   nlohmann::json config;
   const std::string configpath = "config/config.json";
   if (std::filesystem::exists(configpath)) {
-    fmt::print("alles toll ich lad trotzdem \n\r");
+    fmt::print("found config.json\n\r");
 
   } else {
-    fmt::print("did not find config.json... so download from Github");
-    update_yourself_from_github();
+    fmt::print("Did not find config.json.\n Download from Github\n\r");
+    update_config_from_github();
+  }
+  config = load_json_file(configpath);
+  if (std::filesystem::exists(
+          load_json<std::string>(config, ("languagepath")))) {
+    fmt::print("found language: {}\n\r",
+               load_json<std::string>(config, ("language")));
+
+  } else {
+    fmt::print("Did not find {}.\n Download from Github\n\r",
+               load_json<std::string>(config, ("language")));
+    update_language_from_github();
   }
 
-  config = load_json_file(configpath);
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
 

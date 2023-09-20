@@ -1,4 +1,5 @@
 #pragma once
+#include "jasonhandler.hpp"
 #include <curl/curl.h>
 #include <fmt/format.h>
 #include <fstream>
@@ -49,18 +50,35 @@ bool downloadFileFromGitHub(const std::string &githubUrl,
   return false;
 }
 
-bool update_yourself_from_github() {
+bool update_config_from_github() {
 
   std::filesystem::create_directories("config");
+
+  const std::string config_url = "https://raw.githubusercontent.com/skunkforce/"
+                                 "omniview/master/config/config.json";
+  fmt::print("download config file from: {} \n\r", config_url);
+  bool downloaded_config =
+      downloadFileFromGitHub(config_url, "config/config.json");
+
+  if (downloaded_config) {
+    fmt::print("download succeeded\n\r");
+  } else {
+    fmt::print("download failed\n\r");
+  }
+}
+bool update_language_from_github() {
+
   std::filesystem::create_directories("languages");
 
-  bool downloaded_config =
-      downloadFileFromGitHub("https://raw.githubusercontent.com/skunkforce/"
-                             "omniview/ds/update-method/config/config.json",
-                             "config/config.json");
+  const std::string lang_url = "https://raw.githubusercontent.com/skunkforce/"
+                               "omniview/master/languages/Deutsch.json";
+  fmt::print("download language file from: {} \n\r", lang_url);
+  bool downloaded_langfiles =
+      downloadFileFromGitHub(lang_url, "languages/Deutsch.json");
 
-  bool dowloaded_langfiles =
-      downloadFileFromGitHub("https://raw.githubusercontent.com/skunkforce/"
-                             "omniview/ds/update-method/languages/Deutsch.json",
-                             "languages/Deutsch.json");
+  if (downloaded_langfiles) {
+    fmt::print("download succeeded\n\r");
+  } else {
+    fmt::print("download failed\n\r");
+  }
 }
