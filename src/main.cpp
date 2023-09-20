@@ -297,10 +297,12 @@ int main() {
       }
       ImGui::EndMenu();
     }
+    /*
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "view", "label")
                 .c_str())) {
-    }
+      ImGui::EndMenu();
+    }*/
 
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "help", "label")
@@ -425,7 +427,7 @@ int main() {
       if (upload_success == true) {
         ImGui::OpenPopup("##upload_success");
       }
-      if (ImGui::BeginPopupModal("upload_success", nullptr,
+      if (ImGui::BeginPopupModal("##upload_success", nullptr,
                                  ImGuiWindowFlags_AlwaysAutoResize |
                                      ImGuiWindowFlags_NoSavedSettings |
                                      ImGuiWindowFlags_NoMove)) {

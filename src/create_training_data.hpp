@@ -143,6 +143,7 @@ static void selected_vcds_data(nlohmann::json const &config,
 
     metadata["kommentar"] = comment;
     metadata["laufleistung"] = mileage;
+
     api_message = send_to_api(
         config, path1, inputvin,
         load_json<std::string>(language, "measuretype", "vcds"), metadata);
@@ -194,6 +195,7 @@ void selected_battery_measurement(
                     ImVec2(load_json<Size>(config, "button")))) {
     metadata["kommentar"] = comment;
     metadata["laufleistung"] = mileage;
+
     api_message = send_to_api(
         config, path1, inputvin,
         load_json<std::string>(language, "measuretype", "battery"), metadata);
@@ -306,6 +308,7 @@ static void selected_compression_data(
 
   if (ImGui::Button(load_json<std::string>(language, "button", "send").c_str(),
                     ImVec2(load_json<Size>(config, "button")))) {
+
     // Api muss angepasst werden und die funktion send to api ebenso
     metadata["z1"] = z1;
     metadata["z2"] = z2;
@@ -319,6 +322,7 @@ static void selected_compression_data(
         load_json<std::string>(language, "measuretype", "compression"),
         metadata);
     metadata["zündung"] = "aktiviert";
+
     api_message += send_to_api(
         config, path2, inputvin,
         load_json<std::string>(language, "measuretype", "compression"),
@@ -342,7 +346,7 @@ void popup_create_training_data_select(nlohmann::json const &config,
   static std::string mileage = "";
   static std::string comment = "";
   static nlohmann::json metadata;
-  static std::string api_message = " ";
+  std::string api_message = " ";
   ImGui::SetItemDefaultFocus();
   show_standart_input(language, metadata, inputvin, mileage, comment);
   ImGui::SameLine();
