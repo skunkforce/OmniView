@@ -100,8 +100,13 @@ static void selected_vcds_data(nlohmann::json const &config,
                         nlohmann::json const &language,
                         nlohmann::json &metadata, std::string &inputvin,
                         std::string &mileage, std::string &comment,
+<<<<<<< HEAD
                         std::string &api_message) {
   ImGui::TextUnformatted(load_json<std::string>(language, "explanation", "upload", "vcds")
+=======
+                        std::string &api_message, bool &upload_success) {
+  ImGui::Text(load_json<std::string>(language, "explanation", "upload", "vcds")
+>>>>>>> merch_try
                   .c_str());
   static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
@@ -152,6 +157,7 @@ static void selected_vcds_data(nlohmann::json const &config,
     ImGui::CloseCurrentPopup();
   }
 }
+<<<<<<< HEAD
 static void selected_battery_measurement(nlohmann::json const &config,
                                   nlohmann::json const &language,
                                   nlohmann::json &metadata,
@@ -159,6 +165,13 @@ static void selected_battery_measurement(nlohmann::json const &config,
                                   std::string &comment,
                                   std::string &api_message) {
   ImGui::TextUnformatted(
+=======
+void selected_battery_measurement(
+    nlohmann::json const &config, nlohmann::json const &language,
+    nlohmann::json &metadata, std::string &inputvin, std::string &mileage,
+    std::string &comment, std::string &api_message, bool &upload_success) {
+  ImGui::Text(
+>>>>>>> merch_try
       load_json<std::string>(language, "explanation", "upload", "battery")
           .c_str());
   static ImGui::FileBrowser fileBrowser;
@@ -201,6 +214,8 @@ static void selected_battery_measurement(nlohmann::json const &config,
     api_message = send_to_api(
         config, path1, inputvin,
         load_json<std::string>(language, "measuretype", "battery"), metadata);
+    upload_success = true;
+    ImGui::CloseCurrentPopup();
   }
 
   ImGui::SameLine();
@@ -214,7 +229,7 @@ static void selected_compression_data(nlohmann::json const &config,
                                nlohmann::json const &language,
                                nlohmann::json &metadata, std::string &inputvin,
                                std::string &mileage, std::string &comment,
-                               std::string &api_message) {
+                               std::string &api_message, bool &upload_success) {
 
   static ImGui::FileBrowser fileBrowser;
   static ImGui::FileBrowser fileBrowser2;
@@ -329,6 +344,8 @@ static void selected_compression_data(nlohmann::json const &config,
         config, path2, inputvin,
         load_json<std::string>(language, "measuretype", "compression"),
         metadata);
+    upload_success = true;
+    ImGui::CloseCurrentPopup();
   }
 
   ImGui::SameLine();
@@ -338,10 +355,16 @@ static void selected_compression_data(nlohmann::json const &config,
   }
 }
 
+<<<<<<< HEAD
 static void popup_create_training_data_select(nlohmann::json const &config,
                                        nlohmann::json const &language) {
+=======
+void popup_create_training_data_select(nlohmann::json const &config,
+                                       nlohmann::json const &language,
+                                       bool &upload_success) {
+>>>>>>> merch_try
 
-  static int selectedOption = 0; // Standardauswahl
+  static int selectedOption = 1; // Standardauswahl
   /*
   load_json<std::string>(language, "measuretype", "compression").c_str(),
   load_json<std::string>(language, "measuretype", "battery").c_str(),
@@ -366,15 +389,15 @@ static void popup_create_training_data_select(nlohmann::json const &config,
   switch (selectedOption) {
   case 0:
     selected_compression_data(config, language, metadata, inputvin, mileage,
-                              comment, api_message);
+                              comment, api_message, upload_success);
     break;
   case 1:
     selected_battery_measurement(config, language, metadata, inputvin, mileage,
-                                 comment, api_message);
+                                 comment, api_message, upload_success);
     break;
   case 2:
     selected_vcds_data(config, language, metadata, inputvin, mileage, comment,
-                       api_message);
+                       api_message, upload_success);
     break;
   default:
     ImGui::Text("Fehler, Switchcase mit unerwarteter Auswahl");

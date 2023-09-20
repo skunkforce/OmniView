@@ -1,7 +1,7 @@
 {
     "general": {
         "size": "Größe",
-        "height": "Höhe",
+        "height": "Höhe  ",
         "width": "Breite"
     },
     "input": {
@@ -37,7 +37,8 @@
     },
     "settings": {
         "title": "Einstellungen",
-        "fontsize": "Schriftgröße"
+        "fontsize": "Schriftgröße",
+        "buttonexplain": "Buttongröße 0 = automagisch"
     },
     "menubar": {
         "menu": {
@@ -82,6 +83,8 @@
             "max_compression": "Maximalkompression in Bar",
             "ignition_suspended": "Zündung unterdrückt",
             "ignition_active": "Zündung aktiv"
-        }
+        },
+        "switchfail": "Fehler, Switchcase mit unerwarteter Auswahl",
+        "upload_success": "Upload erfolgreich!"
     }
 }
