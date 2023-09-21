@@ -14,7 +14,7 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
     newconfig = config;
   }
   if (fontscale < load_json<float>(newconfig, "text", "minscale")) {
-    fontscale = load_json<float>(newconfig, "text", "scale");
+    fontscale = load_json<float>(newconfig, "text", "minscale");
   }
   ImGuiIO &io = ImGui::GetIO();
   io.FontGlobalScale = fontscale;

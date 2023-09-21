@@ -308,7 +308,6 @@ int main() {
             load_json<std::string>(language, "menubar", "help", "label")
                 .c_str())) {
       if (ImGui::MenuItem(load_json<std::string>(config, "helplink").c_str())) {
-
         system(("start " + load_json<std::string>(config, "helplink")).c_str());
       }
 
@@ -369,6 +368,7 @@ int main() {
           load_json<std::string>(language, "input", "scantype", "label")
               .c_str(),
           scantype, sizeof(scantype));
+
       ImGui::InputText(
           load_json<std::string>(language, "input", "mileage", "label").c_str(),
           mileage, sizeof(mileage));
