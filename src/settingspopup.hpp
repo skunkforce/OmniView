@@ -38,9 +38,9 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
   // ####################################################################################
   static float ButtonSizeX = load_json<float>(config, "button", "sizex");
   static float ButtonSizeY = load_json<float>(config, "button", "sizey");
-  ImGui::Text(
+  ImGui::TextUnformatted(
       load_json<std::string>(language, "settings", "buttonexplain").c_str());
-  ImGui::Text(load_json<std::string>(language, "general", "width").c_str());
+  ImGui::TextUnformatted(load_json<std::string>(language, "general", "width").c_str());
   ImGui::SameLine();
 
   float oldButtonSizeX = ButtonSizeX;
@@ -56,7 +56,7 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
   if (ImGui::Button("X-")) {
     ButtonSizeX -= 10.0f;
   }
-  ImGui::Text(load_json<std::string>(language, "general", "height").c_str());
+  ImGui::TextUnformatted(load_json<std::string>(language, "general", "height").c_str());
   ImGui::SameLine();
 
   ImGui::InputFloat("Y##ButtonSizeY",
