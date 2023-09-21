@@ -318,7 +318,7 @@ int main() {
                 devices.clear();
                 deviceManager.clearDevices();
                 captureData.clear();
-                flagPaused = false;
+                flagPaused = true;
             }
             ImGui::EndMenu();
         }
@@ -545,6 +545,8 @@ int main() {
             ImGui::PopStyleColor(3);
         }
         if (flagPaused) {
+            ImGui::SameLine();
+
             // Start / Zurücksetzen der Messung bei pausierter Messung
             // mit anschließender Abfrage ob die alten Daten gespeichert
             // werden sollen
@@ -569,6 +571,7 @@ int main() {
                         devices.clear();
                         deviceManager.clearDevices();
                         captureData.clear();
+                        flagPaused = true;
                     }
                 }
                 ImGui::PopStyleColor(3);
