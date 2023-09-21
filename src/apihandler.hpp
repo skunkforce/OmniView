@@ -6,8 +6,9 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
-inline std::string send_to_api(nlohmann::json const &config, std::string const &file,
-                        std::string const &vin, std::string const &scantype) {
+inline std::string send_to_api(nlohmann::json const &config,
+                               std::string const &file, std::string const &vin,
+                               std::string const &scantype) {
   std::string api_message = "empty";
   CURL *curl;
   CURLcode res;
@@ -70,10 +71,12 @@ inline std::string send_to_api(nlohmann::json const &config, std::string const &
   return api_message;
 }
 
-inline std::string send_to_api(nlohmann::json const &config, std::string const &file,
-                        std::string const &vin, std::string const &scantype,
-                        nlohmann::json const &additionalData) {
+inline std::string send_to_api(nlohmann::json const &config,
+                               std::string const &file, std::string const &vin,
+                               std::string const &scantype,
+                               nlohmann::json const &additionalData) {
   std::string api_message = "empty";
+
   CURL *curl;
   CURLcode res;
 
