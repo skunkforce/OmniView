@@ -6,7 +6,7 @@
         "input2": "scan_type",
         "url": "https://postapi.aw4null.de/v1/uploadFile/"
     },
-    "helplink": "https://www.autowerkstatt40.org/",
+    "helplink": "https://moodle.aw4null.de/",
     "github": {
         "url": {
             "config": "https://raw.githubusercontent.com/skunkforce/omniview/master/config/config.json",
