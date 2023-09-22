@@ -172,6 +172,8 @@ inline void selected_battery_measurement(
     static bool first_job = true;
     static bool flagSending = false;
     static bool flagStartSending = false;
+    std::atomic<bool> flagApiSending = false;
+    std::future<std::string> future;
 
     if (first_job) {
         fileBrowser.SetPwd(
@@ -180,7 +182,6 @@ inline void selected_battery_measurement(
     }
 
     static char path1[255];
-
     ImGui::InputText("##path1", path1, sizeof(path1));
     ImGui::SameLine();
     if (ImGui::Button(fmt::format("{} 1", load_json<std::string>(
@@ -188,6 +189,7 @@ inline void selected_battery_measurement(
                           .c_str())) {
         fileBrowser.Open();
     }
+
     fileBrowser.Display();
     if (fileBrowser.HasSelected()) {
         std::string filepath;
@@ -203,13 +205,22 @@ inline void selected_battery_measurement(
     }
     ImGui::Columns(1);
     using namespace std::chrono_literals;
-    if (!flagSending) {
+    if (!flagApiSending) {
         if (ImGui::Button(
                 load_json<std::string>(language, "button", "send").c_str(),
                 ImVec2(load_json<Size>(config, "button")))) {
-            flagStartSending = true;
             metadata["kommentar"] = comment;
             metadata["laufleistung"] = mileage;
+
+            future = std::async(std::launch::async, [&] {
+                std::string result = send_to_api(
+                    config, path1, inputvin,
+                    load_json<std::string>(language, "measuretype", "battery"),
+                    metadata);
+                return result;
+            });
+            flagApiSending = true;
+
             /*
                         api_message = send_to_api(
                             config, path1, inputvin,
@@ -218,7 +229,7 @@ inline void selected_battery_measurement(
             */
         }
     }
-    if (flagStartSending) {
+    if (flagApiSending) {
         ImGui::PushStyleColor(
             ImGuiCol_Text,
             load_json<Color>(config, "text", "color", "inactive"));
@@ -227,26 +238,17 @@ inline void selected_battery_measurement(
                 ImVec2(load_json<Size>(config, "button")))) {
         }
         ImGui::PopStyleColor();
-        auto future = std::async(std::launch::async, [&] {
-            std::string result = send_to_api(
-                config, path1, inputvin,
-                load_json<std::string>(language, "measuretype", "battery"),
-                metadata);
-            return result;
-        });
-        auto status = future.wait_for(0ms);
+        auto status = future.wait_for(10ms);
         if (status == std::future_status::ready) {
+            upload_success = true;
+            flagApiSending = false;
+            api_message = future.get();
+            ImGui::CloseCurrentPopup();
+        } else {
             ImGui::SameLine();
             ImGui::Text("senden... %c",
                         "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-        } else {
-            upload_success = true;
-            flagStartSending = false;
-            api_message = future.get();
-            ImGui::CloseCurrentPopup();
         }
-
-        fmt::print("flag sending: {}\n", flagSending);
     }
     ImGui::EndChild();
 }
