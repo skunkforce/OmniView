@@ -172,8 +172,8 @@ inline void selected_battery_measurement(
     static bool first_job = true;
     static bool flagSending = false;
     static bool flagStartSending = false;
-    std::atomic<bool> flagApiSending = false;
-    std::future<std::string> future;
+    static bool flagApiSending = false;
+    static std::future<std::string> future;
 
     if (first_job) {
         fileBrowser.SetPwd(
@@ -242,7 +242,9 @@ inline void selected_battery_measurement(
         if (status == std::future_status::ready) {
             upload_success = true;
             flagApiSending = false;
-            api_message = future.get();
+            if (future.valid()) {
+                api_message = future.get();
+            }
             ImGui::CloseCurrentPopup();
         } else {
             ImGui::SameLine();
