@@ -170,8 +170,6 @@ inline void selected_battery_measurement(
             .c_str());
     static ImGui::FileBrowser fileBrowser;
     static bool first_job = true;
-    static bool flagSending = false;
-    static bool flagStartSending = false;
     static bool flagApiSending = false;
     static std::future<std::string> future;
 
