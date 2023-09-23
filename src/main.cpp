@@ -6,6 +6,7 @@
 #include "apihandler.hpp"
 #include "create_training_data.hpp"
 #include "get_from_github.hpp"
+#include "../IconFontCppHeaders/IconsFontAwesome4.h"
 
 #include "jasonhandler.hpp"
 #include "settingspopup.hpp"
@@ -111,6 +112,18 @@ namespace ImGui
                 }
             }
         }
+         ImGuiIO& io = ImGui::GetIO();
+         io.Fonts->AddFontDefault();
+         float baseFontSize = 13.0f; // 13.0f is the size of the default font. Change to the font size you use.
+         float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
+
+        // merge in icons from Font Awesome
+        static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+        ImFontConfig icons_config;
+        icons_config.MergeMode = true;
+        icons_config.PixelSnapH = true;
+        icons_config.GlyphMinAdvanceX = iconFontSize;
+        io.Fonts->AddFontFromFileTTF( FONT_ICON_FILE_NAME_FA, iconFontSize, &icons_config, icons_ranges );
     }
 }
 
@@ -598,7 +611,8 @@ int main() {
             // ################################
             // Start nur wenn Devices vorhanden sind, sonst Suche Geräte
             if (!sampler.has_value()) {
-                if (ImGui::Button("Suche Geräte",
+                //if (ImGui::Button("Suche Geräte",
+                if (ImGui::Button(ICON_FA_REFRESH,
                                   ImVec2(load_json<Size>(config, "button")))) {
                     devices.clear();
                     deviceManager.clearDevices();
@@ -668,8 +682,8 @@ int main() {
                 ImGui::PopStyleColor(3);
             }
             ImGui::SameLine();
-            if (ImGui::Button(
-                    load_json<std::string>(language, "button", "save").c_str(),
+            if (ImGui::Button(ICON_FA_CHECK_SQUARE_O,
+                    //load_json<std::string>(language, "button", "save").c_str(),
                     ImVec2(load_json<Size>(config, "button")))) {
                 ImGui::OpenPopup("Speichern der aufgenommenen Daten");
             }
