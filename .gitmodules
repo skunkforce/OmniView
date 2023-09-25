@@ -16,3 +16,6 @@
 [submodule "IconFontCppHeaders"]
 	path = IconFontCppHeaders
 	url = git@github.com:juliettef/IconFontCppHeaders.git
+[submodule "Font-Awesome"]
+	path = Font-Awesome
+	url = git@github.com:FortAwesome/Font-Awesome.git
