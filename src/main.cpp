@@ -373,13 +373,21 @@ int main() {
       ImGui::SetItemDefaultFocus();
 
       static char inputvin[18];
-      getSubdirectoriesInFolder("saves");
+      std::string selected_vin = getSubdirectoriesInFolder(language, "saves");
+
+      const std::string newcar =
+          load_json<std::string>(language, "savepopup", "new_car");
+
       static char mileage[10] = "";
       static char scantype[255] = "";
-      ImGui::SetItemDefaultFocus();
-      ImGui::InputText(
-          load_json<std::string>(language, "input", "fin", "label").c_str(),
-          inputvin, sizeof(inputvin));
+      // fmt::print("{} == {} is {} \n\r", selected_vin,
+      // newcar,selected_vin.compare(newcar));
+      if (!selected_vin.compare(newcar)) {
+        ImGui::InputText(
+            load_json<std::string>(language, "input", "fin", "label").c_str(),
+            inputvin, sizeof(inputvin));
+      }
+
       ImGui::InputText(
           load_json<std::string>(language, "input", "scantype", "label")
               .c_str(),
@@ -519,8 +527,8 @@ int main() {
       //fileBrowser.Display();
       if (fileBrowser.HasSelected()) {
           // Hier kannst du auf die ausgewählten Dateien zugreifen
-          for (const auto &selectedFile : fileBrowser.GetSelected()) {
-              std::string filename = selectedFile.string();
+          for (const auto &selectedFile : fileBrowser.GetSelected())
+      { std::string filename = selectedFile.string();
               // Verarbeite die ausgewählte Datei
               // ...
           }

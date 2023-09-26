@@ -4,6 +4,10 @@
         "height": "Höhe  ",
         "width": "Breite"
     },
+    "savepopup": {
+        "new_car": "Neues Fahrzeug",
+        "known_cars": "Bekannte Fahrzeuge"
+    },
     "helplink": "Klicken Sie auf den Button um zur Hilfeseite zu gelangen",
     "input": {
         "fin": {
