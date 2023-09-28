@@ -125,7 +125,6 @@ int main() {
     if(std::filesystem::exists(configpath)) {
         fmt::print("found config.json\n\r");
 
-
     } else {
         fmt::print("Did not find config.json.\n Download from Github\n\r");
         update_config_from_github();
@@ -133,7 +132,6 @@ int main() {
     config = load_json_file(configpath);
     if(std::filesystem::exists(load_json<std::string>(config, ("languagepath")))) {
         fmt::print("found language: {}\n\r", load_json<std::string>(config, ("language")));
-
 
     } else {
         fmt::print(
@@ -298,45 +296,40 @@ int main() {
                     }
                 }
 
-           
+                ImGui::EndMenu();
+            }
+            if(ImGui::MenuItem(
+                 load_json<std::string>(language, "menubar", "menu", "settings").c_str()))
+            {
+                open_settings = true;
+            }
 
-        ImGui::EndMenu();
-      }
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "menubar", "menu", "settings")
-                  .c_str())) {
-        open_settings = true;
-      }
-
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "menubar", "menu", "reset")
-                  .c_str())) {
-        sampler.reset();
-        captureData.clear();
-      }
-      ImGui::EndMenu();
-    }
-    /*
+            if(ImGui::MenuItem(
+                 load_json<std::string>(language, "menubar", "menu", "reset").c_str()))
+            {
+                sampler.reset();
+                captureData.clear();
+            }
+            ImGui::EndMenu();
+        }
+        /*
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "view", "label")
                 .c_str())) {
       ImGui::EndMenu();
     }*/
 
-    if (ImGui::BeginMenu(
-            load_json<std::string>(language, "menubar", "help", "label")
-                .c_str())) {
-      if (ImGui::MenuItem(load_json<std::string>(config, "helplink").c_str())) {
-        system(("start " + load_json<std::string>(config, "helplink")).c_str());
-      }
+        if(ImGui::BeginMenu(load_json<std::string>(language, "menubar", "help", "label").c_str())) {
+            if(ImGui::MenuItem(load_json<std::string>(config, "helplink").c_str())) {
+                system(("start " + load_json<std::string>(config, "helplink")).c_str());
+            }
 
-      ImGui::EndMenu();
-    }
+            ImGui::EndMenu();
+        }
 
-    mainMenuBarSize = ImGui::GetItemRectSize();
-    ImGui::EndMainMenuBar();
+        mainMenuBarSize = ImGui::GetItemRectSize();
+        ImGui::EndMainMenuBar();
 
-    
         // ############################ Live Capture
         // ##############################
         ImGui::BeginChild("Live Capture", ImVec2(-1, 620));
@@ -370,7 +363,6 @@ int main() {
             optimal_buttonstripe_height = (ImGui::GetTextLineHeightWithSpacing() * 1.1);
         } else {
             optimal_buttonstripe_height = load_json<float>(config, "button", "sizey") * 1.1;
-
         }
         ImGui::BeginChild(
           "Buttonstripe",
@@ -604,7 +596,6 @@ int main() {
             popup_settings(config, language, configpath);
             ImGui::EndPopup();
         }
-
 
         // ############################ Devicelist
         // ##############################
