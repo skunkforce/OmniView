@@ -2,7 +2,7 @@ name: C++ CI
 
 on:
   workflow_run:
-    workflows: ["clang-format Check"]
+    workflows: [clang-format Check]
     types:
       - completed
 jobs:
