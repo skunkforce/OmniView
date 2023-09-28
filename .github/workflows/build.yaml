@@ -1,7 +1,10 @@
 name: C++ CI
 
-on: [push]
-
+on:
+  workflow_run:
+    workflows: ["clang-format-check"]
+    types:
+      - completed
 jobs:
   build:
     name: ${{ matrix.os }}-${{ github.workflow }}
