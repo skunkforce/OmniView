@@ -15,7 +15,7 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fstream>
-    #include <imgui.h   >
+#include <imgui.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <set>
@@ -26,6 +26,7 @@
 
 static std::vector<std::string> getAvailableLanguages(std::string const& languageFolder) {
     std::vector<std::string> languages;
+
     for(auto const& entry : std::filesystem::directory_iterator(languageFolder)) {
         if(entry.is_regular_file()) {
             std::string extension = entry.path().extension().string();
