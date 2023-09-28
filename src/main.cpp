@@ -7,8 +7,8 @@
 #include "create_training_data.hpp"
 #include "get_from_github.hpp"
 
-#include "jasonhandler.hpp"
-#include "settingspopup.hpp"
+    #include "jasonhandler.hpp  "
+#include "settingspopup.hpp"        
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <algorithm>
 #include <fmt/chrono.h>
