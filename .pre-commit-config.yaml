@@ -1,0 +1,10 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0  # Use the ref you want to point at
+  hooks:
+    - id: check-merge-conflict
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: v16.0.6
+  hooks:
+  - id: clang-format
+    types_or: [c++, c]
