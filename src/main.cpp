@@ -356,7 +356,7 @@ int main() {
         addPlots(
             "Aufnahme der Daten", captureData,
             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
-                if (sampler.has_value()) {
+                if (!flagPaused) {
                     ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]",
                                       ImPlotAxisFlags_AutoFit,
                                       ImPlotAxisFlags_AutoFit);
