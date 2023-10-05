@@ -424,22 +424,12 @@ int main()
         {
             ImGui::SetItemDefaultFocus();
 
-            static char inputvin[18];
-            std::string selected_vin = getSubdirectoriesInFolder(language, "saves");
-
-            const std::string newcar =
-                load_json<std::string>(language, "savepopup", "new_car");
+            static std::string inputvin;
 
             static char mileage[10] = "";
             static char scantype[255] = "";
 
-            if (!selected_vin.compare(newcar))
-            {
-                ImGui::InputText(
-                    load_json<std::string>(language, "input", "fin", "label").c_str(),
-                    inputvin, sizeof(inputvin));
-            }
-
+            inputvin = getSubdirectoriesInFolder(language, "saves");
             ImGui::InputText(
                 load_json<std::string>(language, "input", "scantype", "label")
                     .c_str(),

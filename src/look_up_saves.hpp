@@ -48,6 +48,17 @@ getSubdirectoriesInFolder(nlohmann::json language,
         {
             selectedFolder = subdirectories[selectedOption];
         }
+        static char inputvin[18];
+        const std::string newcar =
+            load_json<std::string>(language, "savepopup", "new_car");
+
+        if (selectedOption == 0)
+        {
+            ImGui::InputText(
+                load_json<std::string>(language, "input", "fin", "label").c_str(),
+                inputvin, sizeof(inputvin));
+            selectedFolder = inputvin;
+        }
     }
 
     return selectedFolder;
