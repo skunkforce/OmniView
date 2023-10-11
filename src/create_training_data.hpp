@@ -113,6 +113,8 @@ static void selected_vcds_data(nlohmann::json const &config,
           .c_str());
   static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
+  static bool flagApiSending = false;
+  static std::future<std::string> future;
 
   if (first_job) {
     fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
@@ -143,18 +145,43 @@ static void selected_vcds_data(nlohmann::json const &config,
   }
   ImGui::Columns(1);
 
-  if (ImGui::Button(load_json<std::string>(language, "button", "send").c_str(),
-                    ImVec2(load_json<Size>(config, "button")))) {
-    // Api muss angepasst werden und die funktion send to api ebenso
+  using namespace std::chrono_literals;
+  if (!flagApiSending) {
+    if (ImGui::Button(
+            load_json<std::string>(language, "button", "send").c_str(),
+            ImVec2(load_json<Size>(config, "button")))) {
+      metadata["kommentar"] = comment;
+      metadata["laufleistung"] = mileage;
 
-    metadata["kommentar"] = comment;
-    metadata["laufleistung"] = mileage;
-    ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-    api_message = send_to_api(
-        config, path1, inputvin,
-        load_json<std::string>(language, "measuretype", "vcds"), metadata);
-    upload_success = true;
-    ImGui::CloseCurrentPopup();
+      future = std::async(std::launch::async, [&] {
+        std::string result = send_to_api(
+            config, path1, inputvin,
+            load_json<std::string>(language, "measuretype", "vcds"), metadata);
+        return result;
+      });
+      flagApiSending = true;
+    }
+  }
+  if (flagApiSending) {
+    ImGui::PushStyleColor(
+        ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+    if (ImGui::Button(
+            load_json<std::string>(language, "button", "send").c_str(),
+            ImVec2(load_json<Size>(config, "button")))) {
+    }
+    ImGui::PopStyleColor();
+    auto status = future.wait_for(10ms);
+    if (status == std::future_status::ready) {
+      upload_success = true;
+      flagApiSending = false;
+      if (future.valid()) {
+        api_message = future.get();
+      }
+      ImGui::CloseCurrentPopup();
+    } else {
+      ImGui::SameLine();
+      ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+    }
   }
   ImGui::EndChild();
 }
