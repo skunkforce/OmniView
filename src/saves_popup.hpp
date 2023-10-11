@@ -1,10 +1,11 @@
 #pragma once
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
 #include <nlohmann/json.hpp>
+
 static void
-save2(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
-          &alignedData,
-      std::filesystem::path const &outFile) {
+save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
+         &alignedData,
+     std::filesystem::path const &outFile) {
   auto minSize = std::numeric_limits<std::size_t>::max();
 
   std::vector<std::vector<std::pair<double, double>> const *> data;
@@ -94,7 +95,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
       std::filesystem::path complete_path = first_folder / inputvin / scantype;
       std::filesystem::create_directories(complete_path);
 
-      save2(captureData, path_path / complete_path / filename);
+      save(captureData, path_path / complete_path / filename);
 
       ImGui::CloseCurrentPopup();
     }

@@ -215,13 +215,6 @@ inline void selected_battery_measurement(
         return result;
       });
       flagApiSending = true;
-
-      /*
-                  api_message = send_to_api(
-                      config, path1, inputvin,
-                      load_json<std::string>(language, "measuretype",
-         "battery"), metadata);
-      */
     }
   }
   if (flagApiSending) {
