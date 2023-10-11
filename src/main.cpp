@@ -412,7 +412,8 @@ int main() {
     if (ImGui::BeginPopupModal("Speichern der aufgenommenen Daten", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, captureData, now, now_time_t, now_tm, path);
+      saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
+                  flagDataNotSaved);
 
       ImGui::SameLine();
       if (ImGui::Button(

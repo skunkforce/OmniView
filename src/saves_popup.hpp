@@ -60,7 +60,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
                  std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
                      &captureData,
                  std::chrono::system_clock::time_point &now,
-                 std::time_t &now_time_t, std::tm &now_tm, std::string &path) {
+                 std::time_t &now_time_t, std::tm &now_tm, std::string &path,
+                 bool &flagDataNotSaved) {
   ImGui::SetItemDefaultFocus();
 
   static std::string inputvin;
@@ -78,6 +79,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   if (ImGui::Button(load_json<std::string>(language, "button", "save").c_str(),
                     ImVec2(load_json<Size>(config, "button")))) {
+    flagDataNotSaved = false;
     now = std::chrono::system_clock::now();
 
     now_time_t = std::chrono::system_clock::to_time_t(now);
