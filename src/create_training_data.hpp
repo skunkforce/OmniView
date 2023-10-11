@@ -15,12 +15,13 @@
 // clang-format off
 #include <imfilebrowser.h>
 // clang-format on
-static void show_standart_input(nlohmann::json const &language,
+static void show_standart_input(nlohmann::json const &config,
+                                nlohmann::json const &language,
                                 nlohmann::json &metadata,
                                 std::string &inputvin_string,
                                 std::string &mileage_string,
                                 std::string &comment_string) {
-  static char inputvin[18];
+  static std::string inputvin;
   static char mileage[10];
   static char comment[1000];
 
@@ -29,9 +30,8 @@ static void show_standart_input(nlohmann::json const &language,
                     ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
   ImGui::TextUnformatted(
       load_json<std::string>(language, "training", "base_data").c_str());
-  ImGui::InputText(
-      load_json<std::string>(language, "input", "fin", "label").c_str(),
-      inputvin, sizeof(inputvin));
+  inputvin = getSubdirectoriesInFolder(
+      language, load_json<std::string>(config, "scanfolder"));
   ImGui::InputText(
       load_json<std::string>(language, "input", "mileage", "label").c_str(),
       mileage, sizeof(mileage));
@@ -255,6 +255,8 @@ static void selected_compression_data(
   static ImGui::FileBrowser fileBrowser;
   static ImGui::FileBrowser fileBrowser2;
   static bool first_job = true;
+  static bool flagApiSending = false;
+  static std::future<std::string> future;
 
   if (first_job) {
     fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
@@ -347,29 +349,56 @@ static void selected_compression_data(
     fileBrowser2.ClearSelected();
   }
   ImGui::Columns(1);
+  using namespace std::chrono_literals;
+  if (!flagApiSending) {
+    if (ImGui::Button(
+            load_json<std::string>(language, "button", "send").c_str(),
+            ImVec2(load_json<Size>(config, "button")))) {
+      metadata["z1"] = z1;
+      metadata["z2"] = z2;
+      metadata["z3"] = z3;
+      metadata["z4"] = z4;
+      metadata["kommentar"] = comment;
+      metadata["laufleistung"] = mileage;
+      metadata["zündung"] = "unterdrückt";
 
-  if (ImGui::Button(load_json<std::string>(language, "button", "send").c_str(),
-                    ImVec2(load_json<Size>(config, "button")))) {
-    // Api muss angepasst werden und die funktion send to api ebenso
-    metadata["z1"] = z1;
-    metadata["z2"] = z2;
-    metadata["z3"] = z3;
-    metadata["z4"] = z4;
-    metadata["kommentar"] = comment;
-    metadata["laufleistung"] = mileage;
-    metadata["zündung"] = "unterdrückt";
-    api_message = send_to_api(
-        config, path1, inputvin,
-        load_json<std::string>(language, "measuretype", "compression"),
-        metadata);
-    metadata["zündung"] = "aktiviert";
+      future = std::async(std::launch::async, [&] {
+        std::string result = send_to_api(
+            config, path1, inputvin,
+            load_json<std::string>(language, "measuretype", "compression"),
+            metadata);
 
-    api_message += send_to_api(
-        config, path2, inputvin,
-        load_json<std::string>(language, "measuretype", "compression"),
-        metadata);
-    upload_success = true;
-    ImGui::CloseCurrentPopup();
+        metadata["zündung"] = "aktiviert";
+
+        api_message += send_to_api(
+            config, path2, inputvin,
+            load_json<std::string>(language, "measuretype", "compression"),
+            metadata);
+        return result;
+      });
+      flagApiSending = true;
+    }
+  }
+  if (flagApiSending) {
+    ImGui::PushStyleColor(
+        ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+    if (ImGui::Button(
+            load_json<std::string>(language, "button", "send").c_str(),
+            ImVec2(load_json<Size>(config, "button")))) {
+    }
+    ImGui::PopStyleColor();
+    auto status = future.wait_for(10ms);
+    if (status == std::future_status::ready) {
+      upload_success = true;
+      flagApiSending = false;
+      if (future.valid()) {
+        api_message = future.get();
+      }
+      ImGui::CloseCurrentPopup();
+    } else {
+      ImGui::SameLine();
+      ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+    }
   }
   ImGui::EndChild();
 }
@@ -388,7 +417,7 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
   static nlohmann::json metadata;
   std::string api_message = " ";
   ImGui::SetItemDefaultFocus();
-  show_standart_input(language, metadata, inputvin, mileage, comment);
+  show_standart_input(config, language, metadata, inputvin, mileage, comment);
   ImGui::SameLine();
 
   ImVec2 windowSize = ImGui::GetWindowSize();

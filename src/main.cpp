@@ -9,6 +9,7 @@
 #include "look_up_saves.hpp"
 #include "jasonhandler.hpp"
 #include "settingspopup.hpp"
+#include "saves_popup.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <algorithm>
 #include <fmt/chrono.h>
@@ -349,7 +350,7 @@ int main() {
                  ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]", 0, 0);
                }
              });
-    int unnuetz;
+
     ImGui::EndChild();
     float optimal_buttonstripe_height;
     if (load_json<float>(config, "button", "sizey") <
@@ -367,7 +368,11 @@ int main() {
     // ##############################
     if (ImGui::BeginPopupModal("Speichern der aufgenommenen Daten", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
+      // ################################################################### get
+      // me out
       ImGui::SetItemDefaultFocus();
+      // saves_popup(config, language, captureData, now, now_time_t, now_tm,
+      // path);
 
       static std::string inputvin;
 
@@ -407,11 +412,11 @@ int main() {
 
           save(captureData, path_path / complete_path / filename);
 
-          // nicht mehr im save-kontext, sondern in create training
-          // data send_to_api(config, path_path / filename, inputvin,
-          // scantype);
           ImGui::CloseCurrentPopup();
         }
+
+        // ###################################################################
+        // get me out
       }
       ImGui::SameLine();
       if (ImGui::Button(
