@@ -44,7 +44,7 @@ cmake --build .
 
 OmniView ausführen:
 ```shell
-sudo ./OmniView
+./OmniView
 ```
 
 OmniView funktioniert auch ohne den Sudobefehl. Noch kann die Software aber so nicht mit angeschlossenen Omniscopes kommunizieren.
