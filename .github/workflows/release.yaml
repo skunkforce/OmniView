@@ -1,0 +1,113 @@
+name: Make Release
+
+on:
+  push:
+    tags:
+      - '*' 
+
+jobs:
+  build:
+    name: ${{ matrix.os }}-${{ github.workflow }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            triplet: x64-windows
+          - os: ubuntu-latest
+            triplet: x64-linux
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: add ssh private keys for submodule repositories
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: |
+             ${{ secrets.SSH_KEY_SUBMODULE_AI_OMNISCOPE_V2 }}
+
+      - name: checkout submodules
+        run: git submodule update --init --recursive
+
+      - name: setup
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler }}
+          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
+          cmake: true
+
+      - name: install deps
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        with:
+          packages: libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
+          version: 1.0
+
+      - name: setup prerequisites
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install autoconf libudev-dev
+
+      # On Windows runners, let's ensure to have the Developer Command Prompt environment setup correctly.
+      # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: CMake configure
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        run: cmake -S . -B ./build -DCMAKE_BUILD_TYPE="Release"
+
+      - name: build
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        run: cmake --build ./build
+
+      - name: CMake configure
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        run: cmake -S . -B ./build -DVCPKG_TARGET_TRIPLET="x64-windows-static"
+
+      - name: build
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        run: cmake --build ./build --config Release
+
+      - name: upload executable (Linux)
+        uses: actions/upload-artifact@v3
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        with:
+          name: executable-linux
+          path: build/OmniView
+
+      - name: upload executable (Windows)
+        uses: actions/upload-artifact@v3
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        with:
+          name: executable-windows
+          path: build/Release/OmniView.exe
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+        files: |
+          build/OmniView # Linux-Binär
+          build/Release/OmniView.exe # Windows-Binär
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/OmniView
+          asset_name: OmniView_Ubuntu_x64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Assets (Windows)
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/Release/OmniView.exe
+          asset_name: OmniView_Windows_x64.exe
+          asset_content_type: application/octet-stream
+
