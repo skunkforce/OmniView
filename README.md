@@ -29,6 +29,11 @@ Bevor der Kompilationsprozess gestartet werden kann, muss sichergestellt werden,
 * unzip 
 * tar 
 * libudev-dev
+* libxinerama-dev 
+* libxcursor-dev 
+* xorg-dev 
+* libglu1-mesa-dev 
+* pkg-config
 
 ### Kompilation
 
