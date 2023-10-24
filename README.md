@@ -16,6 +16,27 @@ Auf [https://moodle.aw4null.de/] (unserer Lernplattform) finden sich weitere Hil
 
 
 ## Buildprozess Linux
+
+### Prerequisites
+Bevor der Kompilationsprozess gestartet werden kann, muss sichergestellt werden, dass die folgenden Pakete installiert sind:
+* build-essential 
+* autoconf 
+* gtk-doc-tools 
+* libtool 
+* intltool 
+* curl 
+* zip 
+* unzip 
+* tar 
+* libudev-dev
+* libxinerama-dev 
+* libxcursor-dev 
+* xorg-dev 
+* libglu1-mesa-dev 
+* pkg-config
+
+### Kompilation
+
 ins OmniView Verzeichnis wechseln
 
 submodule updaten und initalisieren:
