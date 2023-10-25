@@ -20,6 +20,7 @@
 #include <nlohmann/json_fwd.hpp>
 #include <set>
 #include <thread>
+#include <cmake_git_version/version.hpp>
 // clang-format off
 #include <imfilebrowser.h>
 // clang-format on
@@ -347,6 +348,11 @@ int main() {
         deviceManager.clearDevices();
         captureData.clear();
         flagPaused = true;
+      }
+
+      if (ImGui::MenuItem(
+              fmt::format("Version: {}", CMakeGitVersion::VersionWithGit)
+                  .c_str())) {
       }
       ImGui::EndMenu();
     }
@@ -676,7 +682,11 @@ int main() {
     ImGui::PopStyleColor(7);
   };
 
-  ImGuiInstance window{1920, 1080, load_json<std::string>(config, "title")};
+  ImGuiInstance window{1920, 1080,
+        fmt::format("{} {}",
+                      CMakeGitVersion::Target::Name
+                    , CMakeGitVersion::Project::Version)};
+
   while (window.run(render)) {
   }
   return 0;
