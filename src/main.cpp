@@ -687,10 +687,12 @@ int main()
             static char ID[10];
             static char VIN[10];
             static char milage[10];
+            ImGui::SetNextItemWidth(300);
             ImGui::InputTextWithHint("ID", "Enter ID (optional)", ID, IM_ARRAYSIZE(ID));
-                    
+            ImGui::SetNextItemWidth(300);
             ImGui::InputTextWithHint("VIN", "Enter VIN", VIN, IM_ARRAYSIZE(VIN),
                                      ImGuiInputTextFlags_CharsUppercase);
+            ImGui::SetNextItemWidth(300);
             ImGui::InputTextWithHint("milage", "Enter milage", milage, IM_ARRAYSIZE(milage));
 
             std::string msg {ID};
@@ -720,7 +722,7 @@ int main()
             ImGui::RadioButton("Anomaly", &c, 1);
 
             static char comment[16];
-            ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment), ImVec2(300, 70),
+            ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment), ImVec2(250, 70),
                                       ImGuiInputTextFlags_AllowTabInput);
 
             // VCDS Auto-Scan (file-path or drag&drop)
