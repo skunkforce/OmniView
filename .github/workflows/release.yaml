@@ -90,8 +90,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
         files: |
-          build/OmniView # Linux-Binär
-          build/Release/OmniView.exe # Windows-Binär
+          build/OmniView 
+          build/Release/OmniView.exe
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
