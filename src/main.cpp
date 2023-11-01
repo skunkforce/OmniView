@@ -386,20 +386,6 @@ int main() {
       }
     }
 
-    addPlots("Aufnahme der Daten", captureData,
-             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
-               if (!flagPaused) {
-                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]",
-                                   ImPlotAxisFlags_AutoFit,
-                                   ImPlotAxisFlags_AutoFit);
-                 ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
-                                         ImGuiCond_Always);
-               } else {
-                 xmax_paused = x_max;
-                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]", 0, 0);
-               }
-             });
-
     ImGui::EndChild();
     float optimal_buttonstripe_height;
     if (load_json<float>(config, "button", "sizey") <
@@ -623,6 +609,20 @@ int main() {
       ImGui::EndPopup();
     }
 
+  addPlots("Aufnahme der Daten", captureData,
+             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
+               if (!flagPaused) {
+                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]",
+                                   ImPlotAxisFlags_AutoFit,
+                                   ImPlotAxisFlags_AutoFit);
+                 ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+                                         ImGuiCond_Always);
+               } else {
+                 xmax_paused = x_max;
+                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]", 0, 0);
+               }
+             });
+             
     // ############################ Devicelist
     // ##############################
     ImGui::BeginChild("Devicelist", ImVec2(-1, 0));
