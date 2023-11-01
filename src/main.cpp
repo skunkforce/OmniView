@@ -386,7 +386,6 @@ int main() {
       }
     }
 
-    ImGui::EndChild();
     float optimal_buttonstripe_height;
     if (load_json<float>(config, "button", "sizey") <
         (ImGui::GetTextLineHeightWithSpacing() * 1.1)) {
@@ -623,6 +622,8 @@ int main() {
                }
              });
              
+    ImGui::EndChild();
+
     // ############################ Devicelist
     // ##############################
     ImGui::BeginChild("Devicelist", ImVec2(-1, 0));
