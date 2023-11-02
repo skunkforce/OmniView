@@ -25,102 +25,116 @@
 #include <imfilebrowser.h>
 // clang-format on
 
-namespace ImGui {
-inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
-  ImGuiStyle &style = ImGui::GetStyle();
+namespace ImGui
+{
+  inline void SetupImGuiStyle(bool bStyleDark_, float alpha_)
+  {
+    ImGuiStyle &style = ImGui::GetStyle();
 
-  // light style from Pacôme Danhiez (user itamago)
-  // https://github.com/ocornut/imgui/pull/511#issuecomment-175719267
-  style.Alpha = 1.0f;
-  style.FrameRounding = 3.0f;
-  style.Colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-  style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-  style.Colors[ImGuiCol_WindowBg] = ImVec4(0.94f, 0.94f, 0.94f, 0.94f);
-  // style.Colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.00f, 0.00f, 0.00f,
-  // 0.00f);
-  style.Colors[ImGuiCol_PopupBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
-  style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.39f);
-  style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-  style.Colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
-  style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-  style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-  style.Colors[ImGuiCol_TitleBg] = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
-  style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 1.00f, 1.00f, 0.51f);
-  style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
-  style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-  style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
-  style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.69f, 0.69f, 0.69f, 1.00f);
-  style.Colors[ImGuiCol_ScrollbarGrabHovered] =
-      ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
-  style.Colors[ImGuiCol_ScrollbarGrabActive] =
-      ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
-  style.Colors[ImGuiCol_PopupBg] = ImVec4(0.86f, 0.86f, 0.86f, 0.99f);
-  style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-  style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
-  style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-  style.Colors[ImGuiCol_Button] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-  style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-  style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
-  style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
-  style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-  style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-  // style.Colors[ImGuiCol_Column]                = ImVec4(0.39f, 0.39f,
-  // 0.39f, 1.00f); style.Colors[ImGuiCol_ColumnHovered]         = ImVec4(0.26f,
-  // 0.59f, 0.98f, 0.78f); style.Colors[ImGuiCol_ColumnActive]          =
-  // ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-  style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
-  style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-  style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-  // style.Colors[ImGuiCol_CloseButton]           = ImVec4(0.59f, 0.59f, 0.59f,
-  // 0.50f); style.Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.98f, 0.39f,
-  // 0.36f, 1.00f); style.Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.98f,
-  // 0.39f, 0.36f, 1.00f);
-  style.Colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-  style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-  style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-  style.Colors[ImGuiCol_PlotHistogramHovered] =
-      ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-  style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-  // style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f,
-  // 0.35f);
+    // light style from Pacôme Danhiez (user itamago)
+    // https://github.com/ocornut/imgui/pull/511#issuecomment-175719267
+    style.Alpha = 1.0f;
+    style.FrameRounding = 3.0f;
+    style.Colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.94f, 0.94f, 0.94f, 0.94f);
+    // style.Colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.00f, 0.00f, 0.00f,
+    // 0.00f);
+    style.Colors[ImGuiCol_PopupBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
+    style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.39f);
+    style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+    style.Colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
+    style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+    style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    style.Colors[ImGuiCol_TitleBg] = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
+    style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 1.00f, 1.00f, 0.51f);
+    style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
+    style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
+    style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.69f, 0.69f, 0.69f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered] =
+        ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive] =
+        ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
+    style.Colors[ImGuiCol_PopupBg] = ImVec4(0.86f, 0.86f, 0.86f, 0.99f);
+    style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_Button] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    // style.Colors[ImGuiCol_Column]                = ImVec4(0.39f, 0.39f,
+    // 0.39f, 1.00f); style.Colors[ImGuiCol_ColumnHovered]         = ImVec4(0.26f,
+    // 0.59f, 0.98f, 0.78f); style.Colors[ImGuiCol_ColumnActive]          =
+    // ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
+    style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+    // style.Colors[ImGuiCol_CloseButton]           = ImVec4(0.59f, 0.59f, 0.59f,
+    // 0.50f); style.Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.98f, 0.39f,
+    // 0.36f, 1.00f); style.Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.98f,
+    // 0.39f, 0.36f, 1.00f);
+    style.Colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogramHovered] =
+        ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+    // style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f,
+    // 0.35f);
 
-  if (bStyleDark_) {
-    for (int i = 0; i < ImGuiCol_COUNT; i++) {
-      ImVec4 &col = style.Colors[i];
-      float H, S, V;
-      ImGui::ColorConvertRGBtoHSV(col.x, col.y, col.z, H, S, V);
+    if (bStyleDark_)
+    {
+      for (int i = 0; i < ImGuiCol_COUNT; i++)
+      {
+        ImVec4 &col = style.Colors[i];
+        float H, S, V;
+        ImGui::ColorConvertRGBtoHSV(col.x, col.y, col.z, H, S, V);
 
-      if (S < 0.1f) {
-        V = 1.0f - V;
-      }
-      ImGui::ColorConvertHSVtoRGB(H, S, V, col.x, col.y, col.z);
-      if (col.w < 1.00f) {
-        col.w *= alpha_;
+        if (S < 0.1f)
+        {
+          V = 1.0f - V;
+        }
+        ImGui::ColorConvertHSVtoRGB(H, S, V, col.x, col.y, col.z);
+        if (col.w < 1.00f)
+        {
+          col.w *= alpha_;
+        }
       }
     }
-  } else {
-    // std::cout << ImGuiCol_COUNT << std::endl;
-    for (int i = 0; i < ImGuiCol_COUNT; i++) {
-      ImVec4 &col = style.Colors[i];
-      if (col.w < 1.00f) {
-        col.x *= alpha_;
-        col.y *= alpha_;
-        col.z *= alpha_;
-        col.w *= alpha_;
+    else
+    {
+      // std::cout << ImGuiCol_COUNT << std::endl;
+      for (int i = 0; i < ImGuiCol_COUNT; i++)
+      {
+        ImVec4 &col = style.Colors[i];
+        if (col.w < 1.00f)
+        {
+          col.x *= alpha_;
+          col.y *= alpha_;
+          col.z *= alpha_;
+          col.w *= alpha_;
+        }
       }
     }
   }
-}
 } // namespace ImGui
 
 static std::vector<std::string>
-getAvailableLanguages(std::string const &languageFolder) {
+getAvailableLanguages(std::string const &languageFolder)
+{
   std::vector<std::string> languages;
   for (auto const &entry :
-       std::filesystem::directory_iterator(languageFolder)) {
-    if (entry.is_regular_file()) {
+       std::filesystem::directory_iterator(languageFolder))
+  {
+    if (entry.is_regular_file())
+    {
       std::string extension = entry.path().extension().string();
-      if (extension == ".json") {
+      if (extension == ".json")
+      {
         std::string filename = entry.path().filename().stem().string();
         languages.push_back(filename);
       }
@@ -130,7 +144,8 @@ getAvailableLanguages(std::string const &languageFolder) {
 }
 
 static void set_button_style_to(nlohmann::json const &config,
-                                std::string const &name) {
+                                std::string const &name)
+{
   ImGui::PushStyleColor(
       ImGuiCol_Button,
       ImVec4(load_json<Color>(config, "button", name, "normal")));
@@ -142,7 +157,8 @@ static void set_button_style_to(nlohmann::json const &config,
       ImVec4(load_json<Color>(config, "button", name, "active")));
 }
 
-static void load_settings(nlohmann::json const &config) {
+static void load_settings(nlohmann::json const &config)
+{
   ImGui::PushStyleColor(ImGuiCol_MenuBarBg,
                         ImVec4(load_json<Color>(config, "menubar", "main")));
   ImGui::PushStyleColor(ImGuiCol_PopupBg,
@@ -161,27 +177,35 @@ static void load_settings(nlohmann::json const &config) {
 // ############# INT MAIN BEGINN #############################################
 // ###########################################################################
 
-int main() {
+int main()
+{
   nlohmann::json config;
   const std::string configpath = "config/config.json";
-  if (std::filesystem::exists(configpath)) {
+  if (std::filesystem::exists(configpath))
+  {
     fmt::print("found config.json\n\r");
-
-  } else {
+  }
+  else
+  {
     fmt::print("Did not find config.json.\n Download from Github\n\r");
     update_config_from_github();
   }
   config = load_json_file(configpath);
   if (std::filesystem::exists(
-          load_json<std::string>(config, ("languagepath")))) {
+          load_json<std::string>(config, ("languagepath"))))
+  {
     fmt::print("found language: {}\n\r",
                load_json<std::string>(config, ("language")));
-
-  } else {
+  }
+  else
+  {
     fmt::print("Did not find {}.\n Download from Github\n\r",
                load_json<std::string>(config, ("language")));
     update_language_from_github();
   }
+
+  ImVec2 toolBtnSize = ImVec2(200, 100); // toolbar buttons size
+  ImVec2 btnSize = ImVec2(0, 0);         // other buttons size
 
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
@@ -198,12 +222,15 @@ int main() {
       devices; // = deviceManager.getDevices(VID, PID);
   // auto newDevices = devices;
   std::map<Omniscope::Id, std::array<float, 3>> colorMap;
-  auto initDevices = [&]() {
+  auto initDevices = [&]()
+  {
     devices = deviceManager.getDevices(VID, PID);
 
-    for (auto &device : devices) {
+    for (auto &device : devices)
+    {
       auto id = device->getId().value();
-      if (!colorMap.contains(id)) {
+      if (!colorMap.contains(id))
+      {
         ImPlot::PushColormap(ImPlotColormap_Dark);
         auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
         colorMap[id] = std::array<float, 3>{c.x, c.y, c.z};
@@ -237,14 +264,18 @@ int main() {
 
   auto addPlots = [&, firstRun = std::set<std::string>{}](
                       auto const &name, auto const &plots,
-                      auto axesSetup) mutable {
+                      auto axesSetup) mutable
+  {
     auto const plotRegion = ImGui::GetContentRegionAvail();
-    if (ImPlot::BeginPlot(name, plotRegion)) {
+    if (ImPlot::BeginPlot(name, plotRegion))
+    {
       double x_min = std::numeric_limits<double>::max();
       double x_max = std::numeric_limits<double>::min();
 
-      for (auto const &plot : plots) {
-        if (!plot.second.empty()) {
+      for (auto const &plot : plots)
+      {
+        if (!plot.second.empty())
+        {
           x_min = std::min(x_min, plot.second.front().first);
           x_max = std::max(x_max, plot.second.back().first);
         }
@@ -252,37 +283,47 @@ int main() {
 
       axesSetup(x_min, x_max);
 
-      auto const limits = [&]() {
-        if (!firstRun.contains(name)) {
+      auto const limits = [&]()
+      {
+        if (!firstRun.contains(name))
+        {
           firstRun.insert(name);
           return ImPlotRect(x_min, x_max, 0, 0);
         }
         return ImPlot::GetPlotLimits();
       }();
-      auto addPlot = [&](auto const &plot) {
-        if (!plot.second.empty()) {
-          auto const start = [&]() {
+      auto addPlot = [&](auto const &plot)
+      {
+        if (!plot.second.empty())
+        {
+          auto const start = [&]()
+          {
             auto p =
                 std::lower_bound(plot.second.begin(), plot.second.end(),
                                  std::pair<double, double>{limits.X.Min, 0});
-            if (p != plot.second.begin()) {
+            if (p != plot.second.begin())
+            {
               return p - 1;
             }
             return p;
           }();
 
-          auto const end = [&]() {
+          auto const end = [&]()
+          {
             auto p =
                 std::upper_bound(start, plot.second.end(),
                                  std::pair<double, double>{limits.X.Max, 0});
-            if (p != plot.second.end()) {
+            if (p != plot.second.end())
+            {
               return p + 1;
             }
             return p;
           }();
-          std::size_t const stride = [&]() -> std::size_t {
+          std::size_t const stride = [&]() -> std::size_t
+          {
             auto const s = std::distance(start, end) / (plotRegion.x * 2.0);
-            if (1 >= s) {
+            if (1 >= s)
+            {
               return 1;
             }
             return static_cast<std::size_t>(s);
@@ -296,7 +337,8 @@ int main() {
         }
       };
 
-      for (auto const &plot : plots) {
+      for (auto const &plot : plots)
+      {
         ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.first][0],
                                         colorMap[plot.first][1],
                                         colorMap[plot.first][2], 1.0f});
@@ -307,7 +349,8 @@ int main() {
     }
   };
 
-  auto render = [&]() {
+  auto render = [&]()
+  {
     load_settings(config);
     ImGui::SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos(ImVec2(0.0f, mainMenuBarSize.y));
@@ -319,14 +362,25 @@ int main() {
     // ############################ Menu bar ##############################
     //  main menu
     ImGui::BeginMainMenuBar();
+
+    std::string analyse_data = language["button"]["analyse_data"];
+    std::string create_training_data = language["button"]["create_training_data"];
+    // replace space chars with new line
+    std::replace(analyse_data.begin(), analyse_data.end(), ' ', '\n');
+    std::replace(create_training_data.begin(), create_training_data.end(), ' ', '\n');
+
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "menu", "label")
-                .c_str())) {
+                .c_str()))
+    {
       if (ImGui::BeginMenu(load_json<std::string>(language, "menubar", "menu",
                                                   "language_option")
-                               .c_str())) {
-        for (const auto &lang : availableLanguages) {
-          if (ImGui::MenuItem(lang.c_str())) {
+                               .c_str()))
+      {
+        for (const auto &lang : availableLanguages)
+        {
+          if (ImGui::MenuItem(lang.c_str()))
+          {
             config["language"] = lang;
             write_json_file(configpath, config);
           }
@@ -336,13 +390,15 @@ int main() {
       }
       if (ImGui::MenuItem(
               load_json<std::string>(language, "menubar", "menu", "settings")
-                  .c_str())) {
+                  .c_str()))
+      {
         open_settings = true;
       }
 
       if (ImGui::MenuItem(
               load_json<std::string>(language, "menubar", "menu", "reset")
-                  .c_str())) {
+                  .c_str()))
+      {
         sampler.reset();
         devices.clear();
         deviceManager.clearDevices();
@@ -352,7 +408,8 @@ int main() {
 
       if (ImGui::MenuItem(
               fmt::format("Version: {}", CMakeGitVersion::VersionWithGit)
-                  .c_str())) {
+                  .c_str()))
+      {
       }
       ImGui::EndMenu();
     }
@@ -365,9 +422,11 @@ int main() {
 
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "help", "label")
-                .c_str())) {
+                .c_str()))
+    {
       if (ImGui::MenuItem(
-              load_json<std::string>(language, "helplink").c_str())) {
+              load_json<std::string>(language, "helplink").c_str()))
+      {
         system(("start " + load_json<std::string>(config, "helplink")).c_str());
       }
 
@@ -380,50 +439,46 @@ int main() {
     // ############################ Live Capture
     // ##############################
     ImGui::BeginChild("Live Capture", ImVec2(-1, 620));
-    if (sampler.has_value()) {
-      if (!flagPaused) {
+    if (sampler.has_value())
+    {
+      if (!flagPaused)
+      {
         sampler->copyOut(captureData);
       }
     }
 
-    float optimal_buttonstripe_height;
-    if (load_json<float>(config, "button", "sizey") <
-        (ImGui::GetTextLineHeightWithSpacing() * 1.1)) {
-      optimal_buttonstripe_height =
-          (ImGui::GetTextLineHeightWithSpacing() * 1.1);
-    } else {
-      optimal_buttonstripe_height =
-          load_json<float>(config, "button", "sizey") * 1.1;
-    }
+    float optimal_buttonstripe_height = toolBtnSize.y * 1.1;
+    if (toolBtnSize.y < (ImGui::GetTextLineHeightWithSpacing() * 1.1))
+      optimal_buttonstripe_height = ImGui::GetTextLineHeightWithSpacing() * 1.1;
+
     ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
                       false, ImGuiWindowFlags_NoScrollbar);
 
     // ############################ Popup Speichern
     // ##############################
     if (ImGui::BeginPopupModal("Speichern der aufgenommenen Daten", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
+                               ImGuiWindowFlags_AlwaysAutoResize))
+    {
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
                   flagDataNotSaved);
 
       ImGui::SameLine();
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "back").c_str(),
-              ImVec2(load_json<Size>(config, "button")))) {
+      if(ImGui::Button(load_json<std::string>(language, "button", "back").c_str(), btnSize))
         ImGui::CloseCurrentPopup();
-      }
 
       ImGui::EndPopup();
     }
     // ############################ Popup Zurücksetzen
     // ##############################
     if (ImGui::BeginPopupModal("Zurücksetzen?", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
+                               ImGuiWindowFlags_AlwaysAutoResize))
+    {
       ImGui::SetItemDefaultFocus();
       ImGui::Text("Die Messung wurde nicht gespeichert!\n"
                   "Möchten Sie diese vor dem Löschen speichern?\n");
-      if (ImGui::Button("Löschen fortsetzen",
-                        ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button("Löschen fortsetzen", btnSize))
+      {
         sampler.reset();
         devices.clear();
         deviceManager.clearDevices();
@@ -431,7 +486,8 @@ int main() {
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
-      if (ImGui::Button("Zurück", ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button("Zurück", btnSize))
+      {
         ImGui::CloseCurrentPopup();
       }
       ImGui::EndPopup();
@@ -439,28 +495,33 @@ int main() {
 
     ImGui::SetNextWindowPos(ImVec2(0, 100));
     ImGui::SetNextWindowSize(ImVec2(0, 800));
-    if (flagPaused) {
+    if (flagPaused)
+    {
       if (ImGui::BeginPopupModal("Erstellung Lerndatensatz", nullptr,
                                  ImGuiWindowFlags_AlwaysAutoResize |
                                      ImGuiWindowFlags_NoSavedSettings |
-                                     ImGuiWindowFlags_NoMove)) {
+                                     ImGuiWindowFlags_NoMove))
+      {
         ImGui::SetItemDefaultFocus();
 
         popup_create_training_data_select(config, language, upload_success);
         ImGui::EndPopup();
       }
-      if (upload_success == true) {
+      if (upload_success == true)
+      {
         ImGui::OpenPopup("upload_success");
       }
       if (ImGui::BeginPopupModal("upload_success", nullptr,
                                  ImGuiWindowFlags_AlwaysAutoResize |
                                      ImGuiWindowFlags_NoSavedSettings |
-                                     ImGuiWindowFlags_NoMove)) {
+                                     ImGuiWindowFlags_NoMove))
+      {
         ImGui::TextUnformatted(
             load_json<std::string>(language, "training", "upload_success")
                 .c_str());
         if (ImGui::Button(
-                load_json<std::string>(language, "button", "ok").c_str())) {
+                load_json<std::string>(language, "button", "ok").c_str()))
+        {
           ImGui::CloseCurrentPopup();
           upload_success = false;
         }
@@ -471,9 +532,11 @@ int main() {
       // ######################## Buttonstripe
       // ################################
       // Start nur wenn Devices vorhanden sind, sonst Suche Geräte
-      if (!sampler.has_value()) {
-        if (ImGui::Button("Suche Geräte",
-                          ImVec2(load_json<Size>(config, "button")))) {
+      if (!sampler.has_value())
+      {
+        if (ImGui::Button("Suche\nGeräte", // have the text in two separate lines 
+                          toolBtnSize))
+        {
           devices.clear();
           deviceManager.clearDevices();
           initDevices();
@@ -481,14 +544,16 @@ int main() {
         ImGui::SameLine();
       }
 
-      if (!devices.empty()) {
+      if (!devices.empty())
+      {
         // ############################ Start Button
         // ##############################
-        if (!sampler.has_value()) {
+        if (!sampler.has_value())
+        {
           set_button_style_to(config, "start");
           if (ImGui::Button(
-                  load_json<std::string>(language, "button", "start").c_str(),
-                  ImVec2(load_json<Size>(config, "button")))) {
+                  load_json<std::string>(language, "button", "start").c_str(), btnSize))
+          {
             sampler.emplace(deviceManager, std::move(devices));
             flagPaused = false;
             flagDataNotSaved = true;
@@ -497,28 +562,30 @@ int main() {
         }
       }
       // set_button_style_to(config, "standart");
-    } else {
+    }
+    else
+    {
       // ############################ Stop Button
       // ##############################
       set_button_style_to(config, "stop");
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "stop").c_str(),
-              ImVec2(load_json<Size>(config, "button")))) {
+      if(ImGui::Button(load_json<std::string>(language, "button", "stop").c_str(), btnSize))
         flagPaused = true;
-      }
+  
       ImGui::PopStyleColor(3);
     }
-    if (flagPaused) {
+    if (flagPaused)
+    {
       ImGui::SameLine();
 
       // Start / Zurücksetzen der Messung bei pausierter Messung
       // mit anschließender Abfrage ob die alten Daten gespeichert
       // werden sollen
-      if (sampler.has_value()) {
+      if (sampler.has_value())
+      {
         ImGui::SameLine();
         set_button_style_to(config, "start");
-        if (ImGui::Button("Fortsetzen",
-                          ImVec2(load_json<Size>(config, "button")))) {
+        if (ImGui::Button("Fortsetzen", btnSize))
+        {
           flagPaused = false;
           flagDataNotSaved = true;
         }
@@ -526,11 +593,14 @@ int main() {
         ImGui::SameLine();
 
         set_button_style_to(config, "stop");
-        if (ImGui::Button("Zurücksetzen",
-                          ImVec2(load_json<Size>(config, "button")))) {
-          if (flagDataNotSaved) {
+        if (ImGui::Button("Zurücksetzen", btnSize))
+        {
+          if (flagDataNotSaved)
+          {
             ImGui::OpenPopup("Zurücksetzen?");
-          } else {
+          }
+          else
+          {
             sampler.reset();
             devices.clear();
             deviceManager.clearDevices();
@@ -542,18 +612,15 @@ int main() {
       }
       ImGui::SameLine();
       if (ImGui::Button(
-              load_json<std::string>(language, "button", "save").c_str(),
-              ImVec2(load_json<Size>(config, "button")))) {
+              load_json<std::string>(language, "button", "save").c_str(), toolBtnSize))
+      {
         ImGui::OpenPopup("Speichern der aufgenommenen Daten");
       }
       ImGui::SameLine();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "analyse_data")
-                  .c_str(),
-              ImVec2(load_json<Size>(config, "button")))) {
-      }
+
+      ImGui::Button(analyse_data.c_str(), toolBtnSize);
       ImGui::PopStyleColor();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
@@ -561,67 +628,64 @@ int main() {
 
       // ############################ Button create trainings data
       // ##############################
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "create_training_data")
-                  .c_str(),
-              ImVec2(load_json<Size>(config, "button")))) {
+      if (ImGui::Button(create_training_data.c_str(), toolBtnSize))
+      {
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(0, 0));
         ImGui::OpenPopup("Erstellung Lerndatensatz");
       }
       ImGui::PopStyleColor();
-    } else {
+    }
+    else
+    {
       ImGui::SameLine();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "save").c_str(),
-              ImVec2(load_json<Size>(config, "button")))) {
-      }
-      ImGui::SameLine();
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "analyse_data")
-                  .c_str(),
-              ImVec2(load_json<Size>(config, "button")))) {
-      }
-      ImGui::SameLine();
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "create_training_data")
-                  .c_str(),
-              ImVec2(load_json<Size>(config, "button")))) {
-      }
-      ImGui::PopStyleColor();
+      ImGui::Button(
+              load_json<std::string>(language, "button", "save").c_str(), toolBtnSize);
+
+     ImGui::SameLine();
+            ImGui::Button(analyse_data.c_str(), toolBtnSize);
+            ImGui::SameLine();
+            ImGui::Button(create_training_data.c_str(), toolBtnSize);
+            ImGui::PopStyleColor();
     }
     ImGui::EndChild();
     // ############################ Settings Menu
     // ##############################
     std::string settingstitle =
         load_json<std::string>(language, "settings", "title");
-    if (open_settings == true) {
+    if (open_settings == true)
+    {
       ImGui::OpenPopup(settingstitle.c_str());
       open_settings = false;
     }
     if (ImGui::BeginPopupModal(settingstitle.c_str(), nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
+                               ImGuiWindowFlags_AlwaysAutoResize))
+    {
       ImGui::SetItemDefaultFocus();
       popup_settings(config, language, configpath);
       ImGui::EndPopup();
     }
 
-  addPlots("Aufnahme der Daten", captureData,
-             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
-               if (!flagPaused) {
+    addPlots("Aufnahme der Daten", captureData,
+             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max)
+             {
+               if (!flagPaused)
+               {
                  ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]",
                                    ImPlotAxisFlags_AutoFit,
                                    ImPlotAxisFlags_AutoFit);
                  ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
                                          ImGuiCond_Always);
-               } else {
+               }
+               else
+               {
                  xmax_paused = x_max;
                  ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]", 0, 0);
                }
              });
-             
+
     ImGui::EndChild();
 
     // ############################ Devicelist
@@ -632,8 +696,10 @@ int main() {
     //                       ImVec2(0.5f, 0.5f));
 
     ImGui::Text("gefundene Geräte:");
-    if (ImGui::BeginListBox("##deviceListBox", ImVec2(1024, -1))) {
-      auto doDevice = [&](auto &device, auto msg) {
+    if (ImGui::BeginListBox("##deviceListBox", ImVec2(1024, -1)))
+    {
+      auto doDevice = [&](auto &device, auto msg)
+      {
         auto &color = colorMap[device->getId().value()];
         if (ImGui::ColorEdit3(
                 fmt::format("{:<32}",
@@ -642,7 +708,8 @@ int main() {
                     .c_str(),
                 color.data(),
                 ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker |
-                    ImGuiColorEditFlags_NoTooltip)) {
+                    ImGuiColorEditFlags_NoTooltip))
+        {
           device->send(
               Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
                                 static_cast<std::uint8_t>(color[1] * 255),
@@ -659,19 +726,27 @@ int main() {
                         device->getId().value().swVersion.patch)
                 .c_str());
         ImGui::SameLine();
-        if (device->isRunning()) {
+        if (device->isRunning())
+        {
           ImGui::TextUnformatted(fmt::format("{}", msg).c_str());
-        } else {
+        }
+        else
+        {
           ImGui::TextUnformatted(fmt::format("Fehler").c_str());
         }
       };
 
-      if (sampler.has_value()) {
-        for (auto &device : sampler->sampleDevices) {
+      if (sampler.has_value())
+      {
+        for (auto &device : sampler->sampleDevices)
+        {
           doDevice(device.first, "Messung");
         }
-      } else {
-        for (auto &device : devices) {
+      }
+      else
+      {
+        for (auto &device : devices)
+        {
           doDevice(device, "Bereit");
         }
       }
@@ -684,11 +759,11 @@ int main() {
   };
 
   ImGuiInstance window{1920, 1080,
-        fmt::format("{} {}",
-                      CMakeGitVersion::Target::Name
-                    , CMakeGitVersion::Project::Version)};
+                       fmt::format("{} {}",
+                                   CMakeGitVersion::Target::Name, CMakeGitVersion::Project::Version)};
 
-  while (window.run(render)) {
+  while (window.run(render))
+  {
   }
   return 0;
 }
