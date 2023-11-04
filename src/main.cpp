@@ -204,8 +204,8 @@ int main()
     update_language_from_github();
   }
 
-  ImVec2 toolBtnSize = ImVec2(200, 100); // toolbar buttons size
-  ImVec2 btnSize = ImVec2(0, 0);         // other buttons size
+  constexpr ImVec2 toolBtnSize = ImVec2(200, 100); // toolbar buttons size
+  constexpr ImVec2 btnSize = ImVec2(0, 0);         // other buttons size
 
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
@@ -252,6 +252,7 @@ int main()
 
   double xmax_paused{0};
   static bool open_settings = false;
+  static bool open_generate_training_data = false;
   static bool upload_success = false;
   static bool flagPaused = true;
   static bool flagDataNotSaved = true;
@@ -420,6 +421,30 @@ int main()
       ImGui::EndMenu();
     }*/
 
+    if (ImGui::BeginMenu("Diagnostics"))
+    {
+      if (ImGui::BeginMenu("Compression"))
+      {
+        ImGui::MenuItem("Analyze current waveform");
+        if (ImGui::MenuItem("Generate training data"))
+          open_generate_training_data = true;
+
+        ImGui::EndMenu();
+      }
+
+      // greyed out color style
+      ImGui::PushStyleColor(
+          ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+
+      ImGui::MenuItem("Timing-Belt");
+      ImGui::MenuItem("Fuel-Delivery-Pump");
+      ImGui::MenuItem("Common-Rail-Pressure");
+      ImGui::PopStyleColor();
+      ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
+
+      ImGui::EndMenu();
+    }
+
     if (ImGui::BeginMenu(
             load_json<std::string>(language, "menubar", "help", "label")
                 .c_str()))
@@ -464,7 +489,7 @@ int main()
                   flagDataNotSaved);
 
       ImGui::SameLine();
-      if(ImGui::Button(load_json<std::string>(language, "button", "back").c_str(), btnSize))
+      if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(), btnSize))
         ImGui::CloseCurrentPopup();
 
       ImGui::EndPopup();
@@ -534,7 +559,7 @@ int main()
       // Start nur wenn Devices vorhanden sind, sonst Suche Geräte
       if (!sampler.has_value())
       {
-        if (ImGui::Button("Suche\nGeräte", // have the text in two separate lines 
+        if (ImGui::Button("Suche\nGeräte", // have the text in two separate lines
                           toolBtnSize))
         {
           devices.clear();
@@ -568,9 +593,9 @@ int main()
       // ############################ Stop Button
       // ##############################
       set_button_style_to(config, "stop");
-      if(ImGui::Button(load_json<std::string>(language, "button", "stop").c_str(), btnSize))
+      if (ImGui::Button(load_json<std::string>(language, "button", "stop").c_str(), btnSize))
         flagPaused = true;
-  
+
       ImGui::PopStyleColor(3);
     }
     if (flagPaused)
@@ -642,13 +667,13 @@ int main()
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
       ImGui::Button(
-              load_json<std::string>(language, "button", "save").c_str(), toolBtnSize);
+          load_json<std::string>(language, "button", "save").c_str(), toolBtnSize);
 
-     ImGui::SameLine();
-            ImGui::Button(analyse_data.c_str(), toolBtnSize);
-            ImGui::SameLine();
-            ImGui::Button(create_training_data.c_str(), toolBtnSize);
-            ImGui::PopStyleColor();
+      ImGui::SameLine();
+      ImGui::Button(analyse_data.c_str(), toolBtnSize);
+      ImGui::SameLine();
+      ImGui::Button(create_training_data.c_str(), toolBtnSize);
+      ImGui::PopStyleColor();
     }
     ImGui::EndChild();
     // ############################ Settings Menu
@@ -668,6 +693,79 @@ int main()
       ImGui::EndPopup();
     }
 
+ // ############################ Generate training data Menu
+        // ##############################
+        if (open_generate_training_data)
+        {
+            ImGui::OpenPopup("Generate Training Data");
+            open_generate_training_data = false;
+        }
+
+        if (ImGui::BeginPopupModal("Generate Training Data", nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            static int a = 0;
+            ImGui::RadioButton("User current Waveform", &a, 0);
+            ImGui::RadioButton("Waveform from File", &a, 1);
+
+            static char ID[10];
+            static char VIN[10];
+            static char milage[10];
+            ImGui::SetNextItemWidth(300); // custom width
+            ImGui::InputTextWithHint("ID", "Enter ID(optional)", ID, IM_ARRAYSIZE(ID));
+            ImGui::SetNextItemWidth(300);
+            ImGui::InputTextWithHint("VIN", "Enter VIN", VIN, IM_ARRAYSIZE(VIN),
+                                     // auto capitalize input string 
+                                     ImGuiInputTextFlags_CharsUppercase);
+            ImGui::SetNextItemWidth(300);
+            ImGui::InputTextWithHint("milage", "Enter milage", milage, IM_ARRAYSIZE(milage));
+
+            std::string msg{ID};
+            // have each entry on a new line 
+            msg += '\n';
+            msg += VIN;
+            msg += '\n';
+            msg += milage;
+
+            ImGui::SeparatorText("Reason-for-investigation");
+            static int b = 0;
+            ImGui::RadioButton("Maintenance", &b, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Fault", &b, 1);
+
+            ImGui::SeparatorText("Electrical-Consumers");
+            static int c = 0;
+            ImGui::RadioButton("Off", &c, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("On", &c, 1);
+
+            ImGui::SeparatorText("Assessment");
+            static int d = 0;
+            ImGui::RadioButton("Normal", &d, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Anomaly", &d, 1);
+
+            static char comment[16];
+            ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment), ImVec2(250, 70),
+                                      ImGuiInputTextFlags_AllowTabInput);
+
+            // VCDS Auto-Scan (file-path or drag&drop)
+
+            if (ImGui::Button("Cancel"))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::SameLine();
+            if (ImGui::Button(" Send "))
+            {
+                const std::string url{"https://example.com"};
+                //sendData(msg, url); 
+            }
+            ImGui::EndPopup();
+        }
+
+        // ############################ addPlots("Aufnahme der Daten", ...)
+        // ##############################
+        
     addPlots("Aufnahme der Daten", captureData,
              [&sampler, &xmax_paused](auto /*x_min*/, auto x_max)
              {
