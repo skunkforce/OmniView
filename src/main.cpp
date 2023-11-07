@@ -24,6 +24,7 @@
 // clang-format off
 #include <imfilebrowser.h>
 // clang-format on
+#include "sendData.hpp"
 
 namespace ImGui
 {
@@ -757,8 +758,9 @@ int main()
             ImGui::SameLine();
             if (ImGui::Button(" Send "))
             {
-                const std::string url{"https://example.com"};
-                //sendData(msg, url); 
+               // example url
+                const std::string url{"https://raw.githubusercontent.com/skunkforce/omniview/"};
+                sendData(msg, url); 
             }
             ImGui::EndPopup();
         }
