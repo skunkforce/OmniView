@@ -25,6 +25,7 @@
 #include <imfilebrowser.h>
 // clang-format on
 #include "sendData.hpp"
+#include <regex>
 
 namespace ImGui
 {
@@ -349,6 +350,23 @@ int main()
 
       ImPlot::EndPlot();
     }
+  };
+
+  // one extra space for '\0' character and another 
+  // for one past the last accepted input character  
+  static char vinBuffer[19];
+  auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int
+  {
+    const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
+    std::string s;
+    // get entered char and save it into string
+    s += data->EventChar;
+    // strlen is updated when entered char passes the filter
+    size_t indx = strlen(vinBuffer) + 1;
+
+    if (indx >= 1 && indx <= 17)
+      return !std::regex_match(s, chars_regex); // return 0 as passed for matched chars
+    return 1; // discard exceeding chars
   };
 
   auto render = [&]()
@@ -694,80 +712,83 @@ int main()
       ImGui::EndPopup();
     }
 
- // ############################ Generate training data Menu
-        // ##############################
-        if (open_generate_training_data)
-        {
-            ImGui::OpenPopup("Generate Training Data");
-            open_generate_training_data = false;
-        }
+    // ############################ Generate training data Menu
+    // ##############################
+    if (open_generate_training_data)
+    {
+      ImGui::OpenPopup("Generate Training Data");
+      open_generate_training_data = false;
+    }
 
-        if (ImGui::BeginPopupModal("Generate Training Data", nullptr,
-                                   ImGuiWindowFlags_AlwaysAutoResize))
-        {
-            static int a = 0;
-            ImGui::RadioButton("User current Waveform", &a, 0);
-            ImGui::RadioButton("Waveform from File", &a, 1);
+    if (ImGui::BeginPopupModal("Generate Training Data", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize))
+    {
+      static int a = 0;
+      ImGui::RadioButton("User current Waveform", &a, 0);
+      ImGui::RadioButton("Waveform from File", &a, 1);
 
-            static char ID[10];
-            static char VIN[10];
-            static char milage[10];
-            ImGui::SetNextItemWidth(300); // custom width
-            ImGui::InputTextWithHint("ID", "Enter ID(optional)", ID, IM_ARRAYSIZE(ID));
-            ImGui::SetNextItemWidth(300);
-            ImGui::InputTextWithHint("VIN", "Enter VIN", VIN, IM_ARRAYSIZE(VIN),
-                                     // auto capitalize input string 
-                                     ImGuiInputTextFlags_CharsUppercase);
-            ImGui::SetNextItemWidth(300);
-            ImGui::InputTextWithHint("milage", "Enter milage", milage, IM_ARRAYSIZE(milage));
+      static char ID[10];
+      static char milage[10];
+      ImGui::SetNextItemWidth(300); // custom width
+      ImGui::InputTextWithHint("ID", "Enter ID(optional)", ID, IM_ARRAYSIZE(ID));
+      ImGui::SetNextItemWidth(300);
+      ImGui::InputTextWithHint("VIN", "Enter VIN", vinBuffer, IM_ARRAYSIZE(vinBuffer),
+                                ImGuiInputTextFlags_CharsUppercase |
+                                ImGuiInputTextFlags_CharsNoBlank |
+                                ImGuiInputTextFlags_CallbackCharFilter,
+                                // callback function to filter each character
+                                // before putting it into the buffer
+                                vinFilter);
+      ImGui::SetNextItemWidth(300);
+      ImGui::InputTextWithHint("milage", "Enter milage", milage, IM_ARRAYSIZE(milage));
 
-            std::string msg{ID};
-            // have each entry on a new line 
-            msg += '\n';
-            msg += VIN;
-            msg += '\n';
-            msg += milage;
+      std::string msg{ID};
+      // have each entry on a new line
+      msg += '\n';
+      msg += vinBuffer;
+      msg += '\n';
+      msg += milage;
 
-            ImGui::SeparatorText("Reason-for-investigation");
-            static int b = 0;
-            ImGui::RadioButton("Maintenance", &b, 0);
-            ImGui::SameLine();
-            ImGui::RadioButton("Fault", &b, 1);
+      ImGui::SeparatorText("Reason-for-investigation");
+      static int b = 0;
+      ImGui::RadioButton("Maintenance", &b, 0);
+      ImGui::SameLine();
+      ImGui::RadioButton("Fault", &b, 1);
 
-            ImGui::SeparatorText("Electrical-Consumers");
-            static int c = 0;
-            ImGui::RadioButton("Off", &c, 0);
-            ImGui::SameLine();
-            ImGui::RadioButton("On", &c, 1);
+      ImGui::SeparatorText("Electrical-Consumers");
+      static int c = 0;
+      ImGui::RadioButton("Off", &c, 0);
+      ImGui::SameLine();
+      ImGui::RadioButton("On", &c, 1);
 
-            ImGui::SeparatorText("Assessment");
-            static int d = 0;
-            ImGui::RadioButton("Normal", &d, 0);
-            ImGui::SameLine();
-            ImGui::RadioButton("Anomaly", &d, 1);
+      ImGui::SeparatorText("Assessment");
+      static int d = 0;
+      ImGui::RadioButton("Normal", &d, 0);
+      ImGui::SameLine();
+      ImGui::RadioButton("Anomaly", &d, 1);
 
-            static char comment[16];
-            ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment), ImVec2(250, 70),
-                                      ImGuiInputTextFlags_AllowTabInput);
+      static char comment[16];
+      ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment), ImVec2(250, 70),
+                                ImGuiInputTextFlags_AllowTabInput);
 
-            // VCDS Auto-Scan (file-path or drag&drop)
+      // VCDS Auto-Scan (file-path or drag&drop)
 
-            if (ImGui::Button("Cancel"))
-                ImGui::CloseCurrentPopup();
+      if (ImGui::Button("Cancel"))
+        ImGui::CloseCurrentPopup();
 
-            ImGui::SameLine();
-            if (ImGui::Button(" Send "))
-            {
-               // example url
-                const std::string url{"https://raw.githubusercontent.com/skunkforce/omniview/"};
-                sendData(msg, url); 
-            }
-            ImGui::EndPopup();
-        }
+      ImGui::SameLine();
+      if (ImGui::Button(" Send "))
+      {
+        // example url
+        const std::string url{"https://raw.githubusercontent.com/skunkforce/omniview/"};
+        sendData(msg, url);
+      }
+      ImGui::EndPopup();
+    }
 
-        // ############################ addPlots("Aufnahme der Daten", ...)
-        // ##############################
-        
+    // ############################ addPlots("Aufnahme der Daten", ...)
+    // ##############################
+
     addPlots("Aufnahme der Daten", captureData,
              [&sampler, &xmax_paused](auto /*x_min*/, auto x_max)
              {
@@ -782,7 +803,7 @@ int main()
                else
                {
                  xmax_paused = x_max;
-                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]", 0, 0);
+                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]");
                }
              });
 
