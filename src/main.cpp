@@ -357,27 +357,16 @@ int main()
   static char vinBuffer[19];
   auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int
   {
-    const std::regex first_to_four("[A-HJ-NPR-Z]");
-    const std::regex fifth_to_seventh("[A-HJ-NPR-Z0-9]");
-    const std::regex eighth_to_tenth("[0-9]");
-    const std::regex eleventh_to_seventeenth("[A-HJ-NPR-Z0-9]");
+    const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
     std::string s;
     // get entered char and save it into string
     s += data->EventChar;
     // strlen is updated when entered char passes the filter
     size_t indx = strlen(vinBuffer) + 1;
 
-    if (indx >= 1 && indx <= 4)
-      return !std::regex_match(s, first_to_four);
-    else if (indx >= 5 && indx <= 7)
-      return !std::regex_match(s, fifth_to_seventh);
-    else if (indx >= 8 && indx <= 10)
-      return !std::regex_match(s, eighth_to_tenth);
-    else if (indx >= 11 && indx <= 17)
-      return !std::regex_match(s, eleventh_to_seventeenth);
-    else
-      // discard exceeding chars
-      return 1;
+    if (indx >= 1 && indx <= 17)
+      return !std::regex_match(s, chars_regex); // return 0 as passed for matched chars
+    return 1; // discard exceeding chars
   };
 
   auto render = [&]()
@@ -814,7 +803,7 @@ int main()
                else
                {
                  xmax_paused = x_max;
-                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]", 0, 0);
+                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]");
                }
              });
 
