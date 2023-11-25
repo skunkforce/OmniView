@@ -16,9 +16,17 @@ This is done in a currently non-public-repo of Auto-Intern, but will be separate
 The acquired data can be viewed on the OmniView GUI and may then be saved to the hard-drive in `.csv` or binary format. 
 Anyhow, another possibility is to send the measurement to a REST-API provided by the [THGA](https://www.thga.de). 
 
-### First Phase Development
-In it's first phase, only one API will be used, documented by [this Repository](https://gitlab.thga.de/aw4null/aw4null_api-description_ref/-/blob/main/openapi.json?ref_type=heads). 
+### Phase One Development
+In its first phase, only one API will be used, documented by [this Repository](https://gitlab.thga.de/aw4null/aw4null_api-description_ref/-/blob/main/openapi.json?ref_type=heads). 
 The API will be able to receive training-data for AI-training purposes.
+
+### Phase Two Development
+Phase two will implement the interface to the data-producer as a `vector` of a multitude of objects, that encapsulate each an individual `.dll` or `.so`.
+The first two shared libs that shall be used will be a software-function-generator as well as an abstraction of the OmniScope, following the _Unified-abstract-Dataproducer-Interface_ which is displayed in the [UaDI-Demonstrator-Repo](https://github.com/skunkforce/Unified-Dataproducer-Interface-Demonstrator).
+
+### Phase Three Development
+In phase three, OmniView will be extended to use a multitude of service-APIs that can be loaded at runtime.
+![Architecture Diagram](https://lucid.app/publicSegments/view/113f9581-f43f-435a-a36d-6f9e0276adec/image.png)
 
 # Building OmniView
 Building is currently only possible with specially provided access-rights, but will be made available to the wider public as soon as the migration to a closed-source shared-library for device handling has been done as described in [Issue #36](https://github.com/skunkforce/omniview/issues/36).
