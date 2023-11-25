@@ -803,7 +803,11 @@ int main()
                else
                {
                  xmax_paused = x_max;
-                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]");
+                 ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
+                 // x and y axes ranges: [0, 10], [-10, 200]
+                 ImPlot::SetupAxesLimits(0, 10, -10, 200);
+                 // make specific values/ticks on Y-axis
+                 ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
                }
              });
 
