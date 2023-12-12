@@ -5,7 +5,8 @@
 static void
 save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
          &alignedData,
-     std::filesystem::path const &outFile) {
+     std::filesystem::path const &outFile)
+{
   auto minSize = std::numeric_limits<std::size_t>::max();
 
   std::vector<std::vector<std::pair<double, double>> const *> data;
@@ -13,7 +14,8 @@ save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
   std::string fileContent;
 
   for (auto sep = std::string_view{};
-       auto const &[device, values] : alignedData) {
+       auto const &[device, values] : alignedData)
+  {
     fileContent += sep;
     fileContent += "\"";
     fileContent += fmt::format("{}-{}", device.type, device.serial);
@@ -24,13 +26,16 @@ save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
   }
   fileContent += '\n';
 
-  for (std::size_t i{}; i < minSize; ++i) {
+  for (std::size_t i{}; i < minSize; ++i)
+  {
     fileContent += fmt::format("{}", i);
     fileContent += ",";
-    for (auto sep = std::string_view{}; auto const &vec : data) {
+    for (auto sep = std::string_view{}; auto const &vec : data)
+    {
       auto const dataPair = (*vec)[i];
       fileContent += sep;
-      if (dataPair.second) {
+      if (dataPair.second)
+      {
         fileContent += fmt::format("{}", dataPair.second);
       }
       sep = ",";
@@ -42,7 +47,8 @@ save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
 
   auto path = outFile;
   path.remove_filename();
-  if (!std::filesystem::exists(path) && !path.empty()) {
+  if (!std::filesystem::exists(path) && !path.empty())
+  {
     std::filesystem::create_directories(path);
   }
 
@@ -61,15 +67,32 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
                      &captureData,
                  std::chrono::system_clock::time_point &now,
                  std::time_t &now_time_t, std::tm &now_tm, std::string &path,
-                 bool &flagDataNotSaved) {
+                 bool &flagDataNotSaved)
+{
   ImGui::SetItemDefaultFocus();
 
-  static std::string inputvin;
-
+  static char StoragePath[100] = "";
   static char mileage[10] = "";
   static char scantype[255] = "";
 
+  ImGui::InputText("StorgaePathInputField", StoragePath, sizeof(StoragePath));
+  ImGui::SameLine();
+
+  static bool b0 = false;
+  static bool b1 = false;
+  static bool b2 = false;
+
+  if (ImGui::BeginCombo("", "DevicesMenu"))
+  {
+    ImGui::Checkbox("Nothing", &b0);
+    ImGui::Checkbox("Device1", &b1);
+    ImGui::Checkbox("Device2", &b2);
+    ImGui::EndCombo();
+  }
+
+  static std::string inputvin;
   inputvin = getSubdirectoriesInFolder(language, "saves");
+
   ImGui::InputText(
       load_json<std::string>(language, "input", "scantype", "label").c_str(),
       scantype, sizeof(scantype));
@@ -77,8 +100,19 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
       load_json<std::string>(language, "input", "mileage", "label").c_str(),
       mileage, sizeof(mileage));
 
+  // if both devices are selected 
+  if (b1 && b2)
+  {
+    if (ImGui::Button("+"))
+    {
+      // todo
+    }
+    ImGui::Text("Add another path");
+  }
+
   if (ImGui::Button(load_json<std::string>(language, "button", "save").c_str(),
-                    ImVec2(load_json<Size>(config, "button")))) {
+                    ImVec2(load_json<Size>(config, "button"))))
+  {
     flagDataNotSaved = false;
     now = std::chrono::system_clock::now();
 
@@ -88,9 +122,10 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     std::string_view path_sv{path.data()};
     std::string filename{fmt::format("{}-{:%Y-%m-%dT%H-%M}.csv", mileage, now)};
     std::filesystem::path path_path = path_sv;
-    if (captureData.empty()) {
+    if (captureData.empty())
       ImGui::CloseCurrentPopup();
-    } else {
+    else
+    {
       // create the given folder_structure
       std::filesystem::path first_folder =
           load_json<std::filesystem::path>(config, "scanfolder");
