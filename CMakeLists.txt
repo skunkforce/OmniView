@@ -5,7 +5,7 @@ include(FetchContent)
 FetchContent_Populate(
   vcpkg
   GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
-  GIT_TAG        master
+  GIT_TAG        2023.11.20
   SOURCE_DIR     "${CMAKE_SOURCE_DIR}/vcpkg"
 )
 
