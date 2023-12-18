@@ -484,12 +484,8 @@ int main()
     // ##############################
     ImGui::BeginChild("Live Capture", ImVec2(-1, 620));
     if (sampler.has_value())
-    {
       if (!flagPaused)
-      {
         sampler->copyOut(captureData);
-      }
-    }
 
     float optimal_buttonstripe_height = toolBtnSize.y * 1.1;
     if (toolBtnSize.y < (ImGui::GetTextLineHeightWithSpacing() * 1.1))
@@ -506,10 +502,6 @@ int main()
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
                   flagDataNotSaved);
-
-      ImGui::SameLine();
-      if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(), btnSize))
-        ImGui::CloseCurrentPopup();
 
       ImGui::EndPopup();
     }
