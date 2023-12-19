@@ -6,8 +6,7 @@
 namespace fs = std::filesystem;
 
 static void save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
-                     &alignedData,
-                 fs::path const &outFile)
+                &alignedData, fs::path const &outFile)
 {
   auto minSize = std::numeric_limits<std::size_t>::max();
 
@@ -248,9 +247,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     ImGui::SameLine();
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 100);
     if (ImGui::Button(" + "))
-    {
       ImGui::OpenPopup("StoragePathInputField2");
-    }
+      
     ImGui::PopStyleVar();
     ImGui::Dummy({850, 0});
     ImGui::SameLine();
