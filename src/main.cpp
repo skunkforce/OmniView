@@ -647,11 +647,24 @@ int main()
         ImGui::PopStyleColor(3);
       }
       ImGui::SameLine();
+      
+      // gray out "Speichern" button when pop-up is open
+      if (ImGui::IsPopupOpen("Speichern der aufgenommenen Daten"))
+        ImGui::PushStyleColor(
+            ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+
       if (ImGui::Button(
               load_json<std::string>(language, "button", "save").c_str(), toolBtnSize))
-      {
         ImGui::OpenPopup("Speichern der aufgenommenen Daten");
+
+      // normal style when pop-up is closed
+      if (!(ImGui::IsPopupOpen("Speichern der aufgenommenen Daten")))
+      {
+        ImGui::PopStyleColor();
+        ImGui::PushStyleColor(
+            ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
       }
+      
       ImGui::SameLine();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
