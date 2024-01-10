@@ -195,7 +195,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
       complete_path = first_folder / tempPath;
 
       // set current directory to ../Omniview
-      const std::string temp = fs::current_path();
+      const std::string temp = fs::current_path().string();
       const auto pos = temp.find_last_of('/');
       if (temp.substr(pos + 1) != "OmniView")
         fs::current_path(temp.substr(0, pos));
