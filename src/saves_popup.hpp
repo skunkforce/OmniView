@@ -89,7 +89,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (fileBrowser.HasSelected())
   {
     hasSelectedPath = true;
-    selectedPath = fileBrowser.GetPwd();
+    selectedPath = fileBrowser.GetPwd().string();
     fileBrowser.ClearSelected();
   }
 
