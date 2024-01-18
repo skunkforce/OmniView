@@ -96,6 +96,11 @@ Start compilation using CMake:
 cmake --build .
 ```
 
+## Support 
+
+This work has been supported by the BMWi- project number 68GX21005E
+
+![BMWiPicture](https://upload.wikimedia.org/wikipedia/commons/3/38/BMWi_Logo_2021.svg)
 
 ## Project Onboarding
 In order to learn more about the project as such, you may visit [www.autowerkstatt40.org](https://www.autowerkstatt40.org/) or have a look at [our online-learning resources](https://moodle.aw4null.de/)
