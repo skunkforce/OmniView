@@ -25,6 +25,17 @@ if(MSVC)
     )
 endif()
 
+# Add CLI11 Library to Project
+find_package(cli11 QUIET)
+if(NOT cli11_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        cli11
+        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+        GIT_TAG        main
+    )
+    FetchContent_MakeAvailable(cli11)
+endif()
 
 include(cmake_helpers/BuildOptions.cmake)
 include(cmake_helpers/FindOrFetch.cmake)
@@ -64,6 +75,8 @@ target_include_directories(OmniView PUBLIC ${LIBUSB_INCLUDE_DIRS})
 target_link_libraries(OmniView PUBLIC ${LIBUSB_LIBRARIES})
 
 target_link_libraries(OmniView PUBLIC imgui-filebrowser)
+
+target_link_libraries(OmniView PUBLIC CLI11::CLI11)
 
 target_compile_definitions(OmniView PUBLIC BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
 target_compile_features(OmniView PUBLIC cxx_std_20)
