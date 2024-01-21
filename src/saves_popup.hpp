@@ -1,20 +1,21 @@
 #pragma once
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
-#include <nlohmann/json.hpp>
 #include <fstream>
+#include <nlohmann/json.hpp>
+#include <sstream>
 
 namespace fs = std::filesystem;
 
-static void save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
-                &alignedData, fs::path const &outFile)
-{
+static void
+save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
+         &alignedData,
+     fs::path const &outFile) {
   auto minSize = std::numeric_limits<std::size_t>::max();
   std::vector<std::vector<std::pair<double, double>> const *> data;
   std::string fileContent;
 
   for (auto sep = std::string_view{};
-       auto const &[device, values] : alignedData)
-  {
+       auto const &[device, values] : alignedData) {
     fileContent += sep;
     fileContent += "\"";
     fileContent += fmt::format("{}-{}", device.type, device.serial);
@@ -25,16 +26,13 @@ static void save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
   }
   fileContent += '\n';
 
-  for (std::size_t i{}; i < minSize; ++i)
-  {
+  for (std::size_t i{}; i < minSize; ++i) {
     fileContent += fmt::format("{}", i);
     fileContent += ",";
-    for (auto sep = std::string_view{}; auto const &vec : data)
-    {
+    for (auto sep = std::string_view{}; auto const &vec : data) {
       auto const dataPair = (*vec)[i];
       fileContent += sep;
-      if (dataPair.second)
-      {
+      if (dataPair.second) {
         fileContent += fmt::format("{}", dataPair.second);
       }
       sep = ",";
@@ -61,45 +59,60 @@ static void save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
 
 void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
                  std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
-                 &captureData, std::chrono::system_clock::time_point &now,
+                     &captureData,
+                 std::chrono::system_clock::time_point &now,
                  std::time_t &now_time_t, std::tm &now_tm, std::string &path,
-                 bool &flagDataNotSaved)
-{
+                 bool &flagDataNotSaved,
+                 std::vector<std::shared_ptr<OmniscopeDevice>> devices) {
   ImGui::SetItemDefaultFocus();
 
-  // Buffers
-  static char storagePath_1[100] = "";
-  static char storagePath_2[100] = "";
-  ImGui::InputTextWithHint("##myTextHint1", "\"Desktop/OmniView/saves/\"",
-                           storagePath_1, IM_ARRAYSIZE(storagePath_1));
-  ImGui::SameLine();
+  // Have address of bool for std::vector
+  struct BoolWrapper {
+    BoolWrapper(bool _b) : b(_b) {}
+    bool b;
+  };
 
-  static bool b1 = false;
-  static bool b2 = false;
-  static bool hasSelectedPath = false;
+  // connected devices at runt-time
+  const static size_t devicesSz{devices.size()};
 
- // select directory instead of regular file
+  constexpr size_t inptTxtarrSz{100};
+
+  // buffer array for the input text field(s)
+  static std::vector<std::vector<char>> buffArr(
+      devicesSz, std::vector<char>(inptTxtarrSz, 0));
+
+  ImGui::InputTextWithHint("##HintLable", "\"Desktop/OmniView/saves/\"",
+                           buffArr[0].data(), inptTxtarrSz);
+
+  static std::vector<BoolWrapper> hasSelectedPathArr(devicesSz, false);
+  static std::vector<std::string> selectedPathArr(devicesSz, "");
+
+  // select directory instead of regular file
   static ImGui::FileBrowser fileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
-  if (ImGui::Button("Duechsuchen"))
+
+  ImGui::SameLine();
+  if (ImGui::Button("Durchsuchen"))
     fileBrowser.Open();
 
   fileBrowser.Display();
-  static std::string selectedPath = "";
 
-  if (fileBrowser.HasSelected())
-  {
-    hasSelectedPath = true;
-    selectedPath = fileBrowser.GetPwd().string();
+  if (fileBrowser.HasSelected()) {
+    hasSelectedPathArr[0].b = true;
+    selectedPathArr[0] = fileBrowser.GetPwd().string();
     fileBrowser.ClearSelected();
   }
 
-  ImGui::SameLine();
+  static std::vector<BoolWrapper> dvcChackedArr(devicesSz, false);
+  std::stringstream ss;
 
-  if (ImGui::BeginCombo("", "DevicesMenu"))
-  {
+  ImGui::SameLine();
+  if (ImGui::BeginCombo("", "DevicesMenu")) {
     ImGui::Text("");
-    ImGui::Checkbox("Device1", &b1);
-    ImGui::Checkbox("Device2", &b2);
+    for (size_t i = 0; i < devicesSz; i++) {
+      ss << "Device " << i + 1;
+      ImGui::Checkbox(ss.str().c_str(), &((dvcChackedArr.begin() + i)->b));
+      ss.str(std::string());
+    }
     ImGui::EndCombo();
   }
 
@@ -107,7 +120,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   static char vin[18] = "";
   static char mileage[10] = "";
   static std::string inputvin;
-  inputvin = getSubdirectoriesInFolder(language, "saves", scantype, vin, mileage);
+  inputvin =
+      getSubdirectoriesInFolder(language, "saves", scantype, vin, mileage);
 
   // data to be written in .csv file(s)
   std::string allData = scantype;
@@ -117,17 +131,52 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   allData += mileage;
   allData += "\n";
 
-  // ############################ Popup Storage Path Input Field 2
+  static std::vector<size_t> indxArr;
+
+  auto selectedDevicesCnt = [&]() {
+    size_t deviceCnt{0};
+    for (size_t i = 0; i < devicesSz; ++i)
+      if (dvcChackedArr[i].b) {
+        deviceCnt++;
+        indxArr.emplace_back(i);
+      }
+    return deviceCnt;
+  };
+
+  // ############################ Popup Storage Path Input Field(s)
   // ##############################
-  if (ImGui::BeginPopupModal("StoragePathInputField2", nullptr,
-                             ImGuiWindowFlags_AlwaysAutoResize))
-  {
+
+  if (ImGui::BeginPopupModal("StoragePathInputFields", nullptr,
+                             ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
-    ImGui::InputTextWithHint("##myTextHint2", "Enter Storage Path Input Field 2",
-                             storagePath_2, IM_ARRAYSIZE(storagePath_2));
-    if (ImGui::Button("Cancel"))
-    {
-      storagePath_2[0] = 0;
+    for (size_t i = 1; i < selectedDevicesCnt(); ++i) {
+      // each iteration to get a unique ID
+      ImGui::PushID(i);
+      ImGui::InputTextWithHint("##HintLable", "\"Desktop/OmniView/saves/\"",
+                               buffArr[i].data(), inptTxtarrSz);
+      ImGui::SameLine();
+      if (ImGui::Button("Durchsuchen"))
+        fileBrowser.Open();
+
+      fileBrowser.Display();
+
+      if (fileBrowser.HasSelected()) {
+        hasSelectedPathArr[i].b = true;
+        selectedPathArr[i] = fileBrowser.GetPwd().string();
+        fileBrowser.ClearSelected();
+      }
+      ImGui::PopID();
+    }
+
+    indxArr.clear();
+
+    if (ImGui::Button("Cancel")) {
+      for (size_t i = 1; i < devicesSz; ++i) {
+        hasSelectedPathArr[i].b = false;
+        selectedPathArr[i].clear();
+        buffArr[i].clear();
+      }
+
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
@@ -140,8 +189,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   // ############# End popup
 
   // create a .csv file name
-  auto fileName = [&](const std::string &name)
-  {
+  auto fileName = [&](const std::string &name) {
     now = std::chrono::system_clock::now();
     now_time_t = std::chrono::system_clock::to_time_t(now);
     now_tm = *std::gmtime(&now_time_t);
@@ -149,16 +197,54 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     return filename;
   };
 
-  // save data to the file
-  auto saveData = [&](const std::string &fileContent, const fs::path &outFile)
-  {
-    fs::path target_path;
-    if (hasSelectedPath)
-    {
-      target_path = outFile;
-      selectedPath.clear();
-      hasSelectedPath = false;
+  // create a director (if not exists) and return a path to it
+  auto makeDirectory = [&](const fs::path &second_folder) {
+    fs::path complete_path;
+    auto tempPath = second_folder;
+    tempPath = tempPath.lexically_normal();
+    tempPath = tempPath.relative_path();
+
+    auto first_folder = load_json<fs::path>(config, "scanfolder");
+    complete_path = first_folder / tempPath;
+
+    // set current directory to ../Omniview
+    const std::string temp = fs::current_path().string();
+    const auto pos = temp.find_last_of('/');
+    if (temp.substr(pos + 1) != "OmniView")
+      fs::current_path(temp.substr(0, pos));
+    if (!fs::exists(complete_path))
+      fs::create_directories(complete_path);
+
+    return complete_path;
+  };
+
+  // to save captureData from main.cpp into file
+  if (ImGui::Button(load_json<std::string>(language, "button", "save").c_str(),
+                    ImVec2(load_json<Size>(config, "button")))) {
+    flagDataNotSaved = false;
+    std::string filename = fileName(mileage);
+
+    if (captureData.empty())
+      ImGui::CloseCurrentPopup();
+    else {
+      auto complete_path = makeDirectory(fs::path(inputvin) / scantype);
+      save(captureData, path / complete_path / filename);
+      ImGui::CloseCurrentPopup();
     }
+  }
+
+  ImGui::SameLine();
+  if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(),
+                    {0, 0}))
+    ImGui::CloseCurrentPopup();
+
+  // save data to the file
+  auto saveData = [&](const bool hasSelectedPath,
+                      const std::string &fileContent, const fs::path &outFile) {
+    fs::path target_path;
+
+    if (hasSelectedPath)
+      target_path = outFile;
     else
       target_path = fs::current_path() / outFile;
 
@@ -166,8 +252,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     std::fstream file;
     file.open(target_path, std::ios::out | std::ios::app);
 
-    if (!file.is_open())
-    {
+    if (!file.is_open()) {
       file.clear();
       fmt::print("Could not create {} for writing!\n", outFile.string());
       return;
@@ -180,105 +265,57 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     fmt::print("Finished saving\n");
   };
 
-  auto makeDirectory = [&](const fs::path &second_folder)
-  {
-    fs::path complete_path;
-
+  fs::path complete_path;
+  // set device, path and handle data saving process
+  auto saveDevice = [&](bool hasSelectedPath, std::string selectedPath,
+                        std::string fieldPath, std::string deviceName) {
     if (hasSelectedPath)
       complete_path = selectedPath;
+    else if (path[0] == '\0')
+      complete_path = makeDirectory(fieldPath);
     else
-    {
-      auto tempPath = second_folder;
-      tempPath = tempPath.lexically_normal();
-      tempPath = tempPath.relative_path();
-      auto first_folder = load_json<fs::path>(config, "scanfolder");
-      complete_path = first_folder / tempPath;
+      complete_path = makeDirectory(fs::path(path) / fieldPath);
 
-      // set current directory to ../Omniview
-      const std::string temp = fs::current_path().string();
-      const auto pos = temp.find_last_of('/');
-      if (temp.substr(pos + 1) != "OmniView")
-        fs::current_path(temp.substr(0, pos));
-
-      if (!fs::exists(complete_path))
-        fs::create_directories(complete_path);
-    }
-    return complete_path;
-  };
-
-   // to save captureData from main.cpp into file
-  if (ImGui::Button(load_json<std::string>(language, "button", "save").c_str(),
-                    ImVec2(load_json<Size>(config, "button"))))
-  {
-    flagDataNotSaved = false;
-    std::string filename = fileName(mileage);
-
-    if (captureData.empty())
-      ImGui::CloseCurrentPopup();
-    else
-    {
-      auto complete_path = makeDirectory(fs::path(inputvin) / scantype);
-      save(captureData, path / complete_path / filename);
-      ImGui::CloseCurrentPopup();
-    }
-  }
-
-  ImGui::SameLine();
-  if (ImGui::Button(load_json<std::string>(language, "button", "back").c_str(), {0, 0}))
-    ImGui::CloseCurrentPopup();
-
-  fs::path complete_path;
-  auto saveDevice = [&]()
-  {
-    if (path[0] == '\0')
-      complete_path = makeDirectory(storagePath_1);
-    else
-      complete_path = makeDirectory(fs::path(path) / storagePath_1);
-
-    std::string filename = fileName(b1 ? "device1" : "device2");
-    saveData(allData, complete_path / filename);
-    storagePath_1[0] = 0;
+    std::string filename = fileName(deviceName);
+    saveData(hasSelectedPath, allData, complete_path / filename);
     ImGui::CloseCurrentPopup();
   };
 
-  // if only one of the devices is selected
-  if ((b1 || b2) && !(b1 && b2))
-  {
-    ImGui::SameLine();
-    ImGui::Dummy({500, 0});
-    ImGui::SameLine();
-    if (ImGui::Button("Save Device"))
-      saveDevice();
-  }
+  if (const size_t cnt = selectedDevicesCnt()) {
+    if (cnt > 1) {
+      ImGui::SameLine();
+      ImGui::Dummy({565, 0});
+      ImGui::SameLine();
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50);
+      if (ImGui::Button(" + "))
+        ImGui::OpenPopup("StoragePathInputFields");
 
-  // if both devices are selected
-  else if (b1 && b2)
-  {
-    ImGui::SameLine();
-    ImGui::Dummy({565, 0});
-    ImGui::SameLine();
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50);
+      ImGui::PopStyleVar();
+      ImGui::SetItemTooltip("Add another path");
 
-    if (ImGui::Button(" + "))
-      ImGui::OpenPopup("StoragePathInputField2");
-
-    ImGui::PopStyleVar();
-    ImGui::SetItemTooltip("Add another path");
-
-    ImGui::Dummy({750, 0});
-    ImGui::SameLine();
-    if (ImGui::Button("Save Device"))
-    {
-      saveDevice();
-
-      if (path[0] == '\0')
-        complete_path = makeDirectory(storagePath_2);
-      else
-        complete_path = makeDirectory(fs::path(path) / storagePath_2);
-
-      std::string filename = fileName("device2");
-      saveData(allData, complete_path / filename);
-      storagePath_2[0] = 0;
+      ImGui::Dummy({750, 0});
+      ImGui::SameLine();
+    } else {
+      ImGui::SameLine();
+      ImGui::Dummy({500, 0});
+      ImGui::SameLine();
     }
+
+    if (ImGui::Button("Save Device")) {
+      for (size_t i = 0; i < cnt; ++i) {
+        ss.str(std::string());
+        ss << "device" << indxArr[i] + 1;
+
+        if (hasSelectedPathArr[i].b) {
+          saveDevice(true, selectedPathArr[i], "", ss.str());
+          hasSelectedPathArr[i].b = false;
+        } else {
+          saveDevice(false, "", buffArr[i].data(), ss.str());
+          buffArr[i].clear();
+        }
+      }
+    }
+
+    indxArr.clear();
   }
 }
