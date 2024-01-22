@@ -96,11 +96,49 @@ Start compilation using CMake:
 cmake --build .
 ```
 
+# Workflow: Adding new Code 
+
+To add new code to the project, follow these steps:
+
+1. Create an issue describing the bug you want to fix or the feature you want to add.
+2. Create a branch with the same name as the issue.
+3. Pull the code to your local device.
+4. Switch to your branch and start working on the issue.
+5. If the master branch has been updated since you started working, perform a rebase to incorporate the latest changes.
+6. Before committing, run the Clang-Formatter over the files you modified.
+7. For significant changes, create a commit with a clear description of what has been modified.
+8. After testing the code on your local device and ensuring proper formatting, push the changes to your branch.
+9. If the code passes the continuous integration (CI) tests, create a pull request for the master branch.
+10. Your code will undergo a review process.
+
+## Using the Clang-Formatter 
+
+To use the Clang-Formatter, follow these steps:
+
+1. Navigate to your /OmniView folder.
+2. Check if you have Clang-Formatter installed on your system.
+3. If Clang-Formatter is installed, use the following command in the /OmniView directory to format the desired file:
+
+```shell 
+clang-format -style=file -i directory/filetochange
+```
+
+Note: You don't need to modify the `-style=file` option.
+
+4. To review the changes made by Clang-Formatter, use the command: 
+
+```shell
+git diff
+```
+
+5. Ensure that the Clang-Formatter configuration file is named: `.clang-format`.
+
+
+## Project Onboarding
+In order to learn more about the project as such, you may visit [www.autowerkstatt40.org](https://www.autowerkstatt40.org/) or have a look at [our online-learning resources](https://moodle.aw4null.de/)
+
 ## Support 
 
 This work has been supported by the BMWi- project number 68GX21005E
 
 ![BMWiPicture](https://upload.wikimedia.org/wikipedia/commons/3/38/BMWi_Logo_2021.svg)
-
-## Project Onboarding
-In order to learn more about the project as such, you may visit [www.autowerkstatt40.org](https://www.autowerkstatt40.org/) or have a look at [our online-learning resources](https://moodle.aw4null.de/)
