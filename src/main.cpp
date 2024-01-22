@@ -25,6 +25,9 @@
 #include <imfilebrowser.h>
 // clang-format on
 #include "sendData.hpp"
+#include "CLI/CLI.hpp"
+// to handle interrupting signals 
+#include <signal.h>
 #include <regex>
 
 namespace ImGui
@@ -179,7 +182,7 @@ static void load_settings(nlohmann::json const &config)
 // ############# INT MAIN BEGINN #############################################
 // ###########################################################################
 
-int main()
+int main(int argc, char **argv)
 {
   nlohmann::json config;
   const std::string configpath = "config/config.json";
@@ -247,640 +250,762 @@ int main()
     }
   };
 
-  //   auto startTimepoint = std::chrono::system_clock::now();
-  auto now = std::chrono::system_clock::now();
-  std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
-  std::tm now_tm = *std::gmtime(&now_time_t);
+  // bool to switch between various data fetching of devices 
+  bool fetch_no_data { false }; 
 
-  double xmax_paused{0};
-  static bool open_settings = false;
-  static bool open_generate_training_data = false;
-  static bool upload_success = false;
-  static bool flagPaused = true;
-  static bool flagDataNotSaved = true;
-  static ImVec2 mainMenuBarSize;
-  std::optional<OmniscopeSampler> sampler{};
-  std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
+  auto devicesData = [&]() {
+    devices.clear();
+    deviceManager.clearDevices();
+    devices = deviceManager.getDevices(VID, PID, fetch_no_data);
+    fetch_no_data = false;
+  };
 
-  std::string path;
-  path.resize(256);
+  // signal handler for ctrl+c signal
+  auto func = [](int) {
+    exit(1);
+    };
+  signal(SIGINT, func);
 
-  auto addPlots = [&, firstRun = std::set<std::string>{}](
-                      auto const &name, auto const &plots,
-                      auto axesSetup) mutable
+  CLI::App thisApplication{"This tool encapsulates basic interaction"
+                           "with AI-Omni-Products","OmniCLI"};
+
+  volatile std::atomic_bool list_devices{false};
+  thisApplication.add_flag("-l,--ls", list_devices, "List all connected "
+                                        "Omni-Compatible devices' UUID");
+
+  volatile std::atomic_bool print_data{false};
+  thisApplication.add_flag("-c", print_data, "Print connected devices data "
+                                             "until stoped with ctrl+c");
+
+  std::string output_file = "";
+  thisApplication.add_option("-o", output_file, "File to dump"
+                                                "measurement data")
+                            ->check(CLI::ExistingFile);
+
+  int duration = 0;
+  thisApplication.add_option("-t", duration, "Duration for measurement")
+                            ->check(CLI::PositiveNumber);
+  try
   {
-    auto const plotRegion = ImGui::GetContentRegionAvail();
-    if (ImPlot::BeginPlot(name, plotRegion))
+    thisApplication.parse(argc, argv);
+  }
+  catch (const CLI::ParseError &e)
+  {
+    return thisApplication.exit(e);
+  }
+
+  // flag "-l,--ls"
+  if (list_devices)
     {
-      double x_min = std::numeric_limits<double>::max();
-      double x_max = std::numeric_limits<double>::min();
+     fmt::println("All devices UUID ...");
 
-      for (auto const &plot : plots)
-      {
-        if (!plot.second.empty())
-        {
-          x_min = std::min(x_min, plot.second.front().first);
-          x_max = std::max(x_max, plot.second.back().first);
-        }
+       // ignore the ctrl+c signal
+      signal(SIGINT, SIG_IGN);
+
+      fetch_no_data = true;
+      devicesData();
+      
+      for (auto &device : devices) {
+        auto id = device->getId().value();
+        fmt::println("{}\t\t| {}\t\t| {}", id.serial,VID,PID);
       }
-
-      axesSetup(x_min, x_max);
-
-      auto const limits = [&]()
-      {
-        if (!firstRun.contains(name))
-        {
-          firstRun.insert(name);
-          return ImPlotRect(x_min, x_max, 0, 0);
-        }
-        return ImPlot::GetPlotLimits();
-      }();
-      auto addPlot = [&](auto const &plot)
-      {
-        if (!plot.second.empty())
-        {
-          auto const start = [&]()
-          {
-            auto p =
-                std::lower_bound(plot.second.begin(), plot.second.end(),
-                                 std::pair<double, double>{limits.X.Min, 0});
-            if (p != plot.second.begin())
-            {
-              return p - 1;
-            }
-            return p;
-          }();
-
-          auto const end = [&]()
-          {
-            auto p =
-                std::upper_bound(start, plot.second.end(),
-                                 std::pair<double, double>{limits.X.Max, 0});
-            if (p != plot.second.end())
-            {
-              return p + 1;
-            }
-            return p;
-          }();
-          std::size_t const stride = [&]() -> std::size_t
-          {
-            auto const s = std::distance(start, end) / (plotRegion.x * 2.0);
-            if (1 >= s)
-            {
-              return 1;
-            }
-            return static_cast<std::size_t>(s);
-          }();
-
-          ImPlot::PlotLine(
-              fmt::format("{}-{}", plot.first.type, plot.first.serial).c_str(),
-              std::addressof(start->first), std::addressof(start->second),
-              static_cast<std::size_t>(std::distance(start, end)) / stride, 0,
-              0, 2 * sizeof(double) * stride);
-        }
-      };
-
-      for (auto const &plot : plots)
-      {
-        ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.first][0],
-                                        colorMap[plot.first][1],
-                                        colorMap[plot.first][2], 1.0f});
-        addPlot(plot);
-      }
-
-      ImPlot::EndPlot();
     }
-  };
-
-  // one extra space for '\0' character and another 
-  // for one past the last accepted input character  
-  static char vinBuffer[19];
-  auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int
+ 
+  // flag "-c". Stop when ctrl+c is hit
+  if (print_data) 
   {
-    const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
-    std::string s;
-    // get entered char and save it into string
-    s += data->EventChar;
-    // strlen is updated when entered char passes the filter
-    size_t indx = strlen(vinBuffer) + 1;
+    fmt::print("All devices data until stopped by ctrl+c...");
+    devicesData();
+  }
 
-    if (indx >= 1 && indx <= 17)
-      return !std::regex_match(s, chars_regex); // return 0 as passed for matched chars
-    return 1; // discard exceeding chars
-  };
+  // flag "-o". Stop when ctrl+c is hit
+  if (!output_file.empty()) {
+    fetch_no_data = true;
+    devicesData();
+    
+    fmt::println("Piping all devices data into file until stopped by ctrl+c...");
+    // open file for writing 
+    std::fstream file;
+    file.open(output_file, std::ios::out | std::ios::app);
 
-  auto render = [&]()
-  {
-    load_settings(config);
-    ImGui::SetupImGuiStyle(false, 0.99f);
-    ImGui::SetNextWindowPos(ImVec2(0.0f, mainMenuBarSize.y));
-    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-    ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
-                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove); //
-
-    // ############################ Menu bar ##############################
-    //  main menu
-    ImGui::BeginMainMenuBar();
-
-    std::string analyse_data = language["button"]["analyse_data"];
-    std::string create_training_data = language["button"]["create_training_data"];
-    // replace space chars with new line
-    std::replace(analyse_data.begin(), analyse_data.end(), ' ', '\n');
-    std::replace(create_training_data.begin(), create_training_data.end(), ' ', '\n');
-
-    if (ImGui::BeginMenu(
-            load_json<std::string>(language, "menubar", "menu", "label")
-                .c_str()))
+    if (!file.is_open())
     {
-      if (ImGui::BeginMenu(load_json<std::string>(language, "menubar", "menu",
-                                                  "language_option")
-                               .c_str()))
+      file.clear();
+      fmt::println("Could not open {} for writing!", output_file);
+    }
+
+    for (auto &device : devices) {
+      std::string fileContent = "";
+      auto id = device->getId().value();
+      fileContent += 
+                  id.serial + ", " + id.type + ", " + std::to_string(id.sampleRate) + ", " +
+                  std::to_string(id.hwVersion.major) + ", " + std::to_string(id.hwVersion.minor) + 
+                  ", " + std::to_string(id.hwVersion.patch) + ", " + 
+                  std::to_string(id.swVersion.major) + ", " + std::to_string(id.swVersion.minor) + 
+                  ", " + std::to_string(id.swVersion.patch) + ", " + id.swGitHash + "\n";
+
+      fmt::println("Start saving into the given file ...");
+      file << fileContent;
+      file.flush();
+      file.close();
+      fmt::println("Finished saving.");
+    }
+  }
+
+  // flag "-t"
+  if(duration){
+     // ignore the ctrl+c signal
+    signal(SIGINT, SIG_IGN);
+
+    fetch_no_data = true;
+    devicesData();
+    fmt::println("Print {} device(s) data during {} seconds ...", devices.size(), duration);
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds{ duration };
+    
+    while (deadline > std::chrono::steady_clock::now()) {
+        for (auto &device : devices) {
+      auto id = device->getId().value();
+      fmt::println("{}", id);
+    }
+    // all devices data are printed by here
+    break;
+    }
+  }
+                            
+    //   auto startTimepoint = std::chrono::system_clock::now();
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+    std::tm now_tm = *std::gmtime(&now_time_t);
+
+    double xmax_paused{0};
+    static bool open_settings = false;
+    static bool open_generate_training_data = false;
+    static bool upload_success = false;
+    static bool flagPaused = true;
+    static bool flagDataNotSaved = true;
+    static ImVec2 mainMenuBarSize;
+    std::optional<OmniscopeSampler> sampler{};
+    std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
+
+    std::string path;
+    path.resize(256);
+
+    auto addPlots = [&, firstRun = std::set<std::string>{}](
+                        auto const &name, auto const &plots,
+                        auto axesSetup) mutable
+    {
+      auto const plotRegion = ImGui::GetContentRegionAvail();
+      if (ImPlot::BeginPlot(name, plotRegion))
       {
-        for (const auto &lang : availableLanguages)
+        double x_min = std::numeric_limits<double>::max();
+        double x_max = std::numeric_limits<double>::min();
+
+        for (auto const &plot : plots)
         {
-          if (ImGui::MenuItem(lang.c_str()))
+          if (!plot.second.empty())
           {
-            config["language"] = lang;
-            write_json_file(configpath, config);
+            x_min = std::min(x_min, plot.second.front().first);
+            x_max = std::max(x_max, plot.second.back().first);
           }
         }
 
-        ImGui::EndMenu();
-      }
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "menubar", "menu", "settings")
-                  .c_str()))
-      {
-        open_settings = true;
-      }
+        axesSetup(x_min, x_max);
 
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "menubar", "menu", "reset")
-                  .c_str()))
-      {
-        sampler.reset();
-        devices.clear();
-        deviceManager.clearDevices();
-        captureData.clear();
-        flagPaused = true;
-      }
-
-      if (ImGui::MenuItem(
-              fmt::format("Version: {}", CMakeGitVersion::VersionWithGit)
-                  .c_str()))
-      {
-      }
-      ImGui::EndMenu();
-    }
-    /*
-    if (ImGui::BeginMenu(
-            load_json<std::string>(language, "menubar", "view", "label")
-                .c_str())) {
-      ImGui::EndMenu();
-    }*/
-
-    if (ImGui::BeginMenu("Diagnostics"))
-    {
-      if (ImGui::BeginMenu("Compression"))
-      {
-        ImGui::MenuItem("Analyze current waveform");
-        if (ImGui::MenuItem("Generate training data"))
-          open_generate_training_data = true;
-
-        ImGui::EndMenu();
-      }
-
-      // greyed out color style
-      ImGui::PushStyleColor(
-          ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-
-      ImGui::MenuItem("Timing-Belt");
-      ImGui::MenuItem("Fuel-Delivery-Pump");
-      ImGui::MenuItem("Common-Rail-Pressure");
-      ImGui::PopStyleColor();
-      ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
-
-      ImGui::EndMenu();
-    }
-
-    if (ImGui::BeginMenu(
-            load_json<std::string>(language, "menubar", "help", "label")
-                .c_str()))
-    {
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "helplink").c_str()))
-      {
-        system(("start " + load_json<std::string>(config, "helplink")).c_str());
-      }
-
-      ImGui::EndMenu();
-    }
-
-    mainMenuBarSize = ImGui::GetItemRectSize();
-    ImGui::EndMainMenuBar();
-
-    // ############################ Live Capture
-    // ##############################
-    ImGui::BeginChild("Live Capture", ImVec2(-1, 620));
-    if (sampler.has_value())
-      if (!flagPaused)
-        sampler->copyOut(captureData);
-
-    float optimal_buttonstripe_height = toolBtnSize.y * 1.1;
-    if (toolBtnSize.y < (ImGui::GetTextLineHeightWithSpacing() * 1.1))
-      optimal_buttonstripe_height = ImGui::GetTextLineHeightWithSpacing() * 1.1;
-
-    ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
-                      false, ImGuiWindowFlags_NoScrollbar);
-
-    // ############################ Popup Speichern
-    // ##############################
-    if (ImGui::BeginPopupModal("Speichern der aufgenommenen Daten", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize))
-    {
-      ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
-                  flagDataNotSaved);
-
-      ImGui::EndPopup();
-    }
-    // ############################ Popup Zurücksetzen
-    // ##############################
-    if (ImGui::BeginPopupModal("Zurücksetzen?", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize))
-    {
-      ImGui::SetItemDefaultFocus();
-      ImGui::Text("Die Messung wurde nicht gespeichert!\n"
-                  "Möchten Sie diese vor dem Löschen speichern?\n");
-      if (ImGui::Button("Löschen fortsetzen", btnSize))
-      {
-        sampler.reset();
-        devices.clear();
-        deviceManager.clearDevices();
-        captureData.clear();
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("Zurück", btnSize))
-      {
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::EndPopup();
-    }
-
-    ImGui::SetNextWindowPos(ImVec2(0, 100));
-    ImGui::SetNextWindowSize(ImVec2(0, 800));
-    if (flagPaused)
-    {
-      if (ImGui::BeginPopupModal("Erstellung Lerndatensatz", nullptr,
-                                 ImGuiWindowFlags_AlwaysAutoResize |
-                                     ImGuiWindowFlags_NoSavedSettings |
-                                     ImGuiWindowFlags_NoMove))
-      {
-        ImGui::SetItemDefaultFocus();
-
-        popup_create_training_data_select(config, language, upload_success);
-        ImGui::EndPopup();
-      }
-      if (upload_success == true)
-      {
-        ImGui::OpenPopup("upload_success");
-      }
-      if (ImGui::BeginPopupModal("upload_success", nullptr,
-                                 ImGuiWindowFlags_AlwaysAutoResize |
-                                     ImGuiWindowFlags_NoSavedSettings |
-                                     ImGuiWindowFlags_NoMove))
-      {
-        ImGui::TextUnformatted(
-            load_json<std::string>(language, "training", "upload_success")
-                .c_str());
-        if (ImGui::Button(
-                load_json<std::string>(language, "button", "ok").c_str()))
+        auto const limits = [&]()
         {
-          ImGui::CloseCurrentPopup();
-          upload_success = false;
+          if (!firstRun.contains(name))
+          {
+            firstRun.insert(name);
+            return ImPlotRect(x_min, x_max, 0, 0);
+          }
+          return ImPlot::GetPlotLimits();
+        }();
+        auto addPlot = [&](auto const &plot)
+        {
+          if (!plot.second.empty())
+          {
+            auto const start = [&]()
+            {
+              auto p =
+                  std::lower_bound(plot.second.begin(), plot.second.end(),
+                                   std::pair<double, double>{limits.X.Min, 0});
+              if (p != plot.second.begin())
+              {
+                return p - 1;
+              }
+              return p;
+            }();
+
+            auto const end = [&]()
+            {
+              auto p =
+                  std::upper_bound(start, plot.second.end(),
+                                   std::pair<double, double>{limits.X.Max, 0});
+              if (p != plot.second.end())
+              {
+                return p + 1;
+              }
+              return p;
+            }();
+            std::size_t const stride = [&]() -> std::size_t
+            {
+              auto const s = std::distance(start, end) / (plotRegion.x * 2.0);
+              if (1 >= s)
+              {
+                return 1;
+              }
+              return static_cast<std::size_t>(s);
+            }();
+
+            ImPlot::PlotLine(
+                fmt::format("{}-{}", plot.first.type, plot.first.serial).c_str(),
+                std::addressof(start->first), std::addressof(start->second),
+                static_cast<std::size_t>(std::distance(start, end)) / stride, 0,
+                0, 2 * sizeof(double) * stride);
+          }
+        };
+
+        for (auto const &plot : plots)
+        {
+          ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.first][0],
+                                          colorMap[plot.first][1],
+                                          colorMap[plot.first][2], 1.0f});
+          addPlot(plot);
         }
 
-        ImGui::SetItemDefaultFocus();
-        ImGui::EndPopup();
+        ImPlot::EndPlot();
       }
-      // ######################## Buttonstripe
-      // ################################
-      // Start nur wenn Devices vorhanden sind, sonst Suche Geräte
-      if (!sampler.has_value())
+    };
+
+    // one extra space for '\0' character and another
+    // for one past the last accepted input character
+    static char vinBuffer[19];
+    auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int
+    {
+      const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
+      std::string s;
+      // get entered char and save it into string
+      s += data->EventChar;
+      // strlen is updated when entered char passes the filter
+      size_t indx = strlen(vinBuffer) + 1;
+
+      if (indx >= 1 && indx <= 17)
+        return !std::regex_match(s, chars_regex); // return 0 as passed for matched chars
+      return 1;                                   // discard exceeding chars
+    };
+
+    auto render = [&]()
+    {
+      load_settings(config);
+      ImGui::SetupImGuiStyle(false, 0.99f);
+      ImGui::SetNextWindowPos(ImVec2(0.0f, mainMenuBarSize.y));
+      ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+      ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+                       ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove); //
+
+      // ############################ Menu bar ##############################
+      //  main menu
+      ImGui::BeginMainMenuBar();
+
+      std::string analyse_data = language["button"]["analyse_data"];
+      std::string create_training_data = language["button"]["create_training_data"];
+      // replace space chars with new line
+      std::replace(analyse_data.begin(), analyse_data.end(), ' ', '\n');
+      std::replace(create_training_data.begin(), create_training_data.end(), ' ', '\n');
+
+      if (ImGui::BeginMenu(
+              load_json<std::string>(language, "menubar", "menu", "label")
+                  .c_str()))
       {
-        if (ImGui::Button("Suche\nGeräte", // have the text in two separate lines
-                          toolBtnSize))
+        if (ImGui::BeginMenu(load_json<std::string>(language, "menubar", "menu",
+                                                    "language_option")
+                                 .c_str()))
         {
+          for (const auto &lang : availableLanguages)
+          {
+            if (ImGui::MenuItem(lang.c_str()))
+            {
+              config["language"] = lang;
+              write_json_file(configpath, config);
+            }
+          }
+
+          ImGui::EndMenu();
+        }
+        if (ImGui::MenuItem(
+                load_json<std::string>(language, "menubar", "menu", "settings")
+                    .c_str()))
+        {
+          open_settings = true;
+        }
+
+        if (ImGui::MenuItem(
+                load_json<std::string>(language, "menubar", "menu", "reset")
+                    .c_str()))
+        {
+          sampler.reset();
           devices.clear();
           deviceManager.clearDevices();
-          initDevices();
+          captureData.clear();
+          flagPaused = true;
         }
-        ImGui::SameLine();
+
+        if (ImGui::MenuItem(
+                fmt::format("Version: {}", CMakeGitVersion::VersionWithGit)
+                    .c_str()))
+        {
+        }
+        ImGui::EndMenu();
+      }
+      /*
+      if (ImGui::BeginMenu(
+              load_json<std::string>(language, "menubar", "view", "label")
+                  .c_str())) {
+        ImGui::EndMenu();
+      }*/
+
+      if (ImGui::BeginMenu("Diagnostics"))
+      {
+        if (ImGui::BeginMenu("Compression"))
+        {
+          ImGui::MenuItem("Analyze current waveform");
+          if (ImGui::MenuItem("Generate training data"))
+            open_generate_training_data = true;
+
+          ImGui::EndMenu();
+        }
+
+        // greyed out color style
+        ImGui::PushStyleColor(
+            ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+
+        ImGui::MenuItem("Timing-Belt");
+        ImGui::MenuItem("Fuel-Delivery-Pump");
+        ImGui::MenuItem("Common-Rail-Pressure");
+        ImGui::PopStyleColor();
+        ImGui::PushStyleColor(ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
+
+        ImGui::EndMenu();
       }
 
-      if (!devices.empty())
+      if (ImGui::BeginMenu(
+              load_json<std::string>(language, "menubar", "help", "label")
+                  .c_str()))
       {
-        // ############################ Start Button
-        // ##############################
+        if (ImGui::MenuItem(
+                load_json<std::string>(language, "helplink").c_str()))
+        {
+          system(("start " + load_json<std::string>(config, "helplink")).c_str());
+        }
+
+        ImGui::EndMenu();
+      }
+
+      mainMenuBarSize = ImGui::GetItemRectSize();
+      ImGui::EndMainMenuBar();
+
+      // ############################ Live Capture
+      // ##############################
+      ImGui::BeginChild("Live Capture", ImVec2(-1, 620));
+      if (sampler.has_value())
+        if (!flagPaused)
+          sampler->copyOut(captureData);
+
+      float optimal_buttonstripe_height = toolBtnSize.y * 1.1;
+      if (toolBtnSize.y < (ImGui::GetTextLineHeightWithSpacing() * 1.1))
+        optimal_buttonstripe_height = ImGui::GetTextLineHeightWithSpacing() * 1.1;
+
+      ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
+                        false, ImGuiWindowFlags_NoScrollbar);
+
+      // ############################ Popup Speichern
+      // ##############################
+      if (ImGui::BeginPopupModal("Speichern der aufgenommenen Daten", nullptr,
+                                 ImGuiWindowFlags_AlwaysAutoResize))
+      {
+        ImGui::SetItemDefaultFocus();
+        saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
+                    flagDataNotSaved);
+
+        ImGui::EndPopup();
+      }
+      // ############################ Popup Zurücksetzen
+      // ##############################
+      if (ImGui::BeginPopupModal("Zurücksetzen?", nullptr,
+                                 ImGuiWindowFlags_AlwaysAutoResize))
+      {
+        ImGui::SetItemDefaultFocus();
+        ImGui::Text("Die Messung wurde nicht gespeichert!\n"
+                    "Möchten Sie diese vor dem Löschen speichern?\n");
+        if (ImGui::Button("Löschen fortsetzen", btnSize))
+        {
+          sampler.reset();
+          devices.clear();
+          deviceManager.clearDevices();
+          captureData.clear();
+          ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Zurück", btnSize))
+        {
+          ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+      }
+
+      ImGui::SetNextWindowPos(ImVec2(0, 100));
+      ImGui::SetNextWindowSize(ImVec2(0, 800));
+      if (flagPaused)
+      {
+        if (ImGui::BeginPopupModal("Erstellung Lerndatensatz", nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize |
+                                       ImGuiWindowFlags_NoSavedSettings |
+                                       ImGuiWindowFlags_NoMove))
+        {
+          ImGui::SetItemDefaultFocus();
+
+          popup_create_training_data_select(config, language, upload_success);
+          ImGui::EndPopup();
+        }
+        if (upload_success == true)
+        {
+          ImGui::OpenPopup("upload_success");
+        }
+        if (ImGui::BeginPopupModal("upload_success", nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize |
+                                       ImGuiWindowFlags_NoSavedSettings |
+                                       ImGuiWindowFlags_NoMove))
+        {
+          ImGui::TextUnformatted(
+              load_json<std::string>(language, "training", "upload_success")
+                  .c_str());
+          if (ImGui::Button(
+                  load_json<std::string>(language, "button", "ok").c_str()))
+          {
+            ImGui::CloseCurrentPopup();
+            upload_success = false;
+          }
+
+          ImGui::SetItemDefaultFocus();
+          ImGui::EndPopup();
+        }
+        // ######################## Buttonstripe
+        // ################################
+        // Start nur wenn Devices vorhanden sind, sonst Suche Geräte
         if (!sampler.has_value())
         {
-          set_button_style_to(config, "start");
-          if (ImGui::Button(
-                  load_json<std::string>(language, "button", "start").c_str(), btnSize))
+          if (ImGui::Button("Suche\nGeräte", // have the text in two separate lines
+                            toolBtnSize))
           {
-            sampler.emplace(deviceManager, std::move(devices));
+            devices.clear();
+            deviceManager.clearDevices();
+            initDevices();
+          }
+          ImGui::SameLine();
+        }
+
+        if (!devices.empty())
+        {
+          // ############################ Start Button
+          // ##############################
+          if (!sampler.has_value())
+          {
+            set_button_style_to(config, "start");
+            if (ImGui::Button(
+                    load_json<std::string>(language, "button", "start").c_str(), toolBtnSize))
+            {
+              sampler.emplace(deviceManager, std::move(devices));
+              flagPaused = false;
+              flagDataNotSaved = true;
+            }
+            ImGui::PopStyleColor(3);
+          }
+        }
+        // set_button_style_to(config, "standart");
+      }
+      else
+      {
+        // ############################ Stop Button
+        // ##############################
+        set_button_style_to(config, "stop");
+        if (ImGui::Button(load_json<std::string>(language, "button", "stop").c_str(), toolBtnSize))
+          flagPaused = true;
+
+        ImGui::PopStyleColor(3);
+      }
+      if (flagPaused)
+      {
+        ImGui::SameLine();
+
+        // Start / Zurücksetzen der Messung bei pausierter Messung
+        // mit anschließender Abfrage ob die alten Daten gespeichert
+        // werden sollen
+        if (sampler.has_value())
+        {
+          ImGui::SameLine();
+          set_button_style_to(config, "start");
+          if (ImGui::Button("Fortsetzen", toolBtnSize))
+          {
             flagPaused = false;
             flagDataNotSaved = true;
           }
           ImGui::PopStyleColor(3);
-        }
-      }
-      // set_button_style_to(config, "standart");
-    }
-    else
-    {
-      // ############################ Stop Button
-      // ##############################
-      set_button_style_to(config, "stop");
-      if (ImGui::Button(load_json<std::string>(language, "button", "stop").c_str(), btnSize))
-        flagPaused = true;
+          ImGui::SameLine();
 
-      ImGui::PopStyleColor(3);
-    }
-    if (flagPaused)
-    {
-      ImGui::SameLine();
-
-      // Start / Zurücksetzen der Messung bei pausierter Messung
-      // mit anschließender Abfrage ob die alten Daten gespeichert
-      // werden sollen
-      if (sampler.has_value())
-      {
-        ImGui::SameLine();
-        set_button_style_to(config, "start");
-        if (ImGui::Button("Fortsetzen", btnSize))
-        {
-          flagPaused = false;
-          flagDataNotSaved = true;
-        }
-        ImGui::PopStyleColor(3);
-        ImGui::SameLine();
-
-        set_button_style_to(config, "stop");
-        if (ImGui::Button("Zurücksetzen", btnSize))
-        {
-          if (flagDataNotSaved)
+          set_button_style_to(config, "stop");
+          if (ImGui::Button("Zurücksetzen", toolBtnSize))
           {
-            ImGui::OpenPopup("Zurücksetzen?");
+            if (flagDataNotSaved)
+            {
+              ImGui::OpenPopup("Zurücksetzen?");
+            }
+            else
+            {
+              sampler.reset();
+              devices.clear();
+              deviceManager.clearDevices();
+              captureData.clear();
+              flagPaused = true;
+            }
           }
-          else
-          {
-            sampler.reset();
-            devices.clear();
-            deviceManager.clearDevices();
-            captureData.clear();
-            flagPaused = true;
-          }
-        }
-        ImGui::PopStyleColor(3);
-      }
-      ImGui::SameLine();
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "save").c_str(), toolBtnSize))
-      {
-        ImGui::OpenPopup("Speichern der aufgenommenen Daten");
-      }
-      ImGui::SameLine();
-      ImGui::PushStyleColor(
-          ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-
-      ImGui::Button(analyse_data.c_str(), toolBtnSize);
-      ImGui::PopStyleColor();
-      ImGui::PushStyleColor(
-          ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
-      ImGui::SameLine();
-
-      // ############################ Button create trainings data
-      // ##############################
-      if (ImGui::Button(create_training_data.c_str(), toolBtnSize))
-      {
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(ImVec2(0, 0));
-        ImGui::OpenPopup("Erstellung Lerndatensatz");
-      }
-      ImGui::PopStyleColor();
-    }
-    else
-    {
-      ImGui::SameLine();
-      ImGui::PushStyleColor(
-          ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-      ImGui::Button(
-          load_json<std::string>(language, "button", "save").c_str(), toolBtnSize);
-
-      ImGui::SameLine();
-      ImGui::Button(analyse_data.c_str(), toolBtnSize);
-      ImGui::SameLine();
-      ImGui::Button(create_training_data.c_str(), toolBtnSize);
-      ImGui::PopStyleColor();
-    }
-    ImGui::EndChild();
-    // ############################ Settings Menu
-    // ##############################
-    std::string settingstitle =
-        load_json<std::string>(language, "settings", "title");
-    if (open_settings == true)
-    {
-      ImGui::OpenPopup(settingstitle.c_str());
-      open_settings = false;
-    }
-    if (ImGui::BeginPopupModal(settingstitle.c_str(), nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize))
-    {
-      ImGui::SetItemDefaultFocus();
-      popup_settings(config, language, configpath);
-      ImGui::EndPopup();
-    }
-
-    // ############################ Generate training data Menu
-    // ##############################
-    if (open_generate_training_data)
-    {
-      ImGui::OpenPopup("Generate Training Data");
-      open_generate_training_data = false;
-    }
-
-    if (ImGui::BeginPopupModal("Generate Training Data", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize))
-    {
-      static int a = 0;
-      ImGui::RadioButton("User current Waveform", &a, 0);
-      ImGui::RadioButton("Waveform from File", &a, 1);
-
-      static char ID[10];
-      static char milage[10];
-      ImGui::SetNextItemWidth(300); // custom width
-      ImGui::InputTextWithHint("ID", "Enter ID(optional)", ID, IM_ARRAYSIZE(ID));
-      ImGui::SetNextItemWidth(300);
-      ImGui::InputTextWithHint("VIN", "Enter VIN", vinBuffer, IM_ARRAYSIZE(vinBuffer),
-                                ImGuiInputTextFlags_CharsUppercase |
-                                ImGuiInputTextFlags_CharsNoBlank |
-                                ImGuiInputTextFlags_CallbackCharFilter,
-                                // callback function to filter each character
-                                // before putting it into the buffer
-                                vinFilter);
-      ImGui::SetNextItemWidth(300);
-      ImGui::InputTextWithHint("milage", "Enter milage", milage, IM_ARRAYSIZE(milage));
-
-      std::string msg{ID};
-      // have each entry on a new line
-      msg += '\n';
-      msg += vinBuffer;
-      msg += '\n';
-      msg += milage;
-
-      ImGui::SeparatorText("Reason-for-investigation");
-      static int b = 0;
-      ImGui::RadioButton("Maintenance", &b, 0);
-      ImGui::SameLine();
-      ImGui::RadioButton("Fault", &b, 1);
-
-      ImGui::SeparatorText("Electrical-Consumers");
-      static int c = 0;
-      ImGui::RadioButton("Off", &c, 0);
-      ImGui::SameLine();
-      ImGui::RadioButton("On", &c, 1);
-
-      ImGui::SeparatorText("Assessment");
-      static int d = 0;
-      ImGui::RadioButton("Normal", &d, 0);
-      ImGui::SameLine();
-      ImGui::RadioButton("Anomaly", &d, 1);
-
-      static char comment[16];
-      ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment), ImVec2(250, 70),
-                                ImGuiInputTextFlags_AllowTabInput);
-
-      // VCDS Auto-Scan (file-path or drag&drop)
-
-      if (ImGui::Button("Cancel"))
-        ImGui::CloseCurrentPopup();
-
-      ImGui::SameLine();
-      if (ImGui::Button(" Send "))
-      {
-        // example url
-        const std::string url{"https://raw.githubusercontent.com/skunkforce/omniview/"};
-        sendData(msg, url);
-      }
-      ImGui::EndPopup();
-    }
-
-    // ############################ addPlots("Aufnahme der Daten", ...)
-    // ##############################
-
-    addPlots("Aufnahme der Daten", captureData,
-             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max)
-             {
-               if (!flagPaused)
-               {
-                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]",
-                                   ImPlotAxisFlags_AutoFit,
-                                   ImPlotAxisFlags_AutoFit);
-                 ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
-                                         ImGuiCond_Always);
-               }
-               else
-               {
-                 xmax_paused = x_max;
-                 ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
-                 // x and y axes ranges: [0, 10], [-10, 200]
-                 ImPlot::SetupAxesLimits(0, 10, -10, 200);
-                 // make specific values/ticks on Y-axis
-                 ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-               }
-             });
-
-    ImGui::EndChild();
-
-    // ############################ Devicelist
-    // ##############################
-    ImGui::BeginChild("Devicelist", ImVec2(-1, 0));
-    // ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    // ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
-    //                       ImVec2(0.5f, 0.5f));
-
-    ImGui::Text("gefundene Geräte:");
-    if (ImGui::BeginListBox("##deviceListBox", ImVec2(1024, -1)))
-    {
-      auto doDevice = [&](auto &device, auto msg)
-      {
-        auto &color = colorMap[device->getId().value()];
-        if (ImGui::ColorEdit3(
-                fmt::format("{:<32}",
-                            fmt::format("{}-{}", device->getId().value().type,
-                                        device->getId().value().serial))
-                    .c_str(),
-                color.data(),
-                ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker |
-                    ImGuiColorEditFlags_NoTooltip))
-        {
-          device->send(
-              Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
-                                static_cast<std::uint8_t>(color[1] * 255),
-                                static_cast<std::uint8_t>(color[2] * 255)});
+          ImGui::PopStyleColor(3);
         }
         ImGui::SameLine();
-        ImGui::TextUnformatted(
-            fmt::format("HW: v{}.{}.{} SW: v{}.{}.{}    ",
-                        device->getId().value().hwVersion.major,
-                        device->getId().value().hwVersion.minor,
-                        device->getId().value().hwVersion.patch,
-                        device->getId().value().swVersion.major,
-                        device->getId().value().swVersion.minor,
-                        device->getId().value().swVersion.patch)
-                .c_str());
+        if (ImGui::Button(
+                load_json<std::string>(language, "button", "save").c_str(), toolBtnSize))
+        {
+          ImGui::OpenPopup("Speichern der aufgenommenen Daten");
+        }
         ImGui::SameLine();
-        if (device->isRunning())
-        {
-          ImGui::TextUnformatted(fmt::format("{}", msg).c_str());
-        }
-        else
-        {
-          ImGui::TextUnformatted(fmt::format("Fehler").c_str());
-        }
-      };
+        ImGui::PushStyleColor(
+            ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
 
-      if (sampler.has_value())
-      {
-        for (auto &device : sampler->sampleDevices)
+        ImGui::Button(analyse_data.c_str(), toolBtnSize);
+        ImGui::PopStyleColor();
+        ImGui::PushStyleColor(
+            ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
+        ImGui::SameLine();
+
+        // ############################ Button create trainings data
+        // ##############################
+        if (ImGui::Button(create_training_data.c_str(), toolBtnSize))
         {
-          doDevice(device.first, "Messung");
+          ImGui::SetNextWindowPos(ImVec2(0, 0));
+          ImGui::SetNextWindowSize(ImVec2(0, 0));
+          ImGui::OpenPopup("Erstellung Lerndatensatz");
         }
+        ImGui::PopStyleColor();
       }
       else
       {
-        for (auto &device : devices)
-        {
-          doDevice(device, "Bereit");
-        }
+        ImGui::SameLine();
+        ImGui::PushStyleColor(
+            ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+        ImGui::Button(
+            load_json<std::string>(language, "button", "save").c_str(), toolBtnSize);
+
+        ImGui::SameLine();
+        ImGui::Button(analyse_data.c_str(), toolBtnSize);
+        ImGui::SameLine();
+        ImGui::Button(create_training_data.c_str(), toolBtnSize);
+        ImGui::PopStyleColor();
       }
-      ImGui::EndListBox();
+      ImGui::EndChild();
+      // ############################ Settings Menu
+      // ##############################
+      std::string settingstitle =
+          load_json<std::string>(language, "settings", "title");
+      if (open_settings == true)
+      {
+        ImGui::OpenPopup(settingstitle.c_str());
+        open_settings = false;
+      }
+      if (ImGui::BeginPopupModal(settingstitle.c_str(), nullptr,
+                                 ImGuiWindowFlags_AlwaysAutoResize))
+      {
+        ImGui::SetItemDefaultFocus();
+        popup_settings(config, language, configpath);
+        ImGui::EndPopup();
+      }
+
+      // ############################ Generate training data Menu
+      // ##############################
+      if (open_generate_training_data)
+      {
+        ImGui::OpenPopup("Generate Training Data");
+        open_generate_training_data = false;
+      }
+
+      if (ImGui::BeginPopupModal("Generate Training Data", nullptr,
+                                 ImGuiWindowFlags_AlwaysAutoResize))
+      {
+        static int a = 0;
+        ImGui::RadioButton("User current Waveform", &a, 0);
+        ImGui::RadioButton("Waveform from File", &a, 1);
+
+        static char ID[10];
+        static char milage[10];
+        ImGui::SetNextItemWidth(300); // custom width
+        ImGui::InputTextWithHint("ID", "Enter ID(optional)", ID, IM_ARRAYSIZE(ID));
+        ImGui::SetNextItemWidth(300);
+        ImGui::InputTextWithHint("VIN", "Enter VIN", vinBuffer, IM_ARRAYSIZE(vinBuffer),
+                                 ImGuiInputTextFlags_CharsUppercase |
+                                     ImGuiInputTextFlags_CharsNoBlank |
+                                     ImGuiInputTextFlags_CallbackCharFilter,
+                                 // callback function to filter each character
+                                 // before putting it into the buffer
+                                 vinFilter);
+        ImGui::SetNextItemWidth(300);
+        ImGui::InputTextWithHint("milage", "Enter milage", milage, IM_ARRAYSIZE(milage));
+
+        std::string msg{ID};
+        // have each entry on a new line
+        msg += '\n';
+        msg += vinBuffer;
+        msg += '\n';
+        msg += milage;
+
+        ImGui::SeparatorText("Reason-for-investigation");
+        static int b = 0;
+        ImGui::RadioButton("Maintenance", &b, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("Fault", &b, 1);
+
+        ImGui::SeparatorText("Electrical-Consumers");
+        static int c = 0;
+        ImGui::RadioButton("Off", &c, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("On", &c, 1);
+
+        ImGui::SeparatorText("Assessment");
+        static int d = 0;
+        ImGui::RadioButton("Normal", &d, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("Anomaly", &d, 1);
+
+        static char comment[16];
+        ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment), ImVec2(250, 70),
+                                  ImGuiInputTextFlags_AllowTabInput);
+
+        // VCDS Auto-Scan (file-path or drag&drop)
+
+        if (ImGui::Button("Cancel"))
+          ImGui::CloseCurrentPopup();
+
+        ImGui::SameLine();
+        if (ImGui::Button(" Send "))
+        {
+          // example url
+          const std::string url{"https://raw.githubusercontent.com/skunkforce/omniview/"};
+          sendData(msg, url);
+        }
+        ImGui::EndPopup();
+      }
+
+      // ############################ addPlots("Aufnahme der Daten", ...)
+      // ##############################
+
+      addPlots("Aufnahme der Daten", captureData,
+               [&sampler, &xmax_paused](auto /*x_min*/, auto x_max)
+               {
+                 if (!flagPaused)
+                 {
+                   ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]",
+                                     ImPlotAxisFlags_AutoFit,
+                                     ImPlotAxisFlags_AutoFit);
+                   ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+                                           ImGuiCond_Always);
+                 }
+                 else
+                 {
+                   xmax_paused = x_max;
+                   ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
+                   // x and y axes ranges: [0, 10], [-10, 200]
+                   ImPlot::SetupAxesLimits(0, 10, -10, 200);
+                   // make specific values/ticks on Y-axis
+                   ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+                 }
+               });
+
+      ImGui::EndChild();
+
+      // ############################ Devicelist
+      // ##############################
+      ImGui::BeginChild("Devicelist", ImVec2(-1, 0));
+      // ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+      // ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
+      //                       ImVec2(0.5f, 0.5f));
+
+      ImGui::Text("gefundene Geräte:");
+      if (ImGui::BeginListBox("##deviceListBox", ImVec2(1024, -1)))
+      {
+        auto doDevice = [&](auto &device, auto msg)
+        {
+          auto &color = colorMap[device->getId().value()];
+          if (ImGui::ColorEdit3(
+                  fmt::format("{:<32}",
+                              fmt::format("{}-{}", device->getId().value().type,
+                                          device->getId().value().serial))
+                      .c_str(),
+                  color.data(),
+                  ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker |
+                      ImGuiColorEditFlags_NoTooltip))
+          {
+            device->send(
+                Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
+                                  static_cast<std::uint8_t>(color[1] * 255),
+                                  static_cast<std::uint8_t>(color[2] * 255)});
+          }
+          ImGui::SameLine();
+          ImGui::TextUnformatted(
+              fmt::format("HW: v{}.{}.{} SW: v{}.{}.{}    ",
+                          device->getId().value().hwVersion.major,
+                          device->getId().value().hwVersion.minor,
+                          device->getId().value().hwVersion.patch,
+                          device->getId().value().swVersion.major,
+                          device->getId().value().swVersion.minor,
+                          device->getId().value().swVersion.patch)
+                  .c_str());
+          ImGui::SameLine();
+          if (device->isRunning())
+          {
+            ImGui::TextUnformatted(fmt::format("{}", msg).c_str());
+          }
+          else
+          {
+            ImGui::TextUnformatted(fmt::format("Fehler").c_str());
+          }
+        };
+
+        if (sampler.has_value())
+        {
+          for (auto &device : sampler->sampleDevices)
+          {
+            doDevice(device.first, "Messung");
+          }
+        }
+        else
+        {
+          for (auto &device : devices)
+          {
+            doDevice(device, "Bereit");
+          }
+        }
+        ImGui::EndListBox();
+      }
+      ImGui::EndChild();
+      ImGui::SameLine();
+      ImGui::End();
+      ImGui::PopStyleColor(7);
+    };
+
+    ImGuiInstance window{1920, 1080,
+                         fmt::format("{} {}",
+                                     CMakeGitVersion::Target::Name, CMakeGitVersion::Project::Version)};
+
+    while (window.run(render))
+    {
     }
-    ImGui::EndChild();
-    ImGui::SameLine();
-    ImGui::End();
-    ImGui::PopStyleColor(7);
-  };
-
-  ImGuiInstance window{1920, 1080,
-                       fmt::format("{} {}",
-                                   CMakeGitVersion::Target::Name, CMakeGitVersion::Project::Version)};
-
-  while (window.run(render))
-  {
+    return 0;
   }
-  return 0;
-}
