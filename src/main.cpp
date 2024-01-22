@@ -447,7 +447,7 @@ int main() {
     if (ImGui::BeginPopupModal("Speichern der aufgenommenen Daten", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
+        saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
                   flagDataNotSaved, devices);
 
       ImGui::EndPopup();
@@ -585,7 +585,7 @@ int main() {
 
       if (ImGui::Button(
               load_json<std::string>(language, "button", "save").c_str(),
-              toolBtnSize))
+              toolBtnSize) && devices.size() > 0)
         ImGui::OpenPopup("Speichern der aufgenommenen Daten");
 
       // normal style when pop-up is closed
