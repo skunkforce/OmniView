@@ -448,11 +448,8 @@ if (ImGui::BeginMenu(
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
                   flagDataNotSaved, devices);
-<<<<<<< HEAD
-=======
 
       // ImGui::PopStyleColor();
->>>>>>> 4999701 (bugs fixes and design changes)
 
       ImGui::EndPopup();
     }
@@ -595,20 +592,12 @@ if (ImGui::BeginMenu(
       ImGui::SameLine();
 
       // gray out "Save" button when pop-up is open
-<<<<<<< HEAD
-      if (ImGui::IsPopupOpen("Save the recorded data"))
-        ImGui::PushStyleColor(
-            ImGuiCol_Text,
-            load_json<Color>(config, "text", "color", "inactive"));
-
-=======
       const bool pushStyle = ImGui::IsPopupOpen("Save the recorded data");
 
       if (pushStyle)
         ImGui::PushStyleColor(
             ImGuiCol_Text,
             load_json<Color>(config, "text", "color", "inactive"));
->>>>>>> 4999701 (bugs fixes and design changes)
       if (ImGui::Button(
               load_json<std::string>(language, "button", "save").c_str(),
               toolBtnSize)) {
@@ -618,17 +607,8 @@ if (ImGui::BeginMenu(
           ImGui::OpenPopup("Save the recorded data");
       }
 
-<<<<<<< HEAD
-      // normal style when pop-up is closed
-      if (!(ImGui::IsPopupOpen("Save the recorded data"))) {
-        ImGui::PopStyleColor();
-        ImGui::PushStyleColor(
-            ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
-      }
-=======
       if (pushStyle)
         ImGui::PopStyleColor();
->>>>>>> 4999701 (bugs fixes and design changes)
 
       ImGui::SameLine();
       ImGui::PushStyleColor(
