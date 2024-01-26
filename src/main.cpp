@@ -33,8 +33,10 @@
 
 //include menus
 
+#include "menus/SideBarMenu.cpp"
 
 
+// Load Languages 
 static std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
   std::vector<std::string> languages;
@@ -267,10 +269,8 @@ int main() {
 
     // ############################ Menu bar ##############################
     //  main menu -->will be changed to SideBarmenu.hpp --> seperate file 
-    ImGui::BeginMainMenuBar();
 
-
-    // --> Initiliazing the language --> seperate file 
+        // --> Initiliazing the language --> seperate file 
     std::string analyse_data{"analyse data"};
     std::string create_training_data{"create training data"};
     // replace space chars with new line
@@ -278,43 +278,15 @@ int main() {
     std::replace(create_training_data.begin(), create_training_data.end(), ' ',
                  '\n');
 
-    if (ImGui::BeginMenu(
-            load_json<std::string>(language, "menubar", "menu", "label")
-                .c_str())) {
-      if (ImGui::BeginMenu(load_json<std::string>(language, "menubar", "menu",
-                                                  "language_option")
-                               .c_str())) {
-        for (const auto &lang : availableLanguages) {
-          if (ImGui::MenuItem(lang.c_str())) {
-            config["language"] = lang;
-            write_json_file(configpath, config);
-          }
-        }
 
-        ImGui::EndMenu();
-      }
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "menubar", "menu", "settings")
-                  .c_str())) {
-        open_settings = true;
-      }
+    // CREATE A SIDEBARMENU 
 
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "menubar", "menu", "reset")
-                  .c_str())) {
-        sampler.reset();
-        devices.clear();
-        deviceManager.clearDevices();
-        captureData.clear();
-        flagPaused = true;
-      }
+    SetSideBarMenu(language, availableLanguages, config , configpath, open_settings, sampler, devices, deviceManager, captureData, flagPaused); 
 
-      if (ImGui::MenuItem(
-              fmt::format("Version: {}", CMakeGitVersion::VersionWithGit)
-                  .c_str())) {
-      }
-      ImGui::EndMenu();
-    }
+
+
+
+
     /*
 if (ImGui::BeginMenu(
         load_json<std::string>(language, "menubar", "view", "label")
