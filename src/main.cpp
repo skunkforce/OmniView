@@ -25,7 +25,6 @@
 #include <imfilebrowser.h>
 // clang-format on
 #include "sendData.hpp"
-
 #include <regex>
 
 namespace ImGui {
@@ -204,7 +203,6 @@ int main() {
   std::map<Omniscope::Id, std::array<float, 3>> colorMap;
   auto initDevices = [&]() {
     devices = deviceManager.getDevices(VID, PID);
-
     for (auto &device : devices) {
       auto id = device->getId().value();
       if (!colorMap.contains(id)) {
@@ -213,7 +211,6 @@ int main() {
         colorMap[id] = std::array<float, 3>{c.x, c.y, c.z};
         ImPlot::PopColormap();
       }
-
       auto &color = colorMap[id];
       device->send(
           Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
@@ -342,9 +339,8 @@ int main() {
     //  main menu
     ImGui::BeginMainMenuBar();
 
-    std::string analyse_data = language["button"]["analyse_data"];
-    std::string create_training_data =
-        language["button"]["create_training_data"];
+    std::string analyse_data{"analyse data"};
+    std::string create_training_data{"create training data"};
     // replace space chars with new line
     std::replace(analyse_data.begin(), analyse_data.end(), ' ', '\n');
     std::replace(create_training_data.begin(), create_training_data.end(), ' ',
@@ -410,7 +406,7 @@ if (ImGui::BeginMenu(
       ImGui::MenuItem("Timing-Belt");
       ImGui::MenuItem("Fuel-Delivery-Pump");
       ImGui::MenuItem("Common-Rail-Pressure");
-      ImGui::PopStyleColor();
+      ImGui::PopStyleColor(2);
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
 
@@ -445,24 +441,40 @@ if (ImGui::BeginMenu(
     ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
                       false, ImGuiWindowFlags_NoScrollbar);
 
-    // ############################ Popup Speichern
+    // ############################ Popup Save
     // ##############################
-    if (ImGui::BeginPopupModal("Speichern der aufgenommenen Daten", nullptr,
+    if (ImGui::BeginPopupModal("Save the recorded data", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
-                  flagDataNotSaved);
+                  flagDataNotSaved, devices);
+
+      // ImGui::PopStyleColor();
 
       ImGui::EndPopup();
     }
-    // ############################ Popup Zurücksetzen
+
+    // ############################ Popup Save warning
     // ##############################
-    if (ImGui::BeginPopupModal("Zurücksetzen?", nullptr,
+    if (ImGui::BeginPopupModal("Save warning", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      ImGui::Text("Die Messung wurde nicht gespeichert!\n"
-                  "Möchten Sie diese vor dem Löschen speichern?\n");
-      if (ImGui::Button("Löschen fortsetzen", btnSize)) {
+      ImGui::Text("No devices are available ...");
+
+      if (ImGui::Button("Close"))
+        ImGui::CloseCurrentPopup();
+
+      ImGui::EndPopup();
+    }
+
+    // ############################ Popup Reset
+    // ##############################
+    if (ImGui::BeginPopupModal("Reset?", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      ImGui::SetItemDefaultFocus();
+      ImGui::Text("The measurement was not saved!\n"
+                  "Would you like to save it before deleting it?\n");
+      if (ImGui::Button("Continue deletion", btnSize)) {
         sampler.reset();
         devices.clear();
         deviceManager.clearDevices();
@@ -470,7 +482,7 @@ if (ImGui::BeginMenu(
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
-      if (ImGui::Button("Zurück", btnSize)) {
+      if (ImGui::Button("Back", btnSize)) {
         ImGui::CloseCurrentPopup();
       }
       ImGui::EndPopup();
@@ -479,7 +491,7 @@ if (ImGui::BeginMenu(
     ImGui::SetNextWindowPos(ImVec2(0, 100));
     ImGui::SetNextWindowSize(ImVec2(0, 800));
     if (flagPaused) {
-      if (ImGui::BeginPopupModal("Erstellung Lerndatensatz", nullptr,
+      if (ImGui::BeginPopupModal("Creation of learning data set", nullptr,
                                  ImGuiWindowFlags_AlwaysAutoResize |
                                      ImGuiWindowFlags_NoSavedSettings |
                                      ImGuiWindowFlags_NoMove)) {
@@ -509,10 +521,10 @@ if (ImGui::BeginMenu(
       }
       // ######################## Buttonstripe
       // ################################
-      // Start nur wenn Devices vorhanden sind, sonst Suche Geräte
+      // Start only if devices are available, otherwise search for devices
       if (!sampler.has_value()) {
         if (ImGui::Button(
-                "Suche\nGeräte", // have the text in two separate lines
+                "Search for\nDevices", // have the text in two separate lines
                 toolBtnSize)) {
           devices.clear();
           deviceManager.clearDevices();
@@ -528,8 +540,8 @@ if (ImGui::BeginMenu(
           set_button_style_to(config, "start");
           if (ImGui::Button(
                   load_json<std::string>(language, "button", "start").c_str(),
-                  btnSize)) {
-            sampler.emplace(deviceManager, std::move(devices));
+                  toolBtnSize)) {
+            sampler.emplace(deviceManager, devices);
             flagPaused = false;
             flagDataNotSaved = true;
           }
@@ -543,7 +555,7 @@ if (ImGui::BeginMenu(
       set_button_style_to(config, "stop");
       if (ImGui::Button(
               load_json<std::string>(language, "button", "stop").c_str(),
-              btnSize))
+              toolBtnSize))
         flagPaused = true;
 
       ImGui::PopStyleColor(3);
@@ -551,13 +563,12 @@ if (ImGui::BeginMenu(
     if (flagPaused) {
       ImGui::SameLine();
 
-      // Start / Zurücksetzen der Messung bei pausierter Messung
-      // mit anschließender Abfrage ob die alten Daten gespeichert
-      // werden sollen
+      // Start/reset the measurement when the measurement is paused,
+      // followed by a query as to whether the old data should be saved
       if (sampler.has_value()) {
         ImGui::SameLine();
         set_button_style_to(config, "start");
-        if (ImGui::Button("Fortsetzen", btnSize)) {
+        if (ImGui::Button("Continue", toolBtnSize)) {
           flagPaused = false;
           flagDataNotSaved = true;
         }
@@ -565,9 +576,9 @@ if (ImGui::BeginMenu(
         ImGui::SameLine();
 
         set_button_style_to(config, "stop");
-        if (ImGui::Button("Zurücksetzen", btnSize)) {
+        if (ImGui::Button("Reset", toolBtnSize)) {
           if (flagDataNotSaved) {
-            ImGui::OpenPopup("Zurücksetzen?");
+            ImGui::OpenPopup("Reset?");
           } else {
             sampler.reset();
             devices.clear();
@@ -579,11 +590,26 @@ if (ImGui::BeginMenu(
         ImGui::PopStyleColor(3);
       }
       ImGui::SameLine();
+
+      // gray out "Save" button when pop-up is open
+      const bool pushStyle = ImGui::IsPopupOpen("Save the recorded data");
+
+      if (pushStyle)
+        ImGui::PushStyleColor(
+            ImGuiCol_Text,
+            load_json<Color>(config, "text", "color", "inactive"));
       if (ImGui::Button(
               load_json<std::string>(language, "button", "save").c_str(),
               toolBtnSize)) {
-        ImGui::OpenPopup("Speichern der aufgenommenen Daten");
+        if (!devices.size())
+          ImGui::OpenPopup("Save warning");
+        else
+          ImGui::OpenPopup("Save the recorded data");
       }
+
+      if (pushStyle)
+        ImGui::PopStyleColor();
+
       ImGui::SameLine();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
@@ -599,7 +625,7 @@ if (ImGui::BeginMenu(
       if (ImGui::Button(create_training_data.c_str(), toolBtnSize)) {
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(0, 0));
-        ImGui::OpenPopup("Erstellung Lerndatensatz");
+        ImGui::OpenPopup("Creation of learning data set");
       }
       ImGui::PopStyleColor();
     } else {
@@ -707,13 +733,13 @@ if (ImGui::BeginMenu(
       ImGui::EndPopup();
     }
 
-    // ############################ addPlots("Aufnahme der Daten", ...)
+    // ############################ addPlots("Recording the data", ...)
     // ##############################
 
-    addPlots("Aufnahme der Daten", captureData,
+    addPlots("Recording the data", captureData,
              [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
                if (!flagPaused) {
-                 ImPlot::SetupAxes("x [Datenpunkte]", "y [ADC Wert]",
+                 ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
                                    ImPlotAxisFlags_AutoFit,
                                    ImPlotAxisFlags_AutoFit);
                  ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
@@ -737,7 +763,7 @@ if (ImGui::BeginMenu(
     // ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
     //                       ImVec2(0.5f, 0.5f));
 
-    ImGui::Text("gefundene Geräte:");
+    ImGui::Text("devices found:");
     if (ImGui::BeginListBox("##deviceListBox", ImVec2(1024, -1))) {
       auto doDevice = [&](auto &device, auto msg) {
         auto &color = colorMap[device->getId().value()];
@@ -765,21 +791,18 @@ if (ImGui::BeginMenu(
                         device->getId().value().swVersion.patch)
                 .c_str());
         ImGui::SameLine();
-        if (device->isRunning()) {
+        if (device->isRunning())
           ImGui::TextUnformatted(fmt::format("{}", msg).c_str());
-        } else {
-          ImGui::TextUnformatted(fmt::format("Fehler").c_str());
-        }
+        else
+          ImGui::TextUnformatted(fmt::format("Error").c_str());
       };
 
       if (sampler.has_value()) {
-        for (auto &device : sampler->sampleDevices) {
+        for (auto &device : sampler->sampleDevices)
           doDevice(device.first, "Messung");
-        }
       } else {
-        for (auto &device : devices) {
-          doDevice(device, "Bereit");
-        }
+        for (auto &device : devices)
+          doDevice(device, "Ready");
       }
       ImGui::EndListBox();
     }
