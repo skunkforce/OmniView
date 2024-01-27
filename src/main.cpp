@@ -27,16 +27,16 @@
 #include "sendData.hpp"
 #include <regex>
 
-// include style 
+// include style
 
 #include "menus/Style.hpp"
 
-//include menus
+// include menus
 
+#include "menus/DevicesMenu.cpp"
 #include "menus/SideBarMenu.cpp"
 
-
-// Load Languages 
+// Load Languages
 static std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
   std::vector<std::string> languages;
@@ -81,14 +81,13 @@ static void load_settings(nlohmann::json const &config) {
   io.FontGlobalScale = load_json<float>(config, "text", "scale");
 }
 
-
 // ###########################################################################
 // ############# INT MAIN BEGINN #############################################
 // ###########################################################################
 
 int main() {
 
-  // Loading the config and language files 
+  // Loading the config and language files
   nlohmann::json config;
   const std::string configpath = "config/config.json";
   if (std::filesystem::exists(configpath)) {
@@ -122,7 +121,7 @@ int main() {
   static constexpr int PID = 0x000au;
   // static constexpr std::size_t captureDataReserve = 1 << 26;
 
-  // Creating a device manager 
+  // Creating a device manager
   OmniscopeDeviceManager deviceManager{};
   std::vector<std::shared_ptr<OmniscopeDevice>>
       devices; // = deviceManager.getDevices(VID, PID);
@@ -164,7 +163,7 @@ int main() {
   std::string path;
   path.resize(256);
 
-  // creating the plot function 
+  // creating the plot function
 
   auto addPlots = [&, firstRun = std::set<std::string>{}](
                       auto const &name, auto const &plots,
@@ -255,9 +254,9 @@ int main() {
     return 1;              // discard exceeding chars
   };
 
-
-  // creating the render function --> 
-  // Only the minimally necessary code should reside directly in this function; everything else should be structured and externalized into .hpp files.
+  // creating the render function -->
+  // Only the minimally necessary code should reside directly in this function;
+  // everything else should be structured and externalized into .hpp files.
   auto render = [&]() {
     load_settings(config);
     ImGui::SetupImGuiStyle(false, 0.99f);
@@ -268,9 +267,9 @@ int main() {
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove); //
 
     // ############################ Menu bar ##############################
-    //  main menu -->will be changed to SideBarmenu.hpp --> seperate file 
+    //  main menu -->will be changed to SideBarmenu.hpp --> seperate file
 
-        // --> Initiliazing the language --> seperate file 
+    // --> Initiliazing the language --> seperate file
     std::string analyse_data{"analyse data"};
     std::string create_training_data{"create training data"};
     // replace space chars with new line
@@ -278,14 +277,11 @@ int main() {
     std::replace(create_training_data.begin(), create_training_data.end(), ' ',
                  '\n');
 
+    // CREATE A SIDEBARMENU
 
-    // CREATE A SIDEBARMENU 
-
-    SetSideBarMenu(language, availableLanguages, config , configpath, open_settings, sampler, devices, deviceManager, captureData, flagPaused); 
-
-
-
-
+    SetSideBarMenu(language, availableLanguages, config, configpath,
+                   open_settings, sampler, devices, deviceManager, captureData,
+                   flagPaused, open_generate_training_data, mainMenuBarSize);
 
     /*
 if (ImGui::BeginMenu(
@@ -293,44 +289,6 @@ if (ImGui::BeginMenu(
             .c_str())) {
   ImGui::EndMenu();
 }*/
-
-    if (ImGui::BeginMenu("Diagnostics")) {
-      if (ImGui::BeginMenu("Compression")) {
-        ImGui::MenuItem("Analyze current waveform");
-        if (ImGui::MenuItem("Generate training data"))
-          open_generate_training_data = true;
-
-        ImGui::EndMenu();
-      }
-
-
-      // greyed out color style
-      ImGui::PushStyleColor(
-          ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-
-      ImGui::MenuItem("Timing-Belt");
-      ImGui::MenuItem("Fuel-Delivery-Pump");
-      ImGui::MenuItem("Common-Rail-Pressure");
-      ImGui::PopStyleColor(2);
-      ImGui::PushStyleColor(
-          ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
-
-      ImGui::EndMenu();
-    }
-
-    if (ImGui::BeginMenu(
-            load_json<std::string>(language, "menubar", "help", "label")
-                .c_str())) {
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "helplink").c_str())) {
-        system(("start " + load_json<std::string>(config, "helplink")).c_str());
-      }
-
-      ImGui::EndMenu();
-    }
-
-    mainMenuBarSize = ImGui::GetItemRectSize();
-    ImGui::EndMainMenuBar();
 
     // EndSideBarMenu
 
@@ -663,60 +621,9 @@ if (ImGui::BeginMenu(
 
     ImGui::EndChild();
 
-    // ############################ Devicelist
-    // ##############################
-    ImGui::BeginChild("Devicelist", ImVec2(-1, 0));
-    // ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    // ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
-    //                       ImVec2(0.5f, 0.5f));
+    // Create Devices Menu at the bottom of the programm
 
-    ImGui::Text("devices found:");
-    if (ImGui::BeginListBox("##deviceListBox", ImVec2(1024, -1))) {
-      auto doDevice = [&](auto &device, auto msg) {
-        auto &color = colorMap[device->getId().value()];
-        if (ImGui::ColorEdit3(
-                fmt::format("{:<32}",
-                            fmt::format("{}-{}", device->getId().value().type,
-                                        device->getId().value().serial))
-                    .c_str(),
-                color.data(),
-                ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker |
-                    ImGuiColorEditFlags_NoTooltip)) {
-          device->send(
-              Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
-                                static_cast<std::uint8_t>(color[1] * 255),
-                                static_cast<std::uint8_t>(color[2] * 255)});
-        }
-        ImGui::SameLine();
-        ImGui::TextUnformatted(
-            fmt::format("HW: v{}.{}.{} SW: v{}.{}.{}    ",
-                        device->getId().value().hwVersion.major,
-                        device->getId().value().hwVersion.minor,
-                        device->getId().value().hwVersion.patch,
-                        device->getId().value().swVersion.major,
-                        device->getId().value().swVersion.minor,
-                        device->getId().value().swVersion.patch)
-                .c_str());
-        ImGui::SameLine();
-        if (device->isRunning())
-          ImGui::TextUnformatted(fmt::format("{}", msg).c_str());
-        else
-          ImGui::TextUnformatted(fmt::format("Error").c_str());
-      };
-
-      if (sampler.has_value()) {
-        for (auto &device : sampler->sampleDevices)
-          doDevice(device.first, "Messung");
-      } else {
-        for (auto &device : devices)
-          doDevice(device, "Ready");
-      }
-      ImGui::EndListBox();
-    }
-    ImGui::EndChild();
-    ImGui::SameLine();
-    ImGui::End();
-    ImGui::PopStyleColor(7);
+    SetDevicesMenu(colorMap, sampler, devices);
   };
 
   ImGuiInstance window{1920, 1080,
