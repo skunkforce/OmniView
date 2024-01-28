@@ -295,9 +295,12 @@ if (ImGui::BeginMenu(
     // ############################ Live Capture
     // ##############################
 
-     ImGui:: SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f, ImGui::GetIO().DisplaySize.y * 0.06f)); 
+    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f,
+                               ImGui::GetIO().DisplaySize.y * 0.06f));
 
-    ImGui::BeginChild("Live Capture",  ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f, ImGui::GetIO().DisplaySize.y * 0.65f));
+    ImGui::BeginChild("Live Capture",
+                      ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f,
+                             ImGui::GetIO().DisplaySize.y * 0.65f));
     if (sampler.has_value())
       if (!flagPaused)
         sampler->copyOut(captureData);
@@ -601,13 +604,12 @@ if (ImGui::BeginMenu(
       ImGui::EndPopup();
     }
 
-  ImGui::EndChild();
+    ImGui::EndChild();
 
     // ############################ addPlots("Recording the data", ...)
     // ##############################
 
-    
-    ImGui::BeginChild("Live Capture",  ImVec2(-1, 615));
+    ImGui::BeginChild("Live Capture", ImVec2(-1, 615));
 
     addPlots("Recording the data", captureData,
              [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
@@ -629,7 +631,6 @@ if (ImGui::BeginMenu(
 
     ImGui::EndChild();
 
-    
     // Create Devices Menu at the bottom of the programm
 
     SetDevicesMenu(colorMap, sampler, devices);
