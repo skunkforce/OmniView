@@ -608,12 +608,13 @@ if (ImGui::BeginMenu(
 
     // ############################ addPlots("Recording the data", ...)
     // ##############################
+    SetMainWindowStyle();
 
     ImGui::BeginChild("Live Capture", ImVec2(-1, 615));
-
     addPlots("Recording the data", captureData,
              [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
                if (!flagPaused) {
+
                  ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
                                    ImPlotAxisFlags_AutoFit,
                                    ImPlotAxisFlags_AutoFit);
@@ -630,6 +631,7 @@ if (ImGui::BeginMenu(
              });
 
     ImGui::EndChild();
+    ImGui::SetupImGuiStyle(false, 0.99f);
 
     // Create Devices Menu at the bottom of the programm
 
