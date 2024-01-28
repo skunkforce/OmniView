@@ -260,7 +260,7 @@ int main() {
   auto render = [&]() {
     load_settings(config);
     ImGui::SetupImGuiStyle(false, 0.99f);
-    ImGui::SetNextWindowPos(ImVec2(0.0f, mainMenuBarSize.y));
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
@@ -294,7 +294,10 @@ if (ImGui::BeginMenu(
 
     // ############################ Live Capture
     // ##############################
-    ImGui::BeginChild("Live Capture", ImVec2(-1, 620));
+
+     ImGui:: SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f, ImGui::GetIO().DisplaySize.y * 0.06f)); 
+
+    ImGui::BeginChild("Live Capture",  ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f, ImGui::GetIO().DisplaySize.y * 0.65f));
     if (sampler.has_value())
       if (!flagPaused)
         sampler->copyOut(captureData);
@@ -598,8 +601,13 @@ if (ImGui::BeginMenu(
       ImGui::EndPopup();
     }
 
+  ImGui::EndChild();
+
     // ############################ addPlots("Recording the data", ...)
     // ##############################
+
+    
+    ImGui::BeginChild("Live Capture",  ImVec2(-1, 620));
 
     addPlots("Recording the data", captureData,
              [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
@@ -621,9 +629,14 @@ if (ImGui::BeginMenu(
 
     ImGui::EndChild();
 
+    
     // Create Devices Menu at the bottom of the programm
 
     SetDevicesMenu(colorMap, sampler, devices);
+
+    ImGui::SameLine();
+    ImGui::End();
+    ImGui::PopStyleColor(7);
   };
 
   ImGuiInstance window{1920, 1080,

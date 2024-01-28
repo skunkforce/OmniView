@@ -1,17 +1,27 @@
+// Devices Menu where the connected devices are listed 
 #include <ImGuiInstance/ImGuiInstance.hpp>
 
 void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
                     std::optional<OmniscopeSampler> &sampler,
                     std::vector<std::shared_ptr<OmniscopeDevice>> &devices) {
 
+  ImGuiStyle &style = ImGui::GetStyle();
+
   // ############################ Devicelist
   // ##############################
-  ImGui::BeginChild("Devicelist", ImVec2(-1, 0));
+  
+  ImGui:: SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f, ImGui::GetIO().DisplaySize.y * 0.7f)); 
+  ImGui::BeginChild("Devicelist", ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f, ImGui::GetIO().DisplaySize.y * 0.3f));
   // ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   // ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
   //                       ImVec2(0.5f, 0.5f));
-
+  ImGui:: SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.4f, ImGui::GetIO().DisplaySize.y *0.01f)); // setting the next to the top middle of the menu
   ImGui::Text("devices found:");
+
+  ImGui:: SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f, ImGui::GetIO().DisplaySize.y * 0.7f)); 
+    
+    style.Colors[ImGuiCol_FrameBg] = ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+  
   if (ImGui::BeginListBox("##deviceListBox", ImVec2(1024, -1))) {
     auto doDevice = [&](auto &device, auto msg) {
       auto &color = colorMap[device->getId().value()];
@@ -53,9 +63,7 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
         doDevice(device, "Ready");
     }
     ImGui::EndListBox();
+
   }
   ImGui::EndChild();
-  ImGui::SameLine();
-  ImGui::End();
-  ImGui::PopStyleColor(7);
 }
