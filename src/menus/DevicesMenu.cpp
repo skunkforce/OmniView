@@ -11,7 +11,7 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
   // ##############################
   
   ImGui:: SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f, ImGui::GetIO().DisplaySize.y * 0.7f)); 
-  ImGui::BeginChild("Devicelist", ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f, ImGui::GetIO().DisplaySize.y * 0.3f));
+  ImGui::BeginChild("Devicelist", ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f, ImGui::GetIO().DisplaySize.y * 0.2f));
   // ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   // ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
   //                       ImVec2(0.5f, 0.5f));

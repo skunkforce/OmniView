@@ -20,7 +20,7 @@ void SetSideBarMenu(
     // set the menu to the left side of the window ; important size in percentage!
     ImGui:: SetCursorPos(ImVec2(0, ImGui::GetIO().DisplaySize.y * 0.06f)); 
 
-    ImGui::BeginChild("SideBarMenu", ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f, ImGui::GetIO().DisplaySize.y * 0.94f), true); 
+    ImGui::BeginChild("SideBarMenu", ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f, ImGui::GetIO().DisplaySize.y * 0.93f), true); 
 
   if (ImGui::BeginMenu(
           load_json<std::string>(language, "menubar", "menu", "label")

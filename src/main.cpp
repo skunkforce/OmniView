@@ -607,7 +607,7 @@ if (ImGui::BeginMenu(
     // ##############################
 
     
-    ImGui::BeginChild("Live Capture",  ImVec2(-1, 620));
+    ImGui::BeginChild("Live Capture",  ImVec2(-1, 615));
 
     addPlots("Recording the data", captureData,
              [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
