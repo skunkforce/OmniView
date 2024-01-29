@@ -76,9 +76,6 @@ static void load_settings(nlohmann::json const &config) {
   ImGui::PushStyleColor(ImGuiCol_WindowBg,
                         ImVec4(load_json<Color>(config, "window", "color")));
   set_button_style_to(config, "standart");
-
-  ImGuiIO &io = ImGui::GetIO();
-  io.FontGlobalScale = load_json<float>(config, "text", "scale");
 }
 
 // ###########################################################################
@@ -86,6 +83,9 @@ static void load_settings(nlohmann::json const &config) {
 // ###########################################################################
 
 int main() {
+
+  // ImGuiIO &io = ImGui::GetIO();
+  // io.FontGlobalScale = load_json<float>(config, "text", "scale");
 
   // Loading the config and language files
   nlohmann::json config;
@@ -263,8 +263,8 @@ int main() {
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
-                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove); //
+                 /*ImGuiWindowFlags_NoTitleBar*/ ImGuiWindowFlags_NoDecoration |
+                     ImGuiWindowFlags_NoResize /*ImGuiWindowFlags_NoMove*/); //
 
     // ############################ Menu bar ##############################
     //  main menu -->will be changed to SideBarmenu.hpp --> seperate file
@@ -642,7 +642,7 @@ if (ImGui::BeginMenu(
     ImGui::PopStyleColor(7);
   };
 
-  ImGuiInstance window{1920, 1080,
+  ImGuiInstance window{1280, 760,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
 
