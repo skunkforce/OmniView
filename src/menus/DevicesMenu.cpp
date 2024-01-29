@@ -23,13 +23,14 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
                  0.01f)); // setting the next to the top middle of the menu
   ImGui::Text("devices found:");
 
-  ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f,
-                             ImGui::GetIO().DisplaySize.y * 0.7f));
+  //ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f,
+                           //  ImGui::GetIO().DisplaySize.y * 0.7f));
 
   style.Colors[ImGuiCol_FrameBg] =
       ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
 
-  if (ImGui::BeginListBox("##deviceListBox", ImVec2(1024, -1))) {
+  if (ImGui::BeginListBox("##deviceListBox",ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f,
+                                         ImGui::GetIO().DisplaySize.y * 0.18f))) {
     auto doDevice = [&](auto &device, auto msg) {
       auto &color = colorMap[device->getId().value()];
       if (ImGui::ColorEdit3(
