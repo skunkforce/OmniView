@@ -296,7 +296,7 @@ if (ImGui::BeginMenu(
 
     // ############################ Popup Save
     // ##############################
-    if (ImGui::BeginPopupModal("Save the recorded data", nullptr,
+    if (ImGui::BeginPopupModal("Save recorded data", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
@@ -435,7 +435,7 @@ if (ImGui::BeginMenu(
       ImGui::SameLine();
 
       // gray out "Save" button when pop-up is open
-      const bool pushStyle = ImGui::IsPopupOpen("Save the recorded data");
+      const bool pushStyle = ImGui::IsPopupOpen("Save recorded data");
 
       if (pushStyle)
         ImGui::PushStyleColor(
@@ -447,7 +447,7 @@ if (ImGui::BeginMenu(
         if (!devices.size())
           ImGui::OpenPopup("Save warning");
         else
-          ImGui::OpenPopup("Save the recorded data");
+          ImGui::OpenPopup("Save recorded data");
       }
 
       if (pushStyle)
