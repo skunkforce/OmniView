@@ -99,8 +99,8 @@ void SetSideBarMenu(
     }
 
     // greyed out color style
-    ImGui::PushStyleColor(
-        ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+    // ImGui::PushStyleColor(
+    //  ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
 
     if (ImGui::TreeNode("Timing-Belt")) {
       ImGui::MenuItem("Analyze current waveform");
@@ -122,9 +122,9 @@ void SetSideBarMenu(
       ImGui::TreePop();
     }
 
-    ImGui::PopStyleColor(2);
-    ImGui::PushStyleColor(ImGuiCol_Text,
-                          load_json<Color>(config, "text", "color", "normal"));
+    // ImGui::PopStyleColor(2);
+    // ImGui::PushStyleColor(ImGuiCol_Text,
+    // load_json<Color>(config, "text", "color", "normal"));
   }
 
   static bool showSubmenu3 = false;
