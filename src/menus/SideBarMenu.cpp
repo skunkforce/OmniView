@@ -4,7 +4,7 @@
 #include <nlohmann/json_fwd.hpp>
 
 // Function to set the SideBarMenu in the main.cpp // right now this is only the
-// first version
+// first
 
 void ShowSearchDevices() { // Search Devices Menu
   ImGui::Text("Bereich für die Suche nach Geräten");
@@ -19,7 +19,30 @@ void SetSideBarMenu(
     std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
         &captureData,
     bool &flagPaused, bool &open_generate_training_data,
-    ImVec2 &mainMenuBarSize) {
+    ImVec2 &mainMenuBarSize,
+    std::map<Omniscope::Id, std::array<float, 3>> &colorMap) {
+
+  // InitDevices after searching for devices
+  static constexpr int VID = 0x2e8au;
+  static constexpr int PID = 0x000au;
+
+  auto initDevices = [&]() {
+    devices = deviceManager.getDevices(VID, PID);
+    for (auto &device : devices) {
+      auto id = device->getId().value();
+      if (!colorMap.contains(id)) {
+        ImPlot::PushColormap(ImPlotColormap_Dark);
+        auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
+        colorMap[id] = std::array<float, 3>{c.x, c.y, c.z};
+        ImPlot::PopColormap();
+      }
+      auto &color = colorMap[id];
+      device->send(
+          Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
+                            static_cast<std::uint8_t>(color[1] * 255),
+                            static_cast<std::uint8_t>(color[2] * 255)});
+    }
+  };
 
   // set the menu to the left side of the window ; important size in percentage!
   ImGui::SetCursorPos(ImVec2(0, ImGui::GetIO().DisplaySize.y * 0.06f));
@@ -29,8 +52,12 @@ void SetSideBarMenu(
                            ImGui::GetIO().DisplaySize.y * 0.93f),
                     true);
 
-  if (ImGui::Button("Suche Geräte")) {
-    ShowSearchDevices();
+  if (!sampler.has_value()) {
+    if (ImGui::Button("Search for\nDevices")) {
+      devices.clear();
+      deviceManager.clearDevices();
+      initDevices();
+    }
   }
 
   // Changing the Menustructure to a TreeNode Structure

@@ -117,8 +117,6 @@ int main() {
       load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
 
-  static constexpr int VID = 0x2e8au;
-  static constexpr int PID = 0x000au;
   // static constexpr std::size_t captureDataReserve = 1 << 26;
 
   // Creating a device manager
@@ -127,23 +125,6 @@ int main() {
       devices; // = deviceManager.getDevices(VID, PID);
   // auto newDevices = devices;
   std::map<Omniscope::Id, std::array<float, 3>> colorMap;
-  auto initDevices = [&]() {
-    devices = deviceManager.getDevices(VID, PID);
-    for (auto &device : devices) {
-      auto id = device->getId().value();
-      if (!colorMap.contains(id)) {
-        ImPlot::PushColormap(ImPlotColormap_Dark);
-        auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
-        colorMap[id] = std::array<float, 3>{c.x, c.y, c.z};
-        ImPlot::PopColormap();
-      }
-      auto &color = colorMap[id];
-      device->send(
-          Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
-                            static_cast<std::uint8_t>(color[1] * 255),
-                            static_cast<std::uint8_t>(color[2] * 255)});
-    }
-  };
 
   //   auto startTimepoint = std::chrono::system_clock::now();
   auto now = std::chrono::system_clock::now();
@@ -281,7 +262,8 @@ int main() {
 
     SetSideBarMenu(language, availableLanguages, config, configpath,
                    open_settings, sampler, devices, deviceManager, captureData,
-                   flagPaused, open_generate_training_data, mainMenuBarSize);
+                   flagPaused, open_generate_training_data, mainMenuBarSize,
+                   colorMap);
 
     /*
 if (ImGui::BeginMenu(
@@ -392,18 +374,8 @@ if (ImGui::BeginMenu(
       }
       // ######################## Buttonstripe
       // ################################
-      // Start only if devices are available, otherwise search for devices
-      if (!sampler.has_value()) {
-        if (ImGui::Button(
-                "Search for\nDevices", // have the text in two separate lines
-                toolBtnSize)) {
-          devices.clear();
-          deviceManager.clearDevices();
-          initDevices();
-        }
-        ImGui::SameLine();
-      }
 
+      // Start only if devices are available, otherwise search for devices
       if (!devices.empty()) {
         // ############################ Start Button
         // ##############################
