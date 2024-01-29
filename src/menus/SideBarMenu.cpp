@@ -64,8 +64,7 @@ void SetSideBarMenu(
 
   static bool showSubmenu1 = false;
   // First Menupoint shown as a button
-  if (ImGui::Button(load_json<std::string>(language, "menubar", "menu", "label")
-                        .c_str())) {
+  if (ImGui::Button("Einstellungen")) {
     // Aktion bei Klick auf Menüpunkt 1
     showSubmenu1 = !showSubmenu1;
   }
@@ -81,30 +80,14 @@ void SetSideBarMenu(
           config["language"] = lang;
           write_json_file(configpath, config);
         }
-        ImGui::TreePop();
       }
-      if (ImGui::TreeNode("Layout")) {
-        ImGui::TreePop(); // Closes the TreeNode
-      }
+      ImGui::TreePop();
     }
-    if (ImGui::MenuItem(
-            load_json<std::string>(language, "menubar", "menu", "settings")
-                .c_str())) {
+    if (ImGui::MenuItem("   Layout")) {
       open_settings = true;
     }
-
     if (ImGui::MenuItem(
-            load_json<std::string>(language, "menubar", "menu", "reset")
-                .c_str())) {
-      sampler.reset();
-      devices.clear();
-      deviceManager.clearDevices();
-      captureData.clear();
-      flagPaused = true;
-    }
-
-    if (ImGui::MenuItem(
-            fmt::format("Version: {}", CMakeGitVersion::VersionWithGit)
+            fmt::format("   Version: {}", CMakeGitVersion::VersionWithGit)
                 .c_str())) {
     }
   }
@@ -152,6 +135,16 @@ void SetSideBarMenu(
     // ImGui::PopStyleColor(2);
     // ImGui::PushStyleColor(ImGuiCol_Text,
     // load_json<Color>(config, "text", "color", "normal"));
+  }
+
+  if (ImGui::MenuItem(
+          load_json<std::string>(language, "menubar", "menu", "reset")
+              .c_str())) {
+    sampler.reset();
+    devices.clear();
+    deviceManager.clearDevices();
+    captureData.clear();
+    flagPaused = true;
   }
 
   static bool showSubmenu3 = false;
