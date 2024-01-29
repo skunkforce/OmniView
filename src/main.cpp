@@ -107,8 +107,8 @@ int main() {
     update_language_from_github();
   }
 
-  constexpr ImVec2 toolBtnSize = ImVec2(200, 100); // toolbar buttons size
-  constexpr ImVec2 btnSize = ImVec2(0, 0);         // other buttons size
+  constexpr ImVec2 toolBtnSize = ImVec2(80, 80); // toolbar buttons size
+  constexpr ImVec2 btnSize = ImVec2(0, 0);       // other buttons size
 
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
@@ -277,11 +277,17 @@ if (ImGui::BeginMenu(
     // ############################ Live Capture
     // ##############################
 
-    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f,
+    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.19f,
                                ImGui::GetIO().DisplaySize.y * 0.06f));
 
+    // SetMainWindowBackGroundStyle();
+
+    // ImGui::BeginChild("Border of the LiveCapture Window",
+    // ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f,
+    //                         ImGui::GetIO().DisplaySize.y * 0.65f));
+
     ImGui::BeginChild("Live Capture",
-                      ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f,
+                      ImVec2(ImGui::GetIO().DisplaySize.x * 0.80f,
                              ImGui::GetIO().DisplaySize.y * 0.65f));
     if (sampler.has_value())
       if (!flagPaused)
@@ -291,7 +297,12 @@ if (ImGui::BeginMenu(
     if (toolBtnSize.y < (ImGui::GetTextLineHeightWithSpacing() * 1.1))
       optimal_buttonstripe_height = ImGui::GetTextLineHeightWithSpacing() * 1.1;
 
-    ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
+    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.65f,
+                               ImGui::GetIO().DisplaySize.y * 0.05f));
+
+    ImGui::BeginChild("Buttonstripe",
+                      ImVec2(ImGui::GetIO().DisplaySize.x * 0.79f,
+                             ImGui::GetIO().DisplaySize.y * 0.1f),
                       false, ImGuiWindowFlags_NoScrollbar);
 
     // ############################ Popup Save
@@ -576,13 +587,10 @@ if (ImGui::BeginMenu(
       ImGui::EndPopup();
     }
 
-    ImGui::EndChild();
-
     // ############################ addPlots("Recording the data", ...)
     // ##############################
     SetMainWindowStyle();
 
-    ImGui::BeginChild("Live Capture", ImVec2(-1, 615));
     addPlots("Recording the data", captureData,
              [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
                if (!flagPaused) {
@@ -603,6 +611,7 @@ if (ImGui::BeginMenu(
              });
 
     ImGui::EndChild();
+    // ImGui::EndChild();
     ImGui::SetupImGuiStyle(false, 0.99f);
 
     // Create Devices Menu at the bottom of the programm

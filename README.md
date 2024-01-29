@@ -141,4 +141,4 @@ In order to learn more about the project as such, you may visit [www.autowerksta
 
 This work has been supported by the BMWi- project number 68GX21005E
 
-![BMWiPicture](https://upload.wikimedia.org/wikipedia/commons/3/38/BMWi_Logo_2021.svg)
+![BMWiPicture](https://www.bmwk.de/SiteGlobals/BMWI/StyleBundles/Bilder/bmwi_logo_de.svg?__blob=normal&v=1)

@@ -1,3 +1,4 @@
+#include "../LoadImages.hpp"
 #include "../jasonhandler.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <nlohmann/json.hpp>
@@ -22,6 +23,14 @@ void SetSideBarMenu(
     ImVec2 &mainMenuBarSize,
     std::map<Omniscope::Id, std::array<float, 3>> &colorMap) {
 
+  // Colors
+  ImGuiStyle &style = ImGui::GetStyle();
+
+  style.Colors[ImGuiCol_Border] =
+      ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
+  style.Colors[ImGuiCol_BorderShadow] =
+      ImVec4(37 / 255.0f, 255 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+
   // InitDevices after searching for devices
   static constexpr int VID = 0x2e8au;
   static constexpr int PID = 0x000au;
@@ -45,12 +54,27 @@ void SetSideBarMenu(
   };
 
   // set the menu to the left side of the window ; important size in percentage!
-  ImGui::SetCursorPos(ImVec2(0, ImGui::GetIO().DisplaySize.y * 0.06f));
+  ImGui::SetCursorPos(ImVec2(0, 0));
 
   ImGui::BeginChild("SideBarMenu",
                     ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f,
-                           ImGui::GetIO().DisplaySize.y * 0.93f),
+                           ImGui::GetIO().DisplaySize.y),
                     true);
+
+  // Load the AIGroup Logo
+  int my_image_width = 0;
+  int my_image_height = 0;
+  GLuint my_image_texture = 0;
+  bool ret =
+      LoadTextureFromFile("../images/AutoInternLogo.png", &my_image_texture,
+                          &my_image_width, &my_image_height);
+  IM_ASSERT(ret);
+
+  // render the image
+  ImGui::Image((void *)(intptr_t)my_image_texture,
+               ImVec2(my_image_width * 0.5, my_image_height * 0.5));
+
+  ImGui::Text("              ");
 
   if (!sampler.has_value()) {
     if (ImGui::Button("Search for\nDevices")) {
@@ -85,10 +109,6 @@ void SetSideBarMenu(
     }
     if (ImGui::MenuItem("   Layout")) {
       open_settings = true;
-    }
-    if (ImGui::MenuItem(
-            fmt::format("   Version: {}", CMakeGitVersion::VersionWithGit)
-                .c_str())) {
     }
   }
 
@@ -137,9 +157,8 @@ void SetSideBarMenu(
     // load_json<Color>(config, "text", "color", "normal"));
   }
 
-  if (ImGui::MenuItem(
-          load_json<std::string>(language, "menubar", "menu", "reset")
-              .c_str())) {
+  if (ImGui::Button(load_json<std::string>(language, "menubar", "menu", "reset")
+                        .c_str())) {
     sampler.reset();
     devices.clear();
     deviceManager.clearDevices();
@@ -160,6 +179,10 @@ void SetSideBarMenu(
       system(("start " + load_json<std::string>(config, "helplink")).c_str());
     }
   }
+
+  ImGui::SetCursorPosX(ImGui::GetIO().DisplaySize.x * 0.9f);
+  ImGui::Text(
+      fmt::format("   Version: {}", CMakeGitVersion::VersionWithGit).c_str());
 
   mainMenuBarSize = ImGui::GetItemRectSize();
   ImGui::EndChild();
