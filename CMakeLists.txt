@@ -29,7 +29,12 @@ endif()
 include(cmake_helpers/BuildOptions.cmake)
 include(cmake_helpers/FindOrFetch.cmake)
 
-add_executable(OmniView src/main.cpp)
+add_executable(OmniView 
+               src/main.cpp 
+               src/generateTrainingData.cpp 
+               src/save_warning_popup.cpp
+               )
+
 
 target_add_default_build_options(OmniView PUBLIC)
 

@@ -14,8 +14,8 @@
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include <fstream>
-#include <imgui.h>
+//#include <fstream>
+//#include <imgui.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <set>
@@ -24,10 +24,8 @@
 // clang-format off
 #include <imfilebrowser.h>
 // clang-format on
-#include "sendData.hpp"
-#include <regex>
+#include "popups.hpp"
 
-namespace ImGui {
 inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   ImGuiStyle &style = ImGui::GetStyle();
 
@@ -113,7 +111,6 @@ inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
     }
   }
 }
-} // namespace ImGui
 
 static std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
@@ -197,9 +194,7 @@ int main() {
   static constexpr int PID = 0x000au;
   // static constexpr std::size_t captureDataReserve = 1 << 26;
   OmniscopeDeviceManager deviceManager{};
-  std::vector<std::shared_ptr<OmniscopeDevice>>
-      devices; // = deviceManager.getDevices(VID, PID);
-  // auto newDevices = devices;
+  std::vector<std::shared_ptr<OmniscopeDevice>> devices;
   std::map<Omniscope::Id, std::array<float, 3>> colorMap;
   auto initDevices = [&]() {
     devices = deviceManager.getDevices(VID, PID);
@@ -227,6 +222,8 @@ int main() {
   double xmax_paused{0};
   static bool open_settings = false;
   static bool open_generate_training_data = false;
+  static bool open_save_devices = false;
+  static std::vector<std::string> savedFileNames;
   static bool upload_success = false;
   static bool flagPaused = true;
   static bool flagDataNotSaved = true;
@@ -309,26 +306,9 @@ int main() {
     }
   };
 
-  // one extra space for '\0' character and another
-  // for one past the last accepted input character
-  static char vinBuffer[19];
-  auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int {
-    const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
-    std::string s;
-    // get entered char and save it into string
-    s += data->EventChar;
-    // strlen is updated when entered char passes the filter
-    size_t indx = strlen(vinBuffer) + 1;
-
-    if (indx >= 1 && indx <= 17)
-      return !std::regex_match(
-          s, chars_regex); // return 0 as passed for matched chars
-    return 1;              // discard exceeding chars
-  };
-
   auto render = [&]() {
     load_settings(config);
-    ImGui::SetupImGuiStyle(false, 0.99f);
+    SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos(ImVec2(0.0f, mainMenuBarSize.y));
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
@@ -372,6 +352,7 @@ int main() {
                   .c_str())) {
         sampler.reset();
         devices.clear();
+        savedFileNames.clear();
         deviceManager.clearDevices();
         captureData.clear();
         flagPaused = true;
@@ -383,12 +364,6 @@ int main() {
       }
       ImGui::EndMenu();
     }
-    /*
-if (ImGui::BeginMenu(
-        load_json<std::string>(language, "menubar", "view", "label")
-            .c_str())) {
-  ImGui::EndMenu();
-}*/
 
     if (ImGui::BeginMenu("Diagnostics")) {
       if (ImGui::BeginMenu("Compression")) {
@@ -445,24 +420,12 @@ if (ImGui::BeginMenu(
     // ##############################
     if (ImGui::BeginPopupModal("Save recorded data", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
+      // fmt::println("Inside Save recorded data popup");
+      open_save_devices = false;
       ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
-                  flagDataNotSaved, devices);
-
-      // ImGui::PopStyleColor();
-
-      ImGui::EndPopup();
-    }
-
-    // ############################ Popup Save warning
-    // ##############################
-    if (ImGui::BeginPopupModal("Save warning", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGui::SetItemDefaultFocus();
-      ImGui::Text("No devices are available ...");
-
-      if (ImGui::Button("Close"))
-        ImGui::CloseCurrentPopup();
+      savedFileNames =
+          saves_popup(config, language, captureData, now, now_time_t, now_tm,
+                      path, flagDataNotSaved, devices);
 
       ImGui::EndPopup();
     }
@@ -477,6 +440,7 @@ if (ImGui::BeginMenu(
       if (ImGui::Button("Continue deletion", btnSize)) {
         sampler.reset();
         devices.clear();
+        savedFileNames.clear();
         deviceManager.clearDevices();
         captureData.clear();
         ImGui::CloseCurrentPopup();
@@ -582,6 +546,7 @@ if (ImGui::BeginMenu(
           } else {
             sampler.reset();
             devices.clear();
+            savedFileNames.clear();
             deviceManager.clearDevices();
             captureData.clear();
             flagPaused = true;
@@ -598,14 +563,15 @@ if (ImGui::BeginMenu(
         ImGui::PushStyleColor(
             ImGuiCol_Text,
             load_json<Color>(config, "text", "color", "inactive"));
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "save").c_str(),
-              toolBtnSize)) {
+
+      if (ImGui::Button("Save", toolBtnSize))
+        open_save_devices = true;
+
+      if (open_save_devices)
         if (!devices.size())
-          ImGui::OpenPopup("Save warning");
+          save_warning_popup(open_save_devices, "No devices are available ...");
         else
           ImGui::OpenPopup("Save recorded data");
-      }
 
       if (pushStyle)
         ImGui::PopStyleColor();
@@ -632,8 +598,7 @@ if (ImGui::BeginMenu(
       ImGui::SameLine();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-      ImGui::Button(load_json<std::string>(language, "button", "save").c_str(),
-                    toolBtnSize);
+      ImGui::Button("save", toolBtnSize);
 
       ImGui::SameLine();
       ImGui::Button(analyse_data.c_str(), toolBtnSize);
@@ -657,81 +622,10 @@ if (ImGui::BeginMenu(
       ImGui::EndPopup();
     }
 
-    // ############################ Generate training data Menu
-    // ##############################
-    if (open_generate_training_data) {
-      ImGui::OpenPopup("Generate Training Data");
-      open_generate_training_data = false;
-    }
-
-    if (ImGui::BeginPopupModal("Generate Training Data", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      static int a = 0;
-      ImGui::RadioButton("User current Waveform", &a, 0);
-      ImGui::RadioButton("Waveform from File", &a, 1);
-
-      static char ID[10];
-      static char milage[10];
-      ImGui::SetNextItemWidth(300); // custom width
-      ImGui::InputTextWithHint("ID", "Enter ID(optional)", ID,
-                               IM_ARRAYSIZE(ID));
-      ImGui::SetNextItemWidth(300);
-      ImGui::InputTextWithHint("VIN", "Enter VIN", vinBuffer,
-                               IM_ARRAYSIZE(vinBuffer),
-                               ImGuiInputTextFlags_CharsUppercase |
-                                   ImGuiInputTextFlags_CharsNoBlank |
-                                   ImGuiInputTextFlags_CallbackCharFilter,
-                               // callback function to filter each character
-                               // before putting it into the buffer
-                               vinFilter);
-      ImGui::SetNextItemWidth(300);
-      ImGui::InputTextWithHint("milage", "Enter milage", milage,
-                               IM_ARRAYSIZE(milage));
-
-      std::string msg{ID};
-      // have each entry on a new line
-      msg += '\n';
-      msg += vinBuffer;
-      msg += '\n';
-      msg += milage;
-
-      ImGui::SeparatorText("Reason-for-investigation");
-      static int b = 0;
-      ImGui::RadioButton("Maintenance", &b, 0);
-      ImGui::SameLine();
-      ImGui::RadioButton("Fault", &b, 1);
-
-      ImGui::SeparatorText("Electrical-Consumers");
-      static int c = 0;
-      ImGui::RadioButton("Off", &c, 0);
-      ImGui::SameLine();
-      ImGui::RadioButton("On", &c, 1);
-
-      ImGui::SeparatorText("Assessment");
-      static int d = 0;
-      ImGui::RadioButton("Normal", &d, 0);
-      ImGui::SameLine();
-      ImGui::RadioButton("Anomaly", &d, 1);
-
-      static char comment[16];
-      ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment),
-                                ImVec2(250, 70),
-                                ImGuiInputTextFlags_AllowTabInput);
-
-      // VCDS Auto-Scan (file-path or drag&drop)
-
-      if (ImGui::Button("Cancel"))
-        ImGui::CloseCurrentPopup();
-
-      ImGui::SameLine();
-      if (ImGui::Button(" Send ")) {
-        // example url
-        const std::string url{
-            "https://raw.githubusercontent.com/skunkforce/omniview/"};
-        sendData(msg, url);
-      }
-      ImGui::EndPopup();
-    }
+    // Generate training data Menu
+    if (open_generate_training_data)
+      generateTrainingData(open_generate_training_data, devices,
+                           savedFileNames);
 
     // ############################ addPlots("Recording the data", ...)
     // ##############################
