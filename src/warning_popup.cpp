@@ -1,11 +1,10 @@
 #include "popups.hpp"
-#include <iostream>
 
-void save_warning_popup(bool &popup, const std::string &msg) {
+void warning_popup(bool &popup, const std::string &msg) {
 
-  ImGui::OpenPopup("Save warning");
+  ImGui::OpenPopup("Warning");
 
-  if (ImGui::BeginPopupModal("Save warning", nullptr,
+  if (ImGui::BeginPopupModal("Warning", nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
     ImGui::Text(msg.c_str());

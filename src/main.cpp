@@ -1,4 +1,3 @@
-// #include "OmniscopeCommunication.hpp"
 // clang-format off
 #include <boost/asio.hpp>
 //clang-format on
@@ -14,16 +13,11 @@
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
-//#include <fstream>
-//#include <imgui.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <set>
 #include <thread>
 #include <cmake_git_version/version.hpp>
-// clang-format off
-#include <imfilebrowser.h>
-// clang-format on
 #include "popups.hpp"
 
 inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
@@ -420,12 +414,11 @@ int main() {
     // ##############################
     if (ImGui::BeginPopupModal("Save recorded data", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
-      // fmt::println("Inside Save recorded data popup");
+      //fmt::println("Inside Save recorded data popup");                          
       open_save_devices = false;
       ImGui::SetItemDefaultFocus();
-      savedFileNames =
-          saves_popup(config, language, captureData, now, now_time_t, now_tm,
-                      path, flagDataNotSaved, devices);
+      savedFileNames = saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
+                  flagDataNotSaved, devices);
 
       ImGui::EndPopup();
     }
@@ -564,15 +557,15 @@ int main() {
             ImGuiCol_Text,
             load_json<Color>(config, "text", "color", "inactive"));
 
-      if (ImGui::Button("Save", toolBtnSize))
+      if (ImGui::Button("Save", toolBtnSize)) 
         open_save_devices = true;
 
-      if (open_save_devices)
+      if(open_save_devices)  
         if (!devices.size())
-          save_warning_popup(open_save_devices, "No devices are available ...");
+           warning_popup(open_save_devices, "No devices are available ..."); 
         else
           ImGui::OpenPopup("Save recorded data");
-
+      
       if (pushStyle)
         ImGui::PopStyleColor();
 
@@ -623,9 +616,9 @@ int main() {
     }
 
     // Generate training data Menu
-    if (open_generate_training_data)
-      generateTrainingData(open_generate_training_data, devices,
-                           savedFileNames);
+    if (open_generate_training_data) 
+      generateTrainingData(open_generate_training_data, devices, savedFileNames);
+      
 
     // ############################ addPlots("Recording the data", ...)
     // ##############################

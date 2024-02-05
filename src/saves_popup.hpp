@@ -85,9 +85,9 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   static std::vector<std::string> savedFileNames;
 
   // buffer array for the input text field(s)
-  static std::vector<std::vector<char>> inptTxtFilds(
+  static std::vector<std::vector<char>> inptTxtFields(
       devicesSz, std::vector<char>(inptTxtArrSz, 0));
-  inptTxtFilds.resize(devicesSz);
+  inptTxtFields.resize(devicesSz);
 
   static std::vector<BoolWrapper> hasSelectedPathArr(devicesSz, false);
   hasSelectedPathArr.resize(devicesSz);
@@ -96,12 +96,12 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   selectedPathArr.resize(devicesSz);
 
   ImGui::InputTextWithHint("##HintLable1", "\".../OmniView/saves/\"",
-                           inptTxtFilds[0].data(), inptTxtArrSz);
+                           inptTxtFields[0].data(), inptTxtArrSz);
   // select directory instead of regular file
   static ImGui::FileBrowser fileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
 
   ImGui::SameLine();
-  if (ImGui::Button("Durchsuchen"))
+  if (ImGui::Button("Browse"))
     fileBrowser.Open();
 
   fileBrowser.Display();
@@ -113,8 +113,8 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   }
 
   // devices checkboxes buffer
-  static std::vector<BoolWrapper> dvcChackedArr(devicesSz, false);
-  dvcChackedArr.resize(devicesSz);
+  static std::vector<BoolWrapper> dvcCheckedArr(devicesSz, false);
+  dvcCheckedArr.resize(devicesSz);
 
   std::stringstream ss;
 
@@ -122,7 +122,7 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (ImGui::BeginCombo("##Combo", "DevicesMenu")) {
     for (size_t i = 0; i < devicesSz; i++) {
       ss << "Device " << i + 1;
-      ImGui::Checkbox(ss.str().c_str(), &((dvcChackedArr.begin() + i)->b));
+      ImGui::Checkbox(ss.str().c_str(), &((dvcCheckedArr.begin() + i)->b));
       ss.str(std::string());
     }
     ImGui::EndCombo();
@@ -148,7 +148,7 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   auto selectedDevicesCnt = [&]() {
     size_t deviceCnt{0};
     for (size_t i = 0; i < devicesSz; ++i)
-      if (dvcChackedArr[i].b) {
+      if (dvcCheckedArr[i].b) {
         deviceCnt++;
         indxArr.emplace_back(i);
       }
@@ -165,9 +165,9 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
       // each iteration to get a unique ID
       ImGui::PushID(i);
       ImGui::InputTextWithHint("##HintLable", "\"Desktop/OmniView/saves/\"",
-                               inptTxtFilds[i].data(), inptTxtArrSz);
+                               inptTxtFields[i].data(), inptTxtArrSz);
       ImGui::SameLine();
-      if (ImGui::Button("Durchsuchen"))
+      if (ImGui::Button("Browse"))
         fileBrowser.Open();
 
       fileBrowser.Display();
@@ -186,7 +186,7 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
       for (size_t i = 1; i < devicesSz; ++i) {
         hasSelectedPathArr[i].b = false;
         selectedPathArr[i].clear();
-        inptTxtFilds[i].clear();
+        inptTxtFields[i].clear();
       }
 
       ImGui::CloseCurrentPopup();
@@ -279,11 +279,11 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
           complete_path = makeDirectory(true, selectedPathArr[i], "", filename);
           save(captureData, complete_path, allData);
           hasSelectedPathArr[i].b = false;
-        } else if (inptTxtFilds[i][0] != 0) {
+        } else if (inptTxtFields[i][0] != 0) {
           complete_path =
-              makeDirectory(false, "", inptTxtFilds[i].data(), filename);
+              makeDirectory(false, "", inptTxtFields[i].data(), filename);
           save(captureData, complete_path, allData);
-          inptTxtFilds[i][0] = 0;
+          inptTxtFields[i][0] = 0;
         } else {
           complete_path = makeDirectory(false, "", "", filename);
           save(captureData, complete_path, allData);

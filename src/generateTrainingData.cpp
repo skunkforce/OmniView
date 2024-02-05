@@ -1,8 +1,9 @@
 #include "popups.hpp"
 #include "sendData.hpp"
-#include <iostream>
+#include <algorithm>
+#include <fstream>
+#include <ranges>
 #include <regex>
-#include <sstream>
 
 void generateTrainingData(
     bool &open_generate_training_data,
@@ -10,23 +11,6 @@ void generateTrainingData(
     const std::vector<std::string> &savedFileNames) {
 
   const size_t devicesSz{devices.size()};
-
-  //  one extra space for '\0' character and another
-  //  for one past the last accepted input character
-  static char vinBuffer[19];
-  auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int {
-    const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
-    std::string s;
-    // get entered char and save it into string
-    s += data->EventChar;
-    // strlen is updated when entered char passes the filter
-    size_t indx = strlen(vinBuffer) + 1;
-
-    if (indx >= 1 && indx <= 17)
-      return !std::regex_match(
-          s, chars_regex); // return 0 as passed for matched chars
-    return 1;              // discard exceeding chars
-  };
 
   ImGui::OpenPopup("Generate Training Data");
 
@@ -41,77 +25,137 @@ void generateTrainingData(
     };
 
     // devices checkboxes buffer
-    static std::vector<BoolWrapper> dvcChackedArr(devicesSz, false);
-    dvcChackedArr.resize(devicesSz);
+    static std::vector<BoolWrapper> dvcCheckedArr(devicesSz, false);
+    // Update devices size for new connections during run-time
+    dvcCheckedArr.resize(devicesSz);
 
     // file names checkboxes buffer
-    static std::vector<BoolWrapper> flnmChackedArr(devicesSz, false);
-    flnmChackedArr.resize(devicesSz);
+    static std::vector<BoolWrapper> flnmCheckedArr(devicesSz, false);
+    // Update files names checked array size for new connections during run-time
+    flnmCheckedArr.resize(devicesSz);
 
-    std::stringstream ss;
-
+    // User Current Waveform
     static bool ucw = false;
-    static bool wUcwPop = false;
-    if (ImGui::RadioButton("User current Waveform", ucw))
+    // User Current Waveform Warning Popup
+    static bool ucwWPop = false;
+
+    if (ImGui::RadioButton("User Current Waveform", ucw))
       ucw = !ucw;
-    if (ucw && !devices.size())
-      wUcwPop = true;
-    else if (ucw && devices.size()) {
-      if (ImGui::BeginCombo("##ComboDevice", "Devices Menu")) {
+    if (ucw && !devicesSz)
+      ucwWPop = true;
+    else if (ucw && devicesSz) {
+      if (devicesSz != savedFileNames.size())
+        fmt::println("size of devices and waveforms don't match!");
+      else if (ImGui::BeginCombo("##ComboDevice", "Devices & Waveforms Menu")) {
         for (size_t i = 0; i < devicesSz; i++) {
-          ss << devices[i]->getId().value().serial;
-          ImGui::Checkbox(ss.str().c_str(), &((dvcChackedArr.begin() + i)->b));
-          ss.str(std::string());
+          ImGui::Checkbox(devices[i]->getId().value().serial.c_str(),
+                          &(dvcCheckedArr[i].b));
+          ImGui::Checkbox(savedFileNames[i].c_str(), &(flnmCheckedArr[i].b));
         }
         ImGui::EndCombo();
       }
     }
-    if (wUcwPop) {
-      save_warning_popup(wUcwPop, "No Waveforms were made");
+    if (ucwWPop) {
+      warning_popup(ucwWPop, "No waveforms were made");
       ucw = false;
     }
 
-    static bool wff = false;
-    static bool wWffPop = false;
-    if (ImGui::RadioButton("Waveform from File", wff))
-      wff = !wff;
-    if (wff && !savedFileNames.size())
-      wWffPop = true;
-    else if (wff && savedFileNames.size()) {
-      if (ImGui::BeginCombo("##ComboFile", "Waveforms Menu")) {
-        for (size_t i = 0; i < savedFileNames.size(); i++)
-          ImGui::Checkbox(savedFileNames[i].c_str(),
-                          &((flnmChackedArr.begin() + i)->b));
-        ImGui::EndCombo();
+    static ImGui::FileBrowser fileBrowser;
+    // set browser properties
+    fileBrowser.SetTitle("Searching for .csv files");
+    // fileBrowser.SetTypeFilters({".csv"});
+
+    // one extra space for '\0' character
+    static char VIN[18];
+    static std::string Mileage = "";
+    auto setVinMileage = [&](const std::filesystem::path &filename) {
+      std::ifstream file(filename, std::ios::binary);
+      if (!file.is_open())
+        fmt::println("Failed to open file {}", filename);
+      else {
+        // only vin/fin and mileage are required here
+        std::string measurStr{}, vinStr{};
+        file >> measurStr >> vinStr >> Mileage;
+        vinStr.erase(std::next(vinStr.end(), -1)); // remove the last comma
+
+        // convert letters to uppercase
+        std::ranges::transform(vinStr, vinStr.begin(), [](unsigned char ch) {
+          return std::toupper(ch);
+        });
+        vinStr.copy(VIN, vinStr.size());
       }
+    };
+
+    // Waveform From File
+    static bool wff = false;
+    static bool wrongFile = false;
+    static std::string fileNameBuf = "";
+
+    auto isWrongFile = [setVinMileage](const std::filesystem::path &path) {
+      if (path.extension() == ".csv") {
+        fileNameBuf = path.filename().string();
+        setVinMileage(path);
+        return false;
+      }
+      return true;
+    };
+
+    fileBrowser.Display();
+
+    if (fileBrowser.HasSelected()) {
+      wrongFile = isWrongFile(fileBrowser.GetSelected().string());
+      fileBrowser.ClearSelected();
     }
-    if (wWffPop) {
-      save_warning_popup(wWffPop, "No files were saved during measurement");
+
+    if (ImGui::RadioButton("Waveform From File", wff))
+      wff = !wff;
+    if (wff) {
+      ImGui::SetNextItemWidth(400); // custom width
+      ImGui::InputTextWithHint("##inputLabel", ".csv file", &fileNameBuf);
+      ImGui::SameLine();
+      if (ImGui::Button("Browse"))
+        fileBrowser.Open();
+    }
+
+    if (wrongFile) {
+      warning_popup(wrongFile, "Wrong file type");
       wff = false;
     }
 
-    static char ID[10];
-    static char milage[10];
-    ImGui::SetNextItemWidth(300); // custom width
-    ImGui::InputTextWithHint("ID", "Enter ID(optional)", ID, IM_ARRAYSIZE(ID));
-    ImGui::SetNextItemWidth(300);
-    ImGui::InputTextWithHint(
-        "VIN", "Enter VIN", vinBuffer, IM_ARRAYSIZE(vinBuffer),
-        ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank |
-            ImGuiInputTextFlags_CallbackCharFilter,
-        // callback function to filter each character
-        // before putting it into the buffer
-        vinFilter);
-    ImGui::SetNextItemWidth(300);
-    ImGui::InputTextWithHint("milage", "Enter milage", milage,
-                             IM_ARRAYSIZE(milage));
+    auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int {
+      const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
+      std::string s;
+      // get entered char and save it into string
+      s += data->EventChar;
+      // strlen is updated when entered char passes the filter
+      size_t indx = strlen(VIN);
+
+      if (indx >= 0 && indx < 17)
+        return !std::regex_match(
+            s, chars_regex); // return 0 as passed for matched chars
+      return 1;              // discard exceeding chars
+    };
+
+    static std::string ID = "";
+    ImGui::SetNextItemWidth(400);
+    ImGui::InputTextWithHint("ID", "Set your ID in settings", &ID);
+    ImGui::SetNextItemWidth(400);
+    ImGui::InputTextWithHint("VIN", "Enter VIN", VIN, IM_ARRAYSIZE(VIN),
+                             ImGuiInputTextFlags_CharsUppercase |
+                                 ImGuiInputTextFlags_CharsNoBlank |
+                                 ImGuiInputTextFlags_CallbackCharFilter,
+                             // callback function to filter each character
+                             // before putting it into the buffer
+                             vinFilter);
+    ImGui::SetNextItemWidth(400);
+    ImGui::InputTextWithHint("Mileage", "Enter Mileage", &Mileage);
 
     std::string msg{ID};
     // have each entry on a new line
     msg += '\n';
-    msg += vinBuffer;
+    msg += VIN;
     msg += '\n';
-    msg += milage;
+    msg += Mileage;
 
     ImGui::SeparatorText("Reason-for-investigation");
     static int b = 0;
