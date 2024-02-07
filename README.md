@@ -117,7 +117,8 @@ The functions declaration, implementation and usage can be found in the document
 
 ## Namespaces : 
 
-Namespaces should only be used when needed. 
+Namespaces should be used to pretend potential conflicts that may arise when functions are declared multiple times in an open-source project. 
+However they should only be used when necessary, because the code should not be overloaded with unnecessary namespaces.
 
 The different PlotRegions have namespaces for readability: SideBarRegion, DevicesRegion, ToolbarRegion and PlotRegion. 
 
