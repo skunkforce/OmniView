@@ -1,5 +1,6 @@
 #pragma once
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
+#include "popups.hpp"
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <sstream>
@@ -54,11 +55,11 @@ save(std::map<Omniscope::Id, std::vector<std::pair<double, double>>> const
     return;
   }
 
-  fmt::print("Start saving {}\n", outFile.string());
+  fmt::print("Start saving {}.\n", outFile.string());
   file << allData << '\n' << fileContent;
   file.flush();
   file.close();
-  fmt::print("finished save\n");
+  fmt::print("Finished saving.\n");
 }
 
 auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
@@ -71,18 +72,11 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   ImGui::SetItemDefaultFocus();
 
-  // Have address of bool for std::vector
-  struct BoolWrapper {
-    BoolWrapper() : b(false) {}
-    BoolWrapper(bool _b) : b(_b) {}
-    bool b;
-  };
-
   // connected devices at runt-time
   const size_t devicesSz{devices.size()};
   static constexpr size_t inptTxtArrSz{100};
 
-  static std::vector<std::string> savedFileNames;
+  std::vector<std::string> savedFileNames;
 
   // buffer array for the input text field(s)
   static std::vector<std::vector<char>> inptTxtFields(
@@ -137,9 +131,9 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   // data to be written in .csv file(s)
   std::string allData = scantype;
-  allData += ", ";
+  allData += ",";
   allData += inputvin;
-  allData += ", ";
+  allData += ",";
   allData += mileage;
   allData += "\n";
 
@@ -164,7 +158,7 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     for (size_t i = 1; i < selectedDevicesCnt(); ++i) {
       // each iteration to get a unique ID
       ImGui::PushID(i);
-      ImGui::InputTextWithHint("##HintLable", "\"Desktop/OmniView/saves/\"",
+      ImGui::InputTextWithHint("##HintLable", "\".../OmniView/saves/\"",
                                inptTxtFields[i].data(), inptTxtArrSz);
       ImGui::SameLine();
       if (ImGui::Button("Browse"))
@@ -249,7 +243,7 @@ auto saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (const size_t cnt = selectedDevicesCnt()) {
     if (cnt > 1) {
       ImGui::SameLine();
-      ImGui::Dummy({565, 0});
+      ImGui::Dummy({400, 0});
       ImGui::SameLine();
       ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50);
       if (ImGui::Button(" + "))

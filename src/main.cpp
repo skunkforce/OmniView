@@ -9,14 +9,11 @@
 #include "jasonhandler.hpp"
 #include "settingspopup.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
-#include <algorithm>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
-#include <set>
-#include <thread>
 #include <cmake_git_version/version.hpp>
 #include "popups.hpp"
 
@@ -217,7 +214,8 @@ int main() {
   static bool open_settings = false;
   static bool open_generate_training_data = false;
   static bool open_save_devices = false;
-  static std::vector<std::string> savedFileNames;
+  // unique and ordered filenames
+  static std::set<std::string> savedFileNames;
   static bool upload_success = false;
   static bool flagPaused = true;
   static bool flagDataNotSaved = true;
@@ -413,13 +411,13 @@ int main() {
     // ############################ Popup Save
     // ##############################
     if (ImGui::BeginPopupModal("Save recorded data", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      //fmt::println("Inside Save recorded data popup");                          
+                               ImGuiWindowFlags_AlwaysAutoResize)) {                        
       open_save_devices = false;
       ImGui::SetItemDefaultFocus();
-      savedFileNames = saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
-                  flagDataNotSaved, devices);
-
+      auto tempVec = saves_popup(config, language, captureData, now, now_time_t, now_tm, path,
+                  flagDataNotSaved, devices); 
+           
+      savedFileNames.insert(tempVec.cbegin(),tempVec.cend());
       ImGui::EndPopup();
     }
 

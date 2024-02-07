@@ -40,7 +40,10 @@ std::string getSubdirectoriesInFolder(nlohmann::json language,
       ImGui::InputText("Measurement", scantype, 255);
 
       if (selectedOption == 0) {
-        ImGui::InputText("Fin/Vin", inputvin, 18);
+        ImGui::InputText("Fin/Vin", inputvin, 18,
+                         ImGuiInputTextFlags_CharsUppercase |
+                             ImGuiInputTextFlags_CharsNoBlank |
+                             ImGuiInputTextFlags_None);
         selectedFolder = inputvin;
       }
 
