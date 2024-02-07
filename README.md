@@ -117,10 +117,10 @@ The functions declaration, implementation and usage can be found in the document
 
 ## Namespaces : 
 
-Namespaces should be used to pretend potential conflicts that may arise when functions are declared multiple times in an open-source project. 
-However they should only be used when necessary, because the code should not be overloaded with unnecessary namespaces.
+Namespaces should be used to prevent potential conflicts that may arise when functions are declared multiple times in an open-source project. 
+However, they should only be used when necessary because the code should not be overloaded with unnecessary namespaces.
 
-The different PlotRegions have namespaces for readability: SideBarRegion, DevicesRegion, ToolbarRegion and PlotRegion. 
+The different PlotRegions have namespaces for readability: SideBarRegion, DevicesRegion, ToolbarRegion, and PlotRegion.
 
 The design and usage of the Regions can be found in the skunkforce/OmniView-Product-Vision Document. 
 
