@@ -1,13 +1,16 @@
-
 #include <ImGuiInstance/ImGuiInstance.hpp>
-
-#include "../jasonhandler.hpp"
+/*#include "../jasonhandler.hpp"
 
 #include <../nlohmann/json.hpp>
-#include <../nlohmann/json_fwd.hpp>
+#include <../nlohmann/json_fwd.hpp>*/
 #include <imgui.h>
 
-namespace ImGui {
+//#include "../menushpp/Style.hpp"
+
+
+
+
+namespace Style {
 inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   ImGuiStyle &style = ImGui::GetStyle();
 

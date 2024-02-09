@@ -1,11 +1,13 @@
-#include "../LoadImages.hpp"
-#include "../jasonhandler.hpp"
+
+/*#include "../jasonhandler.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
 #include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json_fwd.hpp>*/
 
 // Function to set the SideBarMenu in the main.cpp // right now this is only the
 // first
+
+
 
 void ShowSearchDevices() { // Search Devices Menu
   ImGui::Text("Bereich für die Suche nach Geräten");
@@ -76,8 +78,17 @@ void SetSideBarMenu(
 
   ImGui::Text("              ");
 
+   my_image_width = 0;
+   my_image_height = 0;
+   my_image_texture = 0;
+
+  ret = LoadTextureFromFile("../images/SearchDevicesWhite.png", &my_image_texture, &my_image_width, &my_image_height);
+  IM_ASSERT(ret);
+
+
   if (!sampler.has_value()) {
-    if (ImGui::Button("Search for\nDevices")) {
+    if (ImGui::ImageButton("Search Devices", (void *)(intptr_t)my_image_texture,
+               ImVec2(my_image_width *0.75 , my_image_height *0.75  ))) {
       devices.clear();
       deviceManager.clearDevices();
       initDevices();
@@ -86,40 +97,38 @@ void SetSideBarMenu(
 
   // Changing the Menustructure to a TreeNode Structure
 
-  static bool showSubmenu1 = false;
-  // First Menupoint shown as a button
-  if (ImGui::Button("Einstellungen")) {
-    // Aktion bei Klick auf Menüpunkt 1
-    showSubmenu1 = !showSubmenu1;
-  }
-
-  // if button has been clicked to that :
-
-  if (showSubmenu1) {
-    if (ImGui::TreeNode(load_json<std::string>(language, "menubar", "menu",
-                                               "language_option")
-                            .c_str())) {
-      for (const auto &lang : availableLanguages) {
-        if (ImGui::Button(lang.c_str())) {
-          config["language"] = lang;
-          write_json_file(configpath, config);
-        }
-      }
-      ImGui::TreePop();
-    }
-    if (ImGui::MenuItem("   Layout")) {
-      open_settings = true;
-    }
-  }
-
   static bool showSubmenu2 = false;
-  // First Menupoint shown as a button
-  if (ImGui::Button("Diagnostics")) {
+  // First Menupoint shown as a 
+  my_image_width = 0;
+   my_image_height = 0;
+   my_image_texture = 0;
+
+  ret = LoadTextureFromFile("../images/DiagnosticsWhite.png", &my_image_texture, &my_image_width, &my_image_height);
+
+  if (ImGui::ImageButton("Diagnostics", (void *)(intptr_t)my_image_texture,
+               ImVec2(my_image_width *0.75  , my_image_height *0.75  ))) {
     // Aktion bei Klick auf Menüpunkt 1
     showSubmenu2 = !showSubmenu2;
   }
 
   if (showSubmenu2) {
+
+     if (ImGui::TreeNode("Batteriemessung")) {
+      ImGui::PushStyleColor(
+            ImGuiCol_Text,
+            ImVec4(100/ 255.0f, 100/ 255.0f, 100 / 255.0f, 100 / 100.0f)); 
+
+      ImGui::MenuItem("Analysiere Daten");
+
+      ImGui::PopStyleColor(); 
+
+      if (ImGui::MenuItem("Generiere Trainingsdaten"))
+        open_generate_training_data = true;
+
+      ImGui::TreePop();
+    }
+  }
+    /*
     if (ImGui::TreeNode("Compression")) {
       ImGui::MenuItem("Analyze current waveform");
       if (ImGui::MenuItem("Generate training data"))
@@ -157,19 +166,62 @@ void SetSideBarMenu(
     // load_json<Color>(config, "text", "color", "normal"));
   }
 
-  if (ImGui::Button(load_json<std::string>(language, "menubar", "menu", "reset")
+  /*if (ImGui::Button(load_json<std::string>(language, "menubar", "menu", "reset")
                         .c_str())) {
     sampler.reset();
     devices.clear();
     deviceManager.clearDevices();
     captureData.clear();
     flagPaused = true;
+  }*/
+
+  static bool showSubmenu1 = false;
+  // First Menupoint shown as a button
+
+  my_image_width = 0;
+   my_image_height = 0;
+   my_image_texture = 0;
+
+  ret = LoadTextureFromFile("../images/SettingsWhite.png", &my_image_texture, &my_image_width, &my_image_height);
+
+  IM_ASSERT(ret);
+
+  if (ImGui::ImageButton("Settings",(void *)(intptr_t)my_image_texture,
+               ImVec2(my_image_width *0.75  , my_image_height *0.75 ))) {
+    // Aktion bei Klick auf Menüpunkt 1
+    showSubmenu1 = !showSubmenu1;
+  }
+
+  // if button has been clicked to that :
+
+  if (showSubmenu1) {
+    if (ImGui::TreeNode(load_json<std::string>(language, "menubar", "menu",
+                                               "language_option")
+                            .c_str())) {
+      for (const auto &lang : availableLanguages) {
+        if (ImGui::Button(lang.c_str())) {
+          config["language"] = lang;
+          write_json_file(configpath, config);
+        }
+      }
+      ImGui::TreePop();
+    }
+    if (ImGui::MenuItem("   Layout")) {
+      open_settings = true;
+    }
   }
 
   static bool showSubmenu3 = false;
   // First Menupoint shown as a button
-  if (ImGui::Button(load_json<std::string>(language, "menubar", "help", "label")
-                        .c_str())) {
+
+  my_image_width = 0;
+   my_image_height = 0;
+   my_image_texture = 0;
+
+  ret = LoadTextureFromFile("../images/HelpWhite.png", &my_image_texture, &my_image_width, &my_image_height);
+
+  if (ImGui::ImageButton("Help", (void *)(intptr_t)my_image_texture,
+               ImVec2(my_image_width *0.75 , my_image_height *0.75 ))) {
     // Aktion bei Klick auf Menüpunkt 1
     showSubmenu3 = !showSubmenu3;
   }
@@ -180,7 +232,7 @@ void SetSideBarMenu(
     }
   }
 
-  ImGui::SetCursorPosX(ImGui::GetIO().DisplaySize.x * 0.9f);
+  ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.95f);
   ImGui::Text(
       fmt::format("   Version: {}", CMakeGitVersion::VersionWithGit).c_str());
 

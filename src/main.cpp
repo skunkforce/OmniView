@@ -27,14 +27,23 @@
 #include "sendData.hpp"
 #include <regex>
 
+
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "../stb_image/stb_image.h" // externe Libary aus Git
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../stb_image/stb_image_write.h"
 // include style
 
-#include "menus/Style.hpp"
+#include "LoadImages.hpp"
+
+#include "menuscpp/Style.cpp"
 
 // include menus
 
-#include "menus/DevicesMenu.cpp"
-#include "menus/SideBarMenu.cpp"
+#include "menuscpp/DevicesMenu.cpp"
+#include "menuscpp/SideBarMenu.cpp"
 
 // Load Languages
 static std::vector<std::string>
@@ -88,6 +97,7 @@ int main() {
   // io.FontGlobalScale = load_json<float>(config, "text", "scale");
 
   // Loading the config and language files
+
   nlohmann::json config;
   const std::string configpath = "config/config.json";
   if (std::filesystem::exists(configpath)) {
@@ -107,6 +117,8 @@ int main() {
     update_language_from_github();
   }
 
+
+ 
   constexpr ImVec2 toolBtnSize = ImVec2(80, 80); // toolbar buttons size
   constexpr ImVec2 btnSize = ImVec2(0, 0);       // other buttons size
 
@@ -240,7 +252,7 @@ int main() {
   // everything else should be structured and externalized into .hpp files.
   auto render = [&]() {
     load_settings(config);
-    ImGui::SetupImGuiStyle(false, 0.99f);
+    Style::SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
@@ -612,7 +624,7 @@ if (ImGui::BeginMenu(
 
     ImGui::EndChild();
     // ImGui::EndChild();
-    ImGui::SetupImGuiStyle(false, 0.99f);
+    Style::SetupImGuiStyle(false, 0.99f);
 
     // Create Devices Menu at the bottom of the programm
 

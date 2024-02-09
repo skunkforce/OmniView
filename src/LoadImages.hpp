@@ -5,11 +5,8 @@
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image/stb_image.h" // externe Libary aus Git
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../stb_image/stb_image_write.h"
+
 
 // Simple helper function to load an image into a OpenGL texture with common
 // settings

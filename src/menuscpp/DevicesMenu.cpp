@@ -1,6 +1,10 @@
 // Devices Menu where the connected devices are listed
 #include <ImGuiInstance/ImGuiInstance.hpp>
 
+
+
+
+
 void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
                     std::optional<OmniscopeSampler> &sampler,
                     std::vector<std::shared_ptr<OmniscopeDevice>> &devices) {
@@ -22,6 +26,18 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
              ImGui::GetIO().DisplaySize.y *
                  0.01f)); // setting the next to the top middle of the menu
   ImGui::Text("devices found:");
+
+  /* // Load the AIGroup Logo
+  int my_image_width = 0;
+  int my_image_height = 0;
+  GLuint my_image_texture = 0;
+  bool ret =
+      LoadTextureFromFile("../images/ AutoInternLogo copy.png", &my_image_texture,
+                          &my_image_width, &my_image_height);
+  IM_ASSERT(ret);
+
+   ImGui::Image((void *)(intptr_t)my_image_texture,
+               ImVec2(my_image_width * 0.5, my_image_height * 0.5));*/
 
   // ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f,
   //   ImGui::GetIO().DisplaySize.y * 0.7f));
