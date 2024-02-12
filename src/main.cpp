@@ -476,7 +476,7 @@ if (ImGui::BeginMenu(
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
 
-      ImGui::Button(analyse_data.c_str(), toolBtnSize);
+      // ImGui::Button(analyse_data.c_str(), toolBtnSize);
       ImGui::PopStyleColor();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
@@ -484,14 +484,14 @@ if (ImGui::BeginMenu(
 
       // ############################ Button create trainings data
       // ##############################
-      if (ImGui::Button(create_training_data.c_str(), toolBtnSize)) {
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(ImVec2(0, 0));
-        ImGui::OpenPopup("Creation of learning data set");
-      }
+      /* if (ImGui::Button(create_training_data.c_str(), toolBtnSize)) {
+         ImGui::SetNextWindowPos(ImVec2(0, 0));
+         ImGui::SetNextWindowSize(ImVec2(0, 0));
+         ImGui::OpenPopup("Creation of learning data set");
+       }*/
       ImGui::PopStyleColor();
     } else {
-      ImGui::SameLine();
+      /*ImGui::SameLine();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
       ImGui::Button(load_json<std::string>(language, "button", "save").c_str(),
@@ -501,7 +501,7 @@ if (ImGui::BeginMenu(
       ImGui::Button(analyse_data.c_str(), toolBtnSize);
       ImGui::SameLine();
       ImGui::Button(create_training_data.c_str(), toolBtnSize);
-      ImGui::PopStyleColor();
+      ImGui::PopStyleColor();*/
     }
     ImGui::EndChild();
     // ############################ Settings Menu
