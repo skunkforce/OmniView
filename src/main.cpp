@@ -27,8 +27,6 @@
 #include "sendData.hpp"
 #include <regex>
 
-
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image/stb_image.h" // externe Libary aus Git
 
@@ -117,8 +115,6 @@ int main() {
     update_language_from_github();
   }
 
-
- 
   constexpr ImVec2 toolBtnSize = ImVec2(80, 80); // toolbar buttons size
   constexpr ImVec2 btnSize = ImVec2(0, 0);       // other buttons size
 
