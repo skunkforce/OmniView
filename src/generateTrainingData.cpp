@@ -3,84 +3,72 @@
 #include <fstream>
 #include <regex>
 
-void generateTrainingData(
-    bool &open_generate_training_data,
-    const std::vector<std::shared_ptr<OmniscopeDevice>> &devices,
-    std::set<std::string> &savedFileNames) {
+void generateTrainingData(bool &open_generate_training_data,
+                          const std::optional<OmniscopeSampler> &sampler,
+                          std::set<std::string> &savedFileNames) {
 
-  const size_t devicesSz{devices.size()};
   ImGui::OpenPopup("Generate Training Data");
-
   if (ImGui::BeginPopupModal("Generate Training Data", nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
 
-    // // devices checkboxes buffer
-    // static std::vector<BoolWrapper> dvcCheckedArr(devicesSz, false);
-    // // Update devices size for new connections during run-time
-    // dvcCheckedArr.resize(devicesSz);
-
-    // file names checkboxes buffer
-    // static std::vector<BoolWrapper> flnmCheckedArr(savedFileNames.size(),
-    //                                                false);
-    // // Update files names checked array size for new connections during
-    // run-time flnmCheckedArr.resize(savedFileNames.size());
-
-    static bool ucw = false;     // User Current Waveform
-    static bool wff = false;     // Waveform From File
-    static bool ucwWPop = false; // User Current Waveform Warning Popup
+    static bool ucw = false; // User Current Waveform
+    static bool wff = false; // Waveform From File
 
     if (ImGui::RadioButton("User Current Waveform", ucw)) {
       ucw = !ucw;
       wff = false;
     }
     static std::string selectedItem{"Devices & Waveforms Menu"};
-    if (ucw && !devicesSz && !savedFileNames.size())
-      ucwWPop = true;
-    else if (ucw && (devicesSz || savedFileNames.size()) &&
-             (ImGui::BeginCombo("##ComboDevice", selectedItem.c_str()))) {
+
+    if (ucw && !sampler.has_value() && !savedFileNames.size() //&&
+        /*!ImGui::IsPopupOpen("Waveforms warning")*/) {
+      ImGui::OpenPopup("Waveforms warning",
+                       ImGuiPopupFlags_NoOpenOverExistingPopup);
+      ucw = false;
+    }
+    warning_popup("Waveforms warning", "No waveforms were made ");
+
+    if (ucw && (sampler.has_value() || savedFileNames.size()) &&
+        (ImGui::BeginCombo("##ComboDevice", selectedItem.c_str()))) {
 
       static int k{-1};
       size_t i{0};
-      for (; i < devicesSz; i++) {
-        ImGui::PushID(i);
-        bool b = (k == i);
-        if (ImGui::Checkbox(devices[i]->getId().value().serial.c_str(), &b)) {
-          if (b) {
-            k = i;
-            selectedItem = devices[i]->getId().value().serial.c_str();
-          } else {
-            k = -1;
-            selectedItem = "Devices & Waveforms Menu";
+      bool b{false};
+      if (sampler.has_value())
+        for (const auto &device : sampler->sampleDevices) {
+          b = (k == i);
+          if (ImGui::Checkbox(device.first->getId().value().serial.c_str(),
+                              &b)) {
+            if (b) {
+              k = i;
+              selectedItem = device.first->getId().value().serial.c_str();
+            } else {
+              k = -1;
+              selectedItem = "Devices & Waveforms Menu";
+            }
           }
+          i++;
         }
-        ImGui::PopID();
-      }
       i = 0;
-      static const size_t sz{savedFileNames.size()};
-      for (auto it = savedFileNames.begin(); it != savedFileNames.end();
-           it++, ++i) {
-        ImGui::PushID(i + sz);
-        bool b = (k == i + sz);
-        if (ImGui::Checkbox(it->c_str(), &b)) {
-          if (b) {
-            k = i + sz;
-            selectedItem = it->c_str();
-          } else {
-            k = -1;
-            selectedItem = "Devices & Waveforms Menu";
+      if (const size_t sz = savedFileNames.size())
+        for (const auto &file : savedFileNames) {
+          b = (k == i + sz);
+          if (ImGui::Checkbox(file.c_str(), &b)) {
+            if (b) {
+              k = i + sz;
+              selectedItem = file.c_str();
+            } else {
+              k = -1;
+              selectedItem = "Devices & Waveforms Menu";
+            }
           }
+          ++i;
         }
-        ImGui::PopID();
-      }
       ImGui::EndCombo();
     }
-    if (ucwWPop) {
-      warning_popup(ucwWPop, "No waveforms were made  ");
-      ucw = false;
-    }
 
-    static ImGui::FileBrowser fileBrowser;
-    // set browser properties
+    // static ImGui::FileBrowser fileBrowser;
+    //  set browser properties
     fileBrowser.SetTitle("Searching for .csv files");
     // fileBrowser.SetTypeFilters({".csv"});
 
@@ -89,13 +77,13 @@ void generateTrainingData(
     static std::string Mileage = "";
     auto setVinMileage = [&](const std::filesystem::path &filename) {
       std::ifstream file(filename, std::ios::binary);
+
       if (!file.is_open())
         fmt::println("Failed to open file {}", filename);
       else {
         constexpr size_t numberOfFields{3};
-        // out of three fields ID, Vin and Mileage, only the last two are
-        // required
-        std::vector<std::string> FieldsData(numberOfFields, "");
+        // out of ID, Vin and Mileage, only the last two are required
+        std::vector<std::string> FieldsData(numberOfFields);
 
         // read fields data from file
         for (size_t i = 0; i < numberOfFields;) {
@@ -115,50 +103,52 @@ void generateTrainingData(
       }
     };
 
-    static bool wrongFile = false;
-    static bool readOnly = false;
-    static std::string fileNameBuf = "";
+    static std::string fileNameBuf;
+    static bool grayFields = false;
+    static auto readOnlyFlag{ImGuiInputTextFlags_None};
 
     auto isWrongFile = [&](const std::filesystem::path &path) {
       if (path.extension() == ".csv") {
-        std::string filename = path.filename().string();
-        fileNameBuf = filename;
-        savedFileNames.insert(filename);
+        fileNameBuf = path.filename().string();
+        savedFileNames.insert(fileNameBuf);
         setVinMileage(path);
-        readOnly = true;
+        readOnlyFlag = ImGuiInputTextFlags_ReadOnly;
+        grayFields = true;
         return false;
       }
       return true;
     };
-
     fileBrowser.Display();
-    ImGuiInputTextFlags_ readOnlyFlag{ImGuiInputTextFlags_None};
-    if (readOnly)
-      readOnlyFlag = ImGuiInputTextFlags_ReadOnly;
 
     if (fileBrowser.HasSelected()) {
-      wrongFile = isWrongFile(fileBrowser.GetSelected().string());
+      if (isWrongFile(fileBrowser.GetSelected().string()) // &&
+          /* !ImGui::IsPopupOpen("Wrong file warning")*/) {
+        ImGui::OpenPopup("Wrong file warning",
+                         ImGuiPopupFlags_NoOpenOverExistingPopup);
+        wff = false;
+      }
       fileBrowser.ClearSelected();
     }
+    warning_popup("Wrong file warning", "Wrong file type! Try again");
 
     if (ImGui::RadioButton("Waveform From File", wff)) {
       wff = !wff;
       ucw = false;
     }
     if (wff) {
+      if (grayFields) // grey color style
+        ImGui::PushStyleColor(ImGuiCol_Text, {.5, .5, .5, 1});
+
       ImGui::SetNextItemWidth(400); // custom width
       ImGui::InputTextWithHint("##inputLabel", ".csv file", &fileNameBuf,
                                readOnlyFlag);
+      if (grayFields)
+        ImGui::PopStyleColor(); // remove grey color style
+
       ImGui::SameLine();
       if (ImGui::Button("Browse"))
         fileBrowser.Open();
     }
-
-    if (wrongFile) {
-      warning_popup(wrongFile, "Wrong file type  ");
-      wff = false;
-    }
-
     auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int {
       const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
       std::string s;
@@ -167,14 +157,18 @@ void generateTrainingData(
       // strlen is updated when entered char passes the filter
       size_t indx = strlen(VIN);
 
-      if (indx >= 0 && indx < 17)
+      if (indx < 17)
         return !std::regex_match(
             s, chars_regex); // return 0 as passed for matched chars
       return 1;              // discard exceeding chars
     };
 
-    static std::string ID = "";
+    static std::string ID;
     ImGui::SetNextItemWidth(400);
+
+    if (grayFields) // greyed out color style
+      ImGui::PushStyleColor(ImGuiCol_Text, {.5, .5, .5, 1});
+
     ImGui::InputTextWithHint("ID", "Set your ID in settings", &ID,
                              ImGuiInputTextFlags_ReadOnly);
     ImGui::SetNextItemWidth(400);
@@ -188,9 +182,10 @@ void generateTrainingData(
     ImGui::SetNextItemWidth(400);
     ImGui::InputTextWithHint("Mileage", "Enter Mileage", &Mileage,
                              readOnlyFlag);
+    if (grayFields)
+      ImGui::PopStyleColor(); // remove grey color style
 
-    std::string msg{ID};
-    // have each entry on a new line
+    std::string msg{ID}; // data to be saved in .csv file
     msg += ",";
     msg += VIN;
     msg += ",";
@@ -214,24 +209,27 @@ void generateTrainingData(
     ImGui::SameLine();
     ImGui::RadioButton("Anomaly", &d, 1);
 
-    static char comment[16];
-    ImGui::InputTextMultiline("Comment", comment, IM_ARRAYSIZE(comment),
-                              ImVec2(350, 70),
+    static std::string comment;
+    ImGui::InputTextMultiline("Comment", &comment, ImVec2(350, 70),
                               ImGuiInputTextFlags_AllowTabInput);
 
-    auto clearStuff = [&]() {
-      readOnly = false;
+    auto clearSettings = [&]() {
+      ucw = false;
+      wff = false;
       ID.clear();
       VIN[0] = 0;
       Mileage.clear();
       fileNameBuf.clear();
-      ImGui::CloseCurrentPopup();
+      b = c = d = 0;
+      comment.clear();
+      grayFields = false;
+      readOnlyFlag = ImGuiInputTextFlags_None;
       open_generate_training_data = false;
-      ucw = false;
+      ImGui::CloseCurrentPopup();
     };
 
     if (ImGui::Button("Cancel"))
-      clearStuff();
+      clearSettings();
 
     ImGui::SameLine();
     if (ImGui::Button(" Send ")) {
@@ -239,7 +237,7 @@ void generateTrainingData(
       const std::string url{
           "https://raw.githubusercontent.com/skunkforce/omniview/"};
       sendData(msg, url);
-      clearStuff();
+      clearSettings();
     }
     ImGui::EndPopup();
   }

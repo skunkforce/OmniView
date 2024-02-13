@@ -13,9 +13,9 @@ std::string getSubdirectoriesInFolder(nlohmann::json language,
                                       char scantype[255] = 0,
                                       char inputvin[18] = 0,
                                       char mileage[10] = 0) {
-  bool deviceFields = false;
+  bool isTxtInptFieldsEmpty = false;
   if (scantype != 0 && inputvin != 0 && mileage != 0)
-    deviceFields = true;
+    isTxtInptFieldsEmpty = true;
 
   std::vector<std::string> subdirectories;
   subdirectories.push_back("New Car");
@@ -34,20 +34,20 @@ std::string getSubdirectoriesInFolder(nlohmann::json language,
     for (size_t i = 0; i < subdirectories.size(); ++i)
       vins[i] = strdup(subdirectories[i].c_str());
 
-    if (deviceFields) {
+    if (isTxtInptFieldsEmpty) {
       const std::string newcar = "New Car";
 
-      ImGui::InputText("Measurement", scantype, 255);
+      ImGui::InputText("Measurement", scantype, IM_ARRAYSIZE(scantype));
 
       if (selectedOption == 0) {
-        ImGui::InputText("Fin/Vin", inputvin, 18,
+        ImGui::InputText("Fin/Vin", inputvin, IM_ARRAYSIZE(inputvin),
                          ImGuiInputTextFlags_CharsUppercase |
                              ImGuiInputTextFlags_CharsNoBlank |
                              ImGuiInputTextFlags_None);
         selectedFolder = inputvin;
       }
 
-      ImGui::InputText("Mileage", mileage, 10);
+      ImGui::InputText("Mileage", mileage, IM_ARRAYSIZE(mileage));
 
       // Using vins (char* array) with ImGui
       if (ImGui::Combo("Known Cars", &selectedOption, vins,
@@ -59,12 +59,12 @@ std::string getSubdirectoriesInFolder(nlohmann::json language,
                        static_cast<int>(subdirectories.size())))
         selectedFolder = subdirectories[selectedOption];
 
-      static char inputvin[18];
+      static char VIN[18];
       const std::string newcar = "New Car";
 
       if (selectedOption == 0) {
-        ImGui::InputText("Fin/Vin", inputvin, 18);
-        selectedFolder = inputvin;
+        ImGui::InputText("Fin/Vin", VIN, IM_ARRAYSIZE(VIN));
+        selectedFolder = VIN;
       }
     }
   }

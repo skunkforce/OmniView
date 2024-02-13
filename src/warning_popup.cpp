@@ -1,19 +1,19 @@
 #include "popups.hpp"
 
-void warning_popup(bool& popup, const std::string& msg) {
+void warning_popup(std::string_view title, std::string_view text) {
+  if (title == "Speicherwarnung")
+    appLanguage = germanLan;
+  else 
+     appLanguage = englishLan;
 
-    ImGui::OpenPopup("Warning");
+  if (ImGui::BeginPopupModal(title.data(), nullptr,
+                             ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::SetItemDefaultFocus();
+    ImGui::Text(text.data());
 
-    if (ImGui::BeginPopupModal("Warning", nullptr,
-        ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::SetItemDefaultFocus();
-        ImGui::Text(msg.c_str());
+    if (ImGui::Button(appLanguage["Back"]))
+      ImGui::CloseCurrentPopup();
 
-        if (ImGui::Button("Close")) {
-            popup = false;
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndPopup();
-    }
+    ImGui::EndPopup();
+  }
 }

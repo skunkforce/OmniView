@@ -13,7 +13,7 @@
 #include "jasonhandler.hpp"
 
 // clang-format off
-#include <imfilebrowser.h>
+#include "../imgui-filebrowser/imfilebrowser.h"
 // clang-format on
 static void show_standart_input(nlohmann::json const &config,
                                 nlohmann::json const &language,

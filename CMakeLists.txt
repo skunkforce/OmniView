@@ -34,7 +34,7 @@ add_executable(OmniView
                src/generateTrainingData.cpp 
                src/warning_popup.cpp
                src/imgui_stdlib.cpp
-              )
+               )
 
 target_add_default_build_options(OmniView PUBLIC)
 
@@ -59,21 +59,9 @@ target_link_libraries(OmniView PUBLIC Boost::boost)
 find_package(CURL REQUIRED)
 target_link_libraries(OmniView PUBLIC ${CURL_LIBRARY} CURL::libcurl)
 
-set(IMGUI_FILEBROWSER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui-filebrowser)
-set(IMGUI_STDLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui-stdlib)
-
-add_library(imgui-filebrowser INTERFACE)
-add_library(imgui-stdlib INTERFACE)
-
-target_include_directories(imgui-filebrowser INTERFACE ${IMGUI_FILEBROWSER_INCLUDE_DIR})
-target_include_directories(imgui-stdlib INTERFACE ${IMGUI_STDLIB_INCLUDE_DIR})
-
 find_package(libusb CONFIG REQUIRED)
 target_include_directories(OmniView PUBLIC ${LIBUSB_INCLUDE_DIRS})
 target_link_libraries(OmniView PUBLIC ${LIBUSB_LIBRARIES})
-
-target_link_libraries(OmniView PUBLIC imgui-filebrowser)
-target_link_libraries(OmniView PUBLIC imgui-stdlib)
 
 target_compile_definitions(OmniView PUBLIC BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
 target_compile_features(OmniView PUBLIC cxx_std_20)
