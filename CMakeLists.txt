@@ -65,7 +65,7 @@ target_include_directories(imgui-filebrowser INTERFACE ${IMGUI_FILEBROWSER_INCLU
 
 #target_include_directories(OmniView PRIVATE include stb_Image)
 
-target_link_libraries(OmniView PRIVATE ${CMAKE_SOURCE_DIR}/stb_Image)
+target_link_libraries(OmniView PRIVATE ${CMAKE_SOURCE_DIR}/stb_image)
 
 find_package(libusb CONFIG REQUIRED)
 target_include_directories(OmniView PUBLIC ${LIBUSB_INCLUDE_DIRS})

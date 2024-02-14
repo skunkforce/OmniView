@@ -155,7 +155,7 @@ void SetSideBarMenu(
   if (loaded_png1) { // search for Devices
     if (!sampler.has_value()) {
       if (ImGui::ImageButton(
-              "Search Devices", (void *)(intptr_t)my_image_texture1,
+              "Load new Devices", (void *)(intptr_t)my_image_texture1,
               ImVec2(my_image_width1 * 0.6, my_image_height1 * 0.6))) {
         devices.clear();
         deviceManager.clearDevices();
