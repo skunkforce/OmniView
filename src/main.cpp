@@ -28,10 +28,10 @@
 #include <regex>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image/stb_image.h" // externe Libary aus Git
+#include "../stb_Image/stb_image.h" // externe Libary aus Git
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../stb_image/stb_image_write.h"
+#include "../stb_Image/stb_image_write.h"
 // include style
 
 #include "LoadImages.hpp"
