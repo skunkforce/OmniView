@@ -348,8 +348,8 @@ if (ImGui::BeginMenu(
                   "Would you like to save it before deleting it?\n");
       if (ImGui::Button("Continue deletion", btnSize)) {
         sampler.reset();
-        devices.clear();
-        deviceManager.clearDevices();
+        //devices.clear();
+        //deviceManager.clearDevices();
         captureData.clear();
         ImGui::CloseCurrentPopup();
       }
@@ -443,8 +443,8 @@ if (ImGui::BeginMenu(
             ImGui::OpenPopup("Reset?");
           } else {
             sampler.reset();
-            devices.clear();
-            deviceManager.clearDevices();
+            //devices.clear();
+            //deviceManager.clearDevices();
             captureData.clear();
             flagPaused = true;
           }
