@@ -12,6 +12,8 @@
 
 // Function to set the SideBarMenu in the main.cpp // first version
 
+namespace SideBarRegion {
+
 void SetSideBarMenu(
     nlohmann::json &language, std::vector<std::string> &availableLanguages,
     nlohmann::json &config, const std::string &configpath, bool &open_settings,
@@ -252,9 +254,9 @@ void SetSideBarMenu(
 
   mainMenuBarSize = ImGui::GetItemRectSize();
   ImGui::EndChild();
-}
+} // EndofFunction
 
-// EndofFunction
+} // namespace SideBarRegion
 
 // Analyses that will be added in a later process :
 /*

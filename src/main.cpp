@@ -268,10 +268,10 @@ int main() {
 
     // CREATE A SIDEBARMENU
 
-    SetSideBarMenu(language, availableLanguages, config, configpath,
-                   open_settings, sampler, devices, deviceManager, captureData,
-                   flagPaused, open_generate_training_data, mainMenuBarSize,
-                   colorMap);
+    SideBarRegion::SetSideBarMenu(
+        language, availableLanguages, config, configpath, open_settings,
+        sampler, devices, deviceManager, captureData, flagPaused,
+        open_generate_training_data, mainMenuBarSize, colorMap);
 
     /*
 if (ImGui::BeginMenu(
@@ -624,7 +624,7 @@ if (ImGui::BeginMenu(
 
     // Create Devices Menu at the bottom of the programm
 
-    SetDevicesMenu(colorMap, sampler, devices);
+    DevicesRegion::SetDevicesMenu(colorMap, sampler, devices);
 
     ImGui::SameLine();
     ImGui::End();

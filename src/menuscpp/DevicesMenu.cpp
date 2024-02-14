@@ -1,9 +1,7 @@
 // Devices Menu where the connected devices are listed
 #include <ImGuiInstance/ImGuiInstance.hpp>
 
-
-
-
+namespace DevicesRegion {
 
 void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
                     std::optional<OmniscopeSampler> &sampler,
@@ -32,9 +30,8 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
   int my_image_height = 0;
   GLuint my_image_texture = 0;
   bool ret =
-      LoadTextureFromFile("../images/ AutoInternLogo copy.png", &my_image_texture,
-                          &my_image_width, &my_image_height);
-  IM_ASSERT(ret);
+      LoadTextureFromFile("../images/ AutoInternLogo copy.png",
+  &my_image_texture, &my_image_width, &my_image_height); IM_ASSERT(ret);
 
    ImGui::Image((void *)(intptr_t)my_image_texture,
                ImVec2(my_image_width * 0.5, my_image_height * 0.5));*/
@@ -91,3 +88,4 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
   }
   ImGui::EndChild();
 }
+} // namespace DevicesRegion
