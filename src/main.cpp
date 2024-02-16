@@ -43,7 +43,7 @@
 #include "menuscpp/DevicesMenu.cpp"
 #include "menuscpp/SideBarMenu.cpp"
 
-// Load Languages
+// Load Languages Files
 static std::vector<std::string>
 getAvailableLanguages(std::string const &languageFolder) {
   std::vector<std::string> languages;
