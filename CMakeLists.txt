@@ -29,7 +29,9 @@ endif()
 include(cmake_helpers/BuildOptions.cmake)
 include(cmake_helpers/FindOrFetch.cmake)
 
-add_executable(OmniView src/main.cpp)
+
+add_executable(OmniView src/main.cpp
+src/menuscpp/Style.cpp)
 
 target_add_default_build_options(OmniView PUBLIC)
 
@@ -61,6 +63,8 @@ set(IMGUI_FILEBROWSER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui-filebrowser)
 
 add_library(imgui-filebrowser INTERFACE)
 target_include_directories(imgui-filebrowser INTERFACE ${IMGUI_FILEBROWSER_INCLUDE_DIR})
+
+target_include_directories(OmniView PRIVATE src/menushpp/Style.hpp)
 
 
 #target_include_directories(OmniView PRIVATE include stb_Image)

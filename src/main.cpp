@@ -36,7 +36,7 @@
 
 #include "LoadImages.hpp"
 
-#include "menuscpp/Style.cpp"
+#include "menushpp/Style.hpp"
 
 // include menus
 
