@@ -101,9 +101,8 @@ from the optional components select:
 - [x] Corefunctions for Testtools - Buildtools
 - [x] C++-/CLI-Support for v143-Buildtools
 - [x] C++-Moduls for v143-Buildtools
-- [x] C++ Clang-Tools for Windows (`greater than` 16.0.5)
 
-This installs approximately 16 GB of data.
+This installs approximately 9 GB of data.
 
 ### Running the Build
 In order to utilize the `MSVC`-Compiler on the Windows Command-Line, you'll have to set a whole bunch of environment variables.
@@ -114,7 +113,7 @@ This starts a Session with all env-variables set accordingly.
 Run the following commands in the Developer Command Prompt:
 ```shell
 git clone --recurse-submodules git@github.com:skunkforce/OmniView.git
-cd gp_ptp-measurement-access-demon_sw
+cd OmniView
 cmake -S . -B ./build -DVCPKG_TARGET_TRIPLET="x64-windows-static"
 cmake --build ./build --config Release
 ```
