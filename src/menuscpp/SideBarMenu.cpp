@@ -10,6 +10,9 @@
 #include "../images/SearchDevicesWhite_data.h"
 #include "../images/SettingsWhite_data.h"
 
+#include <iostream>
+#include <string>
+
 // Function to set the SideBarMenu in the main.cpp // first version
 
 namespace SideBarRegion {
@@ -27,21 +30,39 @@ void SetSideBarMenu(
     std::map<Omniscope::Id, std::array<float, 3>> &colorMap) {
 
   // Initializing all variables for images
-  static bool loaded_png{false};
-  static bool loaded_png1{false};
-  static bool loaded_png2{false};
-  static bool loaded_png3{false};
-  static bool loaded_png4{false};
-  static int my_image_width, my_image_width1, my_image_width2, my_image_width3,
-      my_image_width4, my_image_width5;
-  static int my_image_height, my_image_height1, my_image_height2,
-      my_image_height3, my_image_height4, my_image_height5;
-  static GLuint my_image_texture, my_image_texture1, my_image_texture2,
-      my_image_texture3, my_image_texture4;
-  bool ret, ret1, ret2, ret3, ret4;
+  const int size = 5; // number of pictures 
+  int counter = 0; //counter for the number of pictures rendered
+  static bool loaded_png[size] = {false}; 
+  static int my_image_height[size]; 
+  static int my_image_width[size]; 
+  static GLuint my_image_texture[size];
+  static bool ret[size];  
+
+  // The order matters !!!
+
+  const unsigned char* imagesNames[size] = {AutoInternLogo_png, SearchDevicesWhite_png, DiagnosticsWhite_png, SettingsWhite_png, HelpWhite_png}; 
+  unsigned int imagesLen[size] = {AutoInternLogo_png_len, SearchDevicesWhite_png_len, DiagnosticsWhite_png_len, SettingsWhite_png_len, HelpWhite_png_len}; 
+
 
   // Load the images for the SideBarMenu
 
+  for(int w = 0; w < size ; w++){
+    if (!loaded_png[w]) {
+    ret[w] = LoadTextureFromHeader(imagesNames[w], imagesLen[w],
+                                &my_image_texture[w], &my_image_width[w],
+                                &my_image_height[w]);
+    if (ret == NULL) {
+      fmt::print("Error Loading Png\n");
+      loaded_png[w] = false;
+    } else {
+      loaded_png[w] = true;
+    }
+  }
+
+  }
+
+
+/*
   // Load the AIGroup Logo
   if (!loaded_png) {
     ret = LoadTextureFromHeader(AutoInternLogo_png, AutoInternLogo_png_len,
@@ -69,7 +90,7 @@ void SetSideBarMenu(
   // Diagnostics
   if (!loaded_png2) {
     ret2 = LoadTextureFromHeader(DiagnosticsWhite_png, DiagnosticsWhite_png_len,
-                                 &my_image_texture2, &my_image_width2,
+                                 &my_image_texture2[i], &my_image_width2,
                                  &my_image_height2);
     if (ret2 == NULL) {
       fmt::print("Error Loading Png\n");
@@ -102,6 +123,8 @@ void SetSideBarMenu(
       loaded_png4 = true;
     }
   }
+
+  */
 
   // Set the SideBarMenu Colors
   ImGuiStyle &style = ImGui::GetStyle();
@@ -145,18 +168,19 @@ void SetSideBarMenu(
                            ImGui::GetIO().DisplaySize.y),
                     true);
 
-  if (loaded_png) {
+  if (loaded_png[counter]) {
     // render the AIGroupLogo
-    ImGui::Image((void *)(intptr_t)my_image_texture,
-                 ImVec2(my_image_width * 0.5, my_image_height * 0.5));
+    ImGui::Image((void *)(intptr_t)my_image_texture[counter],
+                 ImVec2(my_image_width[counter] * 0.5, my_image_height[counter] * 0.5));
     ImGui::Text("              ");
+    counter += 1; 
   }
 
-  if (loaded_png1) { // search for Devices
+  if (loaded_png[counter]) { // search for Devices
     if (!sampler.has_value()) {
       if (ImGui::ImageButton(
-              "Load new Devices", (void *)(intptr_t)my_image_texture1,
-              ImVec2(my_image_width1 * 0.6, my_image_height1 * 0.6))) {
+              "Load new Devices", (void *)(intptr_t)my_image_texture[counter],
+              ImVec2(my_image_width[counter] * 0.6, my_image_height[counter] * 0.6))) {
         devices.clear();
         deviceManager.clearDevices();
         initDevices();
@@ -164,17 +188,20 @@ void SetSideBarMenu(
     }
   }
 
+   counter +=1;
+
   // Changing the Menustructure to a TreeNode Structure
-  if (loaded_png2) { // Diagnostics
+  if (loaded_png[counter]) { // Diagnostics
 
     static bool showSubmenu2 = false;
 
     if (ImGui::ImageButton(
-            "Diagnostics", (void *)(intptr_t)my_image_texture2,
-            ImVec2(my_image_width2 * 0.6, my_image_height2 * 0.6))) {
+            "Diagnostics", (void *)(intptr_t)my_image_texture[counter],
+            ImVec2(my_image_width[counter] * 0.6, my_image_height[counter] * 0.6))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu2 = !showSubmenu2;
     }
+         counter +=1;
 
     if (showSubmenu2) {
 
@@ -195,16 +222,17 @@ void SetSideBarMenu(
     }
   }
 
-  if (loaded_png3) { // Settings
+  if (loaded_png[counter]) { // Settings
 
     static bool showSubmenu1 = false;
 
     if (ImGui::ImageButton(
-            "Settings", (void *)(intptr_t)my_image_texture3,
-            ImVec2(my_image_width3 * 0.6, my_image_height3 * 0.6))) {
+            "Settings", (void *)(intptr_t)my_image_texture[counter],
+            ImVec2(my_image_width[counter] * 0.6, my_image_height[counter] * 0.6))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu1 = !showSubmenu1;
     }
+    counter +=1; 
 
     // if button has been clicked to that :
 
@@ -225,20 +253,19 @@ void SetSideBarMenu(
       }
     }
   }
-  if (loaded_png4) { // Help
+  if (loaded_png[counter]) { // Help
 
     static bool showSubmenu3 = false;
     // First Menupoint shown as a button
 
-    ret4 = LoadTextureFromFile("../images/HelpWhite.png", &my_image_texture4,
-                               &my_image_width4, &my_image_height4);
-
     if (ImGui::ImageButton(
-            "Help", (void *)(intptr_t)my_image_texture4,
-            ImVec2(my_image_width4 * 0.6, my_image_height4 * 0.6))) {
+            "Help", (void *)(intptr_t)my_image_texture[counter],
+            ImVec2(my_image_width[counter] * 0.6, my_image_height[counter] * 0.6))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu3 = !showSubmenu3;
+      
     }
+    counter += 1; 
 
     if (showSubmenu3) {
       if (ImGui::MenuItem(
@@ -254,6 +281,7 @@ void SetSideBarMenu(
 
   mainMenuBarSize = ImGui::GetItemRectSize();
   ImGui::EndChild();
+  counter = 0; 
 } // EndofFunction
 
 } // namespace SideBarRegion
