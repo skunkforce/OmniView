@@ -30,20 +30,23 @@ void generateTrainingData(bool &open_generate_training_data,
 
     if (ucw && (sampler.has_value() || savedFileNames.size()) &&
         (ImGui::BeginCombo("##ComboDevice", selectedItem.c_str()))) {
-
-      static int k{-1};
+        
+      // Only one checkbox out of two sets of device IDs/Waveforms
+      // should be selected at any given time
+      static int token{-1};
       size_t i{0};
-      bool b{false};
+      bool is_checked{false};
       if (sampler.has_value())
         for (const auto &device : sampler->sampleDevices) {
-          b = (k == i);
+          is_checked = (token == i);
           if (ImGui::Checkbox(device.first->getId().value().serial.c_str(),
-                              &b)) {
-            if (b) {
-              k = i;
+                              &is_checked)) {
+            if (is_checked) {
+              token = i;
+                                  // device ID
               selectedItem = device.first->getId().value().serial.c_str();
             } else {
-              k = -1;
+              token = -1;
               selectedItem = "Devices & Waveforms Menu";
             }
           }
@@ -52,22 +55,22 @@ void generateTrainingData(bool &open_generate_training_data,
       i = 0;
       if (const size_t sz = savedFileNames.size())
         for (const auto &file : savedFileNames) {
-          b = (k == i + sz);
-          if (ImGui::Checkbox(file.c_str(), &b)) {
-            if (b) {
-              k = i + sz;
+          is_checked = (token == i + sz);
+          if (ImGui::Checkbox(file.c_str(), &is_checked)) {
+            if (is_checked) {
+              token = i + sz;
               selectedItem = file.c_str();
             } else {
-              k = -1;
+              token = -1;
               selectedItem = "Devices & Waveforms Menu";
             }
           }
           ++i;
-        }
+        } 
+        // End of the algorithm 
       ImGui::EndCombo();
     }
 
-    // static ImGui::FileBrowser fileBrowser;
     //  set browser properties
     fileBrowser.SetTitle("Searching for .csv files");
     // fileBrowser.SetTypeFilters({".csv"});
