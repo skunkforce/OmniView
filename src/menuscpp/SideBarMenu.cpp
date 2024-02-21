@@ -4,11 +4,11 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
-#include "../images/AutoInternLogo_data.h"
-#include "../images/DiagnosticsWhite_data.h"
-#include "../images/HelpWhite_data.h"
-#include "../images/SearchDevicesWhite_data.h"
-#include "../images/SettingsWhite_data.h"
+#include "../../images/AutoInternLogo_data.h"
+#include "../../images/DiagnosticsWhite_data.h"
+#include "../../images/HelpWhite_data.h"
+#include "../../images/SearchDevicesWhite_data.h"
+#include "../../images/SettingsWhite_data.h"
 
 #include <iostream>
 #include <string>
@@ -30,101 +30,38 @@ void SetSideBarMenu(
     std::map<Omniscope::Id, std::array<float, 3>> &colorMap) {
 
   // Initializing all variables for images
-  const int size = 5; // number of pictures 
-  int counter = 0; //counter for the number of pictures rendered
-  static bool loaded_png[size] = {false}; 
-  static int my_image_height[size]; 
-  static int my_image_width[size]; 
+  const int size = 5; // number of pictures
+  int counter = 0;    // counter for the number of pictures rendered
+  static bool loaded_png[size] = {false};
+  static int my_image_height[size];
+  static int my_image_width[size];
   static GLuint my_image_texture[size];
-  static bool ret[size];  
+  static bool ret[size];
 
-  // The order matters !!!
+  // The order matters because of the counter for the images !!!
 
-  const unsigned char* imagesNames[size] = {AutoInternLogo_png, SearchDevicesWhite_png, DiagnosticsWhite_png, SettingsWhite_png, HelpWhite_png}; 
-  unsigned int imagesLen[size] = {AutoInternLogo_png_len, SearchDevicesWhite_png_len, DiagnosticsWhite_png_len, SettingsWhite_png_len, HelpWhite_png_len}; 
-
+  const unsigned char *imagesNames[size] = {
+      AutoInternLogo_png, SearchDevicesWhite_png, DiagnosticsWhite_png,
+      SettingsWhite_png, HelpWhite_png};
+  unsigned int imagesLen[size] = {
+      AutoInternLogo_png_len, SearchDevicesWhite_png_len,
+      DiagnosticsWhite_png_len, SettingsWhite_png_len, HelpWhite_png_len};
 
   // Load the images for the SideBarMenu
 
-  for(int w = 0; w < size ; w++){
+  for (int w = 0; w < size; w++) {
     if (!loaded_png[w]) {
-    ret[w] = LoadTextureFromHeader(imagesNames[w], imagesLen[w],
-                                &my_image_texture[w], &my_image_width[w],
-                                &my_image_height[w]);
-    if (ret == NULL) {
-      fmt::print("Error Loading Png\n");
-      loaded_png[w] = false;
-    } else {
-      loaded_png[w] = true;
+      ret[w] = LoadTextureFromHeader(imagesNames[w], imagesLen[w],
+                                     &my_image_texture[w], &my_image_width[w],
+                                     &my_image_height[w]);
+      if (ret == NULL) {
+        fmt::print("Error Loading Png\n");
+        loaded_png[w] = false;
+      } else {
+        loaded_png[w] = true;
+      }
     }
   }
-
-  }
-
-
-/*
-  // Load the AIGroup Logo
-  if (!loaded_png) {
-    ret = LoadTextureFromHeader(AutoInternLogo_png, AutoInternLogo_png_len,
-                                &my_image_texture, &my_image_width,
-                                &my_image_height);
-    if (ret == NULL) {
-      fmt::print("Error Loading Png\n");
-      loaded_png = false;
-    } else {
-      loaded_png = true;
-    }
-  }
-  // SearchforDevices
-  if (!loaded_png1) {
-    ret1 = LoadTextureFromHeader(SearchDevicesWhite_png,
-                                 SearchDevicesWhite_png_len, &my_image_texture1,
-                                 &my_image_width1, &my_image_height1);
-    if (ret1 == NULL) {
-      fmt::print("Error Loading Png\n");
-      loaded_png1 = false;
-    } else {
-      loaded_png1 = true;
-    }
-  }
-  // Diagnostics
-  if (!loaded_png2) {
-    ret2 = LoadTextureFromHeader(DiagnosticsWhite_png, DiagnosticsWhite_png_len,
-                                 &my_image_texture2[i], &my_image_width2,
-                                 &my_image_height2);
-    if (ret2 == NULL) {
-      fmt::print("Error Loading Png\n");
-      loaded_png2 = false;
-    } else {
-      loaded_png2 = true;
-    }
-  }
-  // Settings
-  if (!loaded_png3) {
-    ret3 = LoadTextureFromHeader(SettingsWhite_png, SettingsWhite_png_len,
-                                 &my_image_texture3, &my_image_width3,
-                                 &my_image_height3);
-    if (ret3 == NULL) {
-      fmt::print("Error Loading Png\n");
-      loaded_png3 = false;
-    } else {
-      loaded_png3 = true;
-    }
-  }
-  // Help
-  if (!loaded_png4) {
-    ret4 = LoadTextureFromHeader(HelpWhite_png, HelpWhite_png_len,
-                                 &my_image_texture4, &my_image_width4,
-                                 &my_image_height4);
-    if (ret4 == NULL) {
-      fmt::print("Error Loading Png\n");
-      loaded_png4 = false;
-    } else {
-      loaded_png4 = true;
-    }
-  }
-
-  */
 
   // Set the SideBarMenu Colors
   ImGuiStyle &style = ImGui::GetStyle();
@@ -170,17 +107,21 @@ void SetSideBarMenu(
 
   if (loaded_png[counter]) {
     // render the AIGroupLogo
-    ImGui::Image((void *)(intptr_t)my_image_texture[counter],
-                 ImVec2(my_image_width[counter] * 0.5, my_image_height[counter] * 0.5));
+    ImGui::Image(
+        (void *)(intptr_t)my_image_texture[counter],
+        ImVec2(my_image_width[counter] * 0.5, my_image_height[counter] * 0.5));
     ImGui::Text("              ");
-    counter += 1; 
+    counter += 1;
   }
+
+  // Start only if devices are available, otherwise search for devices
 
   if (loaded_png[counter]) { // search for Devices
     if (!sampler.has_value()) {
-      if (ImGui::ImageButton(
-              "Load new Devices", (void *)(intptr_t)my_image_texture[counter],
-              ImVec2(my_image_width[counter] * 0.6, my_image_height[counter] * 0.6))) {
+      if (ImGui::ImageButton("Load new Devices",
+                             (void *)(intptr_t)my_image_texture[counter],
+                             ImVec2(my_image_width[counter] * 0.6,
+                                    my_image_height[counter] * 0.6))) {
         devices.clear();
         deviceManager.clearDevices();
         initDevices();
@@ -188,20 +129,21 @@ void SetSideBarMenu(
     }
   }
 
-   counter +=1;
+  counter += 1;
 
   // Changing the Menustructure to a TreeNode Structure
   if (loaded_png[counter]) { // Diagnostics
 
     static bool showSubmenu2 = false;
 
-    if (ImGui::ImageButton(
-            "Diagnostics", (void *)(intptr_t)my_image_texture[counter],
-            ImVec2(my_image_width[counter] * 0.6, my_image_height[counter] * 0.6))) {
+    if (ImGui::ImageButton("Diagnostics",
+                           (void *)(intptr_t)my_image_texture[counter],
+                           ImVec2(my_image_width[counter] * 0.6,
+                                  my_image_height[counter] * 0.6))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu2 = !showSubmenu2;
     }
-         counter +=1;
+    counter += 1;
 
     if (showSubmenu2) {
 
@@ -210,11 +152,11 @@ void SetSideBarMenu(
             ImGuiCol_Text,
             ImVec4(100 / 255.0f, 100 / 255.0f, 100 / 255.0f, 100 / 100.0f));
 
-        ImGui::MenuItem("Analysiere Daten");
+        ImGui::MenuItem(appLanguage["Anlyz_crnt_waveform"]);
 
         ImGui::PopStyleColor();
 
-        if (ImGui::MenuItem("Generiere Trainingsdaten"))
+        if (ImGui::MenuItem(appLanguage["Gnrt_trning_data"]))
           open_generate_training_data = true;
 
         ImGui::TreePop();
@@ -226,29 +168,31 @@ void SetSideBarMenu(
 
     static bool showSubmenu1 = false;
 
-    if (ImGui::ImageButton(
-            "Settings", (void *)(intptr_t)my_image_texture[counter],
-            ImVec2(my_image_width[counter] * 0.6, my_image_height[counter] * 0.6))) {
+    if (ImGui::ImageButton("Settings",
+                           (void *)(intptr_t)my_image_texture[counter],
+                           ImVec2(my_image_width[counter] * 0.6,
+                                  my_image_height[counter] * 0.6))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu1 = !showSubmenu1;
     }
-    counter +=1; 
+    counter += 1;
 
     // if button has been clicked to that :
 
     if (showSubmenu1) {
-      if (ImGui::TreeNode(load_json<std::string>(language, "menubar", "menu",
-                                                 "language_option")
-                              .c_str())) {
+      if (ImGui::TreeNode(appLanguage["LanOption"])) {
         for (const auto &lang : availableLanguages) {
           if (ImGui::Button(lang.c_str())) {
             config["language"] = lang;
             write_json_file(configpath, config);
+            appLanguage = germanLan;
           }
+          if (ImGui::MenuItem(appLanguage["English"]))
+            appLanguage = englishLan;
         }
         ImGui::TreePop();
       }
-      if (ImGui::MenuItem("   Layout")) {
+      if (ImGui::MenuItem(appLanguage["Settings"])) {
         open_settings = true;
       }
     }
@@ -258,39 +202,38 @@ void SetSideBarMenu(
     static bool showSubmenu3 = false;
     // First Menupoint shown as a button
 
-    if (ImGui::ImageButton(
-            "Help", (void *)(intptr_t)my_image_texture[counter],
-            ImVec2(my_image_width[counter] * 0.6, my_image_height[counter] * 0.6))) {
+    if (ImGui::ImageButton("Help", (void *)(intptr_t)my_image_texture[counter],
+                           ImVec2(my_image_width[counter] * 0.6,
+                                  my_image_height[counter] * 0.6))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu3 = !showSubmenu3;
-      
     }
-    counter += 1; 
+    counter += 1;
 
     if (showSubmenu3) {
-      if (ImGui::MenuItem(
-              load_json<std::string>(language, "helplink").c_str())) {
+      if (ImGui::MenuItem(appLanguage["HelpLink"])) {
         system(("start " + load_json<std::string>(config, "helplink")).c_str());
       }
     }
   }
 
   ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.95f);
-  ImGui::Text(
-      fmt::format("   Version: {}", CMakeGitVersion::VersionWithGit).c_str());
+  ImGui::Text(fmt::format("{}: {}", appLanguage["Version"],
+                          CMakeGitVersion::VersionWithGit)
+                  .c_str());
 
   mainMenuBarSize = ImGui::GetItemRectSize();
   ImGui::EndChild();
-  counter = 0; 
+  counter = 0;
 } // EndofFunction
 
 } // namespace SideBarRegion
 
 // Analyses that will be added in a later process :
 /*
-   if (ImGui::TreeNode("Compression")) {
-     ImGui::MenuItem("Analyze current waveform");
-     if (ImGui::MenuItem("Generate training data"))
+   if (ImGui::TreeNode(appLanguage["Compression"])) {
+     ImGui::MenuItem(appLanguage["Anlyz_crnt_waveform"]);
+     if (ImGui::MenuItem(appLanguage["Gnrt_trning_data"]))
        open_generate_training_data = true;
 
      ImGui::TreePop();
@@ -300,22 +243,22 @@ void SetSideBarMenu(
    // ImGui::PushStyleColor(
    //  ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
 
-   if (ImGui::TreeNode("Timing-Belt")) {
-     ImGui::MenuItem("Analyze current waveform");
-     if (ImGui::MenuItem("Generate training data"))
+   if (ImGui::TreeNode(appLanguage["Timing-Belt"])) {
+     ImGui::MenuItem(appLanguage["Anlyz_crnt_waveform"]);
+     if (ImGui::MenuItem(appLanguage["Gnrt_trning_data"]))
        open_generate_training_data = true;
      ImGui::TreePop();
    }
 
-   if (ImGui::TreeNode("Fuel-Delivery-Pump")) {
-     ImGui::MenuItem("Analyze current waveform");
-     if (ImGui::MenuItem("Generate training data"))
+   if (ImGui::TreeNode(appLanguage["Fuel-Delivery-Pump"])) {
+     ImGui::MenuItem(appLanguage["Anlyz_crnt_waveform"]);
+     if (ImGui::MenuItem(appLanguage["Gnrt_trning_data"]))
        open_generate_training_data = true;
      ImGui::TreePop();
    }
-   if (ImGui::TreeNode("Common-Rail-Pressure")) {
-     ImGui::MenuItem("Analyze current waveform");
-     if (ImGui::MenuItem("Generate training data"))
+   if (ImGui::TreeNode(appLanguage["Common-Rail-Pressure"])) {
+     ImGui::MenuItem(appLanguage["Anlyz_crnt_waveform"]);
+     if (ImGui::MenuItem(appLanguage["Gnrt_trning_data"]))
        open_generate_training_data = true;
      ImGui::TreePop();
    }
