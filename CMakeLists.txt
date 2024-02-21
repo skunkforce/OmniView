@@ -46,9 +46,6 @@ target_link_libraries(OmniView PUBLIC imgui_instance::imgui_instance)
 add_subdirectory(aglio)
 target_link_libraries(OmniView PUBLIC aglio::aglio)
 
-#add_subdirectory(stb_Image)
-#target_link_libraries(OmniView PUBLIC stb_Image::stb_Image)
-
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(OmniView PUBLIC fmt::fmt-header-only)
 
@@ -63,10 +60,7 @@ set(IMGUI_FILEBROWSER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui-filebrowser)
 add_library(imgui-filebrowser INTERFACE)
 target_include_directories(imgui-filebrowser INTERFACE ${IMGUI_FILEBROWSER_INCLUDE_DIR})
 
-#target_include_directories(OmniView PRIVATE src/menushpp/Style.hpp)
-
-
-#target_include_directories(OmniView PRIVATE include stb_Image)
+#target_sources(OmniView PRIVATE src/menushpp/Style.hpp src/menuscpp/Style.cpp)
 
 target_link_libraries(OmniView PRIVATE ${CMAKE_SOURCE_DIR}/stb_image)
 
