@@ -30,13 +30,15 @@ void SetSideBarMenu(
     std::map<Omniscope::Id, std::array<float, 3>> &colorMap) {
 
   // Initializing all variables for images
-  const int size = 5; // number of pictures
-  int counter = 0;    // counter for the number of pictures rendered
+  const int size = 5;         // number of pictures
+  int counterPngRendered = 0; // counter for the number of pictures rendered
   static bool loaded_png[size] = {false};
   static int my_image_height[size];
   static int my_image_width[size];
   static GLuint my_image_texture[size];
   static bool ret[size];
+
+  static float resizePicture = 0.6;
 
   // The order matters because of the counter for the images !!!
 
@@ -105,23 +107,24 @@ void SetSideBarMenu(
                            ImGui::GetIO().DisplaySize.y),
                     true);
 
-  if (loaded_png[counter]) {
+  if (loaded_png[counterPngRendered]) {
     // render the AIGroupLogo
-    ImGui::Image(
-        (void *)(intptr_t)my_image_texture[counter],
-        ImVec2(my_image_width[counter] * 0.5, my_image_height[counter] * 0.5));
+    ImGui::Image((void *)(intptr_t)my_image_texture[counterPngRendered],
+                 ImVec2(my_image_width[counterPngRendered] * 0.5,
+                        my_image_height[counterPngRendered] * 0.5));
     ImGui::Text("              ");
-    counter += 1;
+    counterPngRendered += 1;
   }
 
   // Start only if devices are available, otherwise search for devices
 
-  if (loaded_png[counter]) { // search for Devices
+  if (loaded_png[counterPngRendered]) { // search for Devices
     if (!sampler.has_value()) {
-      if (ImGui::ImageButton("Load new Devices",
-                             (void *)(intptr_t)my_image_texture[counter],
-                             ImVec2(my_image_width[counter] * 0.6,
-                                    my_image_height[counter] * 0.6))) {
+      if (ImGui::ImageButton(
+              "Load new Devices",
+              (void *)(intptr_t)my_image_texture[counterPngRendered],
+              ImVec2(my_image_width[counterPngRendered] * resizePicture,
+                     my_image_height[counterPngRendered] * resizePicture))) {
         devices.clear();
         deviceManager.clearDevices();
         initDevices();
@@ -129,21 +132,22 @@ void SetSideBarMenu(
     }
   }
 
-  counter += 1;
+  counterPngRendered += 1;
 
   // Changing the Menustructure to a TreeNode Structure
-  if (loaded_png[counter]) { // Diagnostics
+  if (loaded_png[counterPngRendered]) { // Diagnostics
 
     static bool showSubmenu2 = false;
 
-    if (ImGui::ImageButton("Diagnostics",
-                           (void *)(intptr_t)my_image_texture[counter],
-                           ImVec2(my_image_width[counter] * 0.6,
-                                  my_image_height[counter] * 0.6))) {
+    if (ImGui::ImageButton(
+            "Diagnostics",
+            (void *)(intptr_t)my_image_texture[counterPngRendered],
+            ImVec2(my_image_width[counterPngRendered] * resizePicture,
+                   my_image_height[counterPngRendered] * resizePicture))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu2 = !showSubmenu2;
     }
-    counter += 1;
+    counterPngRendered += 1;
 
     if (showSubmenu2) {
 
@@ -164,18 +168,18 @@ void SetSideBarMenu(
     }
   }
 
-  if (loaded_png[counter]) { // Settings
+  if (loaded_png[counterPngRendered]) { // Settings
 
     static bool showSubmenu1 = false;
 
-    if (ImGui::ImageButton("Settings",
-                           (void *)(intptr_t)my_image_texture[counter],
-                           ImVec2(my_image_width[counter] * 0.6,
-                                  my_image_height[counter] * 0.6))) {
+    if (ImGui::ImageButton(
+            "Settings", (void *)(intptr_t)my_image_texture[counterPngRendered],
+            ImVec2(my_image_width[counterPngRendered] * resizePicture,
+                   my_image_height[counterPngRendered] * resizePicture))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu1 = !showSubmenu1;
     }
-    counter += 1;
+    counterPngRendered += 1;
 
     // if button has been clicked to that :
 
@@ -197,18 +201,19 @@ void SetSideBarMenu(
       }
     }
   }
-  if (loaded_png[counter]) { // Help
+  if (loaded_png[counterPngRendered]) { // Help
 
     static bool showSubmenu3 = false;
     // First Menupoint shown as a button
 
-    if (ImGui::ImageButton("Help", (void *)(intptr_t)my_image_texture[counter],
-                           ImVec2(my_image_width[counter] * 0.6,
-                                  my_image_height[counter] * 0.6))) {
+    if (ImGui::ImageButton(
+            "Help", (void *)(intptr_t)my_image_texture[counterPngRendered],
+            ImVec2(my_image_width[counterPngRendered] * resizePicture,
+                   my_image_height[counterPngRendered] * resizePicture))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu3 = !showSubmenu3;
     }
-    counter += 1;
+    counterPngRendered += 1;
 
     if (showSubmenu3) {
       if (ImGui::MenuItem(appLanguage["HelpLink"])) {
@@ -224,7 +229,7 @@ void SetSideBarMenu(
 
   mainMenuBarSize = ImGui::GetItemRectSize();
   ImGui::EndChild();
-  counter = 0;
+  counterPngRendered = 0;
 } // EndofFunction
 
 } // namespace SideBarRegion

@@ -384,14 +384,14 @@ int main() {
         ImGui::PopStyleColor();
 
       ImGui::SameLine();
-      ImGui::PushStyleColor(
+     /* ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
 
       ImGui::Button(appLanguage["AnalyzeData"], toolBtnSize);
       ImGui::PopStyleColor();
       ImGui::PushStyleColor(
           ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
-      ImGui::SameLine();
+      ImGui::SameLine();*/
 
       // ############################ Button create trainings data
       // ##############################
