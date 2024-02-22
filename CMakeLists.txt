@@ -59,6 +59,12 @@ target_link_libraries(OmniView PUBLIC Boost::boost)
 find_package(CURL REQUIRED)
 target_link_libraries(OmniView PUBLIC ${CURL_LIBRARY} CURL::libcurl)
 
+
+
+#target_sources(OmniView PRIVATE src/menushpp/Style.hpp src/menuscpp/Style.cpp)
+
+target_link_libraries(OmniView PRIVATE ${CMAKE_SOURCE_DIR}/stb_image)
+
 find_package(libusb CONFIG REQUIRED)
 target_include_directories(OmniView PUBLIC ${LIBUSB_INCLUDE_DIRS})
 target_link_libraries(OmniView PUBLIC ${LIBUSB_LIBRARIES})
