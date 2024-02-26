@@ -345,8 +345,10 @@ std::string generateTrainingData(
           setInptFields(selected_file);
         else
           has_selection = false;
-      } else if (wave_from_file && fileNameBuf.empty())
-        has_selection = false;
+      } else if (wave_from_file) {
+         if(fileNameBuf.empty())
+          has_selection = false;
+      }
       else
         has_selection = false;
 
