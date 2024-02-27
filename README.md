@@ -78,22 +78,46 @@ In order to run OmniView it needs admin-rights right now:
 sudo ./OmniView
 ```
 
-## Windows
-Move into OmniView-directory, update and initialize all submodules:
-```shell
-git submodule update --init --recursive
-```
+## Build-Instructions for Windows Systems
+In order to build on Windows, you have to make sure to install the `MS Build Tools for Visual Studio`. 
+Due to the layout of the [Microsoft Download Page](https://visualstudio.microsoft.com/de/downloads/) this package can be hard to find.
+Use this Link to Download [https://aka.ms/vs/17/release/vs_BuildTools.exe](https://aka.ms/vs/17/release/vs_BuildTools.exe). 
+If it doesn't work, please make an Issue.
 
-create build-directory and run cmake from there with defined `VCPKG_TARGET_TRIPLET`:
-```shell
-mkdir build
-cd build
-cmake .. -DVCPKG_TARGET_TRIPLET="x64-windows-static"
-```
+### Prerequisites
+In order to build the project on Windows, make sure, that you installed `git` for Windows, and set up an additional `.ssh`-Configuration for github in your CMD.
+The Windows Shell doesn't use the WSL SSH Configuration!
 
-Start compilation using CMake:
+### Installing
+
+Make sure to select the following options in the Visual Studio Installer:
+- [x] Desktopdevelopment with C++
+
+from the optional components select:
+
+- [x] MSVC v143 - VS 2022 C++ x64/x86 Buildtools
+- [x] Windows 11-SDK (`greater than` 10.0.223??.?) 
+- [x] C++-CMake-Tools for Windows
+- [x] Corefunctions for Testtools - Buildtools
+- [x] C++-/CLI-Support for v143-Buildtools
+- [x] C++-Moduls for v143-Buildtools
+
+This installs approximately 9 GB of data.
+
+### Running the Build
+In order to utilize the `MSVC`-Compiler on the Windows Command-Line, you'll have to set a whole bunch of environment variables.
+Thus Build-Tools provides an easy way to load all of them at one. 
+Instead of runnign `cmd` you can just run the `Developer Command Promt` from your Windows Startmenu.
+This starts a Session with all env-variables set accordingly.
+
+Run the following commands in the Developer Command Prompt:
 ```shell
-cmake --build .
+git clone --recurse-submodules git@github.com:skunkforce/OmniView.git
+cd OmniView
+cmake -S . -B ./build -DVCPKG_TARGET_TRIPLET="x64-windows-static"
+cmake --build ./build --config Release
+```
+The compiled executable will be called `.\build\Release\OmniView.exe`.
 ```
 
 # Workflow: Adding new Code 
@@ -141,4 +165,6 @@ In order to learn more about the project as such, you may visit [www.autowerksta
 
 This work has been supported by the BMWi- project number 68GX21005E
 
+
 ![BMWiPicture](https://www.bmwk.de/SiteGlobals/BMWI/StyleBundles/Bilder/bmwi_logo_de.svg?__blob=normal&v=1)
+
