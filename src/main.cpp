@@ -401,7 +401,9 @@ int main() {
         ImGui::SetNextWindowSize(ImVec2(0, 0));
         ImGui::OpenPopup("Creation of learning data set");
       }*/
-      // ImGui::PopStyleColor();
+
+      //ImGui::PopStyleColor();
+
     } else {
       /*ImGui::SameLine();
       ImGui::PushStyleColor(
