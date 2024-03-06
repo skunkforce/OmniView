@@ -1,53 +1,73 @@
-#include "popups.hpp"
-#include "sendData.hpp"
 #include <fstream>
 #include <regex>
+#include <imgui.h>
+#include <filesystem>
+#include <sstream>
+#include <limits>
+#include <future>
+#include <iostream>
+#include <cstring>
+#include "languages.hpp"
+#include "popups.hpp"
+#include "sendData.hpp"
+#include "../imgui-stdlib/imgui_stdlib.h"
+#include "jasonhandler.hpp"
 
-void generateTrainingData(bool &open_generate_training_data,
-                          const std::optional<OmniscopeSampler> &sampler,
-                          std::set<std::string> &savedFileNames) {
-
-  ImGui::OpenPopup("Generate Training Data");
-  if (ImGui::BeginPopupModal("Generate Training Data", nullptr,
+std::string generateTrainingData(
+    bool &open_generate_training_data,
+    const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
+        &captureData,
+    std::set<std::string> &savedFileNames, const nlohmann::json &config) {
+  static std::string api_message;
+  ImGui::OpenPopup(appLanguage[Key::Gn_trng_data_pop]);
+  if (ImGui::BeginPopupModal(appLanguage[Key::Gn_trng_data_pop], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
 
-    static bool ucw = false; // User Current Waveform
-    static bool wff = false; // Waveform From File
+    static bool usr_curnt_wave = false;
+    static bool wave_from_file = false;
+    static bool callSetInptFields{false};
+    static bool resetInptFields{false};
+    static std::string selected_file;
 
-    if (ImGui::RadioButton("User Current Waveform", ucw)) {
-      ucw = !ucw;
-      wff = false;
+    if (ImGui::RadioButton(appLanguage[Key::Usr_curnt_wave], usr_curnt_wave)) {
+      usr_curnt_wave = !usr_curnt_wave;
+      wave_from_file = false;
+      // set inputfields whenever usr_curnt_wave is set and there's a selected
+      // file
+      if (usr_curnt_wave && !selected_file.empty()) {
+        resetInptFields = true;
+        callSetInptFields = true;
+      }
     }
-    static std::string selectedItem{"Devices & Waveforms Menu"};
 
-    if (ucw && !sampler.has_value() && !savedFileNames.size() //&&
-        /*!ImGui::IsPopupOpen("Waveforms warning")*/) {
-      ImGui::OpenPopup("Waveforms warning",
+    if (usr_curnt_wave && !captureData.size() && !savedFileNames.size()) {
+      ImGui::OpenPopup(appLanguage[Key::WvForms_warning],
                        ImGuiPopupFlags_NoOpenOverExistingPopup);
-      ucw = false;
+      usr_curnt_wave = false;
     }
-    warning_popup("Waveforms warning", "No waveforms were made ");
+    info_popup(appLanguage[Key::WvForms_warning],
+               appLanguage[Key::No_wave_made]);
 
-    if (ucw && (sampler.has_value() || savedFileNames.size()) &&
-        (ImGui::BeginCombo("##ComboDevice", selectedItem.c_str()))) {
-        
-      // Only one checkbox out of two sets of device IDs/Waveforms
-      // should be selected at any given time
-      static int token{-1};
-      size_t i{0};
+    static Omniscope::Id selected_device{};
+    static int token{-1};
+
+    if (usr_curnt_wave && (captureData.size() || savedFileNames.size()) &&
+        (ImGui::BeginCombo("##ComboDevice", "Devices & Waveforms Menu"))) {
+      // only one checkbox out of two sets of
+      // devices/waveforms is selected at any time
+      size_t i{};
       bool is_checked{false};
-      if (sampler.has_value())
-        for (const auto &device : sampler->sampleDevices) {
+      if (captureData.size())
+        for (const auto &[device, values] : captureData) {
           is_checked = (token == i);
-          if (ImGui::Checkbox(device.first->getId().value().serial.c_str(),
-                              &is_checked)) {
+          if (ImGui::Checkbox(device.serial.c_str(), &is_checked)) {
             if (is_checked) {
               token = i;
-                                  // device ID
-              selectedItem = device.first->getId().value().serial.c_str();
+              selected_device = device;
+              resetInptFields = true;
             } else {
               token = -1;
-              selectedItem = "Devices & Waveforms Menu";
+              selected_device = {}; // reset
             }
           }
           i++;
@@ -59,92 +79,144 @@ void generateTrainingData(bool &open_generate_training_data,
           if (ImGui::Checkbox(file.c_str(), &is_checked)) {
             if (is_checked) {
               token = i + sz;
-              selectedItem = file.c_str();
+              selected_file = file.c_str();
+              resetInptFields = true;
+              callSetInptFields = true;
             } else {
               token = -1;
-              selectedItem = "Devices & Waveforms Menu";
+              resetInptFields = true;
+              selected_file.clear();
             }
           }
           ++i;
-        } 
-        // End of the algorithm 
+        } // End of the algorithm
       ImGui::EndCombo();
     }
 
-    //  set browser properties
+    // set browser properties
     fileBrowser.SetTitle("Searching for .csv files");
     // fileBrowser.SetTypeFilters({".csv"});
 
+    static std::string Measurement;
     // one extra space for '\0' character
     static char VIN[18];
-    static std::string Mileage = "";
-    auto setVinMileage = [&](const std::filesystem::path &filename) {
-      std::ifstream file(filename, std::ios::binary);
+    static std::string Mileage;
 
-      if (!file.is_open())
+    std::vector<double> numbers; // measurement values
+    static nlohmann::json myJson;
+    constexpr size_t fieldsSize{3}; // Measurement, Vin and Mileage
+    std::vector<std::string> FieldsData(fieldsSize);
+
+    static bool grayFields = false;
+    // custom flags
+    static auto measuGrayFlag = ImGuiInputTextFlags_None;
+    static auto vinGrayFlag = ImGuiInputTextFlags_None;
+    static auto milGrayFlag = ImGuiInputTextFlags_None;
+
+    auto setInptFields = [&](const std::filesystem::path &filename) {
+      std::ifstream readfile(filename, std::ios::binary);
+
+      if (!readfile.is_open())
         fmt::println("Failed to open file {}", filename);
       else {
-        constexpr size_t numberOfFields{3};
-        // out of ID, Vin and Mileage, only the last two are required
-        std::vector<std::string> FieldsData(numberOfFields);
-
-        // read fields data from file
-        for (size_t i = 0; i < numberOfFields;) {
-          char ch;
-          std::string temp{};
-          while (file >> std::noskipws >> ch) {
-            if (ch == ',' || ch == '\n') {
-              FieldsData[i] = temp;
-              i++;
-              break;
+        // first and second lines of file
+        std::string first_line, second_line;
+        for (size_t i = 0; !readfile.eof(); i++) {
+          if (i == 0) {
+            std::getline(readfile, first_line);
+            std::stringstream ss(first_line);
+            // extract input fields data from the first line
+            for (size_t j = 0; j < fieldsSize; j++) {
+              std::string substr;
+              std::getline(ss, substr, ',');
+              FieldsData[j] = substr;
             }
-            temp += ch;
+          } else if (i == 1)
+            std::getline(readfile, second_line); // device ID
+          else {
+            // read measuring values into the vector
+            constexpr size_t bigNumber{10'000'000};
+            readfile.ignore(bigNumber, ',');
+            double value{};
+            readfile >> value;
+            numbers.push_back(value);
+            // at the last loop, the last number is picked and loop goes on
+            // vector pushes value before eof is reached
           }
         }
+        // pop the extra last element
+        numbers.pop_back();
+        myJson["numbers"] = numbers;
+        Measurement = FieldsData[0];
+
+        if (!Measurement.empty())
+          measuGrayFlag = ImGuiInputTextFlags_ReadOnly;
+
         FieldsData[1].copy(VIN, FieldsData[1].size());
+
+        if (VIN[0] != 0)
+          vinGrayFlag = ImGuiInputTextFlags_ReadOnly;
         Mileage = FieldsData[2];
+        if (!Mileage.empty())
+          milGrayFlag = ImGuiInputTextFlags_ReadOnly;
+        grayFields = true;
       }
     };
 
     static std::string fileNameBuf;
-    static bool grayFields = false;
-    static auto readOnlyFlag{ImGuiInputTextFlags_None};
-
     auto isWrongFile = [&](const std::filesystem::path &path) {
       if (path.extension() == ".csv") {
-        fileNameBuf = path.filename().string();
+        fileNameBuf = path.string();
         savedFileNames.insert(fileNameBuf);
-        setVinMileage(path);
-        readOnlyFlag = ImGuiInputTextFlags_ReadOnly;
-        grayFields = true;
+        setInptFields(path);
         return false;
       }
       return true;
     };
-    fileBrowser.Display();
 
+    if (resetInptFields) {
+      grayFields = false;
+      measuGrayFlag = ImGuiInputTextFlags_None;
+      vinGrayFlag = ImGuiInputTextFlags_None;
+      milGrayFlag = ImGuiInputTextFlags_None;
+      Measurement.clear();
+      std::memset(VIN, 0, sizeof VIN); // reset char array
+      Mileage.clear();
+      resetInptFields = false;
+    }
+    if (callSetInptFields) {
+      setInptFields(selected_file);
+      callSetInptFields = false;
+    }
+
+    fileBrowser.Display();
     if (fileBrowser.HasSelected()) {
-      if (isWrongFile(fileBrowser.GetSelected().string()) // &&
-          /* !ImGui::IsPopupOpen("Wrong file warning")*/) {
-        ImGui::OpenPopup("Wrong file warning",
+      if (isWrongFile(fileBrowser.GetSelected().string())) {
+        ImGui::OpenPopup(appLanguage[Key::Wrong_file_warning],
                          ImGuiPopupFlags_NoOpenOverExistingPopup);
-        wff = false;
+        wave_from_file = false;
       }
       fileBrowser.ClearSelected();
     }
-    warning_popup("Wrong file warning", "Wrong file type! Try again");
+    info_popup(appLanguage[Key::Wrong_file_warning],
+               appLanguage[Key::Wrong_file_type]);
 
-    if (ImGui::RadioButton("Waveform From File", wff)) {
-      wff = !wff;
-      ucw = false;
+    if (ImGui::RadioButton(appLanguage[Key::Wv_from_file], wave_from_file)) {
+      wave_from_file = !wave_from_file;
+      usr_curnt_wave = false;
+      if (wave_from_file && !fileNameBuf.empty())
+        setInptFields(fileNameBuf);
     }
-    if (wff) {
-      if (grayFields) // grey color style
-        ImGui::PushStyleColor(ImGuiCol_Text, {.5, .5, .5, 1});
+
+    static constexpr ImVec4 greyBtnStyle{0.5f, 0.5f, 0.5f, 1.0f};
+
+    if (wave_from_file) {
+      if (grayFields) // grey color style      rgba values
+        ImGui::PushStyleColor(ImGuiCol_Text, greyBtnStyle);
 
       ImGui::SetNextItemWidth(400); // custom width
-      ImGui::InputTextWithHint("##inputLabel", ".csv file", &fileNameBuf,
-                               readOnlyFlag);
+      ImGui::InputTextWithHint("##inputLabel", appLanguage[Key::Csv_file],
+                               &fileNameBuf, ImGuiInputTextFlags_ReadOnly);
       if (grayFields)
         ImGui::PopStyleColor(); // remove grey color style
 
@@ -152,6 +224,10 @@ void generateTrainingData(bool &open_generate_training_data,
       if (ImGui::Button("Browse"))
         fileBrowser.Open();
     }
+
+    if (!usr_curnt_wave && !wave_from_file)
+      resetInptFields = true;
+
     auto vinFilter = [](ImGuiInputTextCallbackData *data) -> int {
       const std::regex chars_regex("[A-HJ-NPR-Z0-9]");
       std::string s;
@@ -170,78 +246,184 @@ void generateTrainingData(bool &open_generate_training_data,
     ImGui::SetNextItemWidth(400);
 
     if (grayFields) // greyed out color style
-      ImGui::PushStyleColor(ImGuiCol_Text, {.5, .5, .5, 1});
+      ImGui::PushStyleColor(ImGuiCol_Text, greyBtnStyle);
 
-    ImGui::InputTextWithHint("ID", "Set your ID in settings", &ID,
+    ImGui::InputTextWithHint("ID", appLanguage[Key::Set_id_in_setting], &ID,
                              ImGuiInputTextFlags_ReadOnly);
     ImGui::SetNextItemWidth(400);
+
+    ImGui::InputTextWithHint(appLanguage[Key::Measurement],
+                             appLanguage[Key::Enter_measurement], &Measurement,
+                             measuGrayFlag);
+    ImGui::SetNextItemWidth(400);
     ImGui::InputTextWithHint(
-        "VIN", "Enter VIN", VIN, IM_ARRAYSIZE(VIN),
+        "VIN", appLanguage[Key::Enter_vin], VIN, IM_ARRAYSIZE(VIN),
         ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank |
-            ImGuiInputTextFlags_CallbackCharFilter | readOnlyFlag,
+            ImGuiInputTextFlags_CallbackCharFilter | vinGrayFlag,
         // callback function to filter each character
         // before putting it into the buffer
         vinFilter);
     ImGui::SetNextItemWidth(400);
-    ImGui::InputTextWithHint("Mileage", "Enter Mileage", &Mileage,
-                             readOnlyFlag);
+    ImGui::InputTextWithHint(appLanguage[Key::Mileage],
+                             appLanguage[Key::Enter_mileage], &Mileage,
+                             milGrayFlag);
     if (grayFields)
       ImGui::PopStyleColor(); // remove grey color style
 
-    std::string msg{ID}; // data to be saved in .csv file
-    msg += ",";
-    msg += VIN;
-    msg += ",";
-    msg += Mileage;
-
-    ImGui::SeparatorText("Reason-for-investigation");
-    static int b = 0;
-    ImGui::RadioButton("Maintenance", &b, 0);
+    ImGui::SeparatorText(appLanguage[Key::Invst_reason]);
+    static int invest = 0;
+    ImGui::RadioButton(appLanguage[Key::Maintenance], &invest, 0);
     ImGui::SameLine();
-    ImGui::RadioButton("Fault", &b, 1);
-
-    ImGui::SeparatorText("Electrical-Consumers");
-    static int c = 0;
-    ImGui::RadioButton("Off", &c, 0);
+    ImGui::RadioButton(appLanguage[Key::Fault], &invest, 1);
+    ImGui::SeparatorText(appLanguage[Key::Electr_consumer]);
+    static int consumer = 0;
+    ImGui::RadioButton(appLanguage[Key::Off], &consumer, 0);
     ImGui::SameLine();
-    ImGui::RadioButton("On", &c, 1);
-
-    ImGui::SeparatorText("Assessment");
-    static int d = 0;
-    ImGui::RadioButton("Normal", &d, 0);
+    ImGui::RadioButton(appLanguage[Key::On], &consumer, 1);
+    ImGui::SeparatorText(appLanguage[Key::Assessment]);
+    static int assess = 0;
+    ImGui::RadioButton("Normal", &assess, 0);
     ImGui::SameLine();
-    ImGui::RadioButton("Anomaly", &d, 1);
-
+    ImGui::RadioButton(appLanguage[Key::Anomaly], &assess, 1);
     static std::string comment;
-    ImGui::InputTextMultiline("Comment", &comment, ImVec2(350, 70),
+    ImGui::InputTextMultiline(appLanguage[Key::Comment], &comment,
+                              ImVec2(350, 70),
                               ImGuiInputTextFlags_AllowTabInput);
 
     auto clearSettings = [&]() {
-      ucw = false;
-      wff = false;
+      usr_curnt_wave = false;
+      wave_from_file = false;
       ID.clear();
-      VIN[0] = 0;
+      Measurement.clear();
+      std::memset(VIN, 0, sizeof VIN);
       Mileage.clear();
+      token = -1;           // reset checkboxes
+      selected_device = {}; // reset the content
+      selected_file.clear();
       fileNameBuf.clear();
-      b = c = d = 0;
+      invest = consumer = assess = 0; // reset radio buttons
       comment.clear();
       grayFields = false;
-      readOnlyFlag = ImGuiInputTextFlags_None;
-      open_generate_training_data = false;
-      ImGui::CloseCurrentPopup();
+      measuGrayFlag = ImGuiInputTextFlags_None;
+      vinGrayFlag = ImGuiInputTextFlags_None;
+      milGrayFlag = ImGuiInputTextFlags_None;
     };
 
-    if (ImGui::Button("Cancel"))
+    if (ImGui::Button(appLanguage[Key::Back])) {
       clearSettings();
-
-    ImGui::SameLine();
-    if (ImGui::Button(" Send ")) {
-      // example url
-      const std::string url{
-          "https://raw.githubusercontent.com/skunkforce/omniview/"};
-      sendData(msg, url);
-      clearSettings();
+      open_generate_training_data = false;
+      ImGui::CloseCurrentPopup();
     }
+
+    static bool flagApiSending = false;
+    static std::future<std::string> future;
+    using namespace std::chrono_literals;
+    const bool grayStyle = flagApiSending;
+    ImGui::SameLine();
+
+    if (grayStyle)
+      ImGui::PushStyleColor(ImGuiCol_Text, greyBtnStyle);
+
+    if (ImGui::Button(appLanguage[Key::Send]) && !flagApiSending) {
+      bool has_selection{true};
+      if (usr_curnt_wave) {
+        if (!selected_device.serial.empty()) {
+          auto it{captureData.find(selected_device)};
+          if (it != captureData.end()) {
+            // read measuring values from the wave into the vector
+            std::vector<double> measuringVals(it->second.size());
+            for (size_t i = 0; i < it->second.size(); ++i)
+              measuringVals[i] = it->second[i].second;
+
+            myJson["numbers"] = measuringVals;
+          } else {
+            has_selection = false;
+            fmt::println("Selected device {} is not found!",
+                         selected_device.serial);
+          }
+        } else if (!selected_file.empty())
+          setInptFields(selected_file);
+        else
+          has_selection = false;
+      } else if (wave_from_file && fileNameBuf.empty())
+        has_selection = false;
+      else
+        has_selection = false;
+
+      if (!has_selection)
+        ImGui::OpenPopup(appLanguage[Key::Nothing_to_send],
+                         ImGuiPopupFlags_NoOpenOverExistingPopup);
+      else {
+        // put all data into the json object for uploading
+        myJson["Measurement"] = Measurement;
+        myJson["VIN"] = VIN;
+        myJson["Mileage"] = Mileage;
+
+        if (invest)
+          myJson["Reason for investigation"] = appLanguage[Key::Fault];
+        else
+          myJson["Reason for investigation"] = appLanguage[Key::Maintenance];
+
+        if (consumer)
+          myJson["Electrical Consumers"] = appLanguage[Key::On];
+        else
+          myJson["Electrical Consumers"] = appLanguage[Key::Off];
+
+        if (assess)
+          myJson["Assessment"] = appLanguage[Key::Anomaly];
+        else
+          myJson["Assessment"] = "Normal";
+
+        myJson["Comment"] = comment;
+
+        // Optional - see what you've uploaded
+        std::filesystem::path outFile =
+            std::filesystem::current_path() / "myJson.json";
+        std::ofstream writefile(outFile, std::ios::trunc);
+        if (!writefile.is_open()) {
+          writefile.clear();
+          fmt::println("Could not create {} for writing!", outFile.string());
+        }
+        fmt::println("Start saving {}.", outFile.string());
+        writefile << myJson;
+        writefile.flush();
+        writefile.close();
+        fmt::println("Finished saving json file.");
+
+        // upload data asynchronously using a separate thread
+        future = std::async(std::launch::async, [&] {
+          std::string result = sendData(config, myJson);
+          return result;
+        });
+
+        flagApiSending = true;
+      }
+    }
+    info_popup(appLanguage[Key::Nothing_to_send],
+               appLanguage[Key::No_slct_to_upld]);
+
+    if (grayStyle)
+      ImGui::PopStyleColor();
+
+    if (flagApiSending) {
+      auto status = future.wait_for(10ms);
+      if (status == std::future_status::ready) {
+        ImGui::OpenPopup(appLanguage[Key::Data_upload],
+                         ImGuiPopupFlags_NoOpenOverExistingPopup);
+        flagApiSending = false;
+        if (future.valid()) {
+          api_message = future.get();
+          clearSettings();
+        }
+      } else {
+        ImGui::SameLine();
+        ImGui::Text(" sending ... %c",
+                    "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+      }
+    }
+    info_popup(appLanguage[Key::Data_upload], api_message.c_str());
     ImGui::EndPopup();
   }
+
+  return api_message;
 }

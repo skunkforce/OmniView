@@ -1,9 +1,8 @@
-#pragma once
-#include "popups.hpp"
 #include <fstream>
-#include <nlohmann/json.hpp>
 #include <sstream>
-#include <vector>
+#include "look_up_saves.hpp"
+#include "popups.hpp"
+#include "imgui_stdlib.h"
 
 namespace fs = std::filesystem;
 
@@ -11,7 +10,8 @@ static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  fs::path const &outFile, std::string allData) {
 
-  std::string fileContent = fmt::format("{}-{}\n", device.type, device.serial);
+  std::string fileContent =
+      fmt::format("\n{}-{}\n", device.type, device.serial);
   for (std::size_t i{}; i < values.size(); ++i) {
     fileContent += fmt::format("{},", i);
     if (values[i].second)
@@ -20,7 +20,7 @@ static void save(const Omniscope::Id &device,
 
   // create a .csv file to write to it
   std::fstream file{outFile};
-  file.open(outFile, std::ios::out | std::ios::app);
+  file.open(outFile, std::ios::binary | std::ios::out | std::ios::app);
 
   if (!file.is_open()) {
     file.clear();
@@ -40,12 +40,12 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
                      &captureData,
                  std::chrono::system_clock::time_point &now,
                  std::time_t &now_time_t, std::tm &now_tm,
-                 bool &flagDataNotSaved,
-                 const std::optional<OmniscopeSampler> &sampler) {
+                 bool &flagDataNotSaved) {
 
   ImGui::SetItemDefaultFocus();
 
-  const size_t devicesSz{sampler->sampleDevices.size()};
+  const size_t devicesSz{captureData.size()};
+
   // input text fields
   static std::vector<std::string> inptTxtFields(devicesSz);
   inptTxtFields.resize(devicesSz);
@@ -97,7 +97,6 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   allData += inputvin;
   allData += ",";
   allData += mileage;
-  allData += "\n";
 
   auto count_checked_devices = [&]() {
     size_t deviceCnt{0};

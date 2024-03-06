@@ -32,8 +32,9 @@ include(cmake_helpers/FindOrFetch.cmake)
 add_executable(OmniView 
                src/main.cpp 
                src/generateTrainingData.cpp 
-               src/warning_popup.cpp
+               src/info_popup.cpp
                src/imgui_stdlib.cpp
+               src/saves_popup.cpp
                )
 
 target_add_default_build_options(OmniView PUBLIC)
@@ -58,12 +59,6 @@ target_link_libraries(OmniView PUBLIC Boost::boost)
 
 find_package(CURL REQUIRED)
 target_link_libraries(OmniView PUBLIC ${CURL_LIBRARY} CURL::libcurl)
-
-
-
-#target_sources(OmniView PRIVATE src/menushpp/Style.hpp src/menuscpp/Style.cpp)
-
-target_link_libraries(OmniView PRIVATE ${CMAKE_SOURCE_DIR}/stb_image)
 
 find_package(libusb CONFIG REQUIRED)
 target_include_directories(OmniView PUBLIC ${LIBUSB_INCLUDE_DIRS})

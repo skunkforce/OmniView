@@ -10,6 +10,7 @@
 #include "../../images/SearchDevicesWhite_data.h"
 #include "../../images/SettingsWhite_data.h"
 
+#include "../languages.hpp"
 #include <iostream>
 #include <string>
 
@@ -156,11 +157,11 @@ void SetSideBarMenu(
             ImGuiCol_Text,
             ImVec4(100 / 255.0f, 100 / 255.0f, 100 / 255.0f, 100 / 100.0f));
 
-        ImGui::MenuItem(appLanguage["Anlyz_crnt_waveform"]);
+        ImGui::MenuItem(appLanguage[Key::Anlyz_crnt_waveform]);
 
         ImGui::PopStyleColor();
 
-        if (ImGui::MenuItem(appLanguage["Gnrt_trning_data"]))
+        if (ImGui::MenuItem(appLanguage[Key::Gnrt_trning_data]))
           open_generate_training_data = true;
 
         ImGui::TreePop();
@@ -184,19 +185,19 @@ void SetSideBarMenu(
     // if button has been clicked to that :
 
     if (showSubmenu1) {
-      if (ImGui::TreeNode(appLanguage["LanOption"])) {
+      if (ImGui::TreeNode(appLanguage[Key::LanOption])) {
         for (const auto &lang : availableLanguages) {
           if (ImGui::Button(lang.c_str())) {
             config["language"] = lang;
             write_json_file(configpath, config);
             appLanguage = germanLan;
           }
-          if (ImGui::MenuItem(appLanguage["English"]))
+          if (ImGui::MenuItem(appLanguage[Key::English]))
             appLanguage = englishLan;
         }
         ImGui::TreePop();
       }
-      if (ImGui::MenuItem(appLanguage["Settings"])) {
+      if (ImGui::MenuItem(appLanguage[Key::Settings])) {
         open_settings = true;
       }
     }
@@ -216,14 +217,14 @@ void SetSideBarMenu(
     counterPngRendered += 1;
 
     if (showSubmenu3) {
-      if (ImGui::MenuItem(appLanguage["HelpLink"])) {
+      if (ImGui::MenuItem(appLanguage[Key::HelpLink])) {
         system(("start " + load_json<std::string>(config, "helplink")).c_str());
       }
     }
   }
 
   ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.95f);
-  ImGui::Text(fmt::format("{}: {}", appLanguage["Version"],
+  ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
                           CMakeGitVersion::VersionWithGit)
                   .c_str());
 

@@ -5,22 +5,17 @@
 #include "apihandler.hpp"
 #include "create_training_data.hpp"
 #include "get_from_github.hpp"
-#include "saves_popup.hpp"
 #include "settingspopup.hpp"
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <cmake_git_version/version.hpp>
-
+#include "popups.hpp"
+#include "languages.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image/stb_image.h" // externe Libary aus Git
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../stb_image/stb_image_write.h"
-// include style
-
 #include "LoadImages.hpp"
-
 #include "menuscpp/Style.cpp"
 
 // include menus
@@ -247,7 +242,7 @@ int main() {
      // open_save_devices = false;
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm,
-                  flagDataNotSaved, sampler); 
+                  flagDataNotSaved); 
       ImGui::EndPopup();
     }
 
@@ -260,9 +255,7 @@ int main() {
                   "Would you like to save it before deleting it?\n");
       if (ImGui::Button("Continue deletion", btnSize)) {
         sampler.reset();
-        //devices.clear();
         savedFileNames.clear();
-        //deviceManager.clearDevices();
         captureData.clear();
         ImGui::CloseCurrentPopup();
       }
@@ -353,9 +346,7 @@ int main() {
             ImGui::OpenPopup("Reset?");
           } else {
             sampler.reset();
-            //devices.clear();
             savedFileNames.clear();
-            //deviceManager.clearDevices();
             captureData.clear();
             flagPaused = true;
           }
@@ -372,13 +363,14 @@ int main() {
             ImGuiCol_Text,
             load_json<Color>(config, "text", "color", "inactive"));
 
-      if (ImGui::Button(appLanguage["Save"], toolBtnSize)) {
+      if (ImGui::Button(appLanguage[Key::Save], toolBtnSize)) {
          if(sampler.has_value()) 
             ImGui::OpenPopup("Save recorded data");
          else  
-          ImGui::OpenPopup(appLanguage["Save warning"], ImGuiPopupFlags_NoOpenOverExistingPopup);
+          ImGui::OpenPopup(appLanguage[Key::Save_warning], 
+                           ImGuiPopupFlags_NoOpenOverExistingPopup);
       }
-     warning_popup(appLanguage["Save warning"], appLanguage["No_dvc_available"]);    
+     info_popup(appLanguage[Key::Save_warning], appLanguage[Key::No_dvc_available]);    
 
       if (pushStyle)
         ImGui::PopStyleColor();
@@ -430,8 +422,10 @@ int main() {
     }
 
     // Generate training data Menu
+    static std::string api_message;
     if (open_generate_training_data) 
-      generateTrainingData(open_generate_training_data, sampler, savedFileNames);
+      api_message = generateTrainingData(open_generate_training_data, captureData, 
+                                        savedFileNames, config);
 
     // ############################ addPlots("Recording the data", ...)
     // ##############################
