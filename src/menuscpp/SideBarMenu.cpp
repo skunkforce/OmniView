@@ -38,7 +38,13 @@ void SetSideBarMenu(
   static GLuint my_image_texture[size];
   static bool ret[size];
 
-  static float resizePicture = 0.6;
+  static float relativeDisplaySizeX = ImGui::GetIO().DisplaySize.x / 1280;
+  static float relativeDisplaySizeY = ImGui::GetIO().DisplaySize.y / 760;
+
+  // resize the ImageButtons
+  static float sizeImageButtons = 0.65;
+  static float resizePictureX = sizeImageButtons * relativeDisplaySizeX;
+  static float resizePictureY = sizeImageButtons * relativeDisplaySizeY;
 
   // The order matters because of the counter for the images !!!
 
@@ -109,9 +115,11 @@ void SetSideBarMenu(
 
   if (loaded_png[counterPngRendered]) {
     // render the AIGroupLogo
-    ImGui::Image((void *)(intptr_t)my_image_texture[counterPngRendered],
-                 ImVec2(my_image_width[counterPngRendered] * 0.5,
-                        my_image_height[counterPngRendered] * 0.5));
+    ImGui::Image(
+        (void *)(intptr_t)my_image_texture[counterPngRendered],
+        ImVec2(my_image_width[counterPngRendered] * 0.5 * relativeDisplaySizeX,
+               my_image_height[counterPngRendered] * 0.5 *
+                   relativeDisplaySizeY));
     ImGui::Text("              ");
     counterPngRendered += 1;
   }
@@ -123,8 +131,8 @@ void SetSideBarMenu(
       if (ImGui::ImageButton(
               "Load new Devices",
               (void *)(intptr_t)my_image_texture[counterPngRendered],
-              ImVec2(my_image_width[counterPngRendered] * resizePicture,
-                     my_image_height[counterPngRendered] * resizePicture))) {
+              ImVec2(my_image_width[counterPngRendered] * resizePictureX,
+                     my_image_height[counterPngRendered] * resizePictureY))) {
         devices.clear();
         deviceManager.clearDevices();
         initDevices();
@@ -142,8 +150,8 @@ void SetSideBarMenu(
     if (ImGui::ImageButton(
             "Diagnostics",
             (void *)(intptr_t)my_image_texture[counterPngRendered],
-            ImVec2(my_image_width[counterPngRendered] * resizePicture,
-                   my_image_height[counterPngRendered] * resizePicture))) {
+            ImVec2(my_image_width[counterPngRendered] * resizePictureX,
+                   my_image_height[counterPngRendered] * resizePictureY))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu2 = !showSubmenu2;
     }
@@ -174,8 +182,8 @@ void SetSideBarMenu(
 
     if (ImGui::ImageButton(
             "Settings", (void *)(intptr_t)my_image_texture[counterPngRendered],
-            ImVec2(my_image_width[counterPngRendered] * resizePicture,
-                   my_image_height[counterPngRendered] * resizePicture))) {
+            ImVec2(my_image_width[counterPngRendered] * resizePictureX,
+                   my_image_height[counterPngRendered] * resizePictureY))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu1 = !showSubmenu1;
     }
@@ -208,8 +216,8 @@ void SetSideBarMenu(
 
     if (ImGui::ImageButton(
             "Help", (void *)(intptr_t)my_image_texture[counterPngRendered],
-            ImVec2(my_image_width[counterPngRendered] * resizePicture,
-                   my_image_height[counterPngRendered] * resizePicture))) {
+            ImVec2(my_image_width[counterPngRendered] * resizePictureX,
+                   my_image_height[counterPngRendered] * resizePictureY))) {
       // Aktion bei Klick auf Menüpunkt 1
       showSubmenu3 = !showSubmenu3;
     }

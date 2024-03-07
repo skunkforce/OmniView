@@ -1,4 +1,4 @@
-// clang-format off
+// clang-format offload_settings
 #include <boost/asio.hpp>
 //clang-format on
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
@@ -7,10 +7,9 @@
 #include "get_from_github.hpp"
 #include "saves_popup.hpp"
 #include "settingspopup.hpp"
+#include <cmake_git_version/version.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
-#include <cmake_git_version/version.hpp>
-
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image/stb_image.h" // externe Libary aus Git
@@ -94,7 +93,7 @@ int main() {
   }
 
   constexpr ImVec2 toolBtnSize = ImVec2(80, 80); // toolbar buttons size
-  constexpr ImVec2 btnSize = ImVec2(0, 0);         // other buttons size
+  constexpr ImVec2 btnSize = ImVec2(0, 0);       // other buttons size
 
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
@@ -109,7 +108,7 @@ int main() {
   OmniscopeDeviceManager deviceManager{};
   std::vector<std::shared_ptr<OmniscopeDevice>> devices;
   std::map<Omniscope::Id, std::array<float, 3>> colorMap;
- 
+
   auto now = std::chrono::system_clock::now();
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   std::tm now_tm = *std::gmtime(&now_time_t);
@@ -118,7 +117,7 @@ int main() {
   static bool open_settings = false;
   static bool open_generate_training_data = false;
   // unique and ordered filenames
-   std::set<std::string> savedFileNames;
+  std::set<std::string> savedFileNames;
   static bool upload_success = false;
   static bool flagPaused = true;
   static bool flagDataNotSaved = true;
@@ -216,7 +215,6 @@ int main() {
         sampler, devices, deviceManager, captureData, flagPaused,
         open_generate_training_data, mainMenuBarSize, colorMap);
 
-
     // ############################ Live Capture
     // ##############################
 
@@ -234,7 +232,7 @@ int main() {
     if (toolBtnSize.y < (ImGui::GetTextLineHeightWithSpacing() * 1.1))
       optimal_buttonstripe_height = ImGui::GetTextLineHeightWithSpacing() * 1.1;
 
-      ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.65f,
+    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.65f,
                                ImGui::GetIO().DisplaySize.y * 0.05f));
 
     ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
@@ -243,11 +241,11 @@ int main() {
     // ############################ Popup Save
     // ##############################
     if (ImGui::BeginPopupModal("Save recorded data", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {                        
-     // open_save_devices = false;
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      // open_save_devices = false;
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm,
-                  flagDataNotSaved, sampler); 
+                  flagDataNotSaved, sampler);
       ImGui::EndPopup();
     }
 
@@ -260,9 +258,9 @@ int main() {
                   "Would you like to save it before deleting it?\n");
       if (ImGui::Button("Continue deletion", btnSize)) {
         sampler.reset();
-        //devices.clear();
+        // devices.clear();
         savedFileNames.clear();
-        //deviceManager.clearDevices();
+        // deviceManager.clearDevices();
         captureData.clear();
         ImGui::CloseCurrentPopup();
       }
@@ -285,7 +283,7 @@ int main() {
         popup_create_training_data_select(config, language, upload_success);
         ImGui::EndPopup();
       }
-      if (upload_success == true) 
+      if (upload_success == true)
         ImGui::OpenPopup("upload_success");
       if (ImGui::BeginPopupModal("upload_success", nullptr,
                                  ImGuiWindowFlags_AlwaysAutoResize |
@@ -353,9 +351,9 @@ int main() {
             ImGui::OpenPopup("Reset?");
           } else {
             sampler.reset();
-            //devices.clear();
+            // devices.clear();
             savedFileNames.clear();
-            //deviceManager.clearDevices();
+            // deviceManager.clearDevices();
             captureData.clear();
             flagPaused = true;
           }
@@ -373,25 +371,28 @@ int main() {
             load_json<Color>(config, "text", "color", "inactive"));
 
       if (ImGui::Button(appLanguage["Save"], toolBtnSize)) {
-         if(sampler.has_value()) 
-            ImGui::OpenPopup("Save recorded data");
-         else  
-          ImGui::OpenPopup(appLanguage["Save warning"], ImGuiPopupFlags_NoOpenOverExistingPopup);
+        if (sampler.has_value())
+          ImGui::OpenPopup("Save recorded data");
+        else
+          ImGui::OpenPopup(appLanguage["Save warning"],
+                           ImGuiPopupFlags_NoOpenOverExistingPopup);
       }
-     warning_popup(appLanguage["Save warning"], appLanguage["No_dvc_available"]);    
+      warning_popup(appLanguage["Save warning"],
+                    appLanguage["No_dvc_available"]);
 
       if (pushStyle)
         ImGui::PopStyleColor();
 
       ImGui::SameLine();
-     /* ImGui::PushStyleColor(
-          ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+      /* ImGui::PushStyleColor(
+           ImGuiCol_Text, load_json<Color>(config, "text", "color",
+       "inactive"));
 
-      ImGui::Button(appLanguage["AnalyzeData"], toolBtnSize);
-      ImGui::PopStyleColor();
-      ImGui::PushStyleColor(
-          ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
-      ImGui::SameLine();*/
+       ImGui::Button(appLanguage["AnalyzeData"], toolBtnSize);
+       ImGui::PopStyleColor();
+       ImGui::PushStyleColor(
+           ImGuiCol_Text, load_json<Color>(config, "text", "color", "normal"));
+       ImGui::SameLine();*/
 
       // ############################ Button create trainings data
       // ##############################
@@ -400,7 +401,9 @@ int main() {
         ImGui::SetNextWindowSize(ImVec2(0, 0));
         ImGui::OpenPopup("Creation of learning data set");
       }*/
+
       //ImGui::PopStyleColor();
+
     } else {
       /*ImGui::SameLine();
       ImGui::PushStyleColor(
@@ -430,8 +433,9 @@ int main() {
     }
 
     // Generate training data Menu
-    if (open_generate_training_data) 
-      generateTrainingData(open_generate_training_data, sampler, savedFileNames);
+    if (open_generate_training_data)
+      generateTrainingData(open_generate_training_data, sampler,
+                           savedFileNames);
 
     // ############################ addPlots("Recording the data", ...)
     // ##############################
@@ -460,7 +464,7 @@ int main() {
     // ############################ Devicelist
     // ##############################
 
-     Style::SetupImGuiStyle(false, 0.99f);
+    Style::SetupImGuiStyle(false, 0.99f);
 
     // Create Devices Menu at the bottom of the programm
 
