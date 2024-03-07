@@ -68,6 +68,7 @@ jobs:
         if: ${{ contains(matrix.os, 'windows' ) }}
         run: cmake --build ./build --config Release
 
+
       - name: upload executable (Linux)
         uses: actions/upload-artifact@v3
         if: ${{ !contains(matrix.os, 'windows' ) }}
