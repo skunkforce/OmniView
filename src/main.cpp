@@ -5,6 +5,7 @@
 #include "create_training_data.hpp"
 #include "get_from_github.hpp"
 #include "settingspopup.hpp"
+#include <cmake_git_version/version.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <cmake_git_version/version.hpp>
@@ -87,7 +88,6 @@ int main() {
   }
 
   constexpr ImVec2 toolBtnSize = ImVec2(80, 80); // toolbar buttons size
-
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
 
@@ -238,6 +238,7 @@ int main() {
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm,
                   flagDataNotSaved); 
+
       ImGui::EndPopup();
     }
 
@@ -385,8 +386,8 @@ int main() {
         ImGui::SetNextWindowSize(ImVec2(0, 0));
         ImGui::OpenPopup("Creation of learning data set");
       }*/
-
       // ImGui::PopStyleColor();
+
     } else {
       /*ImGui::SameLine();
       ImGui::PushStyleColor(
