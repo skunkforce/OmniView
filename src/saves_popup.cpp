@@ -12,6 +12,7 @@ static void save(const Omniscope::Id &device,
 
   std::string fileContent =
       fmt::format("\n{}-{}\n", device.type, device.serial);
+
   for (std::size_t i{}; i < values.size(); ++i) {
     fileContent += fmt::format("{},", i);
     if (values[i].second)
@@ -45,7 +46,6 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   ImGui::SetItemDefaultFocus();
 
   const size_t devicesSz{captureData.size()};
-
   // input text fields
   static std::vector<std::string> inptTxtFields(devicesSz);
   inptTxtFields.resize(devicesSz);
@@ -60,7 +60,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   dvcCheckedArr.resize(devicesSz);
 
   ImGui::InputTextWithHint("##Lable1", "\".../OmniView/saves/\"",
-                           &inptTxtFields[0]);
+                           &inptTxtFields[0]);          
   ImGui::SameLine();
   if (ImGui::Button("Browse"))
     directoryBrowser.Open();

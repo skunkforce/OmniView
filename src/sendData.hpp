@@ -3,27 +3,23 @@
 #ifndef SENDDATA_HEADER_HPP
 #define SENDDATA_HEADER_HPP
 
-#include "jasonhandler.hpp"
 #include <curl/curl.h>
 #include <fmt/format.h>
+#include "jasonhandler.hpp"
 
 inline std::string sendData(nlohmann::json const &config,
-                            const nlohmann::json &myJson) {
+                            const nlohmann::json &myJson)
+{
   std::string api_message = "empty";
-
-  CURL *curl;
-  CURLcode res;
-
   curl_global_init(CURL_GLOBAL_DEFAULT);
-  curl = curl_easy_init();
+  CURL *curl = curl_easy_init();
 
-  if (curl) {
+  if (curl)
+  {
     std::string url = load_json<std::string>(config, "api", "url");
 
     curl_mime *mime = curl_mime_init(curl);
-    curl_mimepart *part;
-
-    part = curl_mime_addpart(mime);
+    curl_mimepart *part = curl_mime_addpart(mime);
     curl_mime_name(part, "measured_data");
     curl_mime_data(part, myJson.dump().c_str(), CURL_ZERO_TERMINATED);
 
@@ -39,7 +35,7 @@ inline std::string sendData(nlohmann::json const &config,
     curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
 
     // Sending the request
-    res = curl_easy_perform(curl);
+    CURLcode res = curl_easy_perform(curl);
 
     // Check for errors
     if (res != CURLE_OK)
@@ -50,14 +46,13 @@ inline std::string sendData(nlohmann::json const &config,
     // Clean up
     curl_easy_cleanup(curl);
     curl_slist_free_all(header_list);
-  } else {
-    fmt::println("cURL initialization failed! ");
   }
+  else
+    fmt::println("cURL initialization failed! ");
 
   // Cleaning up cURL
   curl_global_cleanup();
 
   return api_message;
 }
-
 #endif

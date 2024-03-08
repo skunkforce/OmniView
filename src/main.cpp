@@ -2,11 +2,9 @@
 #include <boost/asio.hpp>
 //clang-format on
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
-#include "apihandler.hpp"
 #include "create_training_data.hpp"
 #include "get_from_github.hpp"
 #include "settingspopup.hpp"
-#include <cmake_git_version/version.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <cmake_git_version/version.hpp>
@@ -20,7 +18,6 @@
 #include "menuscpp/Style.cpp"
 
 // include menus
-
 #include "menuscpp/DevicesMenu.cpp"
 #include "menuscpp/SideBarMenu.cpp"
 
@@ -90,7 +87,6 @@ int main() {
   }
 
   constexpr ImVec2 toolBtnSize = ImVec2(80, 80); // toolbar buttons size
-  constexpr ImVec2 btnSize = ImVec2(0, 0);       // other buttons size
 
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
@@ -239,29 +235,26 @@ int main() {
     // ##############################
     if (ImGui::BeginPopupModal("Save recorded data", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
-      // open_save_devices = false;
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm,
                   flagDataNotSaved); 
-
       ImGui::EndPopup();
     }
 
     // ############################ Popup Reset
     // ##############################
-    if (ImGui::BeginPopupModal("Reset?", nullptr,
+    if (ImGui::BeginPopupModal(appLanguage[Key::Reset_q], nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      ImGui::Text("The measurement was not saved!\n"
-                  "Would you like to save it before deleting it?\n");
-      if (ImGui::Button("Continue deletion", btnSize)) {
+      ImGui::Text(appLanguage[Key::Measure_not_saved]);
+      if (ImGui::Button(appLanguage[Key::Continue_del])) {
         sampler.reset();
         savedFileNames.clear();
         captureData.clear();
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
-      if (ImGui::Button("Back", btnSize)) {
+      if (ImGui::Button(appLanguage[Key::Back])) {
         ImGui::CloseCurrentPopup();
       }
       ImGui::EndPopup();
@@ -305,9 +298,7 @@ int main() {
         // ##############################
         if (!sampler.has_value()) {
           set_button_style_to(config, "start");
-          if (ImGui::Button(
-                  load_json<std::string>(language, "button", "start").c_str(),
-                  toolBtnSize)) {
+          if (ImGui::Button(appLanguage[Key::Start], toolBtnSize)) {
             sampler.emplace(deviceManager, std::move(devices));
             flagPaused = false;
             flagDataNotSaved = true;
@@ -319,9 +310,7 @@ int main() {
       // ############################ Stop Button
       // ##############################
       set_button_style_to(config, "stop");
-      if (ImGui::Button(
-              load_json<std::string>(language, "button", "stop").c_str(),
-              toolBtnSize))
+      if (ImGui::Button(appLanguage[Key::Stop], toolBtnSize))
         flagPaused = true;
 
       ImGui::PopStyleColor(3);
@@ -334,7 +323,7 @@ int main() {
       if (sampler.has_value()) {
         ImGui::SameLine();
         set_button_style_to(config, "start");
-        if (ImGui::Button("Continue", toolBtnSize)) {
+        if (ImGui::Button(appLanguage[Key::Continue], toolBtnSize)) {
           flagPaused = false;
           flagDataNotSaved = true;
         }
@@ -342,9 +331,9 @@ int main() {
         ImGui::SameLine();
 
         set_button_style_to(config, "stop");
-        if (ImGui::Button("Reset", toolBtnSize)) {
+        if (ImGui::Button(appLanguage[Key::Reset], toolBtnSize)) {
           if (flagDataNotSaved) {
-            ImGui::OpenPopup("Reset?");
+            ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           } else {
             sampler.reset();
             savedFileNames.clear();
@@ -365,6 +354,7 @@ int main() {
             load_json<Color>(config, "text", "color", "inactive"));
 
       if (ImGui::Button(appLanguage[Key::Save], toolBtnSize)) {
+
          if(sampler.has_value()) 
             ImGui::OpenPopup("Save recorded data");
          else  
@@ -426,8 +416,8 @@ int main() {
     }
 
     // Generate training data Menu
-    if (open_generate_training_data) 
-        generateTrainingData(open_generate_training_data, captureData, 
+    if (open_generate_training_data)
+      generateTrainingData(open_generate_training_data, captureData, 
                                         savedFileNames, config);
 
     // ############################ addPlots("Recording the data", ...)

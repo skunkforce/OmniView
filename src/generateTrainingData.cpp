@@ -13,16 +13,16 @@
 #include "../imgui-stdlib/imgui_stdlib.h"
 #include "jasonhandler.hpp"
 
-std::string generateTrainingData(
+void generateTrainingData(
     bool &open_generate_training_data,
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
         &captureData,
     std::set<std::string> &savedFileNames, const nlohmann::json &config) {
-  static std::string api_message;
+
   ImGui::OpenPopup(appLanguage[Key::Gn_trng_data_pop]);
   if (ImGui::BeginPopupModal(appLanguage[Key::Gn_trng_data_pop], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
-
+    static std::string api_message;
     static bool usr_curnt_wave = false;
     static bool wave_from_file = false;
     static bool callSetInptFields{false};
@@ -346,10 +346,9 @@ std::string generateTrainingData(
         else
           has_selection = false;
       } else if (wave_from_file) {
-         if(fileNameBuf.empty())
+        if (fileNameBuf.empty())
           has_selection = false;
-      }
-      else
+      } else
         has_selection = false;
 
       if (!has_selection)
@@ -426,6 +425,5 @@ std::string generateTrainingData(
     info_popup(appLanguage[Key::Data_upload], api_message.c_str());
     ImGui::EndPopup();
   }
-
-  return api_message;
 }
+

@@ -15,3 +15,4 @@ void info_popup(std::string_view title, std::string_view text) {
     ImGui::EndPopup();
   }
 }
+
