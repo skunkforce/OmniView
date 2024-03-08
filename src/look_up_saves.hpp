@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace fs = std::filesystem;
-std::string getSubdirectoriesInFolder(nlohmann::json language,
+inline std::string getSubdirectoriesInFolder(nlohmann::json language,
                                       fs::path const &saves_folder_path,
                                       char scantype[255] = 0,
                                       char inputvin[18] = 0,
@@ -71,7 +71,7 @@ std::string getSubdirectoriesInFolder(nlohmann::json language,
 
   return selectedFolder;
 }
-std::string select_combo_from_json(nlohmann::json const &language,
+inline std::string select_combo_from_json(nlohmann::json const &language,
                                    std::string const &key,
                                    int &selectedOption) {
   std::string selectedmeasure;
