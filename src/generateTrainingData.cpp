@@ -124,6 +124,7 @@ void generateTrainingData(
         for (size_t i = 0; !readfile.eof(); i++) {
           if (i == 0) {
             std::getline(readfile, first_line);
+            first_line.pop_back(); // remove ending new line
             std::stringstream ss(first_line);
             // extract input fields data from the first line
             for (size_t j = 0; j < fieldsSize; j++) {
@@ -221,7 +222,7 @@ void generateTrainingData(
         ImGui::PopStyleColor(); // remove grey color style
 
       ImGui::SameLine();
-      if (ImGui::Button("Browse"))
+      if (ImGui::Button(appLanguage[Key::Browse]))
         fileBrowser.Open();
     }
 
@@ -325,7 +326,7 @@ void generateTrainingData(
       ImGui::PushStyleColor(ImGuiCol_Text, greyBtnStyle);
 
     if (ImGui::Button(appLanguage[Key::Send]) && !flagApiSending) {
-      bool has_selection{true};
+        bool has_selection{false};
       if (usr_curnt_wave) {
         if (!selected_device.serial.empty()) {
           auto it{captureData.find(selected_device)};
@@ -336,20 +337,16 @@ void generateTrainingData(
               measuringVals[i] = it->second[i].second;
 
             myJson["numbers"] = measuringVals;
-          } else {
-            has_selection = false;
+            has_selection = true;
+          } else 
             fmt::println("Selected device {} is not found!",
                          selected_device.serial);
-          }
-        } else if (!selected_file.empty())
+        } else if (!selected_file.empty()) {
           setInptFields(selected_file);
-        else
-          has_selection = false;
-      } else if (wave_from_file) {
-        if (fileNameBuf.empty())
-          has_selection = false;
-      } else
-        has_selection = false;
+          has_selection = true;
+        }
+      } else if (wave_from_file && !fileNameBuf.empty())
+          has_selection = true;
 
       if (!has_selection)
         ImGui::OpenPopup(appLanguage[Key::Nothing_to_send],

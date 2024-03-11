@@ -65,7 +65,8 @@ enum class Key
     Enter_measurement,
     Enter_vin,
     Mileage,
-    Enter_mileage
+    Enter_mileage,
+    Browse
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -128,7 +129,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Enter_measurement, "Enter Measurement"},
     {Key::Enter_vin, "Enter VIN"},
     {Key::Mileage, "Mileage"},
-    {Key::Enter_mileage, "Enter Mileage"}};
+    {Key::Enter_mileage, "Enter Mileage"},
+    {Key::Browse, "Browse"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Menu, "Menü"},
@@ -190,6 +192,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Enter_measurement, "Geben Sie die Messung ein"},
     {Key::Enter_vin, "Geben Sie VIN ein"},
     {Key::Mileage, "Kilometerstand"},
-    {Key::Enter_mileage, "Geben Sie den Kilometerstand ein"}};
+    {Key::Enter_mileage, "Geben Sie den Kilometerstand ein"},
+    {Key::Browse, "Durchsuche"}};
 inline auto appLanguage = englishLan;
 #endif
