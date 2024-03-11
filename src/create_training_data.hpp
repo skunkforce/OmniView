@@ -11,6 +11,7 @@
 #include <thread>
 
 #include "jasonhandler.hpp"
+#include "apihandler.hpp"
 
 // clang-format off
 #include "../imgui-filebrowser/imfilebrowser.h"
