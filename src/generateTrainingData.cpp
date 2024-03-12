@@ -22,12 +22,12 @@ void generateTrainingData(
   ImGui::OpenPopup(appLanguage[Key::Gn_trng_data_pop]);
   if (ImGui::BeginPopupModal(appLanguage[Key::Gn_trng_data_pop], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
-    static std::string api_message;
-    static bool usr_curnt_wave = false;
-    static bool wave_from_file = false;
-    static bool callSetInptFields{false};
-    static bool resetInptFields{false};
+    static bool usr_curnt_wave        {false};
+    static bool wave_from_file        {false};
+    static bool callSetInptFields     {false};
+    static bool resetInptFields       {false};
     static std::string selected_file;
+    static std::string api_message;
 
     if (ImGui::RadioButton(appLanguage[Key::Usr_curnt_wave], usr_curnt_wave)) {
       usr_curnt_wave = !usr_curnt_wave;
@@ -104,9 +104,6 @@ void generateTrainingData(
 
     std::vector<double> numbers; // measurement values
     static nlohmann::json myJson;
-    constexpr size_t fieldsSize{3}; // Measurement, Vin and Mileage
-    std::vector<std::string> FieldsData(fieldsSize);
-
     static bool grayFields = false;
     // custom flags
     static auto measuGrayFlag = ImGuiInputTextFlags_None;
@@ -114,6 +111,8 @@ void generateTrainingData(
     static auto milGrayFlag = ImGuiInputTextFlags_None;
 
     auto setInptFields = [&](const std::filesystem::path &filename) {
+      constexpr size_t fieldsSize{3}; // Measurement, Vin and Mileage
+      std::vector<std::string> FieldsData(fieldsSize);
       std::ifstream readfile(filename, std::ios::binary);
 
       if (!readfile.is_open())
@@ -147,16 +146,17 @@ void generateTrainingData(
         }
         // pop the extra last element
         numbers.pop_back();
-        myJson["numbers"] = numbers;
-        Measurement = FieldsData[0];
+        myJson["y_values"] = numbers;
 
+        Measurement = FieldsData[0];
         if (!Measurement.empty())
           measuGrayFlag = ImGuiInputTextFlags_ReadOnly;
 
+        std::memset(VIN, 0, sizeof VIN); // reset char array containing old data
         FieldsData[1].copy(VIN, FieldsData[1].size());
-
         if (VIN[0] != 0)
           vinGrayFlag = ImGuiInputTextFlags_ReadOnly;
+
         Mileage = FieldsData[2];
         if (!Mileage.empty())
           milGrayFlag = ImGuiInputTextFlags_ReadOnly;
@@ -169,6 +169,9 @@ void generateTrainingData(
       if (path.extension() == ".csv") {
         fileNameBuf = path.string();
         savedFileNames.insert(fileNameBuf);
+        measuGrayFlag = ImGuiInputTextFlags_None;
+        vinGrayFlag = ImGuiInputTextFlags_None;
+        milGrayFlag = ImGuiInputTextFlags_None;
         setInptFields(path);
         return false;
       }
@@ -177,9 +180,6 @@ void generateTrainingData(
 
     if (resetInptFields) {
       grayFields = false;
-      measuGrayFlag = ImGuiInputTextFlags_None;
-      vinGrayFlag = ImGuiInputTextFlags_None;
-      milGrayFlag = ImGuiInputTextFlags_None;
       Measurement.clear();
       std::memset(VIN, 0, sizeof VIN); // reset char array
       Mileage.clear();
@@ -243,31 +243,45 @@ void generateTrainingData(
       return 1;              // discard exceeding chars
     };
 
-    static std::string ID;
-    ImGui::SetNextItemWidth(400);
-
     if (grayFields) // greyed out color style
       ImGui::PushStyleColor(ImGuiCol_Text, greyBtnStyle);
 
+    static std::string ID;
+    ImGui::SetNextItemWidth(400);
     ImGui::InputTextWithHint("ID", appLanguage[Key::Set_id_in_setting], &ID,
                              ImGuiInputTextFlags_ReadOnly);
-    ImGui::SetNextItemWidth(400);
 
-    ImGui::InputTextWithHint(appLanguage[Key::Measurement],
-                             appLanguage[Key::Enter_measurement], &Measurement,
-                             measuGrayFlag);
     ImGui::SetNextItemWidth(400);
+    static std::string measurHint {appLanguage[Key::Enter_measurement]};
+    ImGui::InputTextWithHint(appLanguage[Key::Measurement],
+                             measurHint.c_str(), &Measurement,
+                             measuGrayFlag);
+    if (ImGui::IsItemFocused())
+      measurHint.clear();
+    else measurHint = appLanguage[Key::Enter_measurement];
+
+    ImGui::SetNextItemWidth(400);
+    static std::string vinHint {appLanguage[Key::Enter_vin]};
     ImGui::InputTextWithHint(
-        "VIN", appLanguage[Key::Enter_vin], VIN, IM_ARRAYSIZE(VIN),
+        "VIN", vinHint.c_str(), VIN, IM_ARRAYSIZE(VIN),
         ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank |
             ImGuiInputTextFlags_CallbackCharFilter | vinGrayFlag,
         // callback function to filter each character
         // before putting it into the buffer
         vinFilter);
+    if (ImGui::IsItemFocused())
+      vinHint.clear();
+    else vinHint = appLanguage[Key::Enter_vin];
+
     ImGui::SetNextItemWidth(400);
+    static std::string milHint {appLanguage[Key::Enter_mileage]};
     ImGui::InputTextWithHint(appLanguage[Key::Mileage],
-                             appLanguage[Key::Enter_mileage], &Mileage,
+                             milHint.c_str(), &Mileage,
                              milGrayFlag);
+     if (ImGui::IsItemFocused())
+      milHint.clear();
+    else milHint = appLanguage[Key::Enter_mileage];
+
     if (grayFields)
       ImGui::PopStyleColor(); // remove grey color style
 
@@ -336,7 +350,7 @@ void generateTrainingData(
             for (size_t i = 0; i < it->second.size(); ++i)
               measuringVals[i] = it->second[i].second;
 
-            myJson["numbers"] = measuringVals;
+            myJson["y_values"] = measuringVals;
             has_selection = true;
           } else 
             fmt::println("Selected device {} is not found!",
