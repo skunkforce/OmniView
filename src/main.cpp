@@ -464,5 +464,4 @@ int main() {
   while (window.run(render)) {
   }
   return 0;
-  
 }
