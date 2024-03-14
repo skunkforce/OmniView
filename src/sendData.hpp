@@ -15,7 +15,8 @@ inline std::string sendData(nlohmann::json const &config,
 
   if (curl)
   {
-    std::string url = load_json<std::string>(config, "api", "url");
+    std::string url = "https://api.auto-intern.de/check-request"; 
+    //load_json<std::string>(config, "api", "url");
     curl_mime *mime = curl_mime_init(curl);
     curl_mimepart *part = curl_mime_addpart(mime);
     curl_mime_name(part, "measured_data");
