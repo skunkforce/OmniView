@@ -377,24 +377,16 @@ void generateTrainingData(
         else
            assessmnt = "Normal";
 
-         myJson["meta"] = {
-          {"Measurement", Measurement},
-          {"VIN", VIN},
-          {"Mileage", Mileage},
-          {"Reason for investigation", invest_reason},
-          {"Electrical Consumers", elec_consumer},
-          {"Assessment", assessmnt},
-          {"Comment", comment}
-        };
          std::vector<double> y_values; 
          if(usr_curnt_wave)
            y_values = std::move(crnt_measuring_vals);
          else 
           y_values = std::move(file_measuring_vals);
-
-        myJson["data"] = {
-          {"sampling_rate", 0},
-          {"y_values", y_values}
+         myJson["meta"] = { Measurement, VIN, Mileage, invest_reason,
+                            elec_consumer, assessmnt, comment };
+         myJson["data"] = {
+           {"sampling_rate", 0},
+           {"y_values", y_values}
          };
 
         // Optional - see what you've uploaded
@@ -413,7 +405,7 @@ void generateTrainingData(
 
         // upload data asynchronously using a separate thread
         future = std::async(std::launch::async, [&] {
-          std::string result = sendData(config, myJson);
+          std::string result = sendData(myJson.dump());
           return result;
         });
 
