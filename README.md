@@ -120,6 +120,34 @@ cmake --build ./build --config Release
 The compiled executable will be called `.\build\Release\OmniView.exe`.
 ```
 
+# General Code Structure 
+
+The code should follow the c++ standard and contains the following structure :
+
+## Interfaces : 
+
+The following Interfaces are used : 
+
+popups.hpp 
+handler.hpp 
+regions.hpp 
+Style.hpp 
+
+The functions are declared in the .hpp files and implemented in the .cpp files 
+
+Every function that does not depend on another function should be implemented in an individual .cpp file. 
+
+The functions declaration, implementation and usage can be found in the documentation. (right now there is no documentation)
+
+## Namespaces : 
+
+Namespaces should be used to prevent potential conflicts that may arise when functions are declared multiple times in an open-source project. 
+However, they should only be used when necessary because the code should not be overloaded with unnecessary namespaces.
+
+The different PlotRegions have namespaces for readability: SideBarRegion, DevicesRegion, ToolbarRegion, and PlotRegion.
+
+The design and usage of the Regions can be found in the skunkforce/OmniView-Product-Vision Document. 
+
 # Workflow: Adding new Code 
 
 To add new code to the project, follow these steps:
