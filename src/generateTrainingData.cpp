@@ -101,9 +101,7 @@ void generateTrainingData(
     // one extra space for '\0' character
     static char VIN[18];
     static std::string Mileage;
-
-    std::vector<double> numbers; // measurement values
-    static nlohmann::json myJson;
+    static std::vector<double> file_measuring_vals; // measurement values
     static bool grayFields = false;
     // custom flags
     static auto measuGrayFlag = ImGuiInputTextFlags_None;
@@ -139,15 +137,14 @@ void generateTrainingData(
             readfile.ignore(bigNumber, ',');
             double value{};
             readfile >> value;
-            numbers.push_back(value);
+            file_measuring_vals.emplace_back(value);
             // at the last loop, the last number is picked and loop goes on
             // vector pushes value before eof is reached
           }
         }
         // pop the extra last element
-        numbers.pop_back();
-        myJson["y_values"] = numbers;
-
+        file_measuring_vals.pop_back();
+       
         Measurement = FieldsData[0];
         if (!Measurement.empty())
           measuGrayFlag = ImGuiInputTextFlags_ReadOnly;
@@ -338,19 +335,19 @@ void generateTrainingData(
 
     if (grayStyle)
       ImGui::PushStyleColor(ImGuiCol_Text, greyBtnStyle);
-
     if (ImGui::Button(appLanguage[Key::Send]) && !flagApiSending) {
+        static nlohmann::ordered_json myJson;
+        std::vector<double> crnt_measuring_vals;
         bool has_selection{false};
       if (usr_curnt_wave) {
         if (!selected_device.serial.empty()) {
           auto it{captureData.find(selected_device)};
           if (it != captureData.end()) {
             // read measuring values from the wave into the vector
-            std::vector<double> measuringVals(it->second.size());
+             crnt_measuring_vals.resize(it->second.size());
             for (size_t i = 0; i < it->second.size(); ++i)
-              measuringVals[i] = it->second[i].second;
+              crnt_measuring_vals[i] = it->second[i].second;
 
-            myJson["y_values"] = measuringVals;
             has_selection = true;
           } else 
             fmt::println("Selected device {} is not found!",
@@ -359,34 +356,38 @@ void generateTrainingData(
           setInptFields(selected_file);
           has_selection = true;
         }
-      } else if (wave_from_file && !fileNameBuf.empty())
+      } else if (wave_from_file && !fileNameBuf.empty()) 
           has_selection = true;
 
       if (!has_selection)
         ImGui::OpenPopup(appLanguage[Key::Nothing_to_send],
                          ImGuiPopupFlags_NoOpenOverExistingPopup);
       else {
-        // put all data into the json object for uploading
-        myJson["Measurement"] = Measurement;
-        myJson["VIN"] = VIN;
-        myJson["Mileage"] = Mileage;
-
+        std::string invest_reason, elec_consumer, assessmnt;
         if (invest)
-          myJson["Reason for investigation"] = appLanguage[Key::Fault];
+           invest_reason = appLanguage[Key::Fault];
         else
-          myJson["Reason for investigation"] = appLanguage[Key::Maintenance];
-
+           invest_reason = appLanguage[Key::Maintenance];
         if (consumer)
-          myJson["Electrical Consumers"] = appLanguage[Key::On];
+          elec_consumer = appLanguage[Key::On];
         else
-          myJson["Electrical Consumers"] = appLanguage[Key::Off];
-
+          elec_consumer = appLanguage[Key::Off];
         if (assess)
-          myJson["Assessment"] = appLanguage[Key::Anomaly];
+           assessmnt = appLanguage[Key::Anomaly];
         else
-          myJson["Assessment"] = "Normal";
+           assessmnt = "Normal";
 
-        myJson["Comment"] = comment;
+         std::vector<double> y_values; 
+         if(usr_curnt_wave)
+           y_values = std::move(crnt_measuring_vals);
+         else 
+          y_values = std::move(file_measuring_vals);
+         myJson["meta"] = { Measurement, VIN, Mileage, invest_reason,
+                            elec_consumer, assessmnt, comment };
+         myJson["data"] = {
+           {"sampling_rate", 0},
+           {"y_values", y_values}
+         };
 
         // Optional - see what you've uploaded
         std::filesystem::path outFile =
@@ -404,7 +405,7 @@ void generateTrainingData(
 
         // upload data asynchronously using a separate thread
         future = std::async(std::launch::async, [&] {
-          std::string result = sendData(config, myJson);
+          std::string result = sendData(myJson.dump());
           return result;
         });
 

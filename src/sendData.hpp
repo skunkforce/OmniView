@@ -4,53 +4,47 @@
 
 #include <curl/curl.h>
 #include <fmt/format.h>
-#include "jasonhandler.hpp"
 
-inline std::string sendData(nlohmann::json const &config,
-                            const nlohmann::json &myJson)
+inline std::string sendData(const std::string &data)
 {
   std::string api_message = "empty";
-  curl_global_init(CURL_GLOBAL_DEFAULT);
-  CURL *curl = curl_easy_init();
 
-  if (curl)
-  {
-    std::string url = load_json<std::string>(config, "api", "url");
-    curl_mime *mime = curl_mime_init(curl);
-    curl_mimepart *part = curl_mime_addpart(mime);
-    curl_mime_name(part, "measured_data");
-    curl_mime_data(part, myJson.dump().c_str(), CURL_ZERO_TERMINATED);
+  // init the winsock stuff (Windows)
+  curl_global_init(CURL_GLOBAL_ALL);
 
-    struct curl_slist *header_list = NULL;
-    header_list = curl_slist_append(
-        header_list, load_json<std::string>(config, "api", "header1").c_str());
-    header_list = curl_slist_append(
-        header_list, load_json<std::string>(config, "api", "header2").c_str());
+  // get a curl handle
+  CURL* curl = curl_easy_init();
 
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header_list);
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-    curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
+  if (curl) {
+      curl_easy_setopt(curl, CURLOPT_URL, "https://api.auto-intern.de/check-request");
 
-    // Sending the request
-    CURLcode res = curl_easy_perform(curl);
+      struct curl_slist* headers = NULL;
+      headers = curl_slist_append(headers, "Content-Type: application/json");
+      if (!headers) {
+          fmt::println("Failed to append the string!");
+          return api_message;
+      }
+          
+      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-    // Check for errors
-    if (res != CURLE_OK)
-      api_message = appLanguage[Key::Upload_failure];
-    else
-      api_message = appLanguage[Key::Upload_success];
+      // specify the POST data
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
 
-    // Clean up
-    curl_easy_cleanup(curl);
-    curl_slist_free_all(header_list);
+      // Perform the request, res will get the return code
+      CURLcode res = curl_easy_perform(curl);
+
+      // Check the request status
+      if (res != CURLE_OK)
+          api_message = appLanguage[Key::Upload_failure];
+      else
+          api_message = appLanguage[Key::Upload_success];
+      // always cleanup
+      curl_easy_cleanup(curl);
+      curl_slist_free_all(headers); // free the list again 
   }
-  else
-    fmt::println("cURL initialization failed! ");
+  else fmt::println("Failed to get a curl handle.");
 
-  // Cleaning up cURL
   curl_global_cleanup();
-
   return api_message;
 }
 #endif
