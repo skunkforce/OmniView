@@ -28,12 +28,13 @@ static void save(const Omniscope::Id &device,
     fmt::print("Could not create {} for writing!\n", outFile.string());
     return;
   }
-
-  fmt::print("Start saving {}.\n", outFile.string());
-  file << allData << fileContent;
-  file.flush();
-  file.close();
-  fmt::print("Finished saving.\n");
+  else {
+      fmt::print("Start saving {}.\n", outFile.string());
+      file << allData << fileContent;
+      file.flush();
+      file.close();
+      fmt::print("Finished saving.\n");
+  }
 }
 
 void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
