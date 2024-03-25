@@ -20,7 +20,7 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
   ImGui::SetCursorPos(
       ImVec2(ImGui::GetIO().DisplaySize.x * 0.4f,
              ImGui::GetIO().DisplaySize.y *
-                 0.01f)); // setting the next to the top middle of the menu
+                 0.05f)); // setting the next to the top middle of the menu
   ImGui::Text("devices found:");
 
   style.Colors[ImGuiCol_FrameBg] =

@@ -7,9 +7,6 @@
 
 //#include "../menushpp/Style.hpp"
 
-
-
-
 namespace Style {
 inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   ImGuiStyle &style = ImGui::GetStyle();
@@ -121,25 +118,16 @@ inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 } // namespace ImGui
 
 void SetMainWindowStyle() {
-
   ImGuiStyle &style = ImGui::GetStyle();
 
-  style.Colors[ImGuiCol_Text] =
-      ImVec4(1 / 255.0f, 1 / 255.0f, 1 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_WindowBg] =
-      ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_Border] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_FrameBg] =
-      ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_FrameBgHovered] =
-      ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_FrameBgActive] =
-      ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
+  style.Colors[ImGuiCol_Text] = { 0.0f, 0.0f, 0.0f, 1.0f };
+  style.Colors[ImGuiCol_WindowBg] = { 1.0f, 1.0f, 0.93f, 1.0f };
+  style.Colors[ImGuiCol_Border] = { 0.14f, 0.15f, 0.17f, 1.0f };
+  style.Colors[ImGuiCol_FrameBg] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  style.Colors[ImGuiCol_FrameBgActive] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-  // Die Farben bei Hovern und klicken der Achsen
-  style.Colors[ImGuiCol_ButtonHovered] =
-      ImVec4(240 / 255.0f, 240 / 255.0f, 240 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_ButtonActive] =
-      ImVec4(240 / 255.0f, 240 / 255.0f, 240 / 255.0f, 100 / 100.0f);
+  // colors when hovering and clicking the axes
+  style.Colors[ImGuiCol_ButtonHovered] = { 0.94f, 0.94f, 0.94f, 1.0f };
+  style.Colors[ImGuiCol_ButtonActive] = { 0.94f, 0.94f, 0.94f, 1.0f };
 }

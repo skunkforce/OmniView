@@ -117,22 +117,24 @@ int main() {
   std::optional<OmniscopeSampler> sampler{};
   std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
 
-  auto addPlots = [&, firstRun = std::set<std::string>{}](
-                      auto const &name, auto const &plots,
-                      auto axesSetup) mutable {
+  auto addPlots = [&](const char *name, 
+                   auto const &plots, auto axesSetup) {
+    static std::set<std::string> firstRun;
+   // const auto plotRegionBase = ImGui::GetContentRegionAvail();
+   // ImGui::Dummy({ plotRegionBase.x * 0.03f, 0 });
+   // ImGui::SameLine();
     auto const plotRegion = ImGui::GetContentRegionAvail();
     if (ImPlot::BeginPlot(name, plotRegion)) {
       double x_min = std::numeric_limits<double>::max();
       double x_max = std::numeric_limits<double>::min();
 
-      for (auto const &plot : plots) {
+      for (auto const &plot : plots) 
         if (!plot.second.empty()) {
           x_min = std::min(x_min, plot.second.front().first);
           x_max = std::max(x_max, plot.second.back().first);
         }
-      }
 
-      axesSetup(x_min, x_max);
+      axesSetup(x_max);
 
       auto const limits = [&]() {
         if (!firstRun.contains(name)) {
@@ -141,6 +143,7 @@ int main() {
         }
         return ImPlot::GetPlotLimits();
       }();
+
       auto addPlot = [&](auto const &plot) {
         if (!plot.second.empty()) {
           auto const start = [&]() {
@@ -210,7 +213,7 @@ int main() {
     // ############################ Live Capture
     // ##############################
 
-    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.19f,
+    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.22f,
                                ImGui::GetIO().DisplaySize.y * 0.06f));
 
     ImGui::BeginChild("Live Capture",
@@ -424,7 +427,7 @@ int main() {
     SetMainWindowStyle();
 
     addPlots("Recording the data", captureData,
-             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
+        [&xmax_paused](double x_max) {
                if (!flagPaused) {
                  ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
                                    ImPlotAxisFlags_AutoFit,

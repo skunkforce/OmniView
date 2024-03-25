@@ -31,21 +31,21 @@ void SetSideBarMenu(
     std::map<Omniscope::Id, std::array<float, 3>> &colorMap) {
 
   // Initializing all variables for images
-  const int size = 5;         // number of pictures
-  int counterPngRendered = 0; // counter for the number of pictures rendered
+  static const int size = 5;         // number of pictures
+  static int counterPngRendered = 0; // counter for the number of pictures rendered
   static bool loaded_png[size] = {false};
   static int my_image_height[size];
   static int my_image_width[size];
   static GLuint my_image_texture[size];
   static bool ret[size];
 
-  static float relativeDisplaySizeX = ImGui::GetIO().DisplaySize.x / 1280;
-  static float relativeDisplaySizeY = ImGui::GetIO().DisplaySize.y / 760;
+  float relativeDisplaySizeX = ImGui::GetIO().DisplaySize.x / 1280;
+  float relativeDisplaySizeY = ImGui::GetIO().DisplaySize.y / 760;
 
   // resize the ImageButtons
-  static float sizeImageButtons = 0.65;
-  static float resizePictureX = sizeImageButtons * relativeDisplaySizeX;
-  static float resizePictureY = sizeImageButtons * relativeDisplaySizeY;
+  static const float sizeImageButtons = 0.65f;
+  float resizePictureX = sizeImageButtons * relativeDisplaySizeX;
+  float resizePictureY = sizeImageButtons * relativeDisplaySizeY;
 
   // The order matters because of the counter for the images !!!
 
