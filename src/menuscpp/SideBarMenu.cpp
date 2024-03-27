@@ -99,7 +99,7 @@ namespace SideBarRegion {
                 (void*)(intptr_t)my_image_texture[counterPngRendered],
                 ImVec2(my_image_width[counterPngRendered] * windowSize.x * 0.00035,
                     my_image_height[counterPngRendered] * windowSize.y * 0.0005));
-            //ImGui::Text(" there's something here ");
+            ImGui::Text("               ");
             ++counterPngRendered;
         }
 

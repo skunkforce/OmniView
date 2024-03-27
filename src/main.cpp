@@ -206,10 +206,9 @@ int main() {
         open_generate_training_data, mainMenuBarSize, colorMap);
 
     // ############################ Live Capture
-    ImGui::SetCursorPos({ windowSize.x * 0.20f, windowSize.y * 0.06f });
-    ImGui::BeginChild("Live Capture",
-                      ImVec2(windowSize.x * 0.8f, 
-                          windowSize.y * 0.68f)); 
+    ImGui::SetCursorPos({ windowSize.x * 0.18f, windowSize.y * 0.06f });
+    ImGui::BeginChild("Live Capture", { windowSize.x * 0.9f,
+                          windowSize.y * 0.68f });
     if (sampler.has_value())
       if (!flagPaused)
         sampler->copyOut(captureData);
@@ -398,28 +397,35 @@ int main() {
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.8f, 0.8f, 0.8f, 0.8f });
-    ImGui::BeginChild("plot region", { windowSize.x * 0.8f, windowSize.y * 0.5f },
-                       ImGuiChildFlags_Border);    
+    ImGui::BeginChild("plot region", { windowSize.x, windowSize.y * 0.5f });
+
+    ImGui::SetCursorPos({ windowSize.x * 0.015f, windowSize.y * 0.024f });
+    ImGui::BeginChild("record data", { windowSize.x * 0.78f, windowSize.y * 0.45f });
+
     SetMainWindowStyle();
     addPlots("Recording the data", captureData,
         [&xmax_paused](double x_max) {
-               if (!flagPaused) {
-                 ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
-                                   ImPlotAxisFlags_AutoFit,
-                                   ImPlotAxisFlags_AutoFit);
-                 ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
-                                         ImGuiCond_Always);
-               } else {
-                 xmax_paused = x_max;
-                 ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
-                 ImPlot::SetupAxesLimits(0, 10, -10, 200);
-                 ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-               }
-             });
+            if (!flagPaused) {
+                ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
+                    ImPlotAxisFlags_AutoFit,
+                    ImPlotAxisFlags_AutoFit);
+                ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+                    ImGuiCond_Always);
+            }
+            else {
+                xmax_paused = x_max;
+                ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
+                ImPlot::SetupAxesLimits(0, 10, -10, 200);
+                ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+            }
+        });
 
+    ImGui::EndChild(); // child "record data"
     ImGui::PopStyleColor();
     ImGui::EndChild(); // child "plot region"
     ImGui::EndChild(); // child "Live Capture"
+
+    // ############################ Devicelist
 
     // ############################ Devicelist
     Style::SetupImGuiStyle(false, 0.99f);
@@ -439,3 +445,7 @@ int main() {
   }
   return 0;
 }
+
+/*
+
+    */
