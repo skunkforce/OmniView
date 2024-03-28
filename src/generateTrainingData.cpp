@@ -18,7 +18,8 @@ void generateTrainingData(
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
         &captureData,
     std::set<std::string> &savedFileNames, const nlohmann::json &config) {
-
+  
+  namespace fs = std::filesystem;
   ImGui::OpenPopup(appLanguage[Key::Gn_trng_data_pop]);
   if (ImGui::BeginPopupModal(appLanguage[Key::Gn_trng_data_pop], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -108,7 +109,7 @@ void generateTrainingData(
     static auto vinGrayFlag = ImGuiInputTextFlags_None;
     static auto milGrayFlag = ImGuiInputTextFlags_None;
 
-    auto setInptFields = [&](const std::filesystem::path &filename) {
+    auto setInptFields = [&](const fs::path &filename) {
       constexpr size_t fieldsSize{3}; // Measurement, Vin and Mileage
       std::vector<std::string> FieldsData(fieldsSize);
       std::ifstream readfile(filename, std::ios::binary);
@@ -162,9 +163,11 @@ void generateTrainingData(
     };
 
     static std::string fileNameBuf;
-    auto isWrongFile = [&](const std::filesystem::path &path) {
+    static std::string analyzedWavefile;
+    auto isWrongFile = [&](const fs::path &path) {
       if (path.extension() == ".csv") {
         fileNameBuf = path.string();
+        analyzedWavefile = path.filename().string();
         savedFileNames.insert(fileNameBuf);
         measuGrayFlag = ImGuiInputTextFlags_None;
         vinGrayFlag = ImGuiInputTextFlags_None;
@@ -335,10 +338,11 @@ void generateTrainingData(
 
     if (grayStyle)
       ImGui::PushStyleColor(ImGuiCol_Text, greyBtnStyle);
+
     if (ImGui::Button(appLanguage[Key::Send]) && !flagApiSending) {
-        static nlohmann::ordered_json myJson;
         std::vector<double> crnt_measuring_vals;
         bool has_selection{false};
+
       if (usr_curnt_wave) {
         if (!selected_device.serial.empty()) {
           auto it{captureData.find(selected_device)};
@@ -382,6 +386,8 @@ void generateTrainingData(
            y_values = std::move(crnt_measuring_vals);
          else 
           y_values = std::move(file_measuring_vals);
+
+         static nlohmann::ordered_json myJson;
          myJson["meta"] = { Measurement, VIN, Mileage, invest_reason,
                             elec_consumer, assessmnt, comment };
          myJson["data"] = {
@@ -390,18 +396,19 @@ void generateTrainingData(
          };
 
         // Optional - see what you've uploaded
-        std::filesystem::path outFile =
-            std::filesystem::current_path() / "myJson.json";
+         fs::path outFile = fs::current_path() / "myJson.json";
         std::ofstream writefile(outFile, std::ios::trunc);
         if (!writefile.is_open()) {
           writefile.clear();
           fmt::println("Could not create {} for writing!", outFile.string());
         }
-        fmt::println("Start saving {}.", outFile.string());
-        writefile << myJson;
-        writefile.flush();
-        writefile.close();
-        fmt::println("Finished saving json file.");
+        else {
+            fmt::println("Start saving {}.", outFile.string());
+            writefile << myJson;
+            writefile.flush();
+            writefile.close();
+            fmt::println("Finished saving json file.");
+        }
 
         // upload data asynchronously using a separate thread
         future = std::async(std::launch::async, [&] {
@@ -412,12 +419,12 @@ void generateTrainingData(
         flagApiSending = true;
       }
     }
-    info_popup(appLanguage[Key::Nothing_to_send],
-               appLanguage[Key::No_slct_to_upld]);
+    info_popup(appLanguage[Key::Nothing_to_send], appLanguage[Key::No_slct_to_upld]);
 
     if (grayStyle)
       ImGui::PopStyleColor();
 
+    static bool analyze{ false };
     if (flagApiSending) {
       auto status = future.wait_for(10ms);
       if (status == std::future_status::ready) {
@@ -426,6 +433,7 @@ void generateTrainingData(
         flagApiSending = false;
         if (future.valid()) {
           api_message = future.get();
+          analyze = true;
           clearSettings();
         }
       } else {
@@ -434,8 +442,30 @@ void generateTrainingData(
                     "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
       }
     }
-    info_popup(appLanguage[Key::Data_upload], api_message.c_str());
+    info_popup(appLanguage[Key::Data_upload], api_message == "empty" ?
+               appLanguage[Key::Upload_failure] : appLanguage[Key::Upload_success]);
+
+    if (analyze && api_message != "empty") {
+        fs::path complete_path = fs::current_path() / "analyze";
+        if (!fs::exists(complete_path))
+            fs::create_directories(complete_path);
+
+        fs::path outFile = complete_path / ("Analysis_" + analyzedWavefile);
+
+        std::ofstream writefile(outFile, std::ios::trunc);
+        if (!writefile.is_open()) {
+            writefile.clear();
+            fmt::println("Could not create {} for writing!", outFile.string());
+        }
+        else {
+            fmt::println("Start saving {}.", outFile.string());
+            writefile << api_message;
+            writefile.flush();
+            writefile.close();
+            fmt::println("Finished saving CSV file.");
+        }
+        analyze = false;
+    }
     ImGui::EndPopup();
   }
 }
-
