@@ -4,12 +4,12 @@
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
 #include "create_training_data.hpp"
 #include "get_from_github.hpp"
+#include "languages.hpp"
+#include "popups.hpp"
 #include "settingspopup.hpp"
 #include <cmake_git_version/version.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
-#include "popups.hpp"
-#include "languages.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image/stb_image.h" // externe Libary aus Git
@@ -86,7 +86,7 @@ int main() {
     update_language_from_github();
   }
 
-  constexpr ImVec2 toolBtnSize = ImVec2(80, 80); // toolbar buttons size
+  constexpr ImVec2 toolBtnSize{80, 80}; // toolbar buttons size
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
 
@@ -117,22 +117,20 @@ int main() {
   std::optional<OmniscopeSampler> sampler{};
   std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
 
-  auto addPlots = [&, firstRun = std::set<std::string>{}](
-                      auto const &name, auto const &plots,
-                      auto axesSetup) mutable {
+  auto addPlots = [&](const char *name, auto const &plots, auto axesSetup) {
+    static std::set<std::string> firstRun;
     auto const plotRegion = ImGui::GetContentRegionAvail();
     if (ImPlot::BeginPlot(name, plotRegion)) {
       double x_min = std::numeric_limits<double>::max();
       double x_max = std::numeric_limits<double>::min();
 
-      for (auto const &plot : plots) {
+      for (auto const &plot : plots)
         if (!plot.second.empty()) {
           x_min = std::min(x_min, plot.second.front().first);
           x_max = std::max(x_max, plot.second.back().first);
         }
-      }
 
-      axesSetup(x_min, x_max);
+      axesSetup(x_max);
 
       auto const limits = [&]() {
         if (!firstRun.contains(name)) {
@@ -141,15 +139,15 @@ int main() {
         }
         return ImPlot::GetPlotLimits();
       }();
+
       auto addPlot = [&](auto const &plot) {
         if (!plot.second.empty()) {
           auto const start = [&]() {
             auto p =
                 std::lower_bound(plot.second.begin(), plot.second.end(),
                                  std::pair<double, double>{limits.X.Min, 0});
-            if (p != plot.second.begin()) {
+            if (p != plot.second.begin())
               return p - 1;
-            }
             return p;
           }();
 
@@ -157,16 +155,14 @@ int main() {
             auto p =
                 std::upper_bound(start, plot.second.end(),
                                  std::pair<double, double>{limits.X.Max, 0});
-            if (p != plot.second.end()) {
+            if (p != plot.second.end())
               return p + 1;
-            }
             return p;
           }();
           std::size_t const stride = [&]() -> std::size_t {
             auto const s = std::distance(start, end) / (plotRegion.x * 2.0);
-            if (1 >= s) {
+            if (1 >= s)
               return 1;
-            }
             return static_cast<std::size_t>(s);
           }();
 
@@ -192,10 +188,10 @@ int main() {
     load_settings(config);
     Style::SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+    auto windowSize{ImGui::GetIO().DisplaySize};
+    ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
-                 /*ImGuiWindowFlags_NoTitleBar*/ ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoResize /* ImGuiWindowFlags_NoMove*/); //
+                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
     // ############################ Menu bar ##############################
     //  main menu
@@ -208,33 +204,20 @@ int main() {
         open_generate_training_data, mainMenuBarSize, colorMap);
 
     // ############################ Live Capture
-    // ##############################
-
-    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.19f,
-                               ImGui::GetIO().DisplaySize.y * 0.06f));
-
+    ImGui::SetCursorPos({windowSize.x * 0.18f, windowSize.y * 0.06f});
     ImGui::BeginChild("Live Capture",
-                      ImVec2(ImGui::GetIO().DisplaySize.x * 0.80f,
-                             ImGui::GetIO().DisplaySize.y * 0.65f));
+                      {windowSize.x * 0.9f, windowSize.y * 0.68f});
     if (sampler.has_value())
       if (!flagPaused)
         sampler->copyOut(captureData);
 
-    float optimal_buttonstripe_height = toolBtnSize.y * 1.1;
-    if (toolBtnSize.y < (ImGui::GetTextLineHeightWithSpacing() * 1.1))
-      optimal_buttonstripe_height = ImGui::GetTextLineHeightWithSpacing() * 1.1;
-
-    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.65f,
-                               ImGui::GetIO().DisplaySize.y * 0.05f));
-
-    ImGui::BeginChild("Buttonstripe", ImVec2(-1, optimal_buttonstripe_height),
-                      false, ImGuiWindowFlags_NoScrollbar);
+    ImGui::SetCursorPos({windowSize.x * 0.65f, windowSize.y * 0.05f});
+    ImGui::BeginChild("Buttonstripe", {-1, toolBtnSize.y}, false,
+                      ImGuiWindowFlags_NoScrollbar);
 
     // ############################ Popup Save
-    // ##############################
     if (ImGui::BeginPopupModal("Save recorded data", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
-      // open_save_devices = false;
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm,
                   flagDataNotSaved);
@@ -242,11 +225,10 @@ int main() {
     }
 
     // ############################ Popup Reset
-    // ##############################
     if (ImGui::BeginPopupModal(appLanguage[Key::Reset_q], nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-       ImGui::Text(appLanguage[Key::Measure_not_saved]);
+      ImGui::Text(appLanguage[Key::Measure_not_saved]);
       if (ImGui::Button(appLanguage[Key::Continue_del])) {
         sampler.reset();
         savedFileNames.clear();
@@ -254,21 +236,19 @@ int main() {
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
-      if (ImGui::Button(appLanguage[Key::Back])) {
+      if (ImGui::Button(appLanguage[Key::Back]))
         ImGui::CloseCurrentPopup();
-      }
       ImGui::EndPopup();
     }
 
-    ImGui::SetNextWindowPos(ImVec2(0, 100));
-    ImGui::SetNextWindowSize(ImVec2(0, 800));
+    ImGui::SetNextWindowPos({0, 100});
+    ImGui::SetNextWindowSize({0, 800});
     if (flagPaused) {
       if (ImGui::BeginPopupModal("Creation of learning data set", nullptr,
                                  ImGuiWindowFlags_AlwaysAutoResize |
                                      ImGuiWindowFlags_NoSavedSettings |
                                      ImGuiWindowFlags_NoMove)) {
         ImGui::SetItemDefaultFocus();
-
         popup_create_training_data_select(config, language, upload_success);
         ImGui::EndPopup();
       }
@@ -291,11 +271,8 @@ int main() {
         ImGui::EndPopup();
       }
       // ######################## Buttonstripe
-      // ################################
-
+      // ############################ Start Button
       if (!devices.empty()) {
-        // ############################ Start Button
-        // ##############################
         if (!sampler.has_value()) {
           set_button_style_to(config, "start");
           if (ImGui::Button(appLanguage[Key::Start], toolBtnSize)) {
@@ -308,11 +285,9 @@ int main() {
       }
     } else {
       // ############################ Stop Button
-      // ##############################
       set_button_style_to(config, "stop");
       if (ImGui::Button(appLanguage[Key::Stop], toolBtnSize))
         flagPaused = true;
-
       ImGui::PopStyleColor(3);
     }
     if (flagPaused) {
@@ -360,7 +335,7 @@ int main() {
                            ImGuiPopupFlags_NoOpenOverExistingPopup);
       }
       info_popup(appLanguage[Key::Save_warning],
-                    appLanguage[Key::No_dvc_available]);
+                 appLanguage[Key::No_dvc_available]);
 
       if (pushStyle)
         ImGui::PopStyleColor();
@@ -384,7 +359,7 @@ int main() {
         ImGui::OpenPopup("Creation of learning data set");
       }*/
 
-      //ImGui::PopStyleColor();
+      // ImGui::PopStyleColor();
 
     } else {
       /*ImGui::SameLine();
@@ -398,9 +373,8 @@ int main() {
       ImGui::Button(appLanguage["Crt_trng_data"], toolBtnSize);
       ImGui::PopStyleColor();*/
     }
-    ImGui::EndChild();
+    ImGui::EndChild(); // child "Buttonstripe"
     // ############################ Settings Menu
-    // ##############################
     std::string settingstitle =
         load_json<std::string>(language, "settings", "title");
     if (open_settings == true) {
@@ -420,38 +394,38 @@ int main() {
                            savedFileNames, config);
 
     // ############################ addPlots("Recording the data", ...)
-    // ##############################
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, {0.8f, 0.8f, 0.8f, 0.8f});
+    ImGui::BeginChild("plot region", {windowSize.x, windowSize.y * 0.5f});
+
+    ImGui::SetCursorPos({windowSize.x * 0.015f, windowSize.y * 0.024f});
+    ImGui::BeginChild("record data",
+                      {windowSize.x * 0.78f, windowSize.y * 0.45f});
+
     SetMainWindowStyle();
+    addPlots("Recording the data", captureData, [&xmax_paused](double x_max) {
+      if (!flagPaused) {
+        ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
+                          ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+        ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+                                ImGuiCond_Always);
+      } else {
+        xmax_paused = x_max;
+        ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
+        ImPlot::SetupAxesLimits(0, 10, -10, 200);
+        ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+      }
+    });
 
-    addPlots("Recording the data", captureData,
-             [&sampler, &xmax_paused](auto /*x_min*/, auto x_max) {
-               if (!flagPaused) {
-                 ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
-                                   ImPlotAxisFlags_AutoFit,
-                                   ImPlotAxisFlags_AutoFit);
-                 ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
-                                         ImGuiCond_Always);
-               } else {
-                 xmax_paused = x_max;
-                 ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
-                 // x and y axes ranges: [0, 10], [-10, 200]
-                 ImPlot::SetupAxesLimits(0, 10, -10, 200);
-                 // make specific values/ticks on Y-axis
-                 ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-               }
-             });
-
-    ImGui::EndChild();
+    ImGui::EndChild(); // child "record data"
+    ImGui::PopStyleColor();
+    ImGui::EndChild(); // child "plot region"
+    ImGui::EndChild(); // child "Live Capture" 
 
     // ############################ Devicelist
-    // ##############################
-
     Style::SetupImGuiStyle(false, 0.99f);
 
     // Create Devices Menu at the bottom of the programm
-
     DevicesRegion::SetDevicesMenu(colorMap, sampler, devices);
-
     ImGui::SameLine();
     ImGui::End();
     ImGui::PopStyleColor(7);
@@ -460,7 +434,6 @@ int main() {
   ImGuiInstance window{1280, 760,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
-
   while (window.run(render)) {
   }
   return 0;

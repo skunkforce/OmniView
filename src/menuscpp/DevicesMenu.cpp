@@ -11,24 +11,17 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
 
   // ############################ Devicelist
   // ##############################
+  auto windowSize{ImGui::GetIO().DisplaySize};
+  ImGui::SetCursorPos({windowSize.x * 0.18f, windowSize.y * 0.695f});
+  ImGui::BeginChild("Devicelist");
 
-  ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f,
-                             ImGui::GetIO().DisplaySize.y * 0.7f));
-  ImGui::BeginChild("Devicelist", ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f,
-                                         ImGui::GetIO().DisplaySize.y * 0.28f));
-
-  ImGui::SetCursorPos(
-      ImVec2(ImGui::GetIO().DisplaySize.x * 0.4f,
-             ImGui::GetIO().DisplaySize.y *
-                 0.01f)); // setting the next to the top middle of the menu
+  // setting the next item to the top middle of the menu
+  ImGui::SetCursorPos({windowSize.x * 0.37f, windowSize.y * 0.025f});
   ImGui::Text("devices found:");
 
-  style.Colors[ImGuiCol_FrameBg] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
-
+  style.Colors[ImGuiCol_FrameBg] = {37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 1.f};
   if (ImGui::BeginListBox("##deviceListBox",
-                          ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f,
-                                 ImGui::GetIO().DisplaySize.y * 0.18f))) {
+                          {windowSize.x * 0.82f, windowSize.y * 0.18f})) {
     auto doDevice = [&](auto &device, auto msg) {
       auto &color = colorMap[device->getId().value()];
       if (ImGui::ColorEdit3(
@@ -61,13 +54,12 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
         ImGui::TextUnformatted(fmt::format("Error").c_str());
     };
 
-    if (sampler.has_value()) {
+    if (sampler.has_value())
       for (auto &device : sampler->sampleDevices)
         doDevice(device.first, "Messung");
-    } else {
+    else
       for (auto &device : devices)
         doDevice(device, "Ready");
-    }
     ImGui::EndListBox();
   }
   ImGui::EndChild();
