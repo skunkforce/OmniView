@@ -5,3 +5,4 @@ saves
 vcpkg
 *.exe
 *.ini
+.vs

@@ -34,6 +34,8 @@ add_executable(OmniView
                src/generateTrainingData.cpp 
                src/warning_popup.cpp
                src/imgui_stdlib.cpp
+               src/style.cpp
+               src/handler.cpp
                )
 
 target_add_default_build_options(OmniView PUBLIC)
