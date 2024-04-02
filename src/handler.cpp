@@ -117,29 +117,6 @@ void initDevices(OmniscopeDeviceManager& deviceManager,
 void devicesList(std::map<Omniscope::Id, std::array<float, 3>>& colorMap,
     std::optional<OmniscopeSampler>& sampler,
     std::vector<std::shared_ptr<OmniscopeDevice>>& devices) {
-
-    ImGuiStyle& style = ImGui::GetStyle();
-
-    // ############################ Devicelist
-    // ##############################
-
-    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.18f,
-        ImGui::GetIO().DisplaySize.y * 0.7f));
-    ImGui::BeginChild("Devicelist", ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f,
-        ImGui::GetIO().DisplaySize.y * 0.28f));
-
-    ImGui::SetCursorPos(
-        ImVec2(ImGui::GetIO().DisplaySize.x * 0.4f,
-            ImGui::GetIO().DisplaySize.y *
-            0.05f)); // setting the next to the top middle of the menu
-    ImGui::Text("devices found:");
-
-    style.Colors[ImGuiCol_FrameBg] =
-        ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
-
-    if (ImGui::BeginListBox("##deviceListBox",
-        ImVec2(ImGui::GetIO().DisplaySize.x * 0.82f,
-            ImGui::GetIO().DisplaySize.y * 0.18f))) {
         auto doDevice = [&](auto& device, auto msg) {
             auto& color = colorMap[device->getId().value()];
             if (ImGui::ColorEdit3(
@@ -169,7 +146,7 @@ void devicesList(std::map<Omniscope::Id, std::array<float, 3>>& colorMap,
             if (device->isRunning())
                 ImGui::TextUnformatted(fmt::format("{}", msg).c_str());
             else
-                ImGui::TextUnformatted(fmt::format("Error").c_str());
+                ImGui::TextUnformatted("Error");
             };
 
         if (sampler.has_value()) {
@@ -180,12 +157,9 @@ void devicesList(std::map<Omniscope::Id, std::array<float, 3>>& colorMap,
             for (auto& device : devices)
                 doDevice(device, "Ready");
         }
-        ImGui::EndListBox();
     }
-    ImGui::EndChild();
-}
 
-void set_config(const std::string& configpath, nlohmann::json& config) {
+void set_config(const std::string& configpath) {
     if (std::filesystem::exists(configpath)) {
         fmt::print("found config.json\n\r");
     }
@@ -193,14 +167,28 @@ void set_config(const std::string& configpath, nlohmann::json& config) {
         fmt::print("Did not find config.json.\n Download from Github\n\r");
         update_config_from_github();
     }
-    if (std::filesystem::exists(
-        load_json<std::string>(config, ("languagepath")))) {
-        fmt::print("found language: {}\n\r",
-            load_json<std::string>(config, ("language")));
-    }
-    else {
-        fmt::print("Did not find {}.\n Download from Github\n\r",
-            load_json<std::string>(config, ("language")));
-        update_language_from_github();
-    }
+}
+void set_json(nlohmann::json &config) {
+  if (std::filesystem::exists(
+          load_json<std::string>(config, ("languagepath")))) {
+    fmt::print("found language: {}\n\r",
+               load_json<std::string>(config, ("language")));
+  } else {
+    fmt::print("Did not find {}.\n Download from Github\n\r",
+               load_json<std::string>(config, ("language")));
+    update_language_from_github();
+  }
+}
+
+void rstSettings(std::optional<OmniscopeSampler> &sampler,
+                 std::vector<std::shared_ptr<OmniscopeDevice>> &devices,
+                 std::set<std::string> &savedFileNames,
+                 OmniscopeDeviceManager &deviceManager,
+                 std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
+                     &captureData) {
+  sampler.reset();
+  devices.clear();
+  savedFileNames.clear();
+  deviceManager.clearDevices();
+  captureData.clear();
 }

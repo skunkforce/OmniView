@@ -114,3 +114,8 @@ void load_settings(const nlohmann::json& config) {
     ImGuiIO& io = ImGui::GetIO();
     io.FontGlobalScale = load_json<float>(config, "text", "scale");
 }
+
+void set_side_menu() {
+ // TODO
+
+}
