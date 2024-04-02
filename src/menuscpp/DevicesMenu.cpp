@@ -5,7 +5,8 @@ namespace DevicesRegion {
 
 void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
                     std::optional<OmniscopeSampler> &sampler,
-                    std::vector<std::shared_ptr<OmniscopeDevice>> &devices) {
+                    std::vector<std::shared_ptr<OmniscopeDevice>> &devices,
+                    bool const& flagPaused) {
 
   ImGuiStyle &style = ImGui::GetStyle();
 
@@ -54,12 +55,19 @@ void SetDevicesMenu(std::map<Omniscope::Id, std::array<float, 3>> &colorMap,
         ImGui::TextUnformatted(fmt::format("Error").c_str());
     };
 
-    if (sampler.has_value())
-      for (auto &device : sampler->sampleDevices)
-        doDevice(device.first, "Messung");
-    else
-      for (auto &device : devices)
+    if (sampler.has_value()){
+      for (auto &device : sampler->sampleDevices){
+        if(!flagPaused){
+            doDevice(device.first, "Messung");
+        }else{
+            doDevice(device.first, "Stop");
+        }
+      }
+    }else{
+      for (auto &device : devices){
         doDevice(device, "Ready");
+      }
+    }
     ImGui::EndListBox();
   }
   ImGui::EndChild();

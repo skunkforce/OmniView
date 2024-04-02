@@ -119,6 +119,9 @@ inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
 void SetMainWindowStyle() {
   ImGuiStyle &style = ImGui::GetStyle();
+  ImPlotStyle &styleImplot = ImPlot::GetStyle();
+
+  styleImplot.Colors[ImPlotCol_LegendBg] = {1.0f, 1.0f, 1.0f, 1.0f};
 
   style.Colors[ImGuiCol_Text] = { 0.0f, 0.0f, 0.0f, 1.0f };
   style.Colors[ImGuiCol_WindowBg] = { 1.0f, 1.0f, 0.93f, 1.0f };

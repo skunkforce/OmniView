@@ -10,6 +10,8 @@
 #include <cmake_git_version/version.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
+#include <imgui.h>
+#include <implot.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image/stb_image.h" // externe Libary aus Git
@@ -277,6 +279,9 @@ int main() {
           set_button_style_to(config, "start");
           if (ImGui::Button(appLanguage[Key::Start], toolBtnSize)) {
             sampler.emplace(deviceManager, std::move(devices));
+            for(auto& device : devices){
+                device->send(Omniscope::Start{});
+            }
             flagPaused = false;
             flagDataNotSaved = true;
           }
@@ -286,8 +291,12 @@ int main() {
     } else {
       // ############################ Stop Button
       set_button_style_to(config, "stop");
-      if (ImGui::Button(appLanguage[Key::Stop], toolBtnSize))
+      if (ImGui::Button(appLanguage[Key::Stop], toolBtnSize)){
         flagPaused = true;
+        for(auto& device : sampler->sampleDevices){
+            device.first->send(Omniscope::Stop{});
+        }
+      }
       ImGui::PopStyleColor(3);
     }
     if (flagPaused) {
@@ -299,6 +308,9 @@ int main() {
         ImGui::SameLine();
         set_button_style_to(config, "start");
         if (ImGui::Button(appLanguage[Key::Continue], toolBtnSize)) {
+            for(auto& device : sampler->sampleDevices){
+                device.first->send(Omniscope::Start{});
+            }
           flagPaused = false;
           flagDataNotSaved = true;
         }
@@ -307,6 +319,9 @@ int main() {
 
         set_button_style_to(config, "stop");
         if (ImGui::Button(appLanguage[Key::Reset], toolBtnSize)) {
+          for(auto& device : sampler->sampleDevices){
+            device.first->send(Omniscope::Stop{});
+          }
           if (flagDataNotSaved) {
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           } else {
@@ -402,30 +417,54 @@ int main() {
                       {windowSize.x * 0.78f, windowSize.y * 0.45f});
 
     SetMainWindowStyle();
-    addPlots("Recording the data", captureData, [&xmax_paused](double x_max) {
-      if (!flagPaused) {
-        ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
+    addPlots("Recording the data", captureData, [&sampler, &xmax_paused](double x_max) {
+      std::string y_label{"y [ADC counts]"};
+      std::string x_label{"x [data points]"};
+      if(sampler.has_value()){
+        for(auto& device : sampler->sampleDevices){
+            if(device.first->getEgu().has_value()){
+                y_label = device.first->getEgu().value();
+            }
+            if(device.first->getScale().has_value() && device.first->getOffset().has_value() && device.first->getTimeScale().has_value()){
+                x_label = "time [s]";
+            }
+            if (!flagPaused) {
+                ImPlot::SetupAxes(x_label.c_str(), fmt::format("Voltage {}", y_label).c_str(),
+                            ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+                ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 2,
+                                    ImGuiCond_Always);
+            } else {
+                xmax_paused = x_max;
+                ImPlot::SetupAxes(x_label.c_str(), fmt::format("Voltage {}", y_label).c_str());
+                ImPlot::SetupAxesLimits(0, 10, -10, 200);
+                ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 30, 22, nullptr, true);
+            }
+        }
+      }else{
+        if (!flagPaused) {
+            ImPlot::SetupAxes(x_label.c_str(), y_label.c_str(),
                           ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-        ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+            ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
                                 ImGuiCond_Always);
-      } else {
-        xmax_paused = x_max;
-        ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
-        ImPlot::SetupAxesLimits(0, 10, -10, 200);
-        ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+        } else {
+            xmax_paused = x_max;
+            ImPlot::SetupAxes(x_label.c_str(), y_label.c_str());
+            ImPlot::SetupAxesLimits(0, 10, -10, 200);
+            ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+        }
       }
     });
 
     ImGui::EndChild(); // child "record data"
     ImGui::PopStyleColor();
     ImGui::EndChild(); // child "plot region"
-    ImGui::EndChild(); // child "Live Capture" 
+    ImGui::EndChild(); // child "Live Capture"
 
     // ############################ Devicelist
     Style::SetupImGuiStyle(false, 0.99f);
 
     // Create Devices Menu at the bottom of the programm
-    DevicesRegion::SetDevicesMenu(colorMap, sampler, devices);
+    DevicesRegion::SetDevicesMenu(colorMap, sampler, devices, flagPaused);
     ImGui::SameLine();
     ImGui::End();
     ImGui::PopStyleColor(7);
