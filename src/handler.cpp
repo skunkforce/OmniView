@@ -26,7 +26,7 @@ void addPlots(const char* name,
     std::map<Omniscope::Id, std::array<float, 3>>& colorMap) {
     static std::set<std::string> firstRun;
     auto const plotRegion = ImGui::GetContentRegionAvail();
-    if (ImPlot::BeginPlot(name, plotRegion)) {
+    if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
         double x_min = std::numeric_limits<double>::max();
         double x_max = std::numeric_limits<double>::min();
 

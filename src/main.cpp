@@ -1,27 +1,24 @@
-#include <boost/asio.hpp>
-#include <fmt/chrono.h>
-#include <fmt/core.h>
-#include <cmake_git_version/version.hpp>
-#include "style.hpp"
-#include "handler.hpp"
 #include "apihandler.hpp"
 #include "create_training_data.hpp"
 #include "saves_popup.hpp"
 #include "settingspopup.hpp"
+#include "style.hpp"
+#include <boost/asio.hpp>
+#include <cmake_git_version/version.hpp>
+#include <fmt/chrono.h>
+#include <fmt/core.h>
 
 int main() {
   const std::string configpath = "config/config.json";
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
   set_json(config);
-
   constexpr ImVec2 toolBtnSize{200.f, 100.f}; // toolbar buttons size
   std::vector<std::string> availableLanguages =
       getAvailableLanguages(load_json<std::string>(config, ("languagepath")));
   nlohmann::json language =
       load_json_file(load_json<std::string>(config, "languagepath") +
-          load_json<std::string>(config, "language") + ".json");
-
+                     load_json<std::string>(config, "language") + ".json");
   // variables declarations 
   OmniscopeDeviceManager deviceManager{};
   std::vector<std::shared_ptr<OmniscopeDevice>> devices;
@@ -39,40 +36,34 @@ int main() {
   std::optional<OmniscopeSampler> sampler{};
   std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
 
-  // main loop 
+  // main loop
   auto render = [&]() {
-    load_settings(config);
-    SetupImGuiStyle(false, 0.99f);
+    SetupImGuiStyle(false, 0.99f, config);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, {7.f, 3.f, 3.f, 1.f});
-    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f});
-    // TODO - left side buttons 
-    ImGui::EndChild(); // end child Left Side 
-    ImGui::PopStyleColor();
+    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f}, ImGuiChildFlags_Border);
+    set_side_menu(flagPaused, sampler, devices, deviceManager, colorMap);
+    ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
-    ImGui::BeginChild("Right Side"); 
-    // ############################ Live Capture
-    ImGui::BeginChild("Live Capture", {0.f, windowSize.y * 0.66f});
+    ImGui::BeginChild("Right Side", {0.f, 0.f}, ImGuiChildFlags_Border);
+
     if (sampler.has_value())
       if (!flagPaused)
         sampler->copyOut(captureData);
-
-    ImGui::BeginChild("Buttonstripe", {-1.f, 100.f},
-                      false, ImGuiWindowFlags_NoScrollbar);
+    ImGui::BeginChild("Buttonstripe", {-1.f, 100.f}, false,
+                      ImGuiWindowFlags_NoScrollbar);
     // ############################ Popup Save
     if (ImGui::BeginPopupModal("Save recorded data", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {                        
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm,
-                  flagDataNotSaved, sampler); 
+                  flagDataNotSaved, sampler);
       ImGui::EndPopup();
     }
-
     // ############################ Popup Reset
     if (ImGui::BeginPopupModal("Reset?", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -80,18 +71,19 @@ int main() {
       ImGui::Text("The measurement was not saved!\n"
                   "Would you like to save it before deleting it?\n");
       if (ImGui::Button("Continue deletion")) {
-          rstSettings(sampler,devices,savedFileNames,deviceManager,captureData);
-          ImGui::CloseCurrentPopup();
+        rstSettings(sampler, devices, savedFileNames, deviceManager,
+                    captureData);
+        ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
-      if (ImGui::Button("Back")) 
+      if (ImGui::Button("Back"))
         ImGui::CloseCurrentPopup();
       ImGui::EndPopup();
     }
 
     if (flagPaused) {
       // ######################## Buttonstripe
-      if (!devices.empty()) 
+      if (!devices.empty())
         if (!sampler.has_value()) {
           set_button_style_to(config, "start"); // Start Button
           if (ImGui::Button(
@@ -115,7 +107,6 @@ int main() {
     }
     if (flagPaused) {
       ImGui::SameLine();
-
       // Start/reset the measurement when the measurement is paused,
       // followed by a query as to whether the old data should be saved
       if (sampler.has_value()) {
@@ -133,8 +124,9 @@ int main() {
           if (flagDataNotSaved) {
             ImGui::OpenPopup("Reset?");
           } else {
-              rstSettings(sampler,devices,savedFileNames,deviceManager,captureData);
-              flagPaused = true;
+            rstSettings(sampler, devices, savedFileNames, deviceManager,
+                        captureData);
+            flagPaused = true;
           }
         }
         ImGui::PopStyleColor(3);
@@ -145,18 +137,20 @@ int main() {
       const bool pushStyle = ImGui::IsPopupOpen("Save recorded data");
 
       if (pushStyle)
-        ImGui::PushStyleColor(ImGuiCol_Text,inctColStyle);
+        ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
 
       if (ImGui::Button(appLanguage["Save"], toolBtnSize)) {
-         if(sampler.has_value()) 
-            ImGui::OpenPopup("Save recorded data");
-         else  
-          ImGui::OpenPopup(appLanguage["Save warning"], 
+        if (sampler.has_value())
+          ImGui::OpenPopup("Save recorded data");
+        else
+          ImGui::OpenPopup(appLanguage["Save warning"],
                            ImGuiPopupFlags_NoOpenOverExistingPopup);
       }
-     warning_popup(appLanguage["Save warning"], appLanguage["No_dvc_available"]);    
+      warning_popup(appLanguage["Save warning"],
+                    appLanguage["No_dvc_available"]);
 
-      if (pushStyle) ImGui::PopStyleColor();
+      if (pushStyle)
+        ImGui::PopStyleColor();
 
       ImGui::SameLine();
       ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
@@ -186,39 +180,44 @@ int main() {
     }
 
     // Generate training data Menu
-    if (open_generate_training_data) 
-      generateTrainingData(open_generate_training_data, sampler, savedFileNames);
+    if (open_generate_training_data)
+      generateTrainingData(open_generate_training_data, sampler,
+                           savedFileNames);
 
     // ############################ addPlots("Recording the data", ...)
-    addPlots("Recording the data", captureData, flagPaused,
+    ImGui::Dummy({0.f, windowSize.y * .01f});
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
+    ImGui::PushStyleColor(ImGuiCol_Border, {0.3f, 0.4f, 0.7f, 0.6f});
+    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
+                      ImGuiChildFlags_Border);
+    addPlots(
+        "Recording the data", captureData, flagPaused,
         [&xmax_paused](double x_max) {
-            if (!flagPaused) {
-                ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
-                    ImPlotAxisFlags_AutoFit,
-                    ImPlotAxisFlags_AutoFit);
-                ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
-                    ImGuiCond_Always);
-            }
-            else {
-                xmax_paused = x_max;
-                ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
-                ImPlot::SetupAxesLimits(0, 10, -10, 200);
-                ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-            }
-        }, colorMap);
-
-    ImGui::EndChild(); // end child "Live Capture"
-
-    // ############################ Devicelist
-    ImGui::BeginChild("Devicelist");
-    ImGui::Dummy({windowSize.x * .33f, 0.f}); ImGui::SameLine(); 
-    ImGui::Text("devices found:");
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, {0.145f, 0.157f, 0.168f, 1.0f});
-    devicesList(colorMap, sampler, devices);
+          if (!flagPaused) {
+            ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
+                              ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+                                    ImGuiCond_Always);
+          } else {
+            xmax_paused = x_max;
+            ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
+            ImPlot::SetupAxesLimits(0, 10, -10, 200);
+            ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+          }
+        },
+        colorMap);
+    ImGui::EndChild(); // end child Record Data
     ImGui::PopStyleColor();
+    ImGui::PopStyleVar();
+    // ############################ Devicelist
+    ImGui::Dummy({0.f, windowSize.y * .01f});
+    ImGui::BeginChild("Devicelist");
+    ImGui::Dummy({windowSize.x * .36f, 0.f});
+    ImGui::SameLine();
+    ImGui::Text("devices found:");
+    devicesList(colorMap, sampler, devices);
     ImGui::EndChild(); // end child "Devicelist"
-    ImGui::EndChild(); // end child Right Side
-    ImGui::PopStyleColor(7);
+    ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
   };
 
