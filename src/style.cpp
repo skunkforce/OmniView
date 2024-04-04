@@ -119,7 +119,7 @@ bool ImageButtonWithText(ImTextureID texId, const char *label,
   const ImGuiStyle &style = g.Style;
   const ImGuiID id = window->GetID(label);
   const ImVec2 textSize = ImGui::CalcTextSize(label, NULL, true);
-  const bool hasText = textSize.x > 0
+  const bool hasText = textSize.x > 0;
 
   const float innerSpacing =
       hasText ? ((frame_padding >= 0) ? (float)frame_padding
@@ -242,7 +242,8 @@ void set_side_menu(const bool &flagPaused,
                  ImVec2(image_width[PngRenderedCnt] * windowSize.x * 0.0005,
                         image_height[PngRenderedCnt] * windowSize.y * 0.0008));
   }
-  ImGui::Dummy({0.f, windowSize.y * .2f}); // space between logo and menu buttons
+  ImGui::Dummy(
+      {0.f, windowSize.y * .2f}); // space between logo and menu buttons
 
   // Start only if devices are available, otherwise search for devices
   if (loaded_png[++PngRenderedCnt] && // render search for Devices

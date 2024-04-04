@@ -19,7 +19,7 @@ int main() {
   nlohmann::json language =
       load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
-  // variables declarations 
+  // variables declarations
   OmniscopeDeviceManager deviceManager{};
   std::vector<std::shared_ptr<OmniscopeDevice>> devices;
   std::map<Omniscope::Id, std::array<float, 3>> colorMap;
@@ -45,13 +45,13 @@ int main() {
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f}, 
+    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f},
                       ImGuiChildFlags_Border);
     set_side_menu(flagPaused, sampler, devices, deviceManager, colorMap);
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
     ImGui::BeginChild("Right Side", {0.f, 0.f}, ImGuiChildFlags_Border);
-  
+
     if (sampler.has_value())
       if (!flagPaused)
         sampler->copyOut(captureData);
@@ -226,6 +226,7 @@ int main() {
   ImGuiInstance window{1920, 1080,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
-  while (window.run(render)) { }
+  while (window.run(render)) {
+  }
   return 0;
 }
