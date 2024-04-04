@@ -9,6 +9,8 @@
 #include <fmt/core.h>
 
 int main() {
+  bool Development = true; 
+
   const std::string configpath = "config/config.json";
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
@@ -38,14 +40,33 @@ int main() {
 
   // main loop
   auto render = [&]() {
+    // Hier füge deinen Color Picker hinzu
     SetupImGuiStyle(false, 0.99f, config);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
+
+     
+  
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
-                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize| ImGuiWindowFlags_NoTitleBar);
+
+     if(Development){
+
+     if (ImGui::Button("Development")) {
+        ImGui::OpenPopup("Development Colors");
+    }
+
+      // Popup-Fensterinhalt
+    if (ImGui::BeginPopup("Development Colors")) {
+        PopupStyleEditor(false, 0.99f, config);
+        ImGui::EndPopup();
+    }
+    
+    }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f}, ImGuiChildFlags_Border);
+
     set_side_menu(flagPaused, sampler, devices, deviceManager, colorMap);
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
@@ -188,6 +209,7 @@ int main() {
     ImGui::Dummy({0.f, windowSize.y * .01f});
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
     ImGui::PushStyleColor(ImGuiCol_Border, {0.3f, 0.4f, 0.7f, 0.6f});
+    SetMainWindowStyle(); 
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
                       ImGuiChildFlags_Border);
     addPlots(
@@ -216,6 +238,9 @@ int main() {
     ImGui::SameLine();
     ImGui::Text("devices found:");
     devicesList(colorMap, sampler, devices);
+
+
+    
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
