@@ -9,7 +9,7 @@
 #include <fmt/core.h>
 
 int main() {
-  bool Development = true; 
+  bool Development = true;
 
   const std::string configpath = "config/config.json";
   set_config(configpath);
@@ -21,7 +21,7 @@ int main() {
   nlohmann::json language =
       load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
-  // variables declarations 
+  // variables declarations
   OmniscopeDeviceManager deviceManager{};
   std::vector<std::shared_ptr<OmniscopeDevice>> devices;
   std::map<Omniscope::Id, std::array<float, 3>> colorMap;
@@ -47,23 +47,24 @@ int main() {
     ImGui::SetNextWindowSize(windowSize);
 
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
-                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize| ImGuiWindowFlags_NoTitleBar);
+                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_NoTitleBar);
 
-     if(Development){
+    if (Development) {
 
-     if (ImGui::Button("Development")) {
+      if (ImGui::Button("Development")) {
         ImGui::OpenPopup("Development Colors");
-    }
+      }
 
       // Popup-Fensterinhalt
-    if (ImGui::BeginPopup("Development Colors")) {
+      if (ImGui::BeginPopup("Development Colors")) {
         PopupStyleEditor(false, 0.99f, config);
         ImGui::EndPopup();
-    }
-    
+      }
     }
 
-    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f}, ImGuiChildFlags_Border);
+    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f},
+                      ImGuiChildFlags_Border);
 
     set_side_menu(flagPaused, sampler, devices, deviceManager, colorMap);
     ImGui::EndChild(); // end child "Left Side"
@@ -205,9 +206,9 @@ int main() {
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
-    //ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
-    //ImGui::PushStyleColor(ImGuiCol_Border, {0.3f, 0.4f, 0.7f, 0.6f});
-    SetMainWindowStyle(); 
+    // ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
+    // ImGui::PushStyleColor(ImGuiCol_Border, {0.3f, 0.4f, 0.7f, 0.6f});
+    SetMainWindowStyle();
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
                       ImGuiChildFlags_Border);
     addPlots(
@@ -237,8 +238,6 @@ int main() {
     ImGui::Text("devices found:");
     devicesList(colorMap, sampler, devices);
 
-
-    
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
@@ -247,6 +246,7 @@ int main() {
   ImGuiInstance window{1920, 1080,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
-  while (window.run(render)) { }
+  while (window.run(render)) {
+  }
   return 0;
 }
