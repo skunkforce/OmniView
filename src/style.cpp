@@ -137,6 +137,7 @@ void set_button_style_to(const nlohmann::json &config,
 
 void SetMainWindowStyle() {
   ImGuiStyle &style = ImGui::GetStyle();
+  //ImPlotStyle &plotStyle = ImPlot::GetStyle();
 
   style.Colors[ImGuiCol_Text] = { 0.0f, 0.0f, 0.0f, 1.0f };
   style.Colors[ImGuiCol_WindowBg] = { 1.0f, 1.0f, 0.93f, 1.0f };
@@ -148,6 +149,9 @@ void SetMainWindowStyle() {
   // colors when hovering and clicking the axes
   //style.Colors[ImGuiCol_ButtonHovered] = { 0.94f, 0.94f, 0.94f, 1.0f };
   //style.Colors[ImGuiCol_ButtonActive] = { 0.94f, 0.94f, 0.94f, 1.0f };
+
+ // plotStyle.Colors[ImPlotCol_PlotBg]= { 1.0f, 1.0f, 0.93f, 1.0f };
+
 }
 
 bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
@@ -280,9 +284,35 @@ void PopupStyleEditor(bool bStyleDark, float alpha, nlohmann::json& config) {
     {"Drag Drop Target", &style.Colors[ImGuiCol_DragDropTarget], ImGuiCol_DragDropTarget}
 };
 
+std::vector<StyleElement> plotElements = {
+    {"Plot Line/Outline", &ImPlot::GetStyle().Colors[ImPlotCol_Line], ImPlotCol_Line},
+    {"Plot Fill", &ImPlot::GetStyle().Colors[ImPlotCol_Fill], ImPlotCol_Fill},
+    {"Marker Outline", &ImPlot::GetStyle().Colors[ImPlotCol_MarkerOutline], ImPlotCol_MarkerOutline},
+    {"Marker Fill", &ImPlot::GetStyle().Colors[ImPlotCol_MarkerFill], ImPlotCol_MarkerFill},
+    {"Error Bar", &ImPlot::GetStyle().Colors[ImPlotCol_ErrorBar], ImPlotCol_ErrorBar},
+    {"Frame Background", &ImPlot::GetStyle().Colors[ImPlotCol_FrameBg], ImPlotCol_FrameBg},
+    {"Plot Background", &ImPlot::GetStyle().Colors[ImPlotCol_PlotBg], ImPlotCol_PlotBg},
+    {"Plot Border", &ImPlot::GetStyle().Colors[ImPlotCol_PlotBorder], ImPlotCol_PlotBorder},
+    {"Legend Background", &ImPlot::GetStyle().Colors[ImPlotCol_LegendBg], ImPlotCol_LegendBg},
+    {"Legend Border", &ImPlot::GetStyle().Colors[ImPlotCol_LegendBorder], ImPlotCol_LegendBorder},
+    {"Legend Text", &ImPlot::GetStyle().Colors[ImPlotCol_LegendText], ImPlotCol_LegendText},
+    {"Title Text", &ImPlot::GetStyle().Colors[ImPlotCol_TitleText], ImPlotCol_TitleText},
+    {"Inlay Text", &ImPlot::GetStyle().Colors[ImPlotCol_InlayText], ImPlotCol_InlayText},
+    {"Axis Text", &ImPlot::GetStyle().Colors[ImPlotCol_AxisText], ImPlotCol_AxisText},
+    {"Axis Grid", &ImPlot::GetStyle().Colors[ImPlotCol_AxisGrid], ImPlotCol_AxisGrid},
+    {"Axis Tick", &ImPlot::GetStyle().Colors[ImPlotCol_AxisTick], ImPlotCol_AxisTick},
+    {"Axis Background", &ImPlot::GetStyle().Colors[ImPlotCol_AxisBg], ImPlotCol_AxisBg},
+    {"Axis Background Hovered", &ImPlot::GetStyle().Colors[ImPlotCol_AxisBgHovered], ImPlotCol_AxisBgHovered},
+    {"Axis Background Active", &ImPlot::GetStyle().Colors[ImPlotCol_AxisBgActive], ImPlotCol_AxisBgActive},
+    {"Selection", &ImPlot::GetStyle().Colors[ImPlotCol_Selection], ImPlotCol_Selection},
+    {"Crosshairs", &ImPlot::GetStyle().Colors[ImPlotCol_Crosshairs], ImPlotCol_Crosshairs}
+}; 
+
 
     // Hier füge deinen Color Picker hinzu
     static ImVec4 copiedColors[ImGuiCol_COUNT];
+
+    static ImVec4 plotcolors[ImPlotCol_COUNT]; 
     // Color pickers for individual style elements
     if (ImGui::TreeNode("Style Colors")) {
        UpdateColors(styleElements, copiedColors);
@@ -291,12 +321,16 @@ void PopupStyleEditor(bool bStyleDark, float alpha, nlohmann::json& config) {
         ImGui::TreePop();
     }
 
-    ImGui::End();
-}
+    if (ImGui::TreeNode("ImPlotColors")) {
+       UpdateColorsImPlot(plotElements, plotcolors);
+        // Add more color pickers for other style elements
 
-void UpdateColor(ImVec4& color, ImGuiStyle& style, int styleIndex) {
-    // Update color in the style
-    style.Colors[styleIndex] = color;
+        ImGui::TreePop();
+    }
+
+
+
+    ImGui::End();
 }
 
 void UpdateColors(const std::vector<StyleElement>& styleElements, const ImVec4* colors) {
@@ -307,6 +341,18 @@ void UpdateColors(const std::vector<StyleElement>& styleElements, const ImVec4* 
         ImGui::ColorEdit4(element.name, (float*)&colors[i]);
         ImVec4 colorWithAlpha = ImVec4(colors[i].x, colors[i].y, colors[i].z, style.Colors[element.colorIndex].w);
         style.Colors[element.colorIndex] = colorWithAlpha;
+        i++; 
+    }
+}
+
+void UpdateColorsImPlot(const std::vector<StyleElement>& styleElements, const ImVec4* colors) {
+   
+  ImPlotStyle &plotStyle = ImPlot::GetStyle();
+  int i = 0; 
+    for (const auto& element : styleElements) {
+        ImGui::ColorEdit4(element.name, (float*)&colors[i]);
+        ImVec4 colorWithAlpha = ImVec4(colors[i].x, colors[i].y, colors[i].z, 0.99f);
+        plotStyle.Colors[element.colorIndex] = colorWithAlpha;
         i++; 
     }
 }

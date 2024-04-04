@@ -21,8 +21,8 @@ void set_side_menu(const bool &, const std::optional<OmniscopeSampler> &,
                    OmniscopeDeviceManager &,
                    std::map<Omniscope::Id, std::array<float, 3>> &);
 void PopupStyleEditor(bool bStyleDark, float alpha, nlohmann::json& config); 
-void UpdateColor(ImVec4& color, ImGuiStyle& style, int styleIndex); 
 void UpdateColors(const std::vector<StyleElement>& styleElements, const ImVec4* colors); 
+void UpdateColorsImPlot(const std::vector<StyleElement>& styleElements, const ImVec4* colors); 
 
 void SetMainWindowStyle(); 
 
