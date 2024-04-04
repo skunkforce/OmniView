@@ -45,12 +45,13 @@ int main() {
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f}, ImGuiChildFlags_Border);
+    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f}, 
+                      ImGuiChildFlags_Border);
     set_side_menu(flagPaused, sampler, devices, deviceManager, colorMap);
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
     ImGui::BeginChild("Right Side", {0.f, 0.f}, ImGuiChildFlags_Border);
-
+  
     if (sampler.has_value())
       if (!flagPaused)
         sampler->copyOut(captureData);
@@ -107,6 +108,7 @@ int main() {
     }
     if (flagPaused) {
       ImGui::SameLine();
+
       // Start/reset the measurement when the measurement is paused,
       // followed by a query as to whether the old data should be saved
       if (sampler.has_value()) {

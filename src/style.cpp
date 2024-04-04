@@ -1,7 +1,9 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
+#define STB_IMAGE_IMPLEMENTATION
 #include "style.hpp"
 #include "imagesHeader.hpp"
+#include "imgui_internal.h"
 #include "jasonhandler.hpp"
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_,
@@ -93,6 +95,80 @@ void set_button_style_to(const nlohmann::json &config,
       ImVec4(load_json<Color>(config, "button", name, "active")));
 }
 
+namespace ImGui {
+bool ImageButtonWithText(ImTextureID texId, const char *label,
+                         const ImVec2 &imageSize, const ImVec2 &uv0,
+                         const ImVec2 &uv1, int frame_padding,
+                         const ImVec4 &bg_col, const ImVec4 &tint_col) {
+  ImGuiWindow *window = GetCurrentWindow();
+  if (window->SkipItems)
+    return false;
+
+  ImVec2 size = imageSize;
+  if (size.x <= 0 && size.y <= 0) {
+    size.x = size.y = ImGui::GetTextLineHeightWithSpacing();
+  } else {
+    if (size.x <= 0)
+      size.x = size.y;
+    else if (size.y <= 0)
+      size.y = size.x;
+    size *= window->FontWindowScale * ImGui::GetIO().FontGlobalScale;
+  }
+
+  ImGuiContext &g = *GImGui;
+  const ImGuiStyle &style = g.Style;
+  const ImGuiID id = window->GetID(label);
+  const ImVec2 textSize = ImGui::CalcTextSize(label, NULL, true);
+  const bool hasText = textSize.x > 0
+
+  const float innerSpacing =
+      hasText ? ((frame_padding >= 0) ? (float)frame_padding
+                                      : (style.ItemInnerSpacing.x))
+              : 0.f;
+  const ImVec2 padding =
+      (frame_padding >= 0) ? ImVec2((float)frame_padding, (float)frame_padding)
+                           : style.FramePadding;
+  const ImVec2 totalSizeWithoutPadding(size.x + innerSpacing + textSize.x,
+                                       size.y > textSize.y ? size.y
+                                                           : textSize.y);
+  const ImRect bb(window->DC.CursorPos,
+                  window->DC.CursorPos + totalSizeWithoutPadding + padding * 2);
+  ImVec2 start(0, 0);
+  start = window->DC.CursorPos + padding;
+  if (size.y < textSize.y)
+    start.y += (textSize.y - size.y) * .5f;
+  const ImRect image_bb(start, start + size);
+  start = window->DC.CursorPos + padding;
+  start.x += size.x + innerSpacing;
+  if (size.y > textSize.y)
+    start.y += (size.y - textSize.y) * .5f;
+  ItemSize(bb);
+  if (!ItemAdd(bb, id))
+    return false;
+
+  bool hovered = false, held = false;
+  bool pressed = ButtonBehavior(bb, id, &hovered, &held);
+
+  // Render
+  const ImU32 col = GetColorU32((hovered && held) ? ImGuiCol_ButtonActive
+                                : hovered         ? ImGuiCol_ButtonHovered
+                                                  : ImGuiCol_Button);
+  RenderFrame(
+      bb.Min, bb.Max, col, true,
+      ImClamp((float)ImMin(padding.x, padding.y), 0.0f, style.FrameRounding));
+  if (bg_col.w > 0.0f)
+    window->DrawList->AddRectFilled(image_bb.Min, image_bb.Max,
+                                    GetColorU32(bg_col));
+
+  window->DrawList->AddImage(texId, image_bb.Min, image_bb.Max, uv0, uv1,
+                             GetColorU32(tint_col));
+
+  if (textSize.x > 0)
+    ImGui::RenderText(start, label);
+  return pressed;
+}
+} // namespace ImGui
+
 bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
                            GLuint *out_texture, int *out_width,
                            int *out_height) {
@@ -135,32 +211,59 @@ void set_side_menu(const bool &flagPaused,
                    std::map<Omniscope::Id, std::array<float, 3>> &colorMap) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
-  static bool loaded_png{false};
-  static int my_image_height{};
-  static int my_image_width{};
-  static GLuint my_image_texture{};
-  const unsigned char *imagesNames{AutoInternLogo_png};
-  static unsigned int imagesLen{AutoInternLogo_png_len};
+  // Initializing all variables for images
+  static constexpr size_t size{5}; // number of pictures
+  size_t PngRenderedCnt{};
+  static bool loaded_png[size]{};
+  static int image_height[size];
+  static int image_width[size];
+  static GLuint image_texture[size];
 
-  if (!loaded_png) {
-    if (LoadTextureFromHeader(imagesNames, imagesLen, &my_image_texture,
-                              &my_image_width, &my_image_height))
-      loaded_png = true;
-    else
-      fmt::println("Error Loading Png.");
+  // The order matters because of the counter for the images !!!
+  static const unsigned char *imagesNames[] = {
+      AutoInternLogo_png, SearchDevices_png, Diagnostics_png, Settings_png,
+      Help_png};
+  static const unsigned int imagesLen[] = {
+      AutoInternLogo_png_len, SearchDevices_png_len, Diagnostics_png_len,
+      Settings_png_len, Help_png_len};
+  // Load the images for the SideBarMenu
+  for (size_t i = 0; i < size; i++)
+    if (!loaded_png[i]) {
+      if (LoadTextureFromHeader(imagesNames[i], imagesLen[i], &image_texture[i],
+                                &image_width[i], &image_height[i]))
+        loaded_png[i] = true;
+      else
+        fmt::println("Error Loading Png #{}.", i);
+    }
+
+  // Begin the SideBarMenu
+  if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
+    ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
+                 ImVec2(image_width[PngRenderedCnt] * windowSize.x * 0.0005,
+                        image_height[PngRenderedCnt] * windowSize.y * 0.0008));
   }
-
-  if (loaded_png)
-    // render AIGroupLogo
-    ImGui::Image((void *)(intptr_t)my_image_texture,
-                 ImVec2(my_image_width * windowSize.x * 0.0005f,
-                        my_image_height * windowSize.y * 0.0008f));
+  ImGui::Dummy({0.f, windowSize.y * .2f}); // space between logo and menu buttons
 
   // Start only if devices are available, otherwise search for devices
-  if (flagPaused && !sampler.has_value() &&
-      ImGui::Button("Search for devices")) {
+  if (loaded_png[++PngRenderedCnt] && // render search for Devices
+      !sampler.has_value() &&
+      ImGui::ImageButtonWithText(
+          (void *)(intptr_t)image_texture[PngRenderedCnt],
+          "Search for devices")) {
     devices.clear();
     deviceManager.clearDevices();
     initDevices(deviceManager, devices, colorMap);
+  }
+  if (loaded_png[++PngRenderedCnt] && // render Diagnostics
+      ImGui::ImageButtonWithText(
+          (void *)(intptr_t)image_texture[PngRenderedCnt], "Diagnostics")) {
+  }
+  if (loaded_png[++PngRenderedCnt] && // render Settings
+      ImGui::ImageButtonWithText(
+          (void *)(intptr_t)image_texture[PngRenderedCnt], "Settings")) {
+  }
+  if (loaded_png[++PngRenderedCnt] && // render Help
+      ImGui::ImageButtonWithText(
+          (void *)(intptr_t)image_texture[PngRenderedCnt], "Help")) {
   }
 }
