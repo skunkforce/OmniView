@@ -16,7 +16,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   io.FontGlobalScale = load_json<float>(config, "text", "scale");
     
   style.Alpha = 1.0f;
-  style.FrameRounding = 3.0f;
+  style.FrameRounding = 5.0f;
   style.Colors[ImGuiCol_Text] =
       ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_TextDisabled] =
@@ -28,9 +28,9 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   style.Colors[ImGuiCol_PopupBg] =
       ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_Border] =
-      ImVec4(235 / 255.0f, 62 / 255.0f, 54 / 255.0f, 98 / 100.0f);
+      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_BorderShadow] =
-      ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 98 / 100.0f);
+      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
 
   style.Colors[ImGuiCol_FrameBg] = ImVec4(
       23 / 255.0f, 23 / 255.0f, 20 / 255.0f,
@@ -40,11 +40,11 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   style.Colors[ImGuiCol_FrameBgActive] =
       ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_TitleBg] =
-      ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
+      ImVec4(1 / 255.0f, 1 / 255.0f, 1 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_TitleBgCollapsed] =
       ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_TitleBgActive] =
-      ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
+      ImVec4(1 / 255.0f, 1 / 255.0f, 1 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_MenuBarBg] =
       ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_ScrollbarBg] =
@@ -140,14 +140,14 @@ void SetMainWindowStyle() {
 
   style.Colors[ImGuiCol_Text] = { 0.0f, 0.0f, 0.0f, 1.0f };
   style.Colors[ImGuiCol_WindowBg] = { 1.0f, 1.0f, 0.93f, 1.0f };
-  style.Colors[ImGuiCol_Border] = { 0.14f, 0.15f, 0.17f, 1.0f };
-  style.Colors[ImGuiCol_FrameBg] = { 1.0f, 1.0f, 1.0f, 1.0f };
-  style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
-  style.Colors[ImGuiCol_FrameBgActive] = { 1.0f, 1.0f, 1.0f, 1.0f };
+ // style.Colors[ImGuiCol_Border] = { 0.14f, 0.15f, 0.17f, 1.0f };
+ // style.Colors[ImGuiCol_FrameBg] = { 1.0f, 1.0f, 1.0f, 1.0f };
+ // style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  //style.Colors[ImGuiCol_FrameBgActive] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
   // colors when hovering and clicking the axes
-  style.Colors[ImGuiCol_ButtonHovered] = { 0.94f, 0.94f, 0.94f, 1.0f };
-  style.Colors[ImGuiCol_ButtonActive] = { 0.94f, 0.94f, 0.94f, 1.0f };
+  //style.Colors[ImGuiCol_ButtonHovered] = { 0.94f, 0.94f, 0.94f, 1.0f };
+  //style.Colors[ImGuiCol_ButtonActive] = { 0.94f, 0.94f, 0.94f, 1.0f };
 }
 
 bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,

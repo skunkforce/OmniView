@@ -24,4 +24,6 @@ void PopupStyleEditor(bool bStyleDark, float alpha, nlohmann::json& config);
 void UpdateColor(ImVec4& color, ImGuiStyle& style, int styleIndex); 
 void UpdateColors(const std::vector<StyleElement>& styleElements, const ImVec4* colors); 
 
+void SetMainWindowStyle(); 
+
 #endif
