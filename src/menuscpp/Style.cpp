@@ -115,26 +115,25 @@ inline void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
     }
   }
 }
-} // namespace ImGui
+} // namespace Style
 
 void SetMainWindowStyle() {
   ImGuiStyle &style = ImGui::GetStyle();
 
-  style.Colors[ImGuiCol_Text] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  style.Colors[ImGuiCol_WindowBg] = { 1.0f, 1.0f, 0.93f, 1.0f };
-  style.Colors[ImGuiCol_Border] = { 0.14f, 0.15f, 0.17f, 1.0f };
-  style.Colors[ImGuiCol_FrameBg] = { 1.0f, 1.0f, 1.0f, 1.0f };
-  style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
-  style.Colors[ImGuiCol_FrameBgActive] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  style.Colors[ImGuiCol_Text] = {0.0f, 0.0f, 0.0f, 1.0f};
+  style.Colors[ImGuiCol_WindowBg] = {1.0f, 1.0f, 0.93f, 1.0f};
+  style.Colors[ImGuiCol_Border] = {0.14f, 0.15f, 0.17f, 1.0f};
+  style.Colors[ImGuiCol_FrameBg] = {1.0f, 1.0f, 1.0f, 1.0f};
+  style.Colors[ImGuiCol_FrameBgHovered] = {1.0f, 1.0f, 1.0f, 1.0f};
+  style.Colors[ImGuiCol_FrameBgActive] = {1.0f, 1.0f, 1.0f, 1.0f};
 
   // colors when hovering and clicking the axes
-  style.Colors[ImGuiCol_ButtonHovered] = { 0.94f, 0.94f, 0.94f, 1.0f };
-  style.Colors[ImGuiCol_ButtonActive] = { 0.94f, 0.94f, 0.94f, 1.0f };
+  style.Colors[ImGuiCol_ButtonHovered] = {0.94f, 0.94f, 0.94f, 1.0f};
+  style.Colors[ImGuiCol_ButtonActive] = {0.94f, 0.94f, 0.94f, 1.0f};
 }
 
 void SetHorizontalSepeareatorColours() {
 
-  ImGuiStyle& style = ImGui::GetStyle();
+  ImGuiStyle &style = ImGui::GetStyle();
   style.Colors[ImGuiCol_Separator] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-
 }

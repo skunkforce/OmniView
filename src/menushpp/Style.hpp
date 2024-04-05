@@ -3,10 +3,10 @@
 
 namespace Style {
 inline void SetupImGuiStyle(bool bStyleDark_, float alpha_);
-} // namespace ImGui
+} // namespace Style
 
 void SetMainWindowStyle();
 
 void SetHorizontalSepeareatorColours();
 
-#endif 
+#endif
