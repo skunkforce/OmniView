@@ -23,17 +23,15 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
       ImVec4(248 / 255.0f, 249 / 255.0f, 250 / 255.0f, 98 / 100.0f);
   style.Colors[ImGuiCol_WindowBg] =
       ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+  style.Colors[ImGuiCol_ChildBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
   style.Colors[ImGuiCol_PopupBg] =
       ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_Border] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_BorderShadow] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+  style.Colors[ImGuiCol_Border] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+  style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 
   style.Colors[ImGuiCol_FrameBg] = ImVec4(
-      23 / 255.0f, 23 / 255.0f, 20 / 255.0f,
-      100 / 100.0f); // changes the color of the frame bg for the plot window
+      ImVec4(0.0f, 0.0f, 0.0f,
+             1.0f)); // changes the color of the frame bg for the plot window
   style.Colors[ImGuiCol_FrameBgHovered] =
       ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_FrameBgActive] =
@@ -132,20 +130,39 @@ void set_button_style_to(const nlohmann::json &config,
 
 void SetMainWindowStyle() {
   ImGuiStyle &style = ImGui::GetStyle();
-  // ImPlotStyle &plotStyle = ImPlot::GetStyle();
+  ImPlotStyle &plotStyle = ImPlot::GetStyle();
 
   style.Colors[ImGuiCol_Text] = {0.0f, 0.0f, 0.0f, 1.0f};
   style.Colors[ImGuiCol_WindowBg] = {1.0f, 1.0f, 0.93f, 1.0f};
+  style.Colors[ImGuiCol_ChildBg] =
+      ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
   // style.Colors[ImGuiCol_Border] = { 0.14f, 0.15f, 0.17f, 1.0f };
-  // style.Colors[ImGuiCol_FrameBg] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  style.Colors[ImGuiCol_FrameBg] = {1.0f, 1.0f, 1.0f, 1.0f};
   // style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
   // style.Colors[ImGuiCol_FrameBgActive] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+  // Colors for the Implot Window:
+  plotStyle.Colors[ImPlotCol_PlotBg] = {1.0f, 1.0f, 1.0f, 1.0f};
+  plotStyle.Colors[ImPlotCol_AxisBg] = {1.0f, 1.0f, 1.0f, 1.0f};
+  plotStyle.Colors[ImPlotCol_AxisBgHovered] = {158.0 / 255.0f, 158.0 / 255.0f,
+                                               158.0 / 255.0f, 1.0f};
+  plotStyle.Colors[ImPlotCol_AxisBgActive] = {91.0 / 255.0f, 91.0 / 255.0f,
+                                              91.0 / 255.0f, 1.0f};
+  plotStyle.Colors[ImPlotCol_Line] = {1.0f, 1.0f, 1.0f, 1.0f};
+  plotStyle.Colors[ImPlotCol_TitleText] = {0.0f, 0.0f, 0.0f, 1.0f};
+  plotStyle.Colors[ImPlotCol_AxisGrid] = {0.0f, 0.0f, 0.0f, 1.0f};
 
   // colors when hovering and clicking the axes
   // style.Colors[ImGuiCol_ButtonHovered] = { 0.94f, 0.94f, 0.94f, 1.0f };
   // style.Colors[ImGuiCol_ButtonActive] = { 0.94f, 0.94f, 0.94f, 1.0f };
 
   // plotStyle.Colors[ImPlotCol_PlotBg]= { 1.0f, 1.0f, 0.93f, 1.0f };
+}
+
+void SetDeviceMenuStyle() {
+
+  ImGuiStyle &style = ImGui::GetStyle();
+  style.Colors[ImGuiCol_Border] = {0.14f, 0.15f, 0.17f, 1.0f};
 }
 
 bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,

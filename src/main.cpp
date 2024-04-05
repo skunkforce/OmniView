@@ -9,7 +9,7 @@
 #include <fmt/core.h>
 
 int main() {
-  bool Development = true;
+  bool Development = false;
 
   const std::string configpath = "config/config.json";
   set_config(configpath);
@@ -206,11 +206,15 @@ int main() {
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
-    // ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
-    // ImGui::PushStyleColor(ImGuiCol_Border, {0.3f, 0.4f, 0.7f, 0.6f});
-    SetMainWindowStyle();
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
+    ImGui::PushStyleColor(ImGuiCol_Border, {158.0 / 255.0f, 158.0 / 255.0f,
+                                            158.0 / 255.0f, 1.0f});
+
+    // ImGui::SetCursorPos({windowSize.x * 0.015f, windowSize.y * 0.024f});
+
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
                       ImGuiChildFlags_Border);
+    SetMainWindowStyle();
     addPlots(
         "Recording the data", captureData, flagPaused,
         [&xmax_paused](double x_max) {
@@ -230,7 +234,10 @@ int main() {
     ImGui::EndChild(); // end child Record Data
     ImGui::PopStyleColor();
     ImGui::PopStyleVar();
+    SetupImGuiStyle(false, 0.99f, config);
     // ############################ Devicelist
+
+    SetDeviceMenuStyle();
     ImGui::Dummy({0.f, windowSize.y * .01f});
     ImGui::BeginChild("Devicelist");
     ImGui::Dummy({windowSize.x * .36f, 0.f});

@@ -27,5 +27,6 @@ void UpdateColorsImPlot(const std::vector<StyleElement> &styleElements,
                         const ImVec4 *colors);
 
 void SetMainWindowStyle();
+void SetDeviceMenuStyle();
 
 #endif
