@@ -131,3 +131,10 @@ void SetMainWindowStyle() {
   style.Colors[ImGuiCol_ButtonHovered] = { 0.94f, 0.94f, 0.94f, 1.0f };
   style.Colors[ImGuiCol_ButtonActive] = { 0.94f, 0.94f, 0.94f, 1.0f };
 }
+
+void SetHorizontalSepeareatorColours() {
+
+  ImGuiStyle& style = ImGui::GetStyle();
+  style.Colors[ImGuiCol_Separator] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+}
