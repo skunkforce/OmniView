@@ -40,7 +40,7 @@ int main() {
 
   // main loop
   auto render = [&]() {
-    // Hier füge deinen Color Picker hinzu
+    
     SetupImGuiStyle(false, 0.99f, config);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
