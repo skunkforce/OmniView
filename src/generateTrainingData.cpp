@@ -1,17 +1,22 @@
-#include <cstring>
-#include <filesystem>
+
 #include <fstream>
 #include <future>
 #include <imgui.h>
 #include <iostream>
 #include <limits>
 #include <regex>
+#include <imgui.h>
+#include <filesystem>
 #include <sstream>
-#include "../imgui-stdlib/imgui_stdlib.h"
-#include "jasonhandler.hpp"
+#include <limits>
+#include <future>
+#include <iostream>
+#include <cstring>
 #include "languages.hpp"
 #include "popups.hpp"
 #include "sendData.hpp"
+#include "../imgui-stdlib/imgui_stdlib.h"
+#include "jasonhandler.hpp"
 
 void generateTrainingData(
     bool &open_generate_training_data,
@@ -144,7 +149,6 @@ void generateTrainingData(
         }
         // pop the extra last element
         file_measuring_vals.pop_back();
-
         Measurement = FieldsData[0];
         if (!Measurement.empty())
           measuGrayFlag = ImGuiInputTextFlags_ReadOnly;
@@ -350,15 +354,15 @@ void generateTrainingData(
               crnt_measuring_vals[i] = it->second[i].second;
 
             has_selection = true;
-          } else
+          } else 
             fmt::println("Selected device {} is not found!",
                          selected_device.serial);
         } else if (!selected_file.empty()) {
           setInptFields(selected_file);
           has_selection = true;
         }
-      } else if (wave_from_file && !fileNameBuf.empty())
-        has_selection = true;
+      } else if (wave_from_file && !fileNameBuf.empty()) 
+          has_selection = true;
 
       if (!has_selection)
         ImGui::OpenPopup(appLanguage[Key::Nothing_to_send],
@@ -374,18 +378,21 @@ void generateTrainingData(
         else
           elec_consumer = appLanguage[Key::Off];
         if (assess)
-          assessmnt = appLanguage[Key::Anomaly];
+           assessmnt = appLanguage[Key::Anomaly];
         else
-          assessmnt = "Normal";
+           assessmnt = "Normal";
 
-        std::vector<double> y_values;
-        if (usr_curnt_wave)
-          y_values = std::move(crnt_measuring_vals);
-        else
+         std::vector<double> y_values; 
+         if(usr_curnt_wave)
+           y_values = std::move(crnt_measuring_vals);
+         else 
           y_values = std::move(file_measuring_vals);
-        myJson["meta"] = {Measurement,   VIN,       Mileage, invest_reason,
-                          elec_consumer, assessmnt, comment};
-        myJson["data"] = {{"sampling_rate", 0}, {"y_values", y_values}};
+         myJson["meta"] = { Measurement, VIN, Mileage, invest_reason,
+                            elec_consumer, assessmnt, comment };
+         myJson["data"] = {
+           {"sampling_rate", 0},
+           {"y_values", y_values}
+         };
 
         // Optional - see what you've uploaded
         std::filesystem::path outFile =
@@ -436,3 +443,4 @@ void generateTrainingData(
     ImGui::EndPopup();
   }
 }
+

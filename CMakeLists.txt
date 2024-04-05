@@ -34,7 +34,7 @@ add_executable(OmniView
                src/generateTrainingData.cpp 
                src/info_popup.cpp
                src/imgui_stdlib.cpp
-               src/saves_popup.cpp
+               src/saves_popup.cpp     
                src/style.cpp
                src/handler.cpp
                )
