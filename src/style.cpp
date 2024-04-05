@@ -4,7 +4,9 @@
 #include "imagesHeader.hpp"
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
+#include "languages.hpp"
 #include "stb_image.h"
+#include <cmake_git_version/version.hpp>
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_,
                      const nlohmann::json &config) {
@@ -120,7 +122,6 @@ bool ImageButtonWithText(ImTextureID texId, const char *label,
   const ImGuiID id = window->GetID(label);
   const ImVec2 textSize = ImGui::CalcTextSize(label, NULL, true);
   const bool hasText = textSize.x > 0;
-
   const float innerSpacing =
       hasText ? ((frame_padding >= 0) ? (float)frame_padding
                                       : (style.ItemInnerSpacing.x))
@@ -204,11 +205,8 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
   return true;
 }
 
-void set_side_menu(const bool &flagPaused,
-                   const std::optional<OmniscopeSampler> &sampler,
-                   std::vector<std::shared_ptr<OmniscopeDevice>> &devices,
-                   OmniscopeDeviceManager &deviceManager,
-                   std::map<Omniscope::Id, std::array<float, 3>> &colorMap) {
+void set_side_menu(const nlohmann::json &config, bool &flagPaused,
+                   bool &open_settings, bool &open_generate_training_data) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -242,29 +240,82 @@ void set_side_menu(const bool &flagPaused,
                  ImVec2(image_width[PngRenderedCnt] * windowSize.x * 0.0005,
                         image_height[PngRenderedCnt] * windowSize.y * 0.0008));
   }
-  ImGui::Dummy(
-      {0.f, windowSize.y * .2f}); // space between logo and menu buttons
+  ImGui::Dummy({0.f, windowSize.y * .2f});
 
   // Start only if devices are available, otherwise search for devices
   if (loaded_png[++PngRenderedCnt] && // render search for Devices
       !sampler.has_value() &&
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
-          "Search for devices")) {
+          appLanguage[Key::Dvc_search])) {
     devices.clear();
     deviceManager.clearDevices();
-    initDevices(deviceManager, devices, colorMap);
+    initDevices();
   }
+
+  static bool showDiag = false;
+  const bool showDiagPrev = showDiag;
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
       ImGui::ImageButtonWithText(
-          (void *)(intptr_t)image_texture[PngRenderedCnt], "Diagnostics")) {
+          (void *)(intptr_t)image_texture[PngRenderedCnt],
+          appLanguage[Key::Diagnostics])) {
+    showDiag = !showDiag;
   }
+  if (showDiag && !showDiagPrev)
+    ImGui::SetNextItemOpen(false);
+  if (showDiag && ImGui::TreeNode(appLanguage[Key::Battery_measure])) {
+    ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+    if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform]))
+      showDiag = false;
+    ImGui::PopStyleColor();
+    if (ImGui::Button(appLanguage[Key::Gnrt_trning_data])) {
+      open_generate_training_data = true;
+      showDiag = false;
+    }
+    ImGui::TreePop();
+  }
+
+  static bool showSettings = false;
+  const bool showSettingsPrev = showSettings;
   if (loaded_png[++PngRenderedCnt] && // render Settings
       ImGui::ImageButtonWithText(
-          (void *)(intptr_t)image_texture[PngRenderedCnt], "Settings")) {
+          (void *)(intptr_t)image_texture[PngRenderedCnt],
+          appLanguage[Key::Attitude])) {
+    showSettings = !showSettings;
   }
+  if (showSettings && !showSettingsPrev)
+    ImGui::SetNextItemOpen(false);
+  if (showSettings && ImGui::TreeNode(appLanguage[Key::LanOption])) {
+    if (ImGui::Button(appLanguage[Key::English])) {
+      appLanguage = englishLan;
+      showSettings = false;
+    }
+    if (ImGui::Button(appLanguage[Key::German])) {
+      appLanguage = germanLan;
+      showSettings = false;
+    }
+    ImGui::TreePop();
+  }
+  if (showSettings && ImGui::Button(appLanguage[Key::Settings])) {
+    open_settings = true;
+    showSettings = false;
+  }
+  if (showSettings && ImGui::Button(appLanguage[Key::Reset])) {
+    rstSettings();
+    flagPaused = true;
+    showSettings = false;
+  }
+  if (showSettings &&
+      ImGui::Button(fmt::format("{}: {}", appLanguage[Key::Version],
+                                CMakeGitVersion::VersionWithGit)
+                        .c_str()))
+    showSettings = false;
+
   if (loaded_png[++PngRenderedCnt] && // render Help
       ImGui::ImageButtonWithText(
-          (void *)(intptr_t)image_texture[PngRenderedCnt], "Help")) {
+          (void *)(intptr_t)image_texture[PngRenderedCnt],
+          appLanguage[Key::Help])) {
+    system(("start " + load_json<std::string>(config, "helplink")).c_str());
+    showSettings = false;
   }
 }

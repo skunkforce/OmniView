@@ -10,10 +10,8 @@ inline constexpr ImVec4 normColStyle{0.1f, 0.1f, 0.1f, 1.f};
 void SetupImGuiStyle(bool, float, const nlohmann::json &);
 void set_button_style_to(const nlohmann::json &, const std::string &);
 bool LoadTextureFromHeader(unsigned char const *, int, GLuint *, int *, int *);
-void set_side_menu(const bool &, const std::optional<OmniscopeSampler> &,
-                   std::vector<std::shared_ptr<OmniscopeDevice>> &,
-                   OmniscopeDeviceManager &,
-                   std::map<Omniscope::Id, std::array<float, 3>> &);
+void set_side_menu(const nlohmann::json &, bool &, bool &, bool &);
+
 namespace ImGui {
 IMGUI_API bool ImageButtonWithText(ImTextureID texId, const char *label,
                                    const ImVec2 &imageSize = ImVec2(0, 0),
