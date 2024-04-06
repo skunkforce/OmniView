@@ -93,7 +93,7 @@ int main() {
     }
 
     // Initializing all variables for images in the toolbar
-    static constexpr size_t size{5}; // number of pictures
+    static constexpr size_t size{4}; // number of pictures
     int PngRenderedCnt = 0;
     static bool loaded_png[size]{};
     static int image_height[size];
@@ -120,10 +120,6 @@ int main() {
 
     // ImGui::SetCursorPosX(windowSize.x *0.9f);
 
-    ImGui::SetCursorPosX(windowSize.x * 0.4f);
-    ImGui::SetCursorPosY(windowSize.y * 0.05f);
-    PngRenderedCnt = 0;
-
     if (flagPaused) {
       // ######################## Buttonstripe
       if (!devices.empty()) {
@@ -131,8 +127,6 @@ int main() {
           PngRenderedCnt = 0;
           set_button_style_to(config,
                               "start"); // Start Button
-          ImGui::SetCursorPosX(windowSize.x * 0.4f);
-          ImGui::SetCursorPosY(windowSize.y * 0.05f);
           if (ImGui::ImageButton(
                   appLanguage[Key::Start],
                   (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -145,7 +139,8 @@ int main() {
           ImGui::PopStyleColor(3);
         }
       } else {
-        ImGui::SetCursorPosX(windowSize.x * 0.4f);
+        PngRenderedCnt = 0;
+        ImGui::SetCursorPosX(windowSize.x * 0.5f);
         ImGui::SetCursorPosY(windowSize.y * 0.05f);
         if (ImGui::ImageButton(
                 appLanguage[Key::Start],
@@ -158,8 +153,6 @@ int main() {
       info_popup("No devices are selected", appLanguage[Key::No_dvc_available]);
       // set_button_style_to(config, "standart");
     } else {
-      ImGui::SetCursorPosX(windowSize.x * 0.4f);
-      ImGui::SetCursorPosY(windowSize.y * 0.05f);
       PngRenderedCnt = 1;
       // ############################ Stop Button
       set_button_style_to(config, "stop");
@@ -179,8 +172,6 @@ int main() {
         PngRenderedCnt = 0;
         ImGui::SameLine();
         set_button_style_to(config, "start");
-        ImGui::SetCursorPosX(windowSize.x * 0.4f);
-        ImGui::SetCursorPosY(windowSize.y * 0.05f);
         if (ImGui::ImageButton(
                 appLanguage[Key::Continue],
                 (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -194,8 +185,6 @@ int main() {
 
         PngRenderedCnt = 3;
         set_button_style_to(config, "stop");
-        ImGui::SetCursorPosX(windowSize.x * 0.45f);
-        ImGui::SetCursorPosY(windowSize.y * 0.05f);
         if (ImGui::ImageButton(
                 appLanguage[Key::Reset],
                 (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -214,11 +203,11 @@ int main() {
 
       // gray out "Save" button when pop-up is open
       const bool pushStyle = ImGui::IsPopupOpen("Save recorded data");
-      ImGui::SetCursorPosX(windowSize.x * 0.5f);
-      ImGui::SetCursorPosY(windowSize.y * 0.05f);
       if (pushStyle)
         ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
       PngRenderedCnt = 2;
+      ImGui::SetCursorPosX(windowSize.x * 0.6f);
+      ImGui::SetCursorPosY(windowSize.y * 0.05f);
       if (ImGui::ImageButton(
               appLanguage[Key::Save],
               (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -236,7 +225,7 @@ int main() {
       if (pushStyle)
         ImGui::PopStyleColor();
     } else {
-      ImGui::SetCursorPosX(windowSize.x * 0.5f);
+      ImGui::SetCursorPosX(windowSize.x * 0.6f);
       ImGui::SetCursorPosY(windowSize.y * 0.05f);
       PngRenderedCnt = 2;
       ImGui::SameLine();
