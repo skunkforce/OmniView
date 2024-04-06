@@ -186,7 +186,7 @@ int main() {
     SetMainWindowStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
     ImGui::BeginChild("Record Data",
-                      {windowSize.x * 0.76f, windowSize.y * 0.6f},
+                      {windowSize.x * 0.76f, windowSize.y * 0.65f},
                       ImGuiChildFlags_Border);
 
     addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {

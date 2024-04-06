@@ -17,7 +17,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
 
   ImGuiIO &io = ImGui::GetIO();
 
-  io.FontGlobalScale = load_json<float>(config, "text", "scale");
+  // io.FontGlobalScale = load_json<float>(config, "text", "scale");
 
   style.Alpha = 1.0f;
   style.FrameRounding = 5.0f;
