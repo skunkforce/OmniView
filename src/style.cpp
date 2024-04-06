@@ -27,10 +27,12 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
       ImVec4(248 / 255.0f, 249 / 255.0f, 250 / 255.0f, 98 / 100.0f);
   style.Colors[ImGuiCol_WindowBg] =
       ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_ChildBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+  style.Colors[ImGuiCol_ChildBg] =
+      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_PopupBg] =
       ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
-  style.Colors[ImGuiCol_Border] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+  style.Colors[ImGuiCol_Border] =
+      ImVec4(240 / 255.0f, 62 / 255.0f, 54 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 
   style.Colors[ImGuiCol_FrameBg] = ImVec4(
@@ -140,7 +142,8 @@ void SetMainWindowStyle() {
   style.Colors[ImGuiCol_WindowBg] = {1.0f, 1.0f, 0.93f, 1.0f};
   style.Colors[ImGuiCol_ChildBg] =
       ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
-  // style.Colors[ImGuiCol_Border] = { 0.14f, 0.15f, 0.17f, 1.0f };
+  style.Colors[ImGuiCol_Border] = {240 / 255.0f, 240 / 255.0f, 240 / 255.0f,
+                                   100 / 100.0f};
   style.Colors[ImGuiCol_FrameBg] = {1.0f, 1.0f, 1.0f, 1.0f};
   // style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
   // style.Colors[ImGuiCol_FrameBgActive] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -306,13 +309,15 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
+  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005;
+  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
-                 ImVec2(image_width[PngRenderedCnt] * windowSize.x * 0.0005,
-                        image_height[PngRenderedCnt] * windowSize.y * 0.0008));
+                 ImVec2(image_width[PngRenderedCnt] * scaleWidth,
+                        image_height[PngRenderedCnt] * scaleHeight));
   }
-  ImGui::Dummy({0.f, windowSize.y * .2f});
+  ImGui::Dummy({0.f, windowSize.y * .05f});
 
   // Start only if devices are available, otherwise search for devices
   if (loaded_png[++PngRenderedCnt] && // render search for Devices
@@ -372,16 +377,6 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     open_settings = true;
     showSettings = false;
   }
-  if (showSettings && ImGui::Button(appLanguage[Key::Reset])) {
-    rstSettings();
-    flagPaused = true;
-    showSettings = false;
-  }
-  if (showSettings &&
-      ImGui::Button(fmt::format("{}: {}", appLanguage[Key::Version],
-                                CMakeGitVersion::VersionWithGit)
-                        .c_str()))
-    showSettings = false;
 
   if (loaded_png[++PngRenderedCnt] && // render Help
       ImGui::ImageButtonWithText(
@@ -390,6 +385,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     system(("start " + load_json<std::string>(config, "helplink")).c_str());
     showSettings = false;
   }
+  ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.90f);
+  ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
+                          CMakeGitVersion::VersionWithGit)
+                  .c_str());
 }
 
 // For Development

@@ -40,7 +40,8 @@ int main() {
     ImGui::SetNextWindowSize(windowSize);
 
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
-                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_NoTitleBar);
 
     if (Development) {
 
@@ -55,15 +56,14 @@ int main() {
       }
     }
 
-    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f},
-                      ImGuiChildFlags_Border);
+    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f});
     set_side_menu(config, flagPaused, open_settings,
                   open_generate_training_data);
     // there're four "BeginChild"s, one as the left side and three on the right
     // side
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
-    ImGui::BeginChild("Right Side", {0.f, 0.f}, ImGuiChildFlags_Border);
+    ImGui::BeginChild("Right Side", {0.f, 0.f});
     if (sampler.has_value() && !flagPaused)
       sampler->copyOut(captureData);
     ImGui::BeginChild("Buttonstripe", {-1.f, 100.f}, false,
@@ -183,10 +183,12 @@ int main() {
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
+    SetMainWindowStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
-    ImGui::PushStyleColor(ImGuiCol_Border, {0.3f, 0.4f, 0.7f, 0.6f});
-    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
+    ImGui::BeginChild("Record Data",
+                      {windowSize.x * 0.76f, windowSize.y * 0.6f},
                       ImGuiChildFlags_Border);
+
     addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {
       if (!flagPaused) {
         ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
@@ -201,9 +203,12 @@ int main() {
       }
     });
     ImGui::EndChild(); // end child Record Data
-    ImGui::PopStyleColor();
     ImGui::PopStyleVar();
+
+    SetupImGuiStyle(false, 0.99f, config);
     // ############################ Devicelist
+    SetDeviceMenuStyle();
+
     ImGui::Dummy({0.f, windowSize.y * .01f});
     ImGui::BeginChild("Devicelist");
     ImGui::Dummy({windowSize.x * .36f, 0.f});
@@ -215,7 +220,7 @@ int main() {
     ImGui::End();
   };
 
-  ImGuiInstance window{1920, 1080,
+  ImGuiInstance window{1280, 760,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
   while (window.run(render)) {
