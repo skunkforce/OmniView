@@ -294,11 +294,11 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 
   // The order matters because of the counter for the images !!!
   static const unsigned char *imagesNames[] = {
-      AutoInternLogo_png, SearchDevices_png, Diagnostics_png, Settings_png,
-      Help_png};
+      AutoInternLogo_png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
+      HelpIcon_png};
   static const unsigned int imagesLen[] = {
-      AutoInternLogo_png_len, SearchDevices_png_len, Diagnostics_png_len,
-      Settings_png_len, Help_png_len};
+      AutoInternLogo_png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
+      SettingIcon_png_len, HelpIcon_png_len};
   // Load the images for the SideBarMenu
   for (size_t i = 0; i < size; i++)
     if (!loaded_png[i]) {
