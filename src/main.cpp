@@ -99,7 +99,7 @@ int main() {
     static int image_height[size];
     static int image_width[size];
     static GLuint image_texture[size];
-    static constexpr float iconsSacle{0.6f};
+    static constexpr float iconsSacle{0.5f};
 
     // The order matters because of the counter for the images !!!
     static const unsigned char *imagesNames[] = {
@@ -118,7 +118,7 @@ int main() {
           fmt::println("Error Loading Png #{}.", i);
       }
 
-    // ImGui::SetCursorPosX(windowSize.x *0.9f);
+    ImGui::SetCursorPosY(windowSize.y * 0.05f);
 
     if (flagPaused) {
       // ######################## Buttonstripe
@@ -140,8 +140,6 @@ int main() {
         }
       } else {
         PngRenderedCnt = 0;
-        ImGui::SetCursorPosX(windowSize.x * 0.5f);
-        ImGui::SetCursorPosY(windowSize.y * 0.05f);
         if (ImGui::ImageButton(
                 appLanguage[Key::Start],
                 (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -206,8 +204,6 @@ int main() {
       if (pushStyle)
         ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
       PngRenderedCnt = 2;
-      ImGui::SetCursorPosX(windowSize.x * 0.6f);
-      ImGui::SetCursorPosY(windowSize.y * 0.05f);
       if (ImGui::ImageButton(
               appLanguage[Key::Save],
               (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -225,8 +221,6 @@ int main() {
       if (pushStyle)
         ImGui::PopStyleColor();
     } else {
-      ImGui::SetCursorPosX(windowSize.x * 0.6f);
-      ImGui::SetCursorPosY(windowSize.y * 0.05f);
       PngRenderedCnt = 2;
       ImGui::SameLine();
       ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
