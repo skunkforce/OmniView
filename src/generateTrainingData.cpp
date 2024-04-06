@@ -1,4 +1,9 @@
+
 #include <fstream>
+#include <future>
+#include <imgui.h>
+#include <iostream>
+#include <limits>
 #include <regex>
 #include <imgui.h>
 #include <filesystem>
@@ -22,10 +27,10 @@ void generateTrainingData(
   ImGui::OpenPopup(appLanguage[Key::Gn_trng_data_pop]);
   if (ImGui::BeginPopupModal(appLanguage[Key::Gn_trng_data_pop], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
-    static bool usr_curnt_wave        {false};
-    static bool wave_from_file        {false};
-    static bool callSetInptFields     {false};
-    static bool resetInptFields       {false};
+    static bool usr_curnt_wave{false};
+    static bool wave_from_file{false};
+    static bool callSetInptFields{false};
+    static bool resetInptFields{false};
     static std::string selected_file;
     static std::string api_message;
 
@@ -144,7 +149,6 @@ void generateTrainingData(
         }
         // pop the extra last element
         file_measuring_vals.pop_back();
-       
         Measurement = FieldsData[0];
         if (!Measurement.empty())
           measuGrayFlag = ImGuiInputTextFlags_ReadOnly;
@@ -249,16 +253,16 @@ void generateTrainingData(
                              ImGuiInputTextFlags_ReadOnly);
 
     ImGui::SetNextItemWidth(400);
-    static std::string measurHint {appLanguage[Key::Enter_measurement]};
-    ImGui::InputTextWithHint(appLanguage[Key::Measurement],
-                             measurHint.c_str(), &Measurement,
-                             measuGrayFlag);
+    static std::string measurHint{appLanguage[Key::Enter_measurement]};
+    ImGui::InputTextWithHint(appLanguage[Key::Measurement], measurHint.c_str(),
+                             &Measurement, measuGrayFlag);
     if (ImGui::IsItemFocused())
       measurHint.clear();
-    else measurHint = appLanguage[Key::Enter_measurement];
+    else
+      measurHint = appLanguage[Key::Enter_measurement];
 
     ImGui::SetNextItemWidth(400);
-    static std::string vinHint {appLanguage[Key::Enter_vin]};
+    static std::string vinHint{appLanguage[Key::Enter_vin]};
     ImGui::InputTextWithHint(
         "VIN", vinHint.c_str(), VIN, IM_ARRAYSIZE(VIN),
         ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank |
@@ -268,16 +272,17 @@ void generateTrainingData(
         vinFilter);
     if (ImGui::IsItemFocused())
       vinHint.clear();
-    else vinHint = appLanguage[Key::Enter_vin];
+    else
+      vinHint = appLanguage[Key::Enter_vin];
 
     ImGui::SetNextItemWidth(400);
-    static std::string milHint {appLanguage[Key::Enter_mileage]};
-    ImGui::InputTextWithHint(appLanguage[Key::Mileage],
-                             milHint.c_str(), &Mileage,
-                             milGrayFlag);
-     if (ImGui::IsItemFocused())
+    static std::string milHint{appLanguage[Key::Enter_mileage]};
+    ImGui::InputTextWithHint(appLanguage[Key::Mileage], milHint.c_str(),
+                             &Mileage, milGrayFlag);
+    if (ImGui::IsItemFocused())
       milHint.clear();
-    else milHint = appLanguage[Key::Enter_mileage];
+    else
+      milHint = appLanguage[Key::Enter_mileage];
 
     if (grayFields)
       ImGui::PopStyleColor(); // remove grey color style
@@ -336,15 +341,15 @@ void generateTrainingData(
     if (grayStyle)
       ImGui::PushStyleColor(ImGuiCol_Text, greyBtnStyle);
     if (ImGui::Button(appLanguage[Key::Send]) && !flagApiSending) {
-        static nlohmann::ordered_json myJson;
-        std::vector<double> crnt_measuring_vals;
-        bool has_selection{false};
+      static nlohmann::ordered_json myJson;
+      std::vector<double> crnt_measuring_vals;
+      bool has_selection{false};
       if (usr_curnt_wave) {
         if (!selected_device.serial.empty()) {
           auto it{captureData.find(selected_device)};
           if (it != captureData.end()) {
             // read measuring values from the wave into the vector
-             crnt_measuring_vals.resize(it->second.size());
+            crnt_measuring_vals.resize(it->second.size());
             for (size_t i = 0; i < it->second.size(); ++i)
               crnt_measuring_vals[i] = it->second[i].second;
 
@@ -365,9 +370,9 @@ void generateTrainingData(
       else {
         std::string invest_reason, elec_consumer, assessmnt;
         if (invest)
-           invest_reason = appLanguage[Key::Fault];
+          invest_reason = appLanguage[Key::Fault];
         else
-           invest_reason = appLanguage[Key::Maintenance];
+          invest_reason = appLanguage[Key::Maintenance];
         if (consumer)
           elec_consumer = appLanguage[Key::On];
         else

@@ -74,23 +74,18 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
 inline std::string select_combo_from_json(nlohmann::json const &language,
                                    std::string const &key,
                                    int &selectedOption) {
-  std::string selectedmeasure;
   std::vector<std::string> options;
-  for (const auto &item : language[key]) {
+  for (const auto &item : language[key]) 
     options.push_back(item);
-  }
 
   // Creating an array of C strings (char*)
   char **option_c = new char *[options.size()];
-  for (size_t i = 0; i < options.size(); ++i) {
+  for (size_t i = 0; i < options.size(); ++i) 
     option_c[i] = strdup(options[i].c_str());
-  }
 
   std::string combo_name = "##" + key;
   ImGui::Combo(combo_name.c_str(), &selectedOption, option_c,
                static_cast<int>(options.size()));
 
-  selectedmeasure = options[selectedOption];
-
-  return selectedmeasure;
+  return options[selectedOption];
 }

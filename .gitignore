@@ -5,5 +5,4 @@ saves
 vcpkg
 *.exe
 *.ini
-.gitattributes
 .vs

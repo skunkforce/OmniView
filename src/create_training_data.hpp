@@ -464,6 +464,7 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
                     ImVec2(load_json<Size>(config, "button")))) {
     ImGui::CloseCurrentPopup();
   }
-
-  ImGui::TextUnformatted(api_message.c_str());
+  
+  //api_message += "something else too";
+  //ImGui::TextUnformatted(api_message.c_str());
 }
