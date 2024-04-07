@@ -122,7 +122,7 @@ static void selected_vcds_data(nlohmann::json const &config,
 
   using namespace std::chrono_literals;
   if (!flagApiSending) {
-    if (ImGui::Button("send", ImVec2(load_json<Size>(config, "button")))) {
+    if (ImGui::Button("senden", ImVec2(load_json<Size>(config, "button")))) {
       metadata["kommentar"] = comment;
       metadata["laufleistung"] = mileage;
 
@@ -166,14 +166,10 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
   std::string api_message = " ";
   ImGui::SetItemDefaultFocus();
   show_standart_input(config, metadata, inputvin, mileage, comment);
-  ImGui::SameLine();
-  ImVec2 windowSize = ImGui::GetWindowSize();
-  // ImGui::BeginChild("trainingright",
-  //                 ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
   selected_vcds_data(config, metadata, inputvin, mileage, comment, api_message,
                      upload_success);
   ImGui::SameLine();
-  if (ImGui::Button("back", ImVec2(load_json<Size>(config, "button")))) {
+  if (ImGui::Button("schließen", ImVec2(load_json<Size>(config, "button")))) {
     ImGui::CloseCurrentPopup();
   }
 
