@@ -147,6 +147,7 @@ int main() {
                   ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                          image_height[PngRenderedCnt] * iconsSacle))) {
             ImGui::OpenPopup("No devices are selected");
+             flagPaused = false;
           }
           info_popup("No devices are selected",
                      appLanguage[Key::No_dvc_available]);
@@ -174,10 +175,10 @@ int main() {
         ImGui::SameLine();
         set_button_style_to(config, "start");
         if (ImGui::ImageButton(
-                appLanguage[Key::Continue],
-                (void *)(intptr_t)image_texture[PngRenderedCnt],
-                ImVec2(image_width[PngRenderedCnt] * iconsSacle,
-                       image_height[PngRenderedCnt] * iconsSacle))) {
+                  appLanguage[Key::Start],
+                  (void *)(intptr_t)image_texture[PngRenderedCnt],
+                  ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                         image_height[PngRenderedCnt] * iconsSacle))) {
           flagPaused = false;
           flagDataNotSaved = true;
         }
