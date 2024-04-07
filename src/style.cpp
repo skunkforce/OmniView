@@ -281,7 +281,8 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
 }
 
 void set_side_menu(const nlohmann::json &config, bool &flagPaused,
-                   bool &open_settings, bool &open_generate_training_data) {
+                   bool &open_settings, bool &open_generate_training_data,
+                   bool &open_VCDS) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -376,6 +377,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
   if (showSettings && ImGui::Button(appLanguage[Key::Settings])) {
     open_settings = true;
     showSettings = false;
+  }
+
+  if (ImGui::Button("Send VCDS Data")) {
+    open_VCDS = true;
   }
 
   if (loaded_png[++PngRenderedCnt] && // render Help

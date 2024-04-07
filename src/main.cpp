@@ -1,5 +1,5 @@
+#include "VCDS_data.hpp"
 #include "apihandler.hpp"
-#include "create_training_data.hpp"
 #include "imagesHeaderToolbar.hpp"
 #include "languages.hpp"
 #include "popups.hpp"
@@ -29,9 +29,11 @@ int main() {
   double xmax_paused{0};
   bool open_settings = false;
   bool open_generate_training_data = false;
-  bool upload_success = false;
+  bool open_VCDS = false;
   static bool flagPaused = true;
   bool flagDataNotSaved = true;
+
+  bool upload_success = false;
 
   // main loop
   auto render = [&]() {
@@ -59,7 +61,7 @@ int main() {
 
     ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f});
     set_side_menu(config, flagPaused, open_settings,
-                  open_generate_training_data);
+                  open_generate_training_data, open_VCDS);
     // there're four "BeginChild"s, one as the left side and three on the right
     // side
     ImGui::EndChild(); // end child "Left Side"
@@ -239,6 +241,18 @@ int main() {
     if (open_generate_training_data)
       generateTrainingData(open_generate_training_data, captureData,
                            savedFileNames, config);
+
+    // ############################### VCDS Menu
+    if (open_VCDS) {
+      ImGui::OpenPopup("VCDSPopUP");
+      open_VCDS = false;
+    }
+    if (ImGui::BeginPopupModal("VCDSPopUP", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      ImGui::SetItemDefaultFocus();
+      popup_create_training_data_select(config, upload_success);
+      ImGui::EndPopup();
+    }
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
