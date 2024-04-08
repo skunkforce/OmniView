@@ -156,8 +156,86 @@ static void selected_vcds_data(nlohmann::json const &config,
   // ImGui::EndChild();
 }
 
+inline void
+selected_battery_measurement(nlohmann::json const &config,
+                             nlohmann::json &metadata, std::string &inputvin,
+                             std::string &mileage, std::string &comment,
+                             std::string &api_message, bool &upload_success) {
+  ImGui::TextUnformatted("Batteriemessung hochladen");
+  static ImGui::FileBrowser fileBrowser;
+  static bool first_job = true;
+  static bool flagApiSending = false;
+  static std::future<std::string> future;
+
+  if (first_job) {
+    fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
+    first_job = false;
+  }
+
+  static char path1[255];
+  ImGui::InputText("##path1", path1, sizeof(path1));
+  ImGui::SameLine();
+  if (ImGui::Button("Durchsuchen")) {
+    fileBrowser.Open();
+  }
+
+  fileBrowser.Display();
+  if (fileBrowser.HasSelected()) {
+    std::string filepath;
+    for (auto const &selectedFile : fileBrowser.GetSelected()) {
+      if (!filepath.empty()) {
+        filepath += "/";
+      }
+      filepath += selectedFile.string();
+    }
+    strcpy(path1, filepath.c_str());
+
+    fileBrowser.ClearSelected();
+  }
+  ImGui::Columns(1);
+  using namespace std::chrono_literals;
+  if (!flagApiSending) {
+    if (ImGui::Button("senden", ImVec2(load_json<Size>(config, "button")))) {
+      metadata["kommentar"] = comment;
+      metadata["laufleistung"] = mileage;
+
+      future = std::async(std::launch::async, [&] {
+        std::string result =
+            send_to_api(config, path1, inputvin, "battery", metadata);
+        return result;
+      });
+      flagApiSending = true;
+    }
+  }
+  if (flagApiSending) {
+    ImGui::PushStyleColor(
+        ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+    if (ImGui::Button("senden", ImVec2(load_json<Size>(config, "button")))) {
+    }
+    ImGui::PopStyleColor();
+    auto status = future.wait_for(10ms);
+    if (status == std::future_status::ready) {
+      upload_success = true;
+      flagApiSending = false;
+      if (future.valid()) {
+        api_message = future.get();
+      }
+      ImGui::CloseCurrentPopup();
+    } else {
+      ImGui::SameLine();
+      ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+    }
+  }
+  // ImGui::EndChild();
+}
+
 inline void popup_create_training_data_select(nlohmann::json const &config,
                                               bool &upload_success) {
+
+  static int selectedOption = 1; // Standardauswahl
+
+  const char *options[] = {"Batteriemessung", "VCDS-Datei"};
+  ImGui::Combo("Messung", &selectedOption, options, IM_ARRAYSIZE(options));
 
   static std::string inputvin = "";
   static std::string mileage = "";
@@ -166,8 +244,17 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
   std::string api_message = " ";
   ImGui::SetItemDefaultFocus();
   show_standart_input(config, metadata, inputvin, mileage, comment);
-  selected_vcds_data(config, metadata, inputvin, mileage, comment, api_message,
-                     upload_success);
+
+  switch (selectedOption) {
+  case 0:
+    selected_vcds_data(config, metadata, inputvin, mileage, comment,
+                       api_message, upload_success);
+    break;
+  case 1:
+    selected_battery_measurement(config, metadata, inputvin, mileage, comment,
+                                 api_message, upload_success);
+    break;
+  }
   ImGui::SameLine();
   if (ImGui::Button("schließen", ImVec2(load_json<Size>(config, "button")))) {
     ImGui::CloseCurrentPopup();
