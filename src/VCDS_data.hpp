@@ -27,7 +27,9 @@ static void show_standart_input(nlohmann::json const &config,
 
   ImVec2 windowSize = ImGui::GetWindowSize();
   ImGui::Text("Geben sie die benötigten Eingaben zur Datei ein und wählen sie "
-              "ihre VCDS-Datei aus");
+              "ihre Datei aus");
+  ImGui::Text(
+      "BITTE STELLEN SIE SICHER DAS IHR GERÄT MIT DEM INTERNET VERBUNDEN IST!");
   // ImGui::BeginChild("trainingleft",
   //                 ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
   ImGui::InputText("VIN", inputvin, sizeof(inputvin));
@@ -88,6 +90,7 @@ static void selected_vcds_data(nlohmann::json const &config,
                                std::string &api_message, bool &upload_success) {
 
   // ImGui::TextUnformatted("vcds");
+  std::string result = "Nicht gesendet";
   static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
   static bool flagApiSending = false;
@@ -99,6 +102,8 @@ static void selected_vcds_data(nlohmann::json const &config,
   }
 
   static char path1[255];
+
+  ImGui::Text("VCDS Datei auswählen");
 
   ImGui::InputText("##path1", path1, sizeof(path1));
   ImGui::SameLine();
@@ -127,8 +132,7 @@ static void selected_vcds_data(nlohmann::json const &config,
       metadata["laufleistung"] = mileage;
 
       future = std::async(std::launch::async, [&] {
-        std::string result =
-            send_to_api(config, path1, inputvin, "vcds", metadata);
+        result = send_to_api(config, path1, inputvin, "vcds", metadata);
         return result;
       });
       flagApiSending = true;
@@ -147,12 +151,13 @@ static void selected_vcds_data(nlohmann::json const &config,
       if (future.valid()) {
         api_message = future.get();
       }
-      ImGui::CloseCurrentPopup();
+      // ImGui::CloseCurrentPopup();
     } else {
       ImGui::SameLine();
       ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
   }
+  ImGui::TextUnformatted(result.c_str());
   // ImGui::EndChild();
 }
 
@@ -161,7 +166,7 @@ selected_battery_measurement(nlohmann::json const &config,
                              nlohmann::json &metadata, std::string &inputvin,
                              std::string &mileage, std::string &comment,
                              std::string &api_message, bool &upload_success) {
-  ImGui::TextUnformatted("Batteriemessung hochladen");
+
   static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
   static bool flagApiSending = false;
@@ -173,6 +178,9 @@ selected_battery_measurement(nlohmann::json const &config,
   }
 
   static char path1[255];
+
+  ImGui::Text("Batterie Messung auswählen");
+
   ImGui::InputText("##path1", path1, sizeof(path1));
   ImGui::SameLine();
   if (ImGui::Button("Durchsuchen")) {
@@ -220,7 +228,7 @@ selected_battery_measurement(nlohmann::json const &config,
       if (future.valid()) {
         api_message = future.get();
       }
-      ImGui::CloseCurrentPopup();
+      // ImGui::CloseCurrentPopup();
     } else {
       ImGui::SameLine();
       ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
@@ -234,7 +242,7 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
 
   static int selectedOption = 1; // Standardauswahl
 
-  const char *options[] = {"Batteriemessung", "VCDS-Datei"};
+  const char *options[] = {"VCDS-Datei", "Batteriemessung"};
   ImGui::Combo("Messung", &selectedOption, options, IM_ARRAYSIZE(options));
 
   static std::string inputvin = "";

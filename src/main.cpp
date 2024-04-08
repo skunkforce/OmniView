@@ -244,10 +244,10 @@ int main() {
 
     // ############################### VCDS Menu
     if (open_VCDS) {
-      ImGui::OpenPopup("VCDS");
+      ImGui::OpenPopup("Generiere Trainingsdaten");
       open_VCDS = false;
     }
-    if (ImGui::BeginPopupModal("VCDS", nullptr,
+    if (ImGui::BeginPopupModal("Generiere Trainingsdaten", nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
       popup_create_training_data_select(config, upload_success);

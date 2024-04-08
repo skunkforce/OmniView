@@ -331,7 +331,7 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     initDevices();
   }
 
-  static bool showDiag = false;
+  /*static bool showDiag = false;
   const bool showDiagPrev = showDiag;
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
       ImGui::ImageButtonWithText(
@@ -351,6 +351,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
       showDiag = false;
     }
     ImGui::TreePop();
+  }*/
+
+  if (ImGui::Button("Generiere Trainingsdaten/ VCDS")) {
+    open_VCDS = true;
   }
 
   static bool showSettings = false;
@@ -377,10 +381,6 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
   if (showSettings && ImGui::Button(appLanguage[Key::Settings])) {
     open_settings = true;
     showSettings = false;
-  }
-
-  if (ImGui::Button("Send VCDS Data")) {
-    open_VCDS = true;
   }
 
   if (loaded_png[++PngRenderedCnt] && // render Help
