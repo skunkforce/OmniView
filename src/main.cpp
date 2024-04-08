@@ -158,6 +158,7 @@ int main() {
       // Start/reset the measurement when the measurement is paused,
       // followed by a query as to whether the old data should be saved
       if (sampler.has_value()) {
+        ImGui::SetCursorPosY(windowSize.y * 0.05f);
         PngRenderedCnt = 0;
         ImGui::SameLine();
         set_button_style_to(config, "start");
@@ -171,7 +172,7 @@ int main() {
         }
         ImGui::PopStyleColor(3);
         ImGui::SameLine();
-
+        ImGui::SetCursorPosY(windowSize.y * 0.05f);
         PngRenderedCnt = 3;
         set_button_style_to(config, "stop");
         if (ImGui::ImageButton(
