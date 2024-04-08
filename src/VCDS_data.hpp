@@ -151,19 +151,18 @@ static void selected_vcds_data(nlohmann::json const &config,
       flagApiSending = false;
       if (future.valid()) {
         api_message = future.get();
+        if (wurdegesendet) {
+         ImGui::OpenPopup("message");
+        wurdegesendet = false;
+        }
       }
       // ImGui::CloseCurrentPopup();
     } else {
       ImGui::SameLine();
       ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
+    info_popup_test("message", api_message);
   }
-  if (wurdegesendet) {
-    ImGui::OpenPopup("message");
-    wurdegesendet = false;
-  }
-
-  info_popup("message", api_message);
 }
 
 inline void
@@ -253,7 +252,7 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
   static std::string mileage = "";
   static std::string comment = "";
   static nlohmann::json metadata;
-  std::string api_message = " ";
+  static std::string api_message;
   ImGui::SetItemDefaultFocus();
   show_standart_input(config, metadata, inputvin, mileage, comment);
 

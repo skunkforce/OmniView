@@ -2,13 +2,14 @@
 #ifndef POPUPS_HEADER_HPP
 #define POPUPS_HEADER_HPP
 
-#include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
-#include "../imgui-filebrowser/imfilebrowser.h"
-#include "imgui.h"
 #include <chrono>
 #include <ctime>
 #include <nlohmann/json.hpp>
 #include <set>
+#include "imgui.h"
+#include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
+#include "../imgui-filebrowser/imfilebrowser.h"
+
 
 // Have address of bool for std::vector
 struct BoolWrapper {
