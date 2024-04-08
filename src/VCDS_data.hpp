@@ -151,6 +151,7 @@ static void selected_vcds_data(nlohmann::json const &config,
       flagApiSending = false;
       if (future.valid()) {
         api_message = future.get();
+        std::cout << api_message;
         if (wurdegesendet) {
          ImGui::OpenPopup("message");
         wurdegesendet = false;
@@ -161,8 +162,8 @@ static void selected_vcds_data(nlohmann::json const &config,
       ImGui::SameLine();
       ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
-    info_popup_test("message", api_message);
   }
+  info_popup_test("message", api_message.c_str());
 }
 
 inline void
