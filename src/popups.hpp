@@ -2,13 +2,13 @@
 #ifndef POPUPS_HEADER_HPP
 #define POPUPS_HEADER_HPP
 
+#include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
+#include "../imgui-filebrowser/imfilebrowser.h"
+#include "imgui.h"
 #include <chrono>
 #include <ctime>
 #include <nlohmann/json.hpp>
 #include <set>
-#include "imgui.h"
-#include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
-#include "../imgui-filebrowser/imfilebrowser.h"
 
 // Have address of bool for std::vector
 struct BoolWrapper {
@@ -25,6 +25,7 @@ void generateTrainingData(
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &,
     std::set<std::string> &, const nlohmann::json &);
 void info_popup(std::string_view, std::string_view);
+void info_popup_test(std::string title, std::string text);
 void saves_popup(
     nlohmann::json const &, nlohmann::json const &,
     std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &,

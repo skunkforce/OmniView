@@ -93,7 +93,7 @@ static void selected_vcds_data(nlohmann::json const &config,
   static bool first_job = true;
   static bool flagApiSending = false;
   static std::future<std::string> future;
-  bool wurdegesendet = false;
+  static bool wurdegesendet = false;
 
   if (first_job) {
     fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
@@ -127,6 +127,7 @@ static void selected_vcds_data(nlohmann::json const &config,
   using namespace std::chrono_literals;
   if (!flagApiSending) {
     if (ImGui::Button("senden", ImVec2(load_json<Size>(config, "button")))) {
+      wurdegesendet = true;
       metadata["kommentar"] = comment;
       metadata["laufleistung"] = mileage;
 
@@ -134,7 +135,6 @@ static void selected_vcds_data(nlohmann::json const &config,
         std::string result =
             send_to_api(config, path1, inputvin, "vcds", metadata);
         return result;
-        wurdegesendet = true;
       });
       flagApiSending = true;
     }
@@ -158,18 +158,12 @@ static void selected_vcds_data(nlohmann::json const &config,
       ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
   }
-
   if (wurdegesendet) {
-    ImGui::OpenPopup("UploadVCDSNachricht",
-                     ImGuiPopupFlags_NoOpenOverExistingPopup);
-    if (ImGui::BeginPopupModal("UploadVCDSNachricht", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGui::SetItemDefaultFocus();
-      ImGui::Text(api_message.c_str());
-      ImGui::EndPopup();
-    }
+    ImGui::OpenPopup("message");
     wurdegesendet = false;
   }
+
+  info_popup("message", api_message);
 }
 
 inline void
