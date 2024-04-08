@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 #include <imgui.h>
+#include <iostream>
 
 #include "look_up_saves.hpp"
 #include <ImGuiInstance/ImGuiInstance.hpp>
@@ -12,6 +13,7 @@
 
 #include "apihandler.hpp"
 #include "jasonhandler.hpp"
+#include "popups.hpp"
 
 // clang-format off
 #include "../imgui-filebrowser/imfilebrowser.h"
@@ -30,8 +32,7 @@ static void show_standart_input(nlohmann::json const &config,
               "ihre Datei aus");
   ImGui::Text(
       "BITTE STELLEN SIE SICHER DAS IHR GERÄT MIT DEM INTERNET VERBUNDEN IST!");
-  // ImGui::BeginChild("trainingleft",
-  //                 ImVec2(windowSize.x * 0.5f, windowSize.y * 0.8f));
+
   ImGui::InputText("VIN", inputvin, sizeof(inputvin));
   ImGui::InputText("Kilometerstand", mileage, sizeof(mileage));
   static bool problem = false;
@@ -75,7 +76,6 @@ static void show_standart_input(nlohmann::json const &config,
   }
   ImGui::InputTextMultiline("Kommentar", comment, sizeof(comment));
 
-  // ImGui::EndChild();
   inputvin_string = inputvin;
   mileage_string = mileage;
   comment_string = comment;
@@ -89,12 +89,11 @@ static void selected_vcds_data(nlohmann::json const &config,
                                std::string &mileage, std::string &comment,
                                std::string &api_message, bool &upload_success) {
 
-  // ImGui::TextUnformatted("vcds");
-  std::string result = "Nicht gesendet";
   static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
   static bool flagApiSending = false;
   static std::future<std::string> future;
+  bool wurdegesendet = false;
 
   if (first_job) {
     fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
@@ -132,8 +131,10 @@ static void selected_vcds_data(nlohmann::json const &config,
       metadata["laufleistung"] = mileage;
 
       future = std::async(std::launch::async, [&] {
-        result = send_to_api(config, path1, inputvin, "vcds", metadata);
+        std::string result =
+            send_to_api(config, path1, inputvin, "vcds", metadata);
         return result;
+        wurdegesendet = true;
       });
       flagApiSending = true;
     }
@@ -157,8 +158,18 @@ static void selected_vcds_data(nlohmann::json const &config,
       ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
   }
-  ImGui::TextUnformatted(result.c_str());
-  // ImGui::EndChild();
+
+  if (wurdegesendet) {
+    ImGui::OpenPopup("UploadVCDSNachricht",
+                     ImGuiPopupFlags_NoOpenOverExistingPopup);
+    if (ImGui::BeginPopupModal("UploadVCDSNachricht", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      ImGui::SetItemDefaultFocus();
+      ImGui::Text(api_message.c_str());
+      ImGui::EndPopup();
+    }
+    wurdegesendet = false;
+  }
 }
 
 inline void
@@ -234,7 +245,6 @@ selected_battery_measurement(nlohmann::json const &config,
       ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
   }
-  // ImGui::EndChild();
 }
 
 inline void popup_create_training_data_select(nlohmann::json const &config,
