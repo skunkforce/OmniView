@@ -126,6 +126,7 @@ int main() {
       // ######################## Buttonstripe
       if (!devices.empty()) {
         if (!sampler.has_value()) {
+            ImGui::SetCursorPosY(windowSize.y * 0.05f);
           PngRenderedCnt = 0;
           set_button_style_to(config,
                               "start"); // Start Button
@@ -144,6 +145,7 @@ int main() {
     } else {
       PngRenderedCnt = 1;
       // ############################ Stop Button
+        ImGui::SetCursorPosY(windowSize.y * 0.05f);
       set_button_style_to(config, "stop");
       if (ImGui::ImageButton(appLanguage[Key::Stop],
                              (void *)(intptr_t)image_texture[PngRenderedCnt],
