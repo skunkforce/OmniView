@@ -1,7 +1,8 @@
-#include <set>
-#include <implot.h>
 #include "handler.hpp"
 #include "get_from_github.hpp"
+#include "languages.hpp"
+#include <implot.h>
+#include <set>
 
 void addPlots(const char *name, const bool flagPaused,
               std::function<void(double)> axesSetup) {
@@ -126,7 +127,7 @@ void devicesList() {
 
   if (sampler.has_value()) {
     for (auto &device : sampler->sampleDevices)
-      doDevice(device.first, "Messung");
+      doDevice(device.first, appLanguage[Key::Measurement]);
   } else {
     for (auto &device : devices)
       doDevice(device, "Ready");

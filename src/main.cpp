@@ -1,13 +1,13 @@
+#include "apihandler.hpp"
+#include "create_training_data.hpp"
+#include "languages.hpp"
+#include "popups.hpp"
+#include "settingspopup.hpp"
+#include "style.hpp"
 #include <boost/asio.hpp>
 #include <cmake_git_version/version.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
-#include "style.hpp"
-#include "apihandler.hpp"
-#include "create_training_data.hpp"
-#include "languages.hpp"
-#include "settingspopup.hpp"
-#include "popups.hpp"
 
 int main() {
   const std::string configpath = "config/config.json";
@@ -148,8 +148,7 @@ int main() {
     }
     ImGui::EndChild(); // end child "Buttonstripe"
     // ############################ Settings Menu
-    std::string settingstitle =
-        load_json<std::string>(language, "settings", "title");
+    std::string settingstitle = (appLanguage[Key::Settings]);
     if (open_settings) {
       ImGui::OpenPopup(settingstitle.c_str());
       open_settings = false;
@@ -169,27 +168,31 @@ int main() {
     ImGui::Dummy({0.f, windowSize.y * .01f});
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
     ImGui::PushStyleColor(ImGuiCol_Border, {0.3f, 0.4f, 0.7f, 0.6f});
-    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
+    ImGui::BeginChild(appLanguage[Key::RecordData], {0.f, windowSize.y * 0.5f},
                       ImGuiChildFlags_Border);
-    addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {
-      if (!flagPaused) {
-        ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
-                          ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-        ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
-                                ImGuiCond_Always);
-      } else {
-        xmax_paused = x_max;
-        ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
-        ImPlot::SetupAxesLimits(0, 10, -10, 200);
-        ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-      }
-    });
+    addPlots(appLanguage[Key::Recordingdata], flagPaused,
+             [&xmax_paused](double x_max) {
+               if (!flagPaused) {
+                 ImPlot::SetupAxes(appLanguage[Key::x_Datapoints],
+                                   appLanguage[Key::y_Datapoints],
+                                   ImPlotAxisFlags_AutoFit,
+                                   ImPlotAxisFlags_AutoFit);
+                 ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+                                         ImGuiCond_Always);
+               } else {
+                 xmax_paused = x_max;
+                 ImPlot::SetupAxes(appLanguage[Key::x_Datapoints],
+                                   appLanguage[Key::y_Datapoints]);
+                 ImPlot::SetupAxesLimits(0, 10, -10, 200);
+                 ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+               }
+             });
     ImGui::EndChild(); // end child Record Data
     ImGui::PopStyleColor();
     ImGui::PopStyleVar();
     // ############################ Devicelist
     ImGui::Dummy({0.f, windowSize.y * .01f});
-    ImGui::BeginChild("Devicelist");
+    ImGui::BeginChild(appLanguage[Key::Devicelist]);
     ImGui::Dummy({windowSize.x * .36f, 0.f});
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);

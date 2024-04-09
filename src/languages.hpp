@@ -7,7 +7,14 @@
 
 enum class Key {
   Menu,
+  ButtonExplain,
+  FontSize,
+  WindowWidth,
+  WindowHeight,
   LanOption,
+  Restore,
+  RecordData,
+  Recordingdata,
   English,
   Settings,
   Reset,
@@ -33,6 +40,10 @@ enum class Key {
   Start,
   Stop,
   Continue,
+  Cancel,
+  x_Datapoints,
+  y_Datapoints,
+  Devicelist,
   Continue_del,
   Devices_found,
   Usr_curnt_wave,
@@ -73,6 +84,7 @@ enum class Key {
 
 inline const std::map<Key, const char *> englishLan{
     {Key::Menu, "Menu"},
+    {Key::ButtonExplain, "Buttonsize 0, Auto"},
     {Key::LanOption, "Language Option"},
     {Key::English, "English"},
     {Key::Settings, "Settings"},
@@ -80,7 +92,15 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Reset_q, "Reset?"},
     {Key::Measure_not_saved, "The measurement was not saved!\n"
                              "Would you like to save it before deleting it?\n"},
+    {Key::Restore, "Restore"},
+    {Key::Devicelist, "Devicelist"},
+    {Key::RecordData, "Record Data"},
+    {Key::Recordingdata, "Recording the data"},
+    {Key::Save, "Save"},
+    {Key::Cancel, "Cancel"},
     {Key::Version, "Version"},
+    {Key::x_Datapoints, "x [Data points]"},
+    {Key::y_Datapoints, "y [ADC Value]"},
     {Key::Diagnostics, "Diagnostics"},
     {Key::Compression, "Compression"},
     {Key::Anlyz_crnt_waveform, "Analyze current waveform"},
@@ -89,6 +109,9 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Fuel_Delivery_Pump, "Fuel-Delivery-Pump"},
     {Key::Common_Rail_Pressure, "Common-Rail-Pressure"},
     {Key::Help, "Help"},
+    {Key::FontSize, "Font Size"},
+    {Key::WindowWidth, "Width"},
+    {Key::WindowHeight, "Height"},
     {Key::HelpLink, "Click on the button to go to the help page"},
     {Key::Dvc_search, "Search for Devices"},
     {Key::Save, "Save"},
@@ -139,13 +162,23 @@ inline const std::map<Key, const char *> englishLan{
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Menu, "Menü"},
+    {Key::ButtonExplain, "Schaltflächengröße 0, Automatisch"},
+    {Key::WindowWidth, "Breite"},
+    {Key::Cancel, "Abbruch"},
+    {Key::Devicelist, "Geräteliste"},
+    {Key::RecordData, "Daten aufzeichnen"},
+    {Key::Recordingdata, "Aufzeichnen der Daten"},
+    {Key::Restore, "Zurücksetzen"},
+    {Key::WindowHeight, "Höhe"},
     {Key::LanOption, "Sprachoption"},
     {Key::English, "Englisch"},
     {Key::Settings, "Einstellungen"},
     {Key::Reset, "Zurücksetzen"},
     {Key::Reset_q, "Zurücksetzen?"},
-    {Key::Measure_not_saved, "Die Messung wurde nicht gespeichert!\n"
-                  "Möchten Sie es speichern, bevor Sie es löschen?\n"},
+    {Key::RecordData, "Daten aufzeichnen"},
+    {Key::Measure_not_saved,
+     "Die Messung wurde nicht gespeichert!\n"
+     "Möchten Sie es speichern, bevor Sie es löschen?\n"},
     {Key::Version, "Ausführung"},
     {Key::Diagnostics, "Diagnose"},
     {Key::Compression, "Kompression"},
@@ -166,6 +199,9 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Start, "Start"},
     {Key::Stop, "Stoppen"},
     {Key::Continue, "Weiter"},
+    {Key::FontSize, "Schriftgröße"},
+    {Key::x_Datapoints, "x [Datenpunkte]"},
+    {Key::y_Datapoints, "y [ADC Werte]"},
     {Key::Continue_del, "Mit dem Löschen fortfahren?"},
     {Key::Devices_found, "Geräte Gefunden"},
     {Key::Usr_curnt_wave, "Aktuelle Wellenform Des Benutzers"},
@@ -201,7 +237,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Browse, "Durchsuche"},
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
-    {Key::German, "Deutch"}};
+    {Key::German, "Deutsch"}};
 
 inline auto appLanguage = englishLan;
 #endif
