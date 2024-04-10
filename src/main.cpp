@@ -11,7 +11,7 @@
 #include <fmt/core.h>
 
 int main() {
-  bool Development = false;
+  bool Development = true;
 
   const std::string configpath = "config/config.json";
   set_config(configpath);
