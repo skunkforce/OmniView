@@ -33,71 +33,21 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
     newconfig["text"]["scale"] = fontscale;
   }
 
-  // ####################################################################################
-  //                           Button Size
-  // ####################################################################################
-  static float ButtonSizeX = load_json<float>(config, "button", "sizex");
-  static float ButtonSizeY = load_json<float>(config, "button", "sizey");
-  ImGui::TextUnformatted(
-      load_json<std::string>(language, "settings", "buttonexplain").c_str());
-  ImGui::TextUnformatted(
-      load_json<std::string>(language, "general", "width").c_str());
-  ImGui::SameLine();
-
-  float oldButtonSizeX = ButtonSizeX;
-  float oldButtonSizeY = ButtonSizeY;
-  ImGui::InputFloat("X##ButtonSizeX", &ButtonSizeX);
-
-  ImGui::SameLine();
-  if (ImGui::Button("X+")) {
-    ButtonSizeX += 10.0f;
-  }
-
-  ImGui::SameLine();
-  if (ImGui::Button("X-")) {
-    ButtonSizeX -= 10.0f;
-  }
-  ImGui::TextUnformatted(
-      load_json<std::string>(language, "general", "height").c_str());
-  ImGui::SameLine();
-
-  ImGui::InputFloat("Y##ButtonSizeY",
-                    &ButtonSizeY); // Eingabe-Float für Y-Größe
-  ImGui::SameLine();
-  if (ImGui::Button("Y+")) {
-    ButtonSizeY += 10.0f;
-  }
-
-  ImGui::SameLine();
-  if (ImGui::Button("Y-")) {
-    ButtonSizeY -= 10.0f;
-  }
-
-  if (ImGui::Button(load_json<std::string>(language, "button", "save").c_str(),
-                    ImVec2(ButtonSizeX, ButtonSizeY))) {
+  if (ImGui::Button(load_json<std::string>(language, "button", "save").c_str())) {
     write_json_file(configpath, newconfig);
     config = newconfig;
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
   if (ImGui::Button(
-          load_json<std::string>(language, "button", "cancel").c_str(),
-          ImVec2(ButtonSizeX, ButtonSizeY))) {
+          load_json<std::string>(language, "button", "cancel").c_str())) {
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
   if (ImGui::Button(
-          load_json<std::string>(language, "button", "restore").c_str(),
-          ImVec2(ButtonSizeX, ButtonSizeY))) {
+          load_json<std::string>(language, "button", "restore").c_str())) {
     newconfig = config;
     fontscale = load_json<float>(newconfig, "text", "scale");
-    ButtonSizeX = load_json<float>(config, "button", "sizex");
-    ButtonSizeY = load_json<float>(config, "button", "sizey");
   }
-  if (oldButtonSizeX != ButtonSizeX || oldButtonSizeY != ButtonSizeY) {
-    oldButtonSizeX = ButtonSizeX;
-    oldButtonSizeY = ButtonSizeY;
-    newconfig["button"]["sizey"] = ButtonSizeY;
-    newconfig["button"]["sizex"] = ButtonSizeX;
-  }
+  
 }

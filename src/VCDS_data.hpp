@@ -151,7 +151,6 @@ static void selected_vcds_data(nlohmann::json const &config,
       flagApiSending = false;
       if (future.valid()) {
         api_message = future.get();
-        std::cout << api_message;
         if (wurdegesendet) {
          ImGui::OpenPopup("message");
         wurdegesendet = false;
@@ -176,6 +175,7 @@ selected_battery_measurement(nlohmann::json const &config,
   static bool first_job = true;
   static bool flagApiSending = false;
   static std::future<std::string> future;
+   static bool wurdegesendet = false;
 
   if (first_job) {
     fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
@@ -209,6 +209,7 @@ selected_battery_measurement(nlohmann::json const &config,
   using namespace std::chrono_literals;
   if (!flagApiSending) {
     if (ImGui::Button("senden", ImVec2(load_json<Size>(config, "button")))) {
+      wurdegesendet = true;
       metadata["kommentar"] = comment;
       metadata["laufleistung"] = mileage;
 
@@ -232,6 +233,10 @@ selected_battery_measurement(nlohmann::json const &config,
       flagApiSending = false;
       if (future.valid()) {
         api_message = future.get();
+         if (wurdegesendet) {
+         ImGui::OpenPopup("message");
+        wurdegesendet = false;
+        }
       }
       // ImGui::CloseCurrentPopup();
     } else {
@@ -239,6 +244,7 @@ selected_battery_measurement(nlohmann::json const &config,
       ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
   }
+  info_popup_test("message", api_message.c_str());
 }
 
 inline void popup_create_training_data_select(nlohmann::json const &config,

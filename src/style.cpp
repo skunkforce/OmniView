@@ -26,18 +26,19 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   style.Colors[ImGuiCol_TextDisabled] =
       ImVec4(248 / 255.0f, 249 / 255.0f, 250 / 255.0f, 98 / 100.0f);
   style.Colors[ImGuiCol_WindowBg] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+      ImVec4(0.0f, 0.0f, 0.0f,
+             1.0f);
   style.Colors[ImGuiCol_ChildBg] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+     ImVec4(0.0f, 0.0f, 0.0f,
+             1.0f);
   style.Colors[ImGuiCol_PopupBg] =
       ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_Border] =
       ImVec4(240 / 255.0f, 62 / 255.0f, 54 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-  style.Colors[ImGuiCol_FrameBg] = ImVec4(
-      ImVec4(0.0f, 0.0f, 0.0f,
-             1.0f)); // changes the color of the frame bg for the plot window
+  style.Colors[ImGuiCol_FrameBg] = ImVec4(0.0f, 0.0f, 0.0f,
+             1.0f); // changes the color of the frame bg for the plot window
   style.Colors[ImGuiCol_FrameBgHovered] =
       ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_FrameBgActive] =
@@ -295,10 +296,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 
   // The order matters because of the counter for the images !!!
   static const unsigned char *imagesNames[] = {
-      AutoInternLogo_png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
+      OmnAiLogo_png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
       HelpIcon_png};
   static const unsigned int imagesLen[] = {
-      AutoInternLogo_png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
+      OmnAiLogo_png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
       SettingIcon_png_len, HelpIcon_png_len};
   // Load the images for the SideBarMenu
   for (size_t i = 0; i < size; i++)
@@ -310,8 +311,8 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
-  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005;
-  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008;
+  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0004;
+  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0006;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
