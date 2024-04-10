@@ -78,7 +78,7 @@ void generateTrainingData(
           i++;
         }
       i = 0;
-      if (const size_t sz = savedFileNames.size())
+  /*    if (const size_t sz = savedFileNames.size())
         for (const auto &file : savedFileNames) {
           is_checked = (token == i + sz);
           if (ImGui::Checkbox(file.c_str(), &is_checked)) {
@@ -94,7 +94,7 @@ void generateTrainingData(
             }
           }
           ++i;
-        } // End of the algorithm
+        } */// End of the algorithm
       ImGui::EndCombo();
     }
 
