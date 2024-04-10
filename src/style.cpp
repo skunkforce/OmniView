@@ -22,46 +22,46 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   style.Alpha = 1.0f;
   style.FrameRounding = 5.0f;
   style.Colors[ImGuiCol_Text] =
-      ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
+      ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
   style.Colors[ImGuiCol_TextDisabled] =
-      ImVec4(248 / 255.0f, 249 / 255.0f, 250 / 255.0f, 98 / 100.0f);
+      ImVec4(0.972f, 0.976, 0.98f, 0.98f);
   style.Colors[ImGuiCol_WindowBg] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+      ImVec4(0.145f, 0.157f,0.169f, 1.0f);
   style.Colors[ImGuiCol_ChildBg] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+      ImVec4(0.145f, 0.157f,0.169f, 1.0f);
   style.Colors[ImGuiCol_PopupBg] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+      ImVec4(0.145f, 0.157f,0.169f, 1.0f);
   style.Colors[ImGuiCol_Border] =
-      ImVec4(240 / 255.0f, 62 / 255.0f, 54 / 255.0f, 100 / 100.0f);
+      ImVec4(0.94f, 0.243f, 0.212f, 1.0f);
   style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 
   style.Colors[ImGuiCol_FrameBg] = ImVec4(
       ImVec4(0.0f, 0.0f, 0.0f,
              1.0f)); // changes the color of the frame bg for the plot window
   style.Colors[ImGuiCol_FrameBgHovered] =
-      ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
+      ImVec4(0.09f, 0.09f, 0.078, 1.0f);
   style.Colors[ImGuiCol_FrameBgActive] =
-      ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
+      ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
   style.Colors[ImGuiCol_TitleBg] =
-      ImVec4(1 / 255.0f, 1 / 255.0f, 1 / 255.0f, 100 / 100.0f);
+      ImVec4(0.004f, 0.004f, 0.004f, 1.0f);
   style.Colors[ImGuiCol_TitleBgCollapsed] =
-      ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
+      ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
   style.Colors[ImGuiCol_TitleBgActive] =
-      ImVec4(1 / 255.0f, 1 / 255.0f, 1 / 255.0f, 100 / 100.0f);
+      ImVec4(0.004f, 0.004f, 0.004f, 1.0f);
   style.Colors[ImGuiCol_MenuBarBg] =
-      ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
+      ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
   style.Colors[ImGuiCol_ScrollbarBg] =
-      ImVec4(23 / 255.0f, 23 / 255.0f, 20 / 255.0f, 100 / 100.0f);
+     ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
   style.Colors[ImGuiCol_ScrollbarGrab] =
-      ImVec4(248 / 255.0f, 249 / 255.0f, 250 / 255.0f, 100 / 100.0f);
+      ImVec4(0.972f, 0.976f, 0.98f, 0.98f);
   style.Colors[ImGuiCol_ScrollbarGrabHovered] =
-      ImVec4(245 / 255.0f, 245 / 255.0f, 245 / 255.0f, 100 / 100.0f);
+      ImVec4(0.96f, 0.96f,0.96f, 1.0f);
   style.Colors[ImGuiCol_ScrollbarGrabActive] =
       ImVec4(240 / 255.0f, 240 / 255.0f, 240 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_CheckMark] =
-      ImVec4(235 / 255.0f, 62 / 255.0f, 54 / 255.0f, 100 / 100.0f);
+      ImVec4(0.92f, 0.24f, 0.211f, 1.0f);
   style.Colors[ImGuiCol_SliderGrab] =
-      ImVec4(245 / 255.0f, 245 / 255.0f, 245 / 255.0f, 100 / 100.0f);
+      ImVec4(0.96f, 0.96f,0.96f, 1.0f);
   style.Colors[ImGuiCol_SliderGrabActive] =
       ImVec4(240 / 255.0f, 240 / 255.0f, 240 / 255.0f, 100 / 100.0f);
   style.Colors[ImGuiCol_Button] =
@@ -141,7 +141,7 @@ void SetMainWindowStyle() {
   style.Colors[ImGuiCol_Text] = {0.0f, 0.0f, 0.0f, 1.0f};
   style.Colors[ImGuiCol_WindowBg] = {1.0f, 1.0f, 0.93f, 1.0f};
   style.Colors[ImGuiCol_ChildBg] =
-      ImVec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 100 / 100.0f);
+     ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
   style.Colors[ImGuiCol_Border] = {240 / 255.0f, 240 / 255.0f, 240 / 255.0f,
                                    100 / 100.0f};
   style.Colors[ImGuiCol_FrameBg] = {1.0f, 1.0f, 1.0f, 1.0f};
