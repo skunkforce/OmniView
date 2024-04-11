@@ -57,19 +57,19 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   style.Colors[ImGuiCol_ScrollbarGrabHovered] =
       ImVec4(0.96f, 0.96f,0.96f, 1.0f);
   style.Colors[ImGuiCol_ScrollbarGrabActive] =
-      ImVec4(240 / 255.0f, 240 / 255.0f, 240 / 255.0f, 100 / 100.0f);
+      ImVec4(0.941f, 0.941f, 0.941f, 1.0f);
   style.Colors[ImGuiCol_CheckMark] =
       ImVec4(0.92f, 0.24f, 0.211f, 1.0f);
   style.Colors[ImGuiCol_SliderGrab] =
       ImVec4(0.96f, 0.96f,0.96f, 1.0f);
   style.Colors[ImGuiCol_SliderGrabActive] =
-      ImVec4(240 / 255.0f, 240 / 255.0f, 240 / 255.0f, 100 / 100.0f);
+     ImVec4(0.941f, 0.941f, 0.941f, 1.0f);
   style.Colors[ImGuiCol_Button] =
-      ImVec4(37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f);
+      ImVec4(0.145f, 0.156f, 0.168f, 1.0f);
   style.Colors[ImGuiCol_ButtonHovered] =
-      ImVec4(240 / 255.0f, 62 / 255.0f, 54 / 255.0f, 100 / 100.0f);
+      ImVec4(0.941f, 0.243f, 0.211f, 1.0f);
   style.Colors[ImGuiCol_ButtonActive] =
-      ImVec4(235 / 255.0f, 62 / 255.0f, 54 / 255.0f, 100 / 100.0f);
+      ImVec4(0.921f, 0.24f, 0.211, 1.0f);
   style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
   style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
   style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
@@ -142,8 +142,7 @@ void SetMainWindowStyle() {
   style.Colors[ImGuiCol_WindowBg] = {1.0f, 1.0f, 0.93f, 1.0f};
   style.Colors[ImGuiCol_ChildBg] =
      ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-  style.Colors[ImGuiCol_Border] = {240 / 255.0f, 240 / 255.0f, 240 / 255.0f,
-                                   100 / 100.0f};
+  style.Colors[ImGuiCol_Border] = ImVec4(0.941f, 0.941f, 0.941f, 100 / 100.0f);
   style.Colors[ImGuiCol_FrameBg] = {1.0f, 1.0f, 1.0f, 1.0f};
   // style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
   // style.Colors[ImGuiCol_FrameBgActive] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -151,10 +150,10 @@ void SetMainWindowStyle() {
   // Colors for the Implot Window:
   plotStyle.Colors[ImPlotCol_PlotBg] = {1.0f, 1.0f, 1.0f, 1.0f};
   plotStyle.Colors[ImPlotCol_AxisBg] = {1.0f, 1.0f, 1.0f, 1.0f};
-  plotStyle.Colors[ImPlotCol_AxisBgHovered] = {158.0 / 255.0f, 158.0 / 255.0f,
-                                               158.0 / 255.0f, 1.0f};
-  plotStyle.Colors[ImPlotCol_AxisBgActive] = {91.0 / 255.0f, 91.0 / 255.0f,
-                                              91.0 / 255.0f, 1.0f};
+  plotStyle.Colors[ImPlotCol_AxisBgHovered] = {0.61f, 0.61f,
+                                              0.61f, 1.0f};
+  plotStyle.Colors[ImPlotCol_AxisBgActive] = {0.36f, 0.36f,
+                                              0.36f, 1.0f};
   plotStyle.Colors[ImPlotCol_Line] = {1.0f, 1.0f, 1.0f, 1.0f};
   plotStyle.Colors[ImPlotCol_TitleText] = {0.0f, 0.0f, 0.0f, 1.0f};
   plotStyle.Colors[ImPlotCol_AxisGrid] = {0.0f, 0.0f, 0.0f, 1.0f};
