@@ -184,7 +184,7 @@ int main() {
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
     SetMainWindowStyle();
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
     ImGui::BeginChild("Record Data",
                       {0.f, windowSize.y * 0.5f},
                       ImGuiChildFlags_Border);
@@ -220,7 +220,7 @@ int main() {
     ImGui::End();
   };
 
-  ImGuiInstance window{1280, 760,
+  ImGuiInstance window{1920,1080,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
   while (window.run(render)) {
