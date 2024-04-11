@@ -5,7 +5,7 @@
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
-#include "stb_image.h"
+#include "../stb_image/stb_image.h"
 #include <cmake_git_version/version.hpp>
 
 #include <string>
