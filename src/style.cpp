@@ -1,13 +1,14 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define STB_IMAGE_IMPLEMENTATION
 #include "style.hpp"
+#include "../stb_image/stb_image.h"
 #include "imagesHeader.hpp"
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
-#include "../stb_image/stb_image.h"
 #include <cmake_git_version/version.hpp>
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -21,55 +22,36 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
 
   style.Alpha = 1.0f;
   style.FrameRounding = 5.0f;
-  style.Colors[ImGuiCol_Text] =
-      ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-  style.Colors[ImGuiCol_TextDisabled] =
-      ImVec4(0.972f, 0.976, 0.98f, 0.98f);
-  style.Colors[ImGuiCol_WindowBg] =
-      ImVec4(0.145f, 0.157f,0.169f, 1.0f);
-  style.Colors[ImGuiCol_ChildBg] =
-      ImVec4(0.145f, 0.157f,0.169f, 1.0f);
-  style.Colors[ImGuiCol_PopupBg] =
-      ImVec4(0.145f, 0.157f,0.169f, 1.0f);
-  style.Colors[ImGuiCol_Border] =
-      ImVec4(0.94f, 0.243f, 0.212f, 1.0f);
+  style.Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+  style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.972f, 0.976, 0.98f, 0.98f);
+  style.Colors[ImGuiCol_WindowBg] = ImVec4(0.145f, 0.157f, 0.169f, 1.0f);
+  style.Colors[ImGuiCol_ChildBg] = ImVec4(0.145f, 0.157f, 0.169f, 1.0f);
+  style.Colors[ImGuiCol_PopupBg] = ImVec4(0.145f, 0.157f, 0.169f, 1.0f);
+  style.Colors[ImGuiCol_Border] = ImVec4(0.94f, 0.243f, 0.212f, 1.0f);
   style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 
   style.Colors[ImGuiCol_FrameBg] = ImVec4(
       ImVec4(0.0f, 0.0f, 0.0f,
              1.0f)); // changes the color of the frame bg for the plot window
-  style.Colors[ImGuiCol_FrameBgHovered] =
-      ImVec4(0.09f, 0.09f, 0.078, 1.0f);
-  style.Colors[ImGuiCol_FrameBgActive] =
-      ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
-  style.Colors[ImGuiCol_TitleBg] =
-      ImVec4(0.004f, 0.004f, 0.004f, 1.0f);
-  style.Colors[ImGuiCol_TitleBgCollapsed] =
-      ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
-  style.Colors[ImGuiCol_TitleBgActive] =
-      ImVec4(0.004f, 0.004f, 0.004f, 1.0f);
-  style.Colors[ImGuiCol_MenuBarBg] =
-      ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
-  style.Colors[ImGuiCol_ScrollbarBg] =
-     ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
-  style.Colors[ImGuiCol_ScrollbarGrab] =
-      ImVec4(0.972f, 0.976f, 0.98f, 0.98f);
+  style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.09f, 0.09f, 0.078, 1.0f);
+  style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
+  style.Colors[ImGuiCol_TitleBg] = ImVec4(0.004f, 0.004f, 0.004f, 1.0f);
+  style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
+  style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.004f, 0.004f, 0.004f, 1.0f);
+  style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
+  style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
+  style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.972f, 0.976f, 0.98f, 0.98f);
   style.Colors[ImGuiCol_ScrollbarGrabHovered] =
-      ImVec4(0.96f, 0.96f,0.96f, 1.0f);
+      ImVec4(0.96f, 0.96f, 0.96f, 1.0f);
   style.Colors[ImGuiCol_ScrollbarGrabActive] =
       ImVec4(0.941f, 0.941f, 0.941f, 1.0f);
-  style.Colors[ImGuiCol_CheckMark] =
-      ImVec4(0.92f, 0.24f, 0.211f, 1.0f);
-  style.Colors[ImGuiCol_SliderGrab] =
-      ImVec4(0.96f, 0.96f,0.96f, 1.0f);
+  style.Colors[ImGuiCol_CheckMark] = ImVec4(0.92f, 0.24f, 0.211f, 1.0f);
+  style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.96f, 0.96f, 0.96f, 1.0f);
   style.Colors[ImGuiCol_SliderGrabActive] =
-     ImVec4(0.941f, 0.941f, 0.941f, 1.0f);
-  style.Colors[ImGuiCol_Button] =
-      ImVec4(0.145f, 0.156f, 0.168f, 1.0f);
-  style.Colors[ImGuiCol_ButtonHovered] =
-      ImVec4(0.941f, 0.243f, 0.211f, 1.0f);
-  style.Colors[ImGuiCol_ButtonActive] =
-      ImVec4(0.921f, 0.24f, 0.211, 1.0f);
+      ImVec4(0.941f, 0.941f, 0.941f, 1.0f);
+  style.Colors[ImGuiCol_Button] = ImVec4(0.145f, 0.156f, 0.168f, 1.0f);
+  style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.941f, 0.243f, 0.211f, 1.0f);
+  style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.921f, 0.24f, 0.211, 1.0f);
   style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
   style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
   style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
@@ -140,8 +122,7 @@ void SetMainWindowStyle() {
 
   style.Colors[ImGuiCol_Text] = {0.0f, 0.0f, 0.0f, 1.0f};
   style.Colors[ImGuiCol_WindowBg] = {1.0f, 1.0f, 0.93f, 1.0f};
-  style.Colors[ImGuiCol_ChildBg] =
-     ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+  style.Colors[ImGuiCol_ChildBg] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
   style.Colors[ImGuiCol_Border] = ImVec4(0.941f, 0.941f, 0.941f, 100 / 100.0f);
   style.Colors[ImGuiCol_FrameBg] = {1.0f, 1.0f, 1.0f, 1.0f};
   // style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -150,10 +131,8 @@ void SetMainWindowStyle() {
   // Colors for the Implot Window:
   plotStyle.Colors[ImPlotCol_PlotBg] = {1.0f, 1.0f, 1.0f, 1.0f};
   plotStyle.Colors[ImPlotCol_AxisBg] = {1.0f, 1.0f, 1.0f, 1.0f};
-  plotStyle.Colors[ImPlotCol_AxisBgHovered] = {0.61f, 0.61f,
-                                              0.61f, 1.0f};
-  plotStyle.Colors[ImPlotCol_AxisBgActive] = {0.36f, 0.36f,
-                                              0.36f, 1.0f};
+  plotStyle.Colors[ImPlotCol_AxisBgHovered] = {0.61f, 0.61f, 0.61f, 1.0f};
+  plotStyle.Colors[ImPlotCol_AxisBgActive] = {0.36f, 0.36f, 0.36f, 1.0f};
   plotStyle.Colors[ImPlotCol_Line] = {1.0f, 1.0f, 1.0f, 1.0f};
   plotStyle.Colors[ImPlotCol_TitleText] = {0.0f, 0.0f, 0.0f, 1.0f};
   plotStyle.Colors[ImPlotCol_AxisGrid] = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -391,181 +370,36 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 }
 
 // For Development
-void PopupStyleEditor(bool bStyleDark, float alpha, nlohmann::json &config) {
-  ImGui::Begin("Style Editor", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-
+void PopupStyleEditor() {
   ImGuiStyle &style = ImGui::GetStyle();
+  static ImGuiStyle style2 = ImGui::GetStyle();
 
-  // Add more sliders or controls for other parameters as needed
+  ImPlotStyle &styleImPlot = ImPlot::GetStyle();
+  static ImPlotStyle styleImPlot2 = ImPlot::GetStyle();
 
-  ImGui::Separator();
+  static std::vector<ImVec4> plotColors{};
+  static std::vector<ImVec4> colorVec{};
 
-  std::vector<StyleElement> styleElements = {
-      {"Text", &style.Colors[ImGuiCol_Text], ImGuiCol_Text},
-      {"Text Disabled", &style.Colors[ImGuiCol_TextDisabled],
-       ImGuiCol_TextDisabled},
-      {"Window Background", &style.Colors[ImGuiCol_WindowBg],
-       ImGuiCol_WindowBg},
-      {"Child Window Background", &style.Colors[ImGuiCol_ChildBg],
-       ImGuiCol_ChildBg},
-      {"Popup Background", &style.Colors[ImGuiCol_PopupBg], ImGuiCol_PopupBg},
-      {"Border", &style.Colors[ImGuiCol_Border], ImGuiCol_Border},
-      {"Border Shadow", &style.Colors[ImGuiCol_BorderShadow],
-       ImGuiCol_BorderShadow},
-      {"Frame Background", &style.Colors[ImGuiCol_FrameBg], ImGuiCol_FrameBg},
-      {"Frame Background Hovered", &style.Colors[ImGuiCol_FrameBgHovered],
-       ImGuiCol_FrameBgHovered},
-      {"Frame Background Active", &style.Colors[ImGuiCol_FrameBgActive],
-       ImGuiCol_FrameBgActive},
-      {"Title Background", &style.Colors[ImGuiCol_TitleBg], ImGuiCol_TitleBg},
-      {"Title Background Collapsed", &style.Colors[ImGuiCol_TitleBgCollapsed],
-       ImGuiCol_TitleBgCollapsed},
-      {"Title Background Active", &style.Colors[ImGuiCol_TitleBgActive],
-       ImGuiCol_TitleBgActive},
-      {"Menu Bar Background", &style.Colors[ImGuiCol_MenuBarBg],
-       ImGuiCol_MenuBarBg},
-      {"Scrollbar Background", &style.Colors[ImGuiCol_ScrollbarBg],
-       ImGuiCol_ScrollbarBg},
-      {"Scrollbar Grab", &style.Colors[ImGuiCol_ScrollbarGrab],
-       ImGuiCol_ScrollbarGrab},
-      {"Scrollbar Grab Hovered", &style.Colors[ImGuiCol_ScrollbarGrabHovered],
-       ImGuiCol_ScrollbarGrabHovered},
-      {"Scrollbar Grab Active", &style.Colors[ImGuiCol_ScrollbarGrabActive],
-       ImGuiCol_ScrollbarGrabActive},
-      {"Check Mark", &style.Colors[ImGuiCol_CheckMark], ImGuiCol_CheckMark},
-      {"Slider Grab", &style.Colors[ImGuiCol_SliderGrab], ImGuiCol_SliderGrab},
-      {"Slider Grab Active", &style.Colors[ImGuiCol_SliderGrabActive],
-       ImGuiCol_SliderGrabActive},
-      {"Button", &style.Colors[ImGuiCol_Button], ImGuiCol_Button},
-      {"Button Hovered", &style.Colors[ImGuiCol_ButtonHovered],
-       ImGuiCol_ButtonHovered},
-      {"Button Active", &style.Colors[ImGuiCol_ButtonActive],
-       ImGuiCol_ButtonActive},
-      {"Header", &style.Colors[ImGuiCol_Header], ImGuiCol_Header},
-      {"Header Hovered", &style.Colors[ImGuiCol_HeaderHovered],
-       ImGuiCol_HeaderHovered},
-      {"Header Active", &style.Colors[ImGuiCol_HeaderActive],
-       ImGuiCol_HeaderActive},
-      {"Separator", &style.Colors[ImGuiCol_Separator], ImGuiCol_Separator},
-      {"Separator Hovered", &style.Colors[ImGuiCol_SeparatorHovered],
-       ImGuiCol_SeparatorHovered},
-      {"Separator Active", &style.Colors[ImGuiCol_SeparatorActive],
-       ImGuiCol_SeparatorActive},
-      {"Resize Grip", &style.Colors[ImGuiCol_ResizeGrip], ImGuiCol_ResizeGrip},
-      {"Resize Grip Hovered", &style.Colors[ImGuiCol_ResizeGripHovered],
-       ImGuiCol_ResizeGripHovered},
-      {"Resize Grip Active", &style.Colors[ImGuiCol_ResizeGripActive],
-       ImGuiCol_ResizeGripActive},
-      {"Tab", &style.Colors[ImGuiCol_Tab], ImGuiCol_Tab},
-      {"Tab Hovered", &style.Colors[ImGuiCol_TabHovered], ImGuiCol_TabHovered},
-      {"Tab Active", &style.Colors[ImGuiCol_TabActive], ImGuiCol_TabActive},
-      {"Tab Unfocused", &style.Colors[ImGuiCol_TabUnfocused],
-       ImGuiCol_TabUnfocused},
-      {"Tab Unfocused Active", &style.Colors[ImGuiCol_TabUnfocusedActive],
-       ImGuiCol_TabUnfocusedActive},
-      {"Plot Lines", &style.Colors[ImGuiCol_PlotLines], ImGuiCol_PlotLines},
-      {"Plot Lines Hovered", &style.Colors[ImGuiCol_PlotLinesHovered],
-       ImGuiCol_PlotLinesHovered},
-      {"Plot Histogram", &style.Colors[ImGuiCol_PlotHistogram],
-       ImGuiCol_PlotHistogram},
-      {"Plot Histogram Hovered", &style.Colors[ImGuiCol_PlotHistogramHovered],
-       ImGuiCol_PlotHistogramHovered},
-      {"Text Selected Background", &style.Colors[ImGuiCol_TextSelectedBg],
-       ImGuiCol_TextSelectedBg},
-      {"Drag Drop Target", &style.Colors[ImGuiCol_DragDropTarget],
-       ImGuiCol_DragDropTarget}};
-
-  std::vector<StyleElement> plotElements = {
-      {"Plot Line/Outline", &ImPlot::GetStyle().Colors[ImPlotCol_Line],
-       ImPlotCol_Line},
-      {"Plot Fill", &ImPlot::GetStyle().Colors[ImPlotCol_Fill], ImPlotCol_Fill},
-      {"Marker Outline", &ImPlot::GetStyle().Colors[ImPlotCol_MarkerOutline],
-       ImPlotCol_MarkerOutline},
-      {"Marker Fill", &ImPlot::GetStyle().Colors[ImPlotCol_MarkerFill],
-       ImPlotCol_MarkerFill},
-      {"Error Bar", &ImPlot::GetStyle().Colors[ImPlotCol_ErrorBar],
-       ImPlotCol_ErrorBar},
-      {"Frame Background", &ImPlot::GetStyle().Colors[ImPlotCol_FrameBg],
-       ImPlotCol_FrameBg},
-      {"Plot Background", &ImPlot::GetStyle().Colors[ImPlotCol_PlotBg],
-       ImPlotCol_PlotBg},
-      {"Plot Border", &ImPlot::GetStyle().Colors[ImPlotCol_PlotBorder],
-       ImPlotCol_PlotBorder},
-      {"Legend Background", &ImPlot::GetStyle().Colors[ImPlotCol_LegendBg],
-       ImPlotCol_LegendBg},
-      {"Legend Border", &ImPlot::GetStyle().Colors[ImPlotCol_LegendBorder],
-       ImPlotCol_LegendBorder},
-      {"Legend Text", &ImPlot::GetStyle().Colors[ImPlotCol_LegendText],
-       ImPlotCol_LegendText},
-      {"Title Text", &ImPlot::GetStyle().Colors[ImPlotCol_TitleText],
-       ImPlotCol_TitleText},
-      {"Inlay Text", &ImPlot::GetStyle().Colors[ImPlotCol_InlayText],
-       ImPlotCol_InlayText},
-      {"Axis Text", &ImPlot::GetStyle().Colors[ImPlotCol_AxisText],
-       ImPlotCol_AxisText},
-      {"Axis Grid", &ImPlot::GetStyle().Colors[ImPlotCol_AxisGrid],
-       ImPlotCol_AxisGrid},
-      {"Axis Tick", &ImPlot::GetStyle().Colors[ImPlotCol_AxisTick],
-       ImPlotCol_AxisTick},
-      {"Axis Background", &ImPlot::GetStyle().Colors[ImPlotCol_AxisBg],
-       ImPlotCol_AxisBg},
-      {"Axis Background Hovered",
-       &ImPlot::GetStyle().Colors[ImPlotCol_AxisBgHovered],
-       ImPlotCol_AxisBgHovered},
-      {"Axis Background Active",
-       &ImPlot::GetStyle().Colors[ImPlotCol_AxisBgActive],
-       ImPlotCol_AxisBgActive},
-      {"Selection", &ImPlot::GetStyle().Colors[ImPlotCol_Selection],
-       ImPlotCol_Selection},
-      {"Crosshairs", &ImPlot::GetStyle().Colors[ImPlotCol_Crosshairs],
-       ImPlotCol_Crosshairs}};
-
-  // Hier füge deinen Color Picker hinzu
-  static ImVec4 copiedColors[ImGuiCol_COUNT];
-
-  static ImVec4 plotcolors[ImPlotCol_COUNT];
-  // Color pickers for individual style elements
+  for (auto &element : style.Colors) {
+    colorVec.push_back(element);
+  }
+  for (auto &element : styleImPlot.Colors) {
+    plotColors.push_back(element);
+  }
   if (ImGui::TreeNode("Style Colors")) {
-    UpdateColors(styleElements, copiedColors);
-    // Add more color pickers for other style elements
-
+    for (std::size_t i{0}; i < ImGuiCol_COUNT - 1; ++i) {
+      ImGui::ColorEdit4(ImGui::GetStyleColorName(i), (float *)&colorVec[i]);
+      style2.Colors[i] = colorVec[i];
+    }
+    style = style2;
     ImGui::TreePop();
   }
-
-  if (ImGui::TreeNode("ImPlotColors")) {
-    UpdateColorsImPlot(plotElements, plotcolors);
-    // Add more color pickers for other style elements
-
+  if (ImGui::TreeNode("Plot Colors")) {
+    for (size_t i = 0; i < ImPlotCol_COUNT; i++) {
+      ImGui::ColorEdit4(ImPlot::GetStyleColorName(i), (float *)&plotColors[i]);
+      styleImPlot2.Colors[i] = plotColors[i];
+    }
+    styleImPlot = styleImPlot2;
     ImGui::TreePop();
-  }
-
-  ImGui::End();
-}
-
-void UpdateColors(const std::vector<StyleElement> &styleElements,
-                  const ImVec4 *colors) {
-
-  ImGuiStyle &style = ImGui::GetStyle();
-  int i = 0;
-  for (const auto &element : styleElements) {
-    ImGui::ColorEdit4(element.name, (float *)&colors[i]);
-    ImVec4 colorWithAlpha = ImVec4(colors[i].x, colors[i].y, colors[i].z,
-                                   style.Colors[element.colorIndex].w);
-    style.Colors[element.colorIndex] = colorWithAlpha;
-    i++;
-  }
-}
-
-void UpdateColorsImPlot(const std::vector<StyleElement> &styleElements,
-                        const ImVec4 *colors) {
-
-  ImPlotStyle &plotStyle = ImPlot::GetStyle();
-  int i = 0;
-  for (const auto &element : styleElements) {
-    ImGui::ColorEdit4(element.name, (float *)&colors[i]);
-    ImVec4 colorWithAlpha =
-        ImVec4(colors[i].x, colors[i].y, colors[i].z, 0.99f);
-    plotStyle.Colors[element.colorIndex] = colorWithAlpha;
-    i++;
   }
 }

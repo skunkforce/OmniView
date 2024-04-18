@@ -18,11 +18,7 @@ void set_button_style_to(const nlohmann::json &, const std::string &);
 bool LoadTextureFromHeader(unsigned char const *, int, GLuint *, int *, int *);
 void set_side_menu(const nlohmann::json &, bool &, bool &, bool &);
 
-void PopupStyleEditor(bool bStyleDark, float alpha, nlohmann::json &config);
-void UpdateColors(const std::vector<StyleElement> &styleElements,
-                  const ImVec4 *colors);
-void UpdateColorsImPlot(const std::vector<StyleElement> &styleElements,
-                        const ImVec4 *colors);
+void PopupStyleEditor();
 
 void SetMainWindowStyle();
 void SetDeviceMenuStyle();

@@ -51,7 +51,7 @@ int main() {
 
       // Popup-Fensterinhalt
       if (ImGui::BeginPopup("Development Colors")) {
-        PopupStyleEditor(false, 0.99f, config);
+        PopupStyleEditor();
         ImGui::EndPopup();
       }
     }
@@ -185,8 +185,7 @@ int main() {
     ImGui::Dummy({0.f, windowSize.y * .01f});
     SetMainWindowStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
-    ImGui::BeginChild("Record Data",
-                      {0.f, windowSize.y * 0.5f},
+    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
                       ImGuiChildFlags_Border);
 
     addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {
@@ -220,7 +219,7 @@ int main() {
     ImGui::End();
   };
 
-  ImGuiInstance window{1920,1080,
+  ImGuiInstance window{1920, 1080,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
   while (window.run(render)) {
