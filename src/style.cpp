@@ -6,13 +6,14 @@
 #include "jasonhandler.hpp"
 #include "languages.hpp"
 #include "stb_image.h"
+#include <iostream>
 #include <cmake_git_version/version.hpp>
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_,
                      const nlohmann::json &config) {
   ImGuiStyle &style = ImGui::GetStyle();
 
-  // light style from Pac�me Danhiez (user itamago)
+  // light style from Pac�me Danhiez (user itamago)
   // https://github.com/ocornut/imgui/pull/511#issuecomment-175719267
 
   ImGuiIO &io = ImGui::GetIO();
@@ -274,6 +275,94 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     }
     ImGui::TreePop();
   }
+
+
+  static bool showAW40HUB = false;
+  static bool showLogin = false;
+  static char username[128] = "";
+  static char password[128] = "";
+  static std::string enteredUsername;
+  static std::string enteredPassword;
+
+  if (ImGui::Button("Autowerkstatt 4.0 HUB")) {
+      showLogin = true;
+  }
+
+  if (showLogin) {
+      ImGui::Begin("LOGIN", &showLogin);
+      if (ImGui::InputText("Benutzername", username, sizeof(username), ImGuiInputTextFlags_EnterReturnsTrue)) {
+          enteredUsername = username;
+      }
+      if (ImGui::InputText("Passwort", password, sizeof(password), ImGuiInputTextFlags_Password | ImGuiInputTextFlags_EnterReturnsTrue)) {
+          enteredPassword = password;
+      }
+      if (ImGui::Button("Anmelden")) {
+          // Hier kannst du die Benutzername- und Passwortüberprüfung durchführen
+          // Hier ist ein hartcodiertes Beispiel:
+          if (enteredUsername == "a" && enteredPassword == "a") {
+              showLogin = false;
+              showAW40HUB = true;
+          } else {
+              // Wenn die Anmeldedaten falsch sind, kannst du eine Meldung anzeigen
+              // Hier ist ein Beispiel:
+              ImGui::Text("Falscher Benutzername oder Passwort.");
+          }
+      }
+      ImGui::End();
+  }
+
+  if (showAW40HUB) {
+      ImGui::Begin("AW40-HUB", &showAW40HUB);
+      ImVec2 windowSize(800, 600);
+      ImGui::SetWindowSize(windowSize);
+
+      ImGui::Text("Willkommen im AW40-HUB!");
+
+      // Tabelle mit Dummy-Werten
+      ImGui::Text("Fallübersicht:");
+      ImGui::Separator();
+
+      // Überschriften der Tabelle
+      ImGui::Columns(4, "myColumns");
+      ImGui::Text("Fall ID");
+      ImGui::NextColumn();
+      ImGui::Text("Name");
+      ImGui::NextColumn();
+      ImGui::Text("Datum");
+      ImGui::NextColumn();
+      ImGui::Text("Status");
+      ImGui::NextColumn();
+      ImGui::Separator();
+
+      // Dummy-Werte für die Tabelle
+      for (int i = 0; i < 10; i++) {
+          ImGui::Text("%d", i + 1);
+          ImGui::NextColumn();
+          ImGui::Text("Dummy Name %d", i + 1);
+          ImGui::NextColumn();
+          ImGui::Text("01.01.2024");
+          ImGui::NextColumn();
+          ImGui::Text("Offen");
+          ImGui::NextColumn();
+      }
+
+      ImGui::Columns(1);
+      ImGui::Separator();
+      if (ImGui::Button("Aktion 1")) {
+        // Hier Aktion 1 ausführen...
+      }
+      ImGui::SameLine(); // Platziere den nächsten Knopf auf derselben Linie
+      if (ImGui::Button("Aktion 2")) {
+          // Hier Aktion 2 ausführen...
+      }
+      ImGui::SameLine(); // Platziere den nächsten Knopf auf derselben Linie
+      if (ImGui::Button("Aktion 3")) {
+          // Hier Aktion 3 ausführen...
+      }
+      ImGui::End();
+  }
+
+
 
   static bool showSettings = false;
   const bool showSettingsPrev = showSettings;
