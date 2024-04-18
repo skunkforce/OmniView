@@ -183,7 +183,7 @@ int main() {
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
-    SetMainWindowStyle();
+    PushPlotRegionColors();
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
                       ImGuiChildFlags_Border);
@@ -200,11 +200,10 @@ int main() {
         ImPlot::SetupAxesLimits(0, 10, -10, 200);
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
       }
-    });
+    }); 
     ImGui::EndChild(); // end child Record Data
     ImGui::PopStyleVar();
-
-    SetupImGuiStyle(false, 0.99f, config);
+     PopPlotRegionColors();
     // ############################ Devicelist
     SetDeviceMenuStyle();
 

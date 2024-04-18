@@ -1,12 +1,13 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define STB_IMAGE_IMPLEMENTATION
-#include "style.hpp"
 #include "../stb_image/stb_image.h"
 #include "imagesHeader.hpp"
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
 #include <cmake_git_version/version.hpp>
+
+#include "style.hpp"
 
 #include <iostream>
 #include <string>
@@ -116,34 +117,30 @@ void set_button_style_to(const nlohmann::json &config,
       ImVec4(load_json<Color>(config, "button", name, "active")));
 }
 
-void SetMainWindowStyle() {
-  ImGuiStyle &style = ImGui::GetStyle();
-  ImPlotStyle &plotStyle = ImPlot::GetStyle();
+void PushPlotRegionColors() {
+   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 1.0f, 0.93f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.941f, 0.941f, 0.941f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-  style.Colors[ImGuiCol_Text] = {0.0f, 0.0f, 0.0f, 1.0f};
-  style.Colors[ImGuiCol_WindowBg] = {1.0f, 1.0f, 0.93f, 1.0f};
-  style.Colors[ImGuiCol_ChildBg] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-  style.Colors[ImGuiCol_Border] = ImVec4(0.941f, 0.941f, 0.941f, 100 / 100.0f);
-  style.Colors[ImGuiCol_FrameBg] = {1.0f, 1.0f, 1.0f, 1.0f};
-  // style.Colors[ImGuiCol_FrameBgHovered] = { 1.0f, 1.0f, 1.0f, 1.0f };
-  // style.Colors[ImGuiCol_FrameBgActive] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    ImPlot::PushStyleColor(ImPlotCol_PlotBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_AxisBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_AxisBgHovered, ImVec4(0.61f, 0.61f, 0.61f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_AxisBgActive, ImVec4(0.36f, 0.36f, 0.36f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_TitleText, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_AxisGrid, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-  // Colors for the Implot Window:
-  plotStyle.Colors[ImPlotCol_PlotBg] = {1.0f, 1.0f, 1.0f, 1.0f};
-  plotStyle.Colors[ImPlotCol_AxisBg] = {1.0f, 1.0f, 1.0f, 1.0f};
-  plotStyle.Colors[ImPlotCol_AxisBgHovered] = {0.61f, 0.61f, 0.61f, 1.0f};
-  plotStyle.Colors[ImPlotCol_AxisBgActive] = {0.36f, 0.36f, 0.36f, 1.0f};
-  plotStyle.Colors[ImPlotCol_Line] = {1.0f, 1.0f, 1.0f, 1.0f};
-  plotStyle.Colors[ImPlotCol_TitleText] = {0.0f, 0.0f, 0.0f, 1.0f};
-  plotStyle.Colors[ImPlotCol_AxisGrid] = {0.0f, 0.0f, 0.0f, 1.0f};
-
-  // colors when hovering and clicking the axes
-  // style.Colors[ImGuiCol_ButtonHovered] = { 0.94f, 0.94f, 0.94f, 1.0f };
-  // style.Colors[ImGuiCol_ButtonActive] = { 0.94f, 0.94f, 0.94f, 1.0f };
-
-  // plotStyle.Colors[ImPlotCol_PlotBg]= { 1.0f, 1.0f, 0.93f, 1.0f };
 }
-
+void PopPlotRegionColors(){
+  for(int i = 0; i < 5; i++){
+  ImGui::PopStyleColor();
+  } 
+  for(int i = 0; i < 7; i++){
+  ImPlot::PopStyleColor();
+  } 
+}
 void SetDeviceMenuStyle() {
 
   ImGuiStyle &style = ImGui::GetStyle();

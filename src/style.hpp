@@ -20,7 +20,9 @@ void set_side_menu(const nlohmann::json &, bool &, bool &, bool &);
 
 void PopupStyleEditor();
 
-void SetMainWindowStyle();
+void PushPlotRegionColors(); 
+void PopPlotRegionColors(); 
+
 void SetDeviceMenuStyle();
 
 namespace ImGui {
