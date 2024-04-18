@@ -367,36 +367,33 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 }
 
 // For Development
+
 void PopupStyleEditor() {
   ImGuiStyle &style = ImGui::GetStyle();
-  static ImGuiStyle style2 = ImGui::GetStyle();
-
   ImPlotStyle &styleImPlot = ImPlot::GetStyle();
-  static ImPlotStyle styleImPlot2 = ImPlot::GetStyle();
 
-  static std::vector<ImVec4> plotColors{};
-  static std::vector<ImVec4> colorVec{};
+  static std::vector<ImVec4> colorVec;
+  static std::vector<ImVec4> plotColors;
 
-  for (auto &element : style.Colors) {
-    colorVec.push_back(element);
+  if (colorVec.empty() && plotColors.empty()) { 
+    for (const auto &element : style.Colors)
+      colorVec.push_back(element);
+    for (const auto &element : styleImPlot.Colors)
+      plotColors.push_back(element);
   }
-  for (auto &element : styleImPlot.Colors) {
-    plotColors.push_back(element);
-  }
+
   if (ImGui::TreeNode("Style Colors")) {
     for (std::size_t i{0}; i < ImGuiCol_COUNT - 1; ++i) {
       ImGui::ColorEdit4(ImGui::GetStyleColorName(i), (float *)&colorVec[i]);
-      style2.Colors[i] = colorVec[i];
+      style.Colors[i] = colorVec[i];
     }
-    style = style2;
     ImGui::TreePop();
   }
   if (ImGui::TreeNode("Plot Colors")) {
     for (size_t i = 0; i < ImPlotCol_COUNT; i++) {
       ImGui::ColorEdit4(ImPlot::GetStyleColorName(i), (float *)&plotColors[i]);
-      styleImPlot2.Colors[i] = plotColors[i];
+      styleImPlot.Colors[i] = plotColors[i];
     }
-    styleImPlot = styleImPlot2;
     ImGui::TreePop();
   }
 }
