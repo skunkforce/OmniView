@@ -72,14 +72,14 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
-          name: executable-linux
+          name: ${{ github.event.repository.name }}-linux
           path: build/OmniView
 
       - name: upload executable (Windows)
         uses: actions/upload-artifact@v3
         if: ${{ contains(matrix.os, 'windows' ) }}
         with:
-          name: executable-windows
+          name: ${{ github.event.repository.name }}-windows
           path: build/Release/OmniView.exe
 
 
