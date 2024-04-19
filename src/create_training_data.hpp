@@ -11,9 +11,10 @@
 #include <thread>
 
 #include "jasonhandler.hpp"
+#include "apihandler.hpp"
 
 // clang-format off
-#include <imfilebrowser.h>
+#include "../imgui-filebrowser/imfilebrowser.h"
 // clang-format on
 static void show_standart_input(nlohmann::json const &config,
                                 nlohmann::json const &language,
@@ -463,6 +464,7 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
                     ImVec2(load_json<Size>(config, "button")))) {
     ImGui::CloseCurrentPopup();
   }
-
-  ImGui::TextUnformatted(api_message.c_str());
+  
+  //api_message += "something else too";
+  //ImGui::TextUnformatted(api_message.c_str());
 }

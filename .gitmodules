@@ -13,3 +13,6 @@
 [submodule "ai_omniscope-v2-communication_sw"]
 	path = ai_omniscope-v2-communication_sw
 	url = git@github.com:AI-Gruppe/ai_omniscope-v2-communication_sw.git
+[submodule "stb_Image"]
+	path = stb_Image
+	url = https://github.com/nothings/stb.git
