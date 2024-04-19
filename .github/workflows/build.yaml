@@ -127,7 +127,6 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: |
-            build/OmniView.exe
             build/Release/OmniView.exe
             config/config.json
             languages/Deutsch.json
