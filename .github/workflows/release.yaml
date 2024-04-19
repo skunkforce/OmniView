@@ -3,7 +3,7 @@ name: Make Release
 on:
   push:
     tags:
-      - '*' 
+      - '*'
 
 jobs:
   build:
@@ -85,29 +85,48 @@ jobs:
           name: executable-windows
           path: build/Release/OmniView.exe
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
+      - name: upload assets
+        uses: actions/upload-artifact@v3
+        if: ${{ contains(matrix.os, 'windows' ) }}
         with:
-        files: |
-          build/OmniView 
-          build/Release/OmniView.exe
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: assets
+          path: |
+              config/config.json
+              languages/Deutsch.json
 
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
+      - name: download firmware
+        uses: actions/download-artifact@v3
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/OmniView
-          asset_name: OmniView_Ubuntu_x64
-          asset_content_type: application/octet-stream
+          name: |
+            executable-linux
+            executable-windows
+            assets
 
-      - name: Upload Release Assets (Windows)
-        uses: actions/upload-release-asset@v1
+      - name: zip release files (Ubuntu)
+        uses: montudor/action-zip@v1
+        if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/Release/OmniView.exe
-          asset_name: OmniView_Windows_x64.exe
-          asset_content_type: application/octet-stream
+          args: |
+            zip -qq -r ${{env.REPO_NAME}}-${{ github.ref_name }}-ubuntu.zip
+            build/OmniView
+            config/config.json
+            languages/Deutsch.json
 
+      - name: zip release files (Windows)
+        uses: montudor/action-zip@v1
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        with:
+          args: |
+            zip -qq -r ${{env.REPO_NAME}}-${{ github.ref_name }}-windows.zip
+            build/Release/OmniView.exe
+            config/config.json
+            languages/Deutsch.json
+
+      - name: create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: |
+            build/Release/OmniView.exe
+            build/OmniView
+            ${{env.REPO_NAME}}-${{ github.ref_name }}-windows.zip
+            ${{env.REPO_NAME}}-${{ github.ref_name }}-ubuntu.zip
