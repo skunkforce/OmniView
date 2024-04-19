@@ -97,16 +97,16 @@ jobs:
       - name: download files
         uses: actions/download-artifact@v4
         with:
-          path: ${{env.REPO_NAME}}-${{ github.ref_name }}
+          path: ${{ github.event.repository.name }}-${{ github.ref_name }}
           merge-multiple: true
 
       - name: display name of downloaded-artifacts
-        run: ls -R ${{env.REPO_NAME}}-${{ github.ref_name }}
+        run: ls -R ${{github.event.repository.name}}-${{ github.ref_name }}
 
       - name: zip release files (Ubuntu)
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r ${{env.REPO_NAME}}-${{ github.ref_name }}-ubuntu-latest.zip
+          args: zip -qq -r ${{github.event.repository.name}}-${{ github.ref_name }}-ubuntu-latest.zip
                 ${{env.REPO_NAME}}-${{ github.ref_name }}/build/OmniView
                 ${{env.REPO_NAME}}-${{ github.ref_name }}/config/config.json
                 ${{env.REPO_NAME}}-${{ github.ref_name }}/languages/Deutsch.json
@@ -114,7 +114,7 @@ jobs:
       - name: zip release files (Windows)
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r ${{env.REPO_NAME}}-${{ github.ref_name }}-windows-latest.zip
+          args: zip -qq -r ${{github.event.repository.name}}-${{ github.ref_name }}-windows-latest.zip
                 ${{env.REPO_NAME}}-${{ github.ref_name }}/build/OmniView.exe
                 ${{env.REPO_NAME}}-${{ github.ref_name }}/config/config.json
                 ${{env.REPO_NAME}}-${{ github.ref_name }}/languages/Deutsch.json
@@ -122,9 +122,9 @@ jobs:
       - name: create release (Ubunut)
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{env.REPO_NAME}}-${{ github.ref_name }}-linux.zip
+          artifacts: ${{github.event.repository.name}}-${{ github.ref_name }}-linux.zip
 
       - name: create release (Windows)
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{env.REPO_NAME}}-${{ github.ref_name }}-windows.zip
+          artifacts: ${{github.event.repository.name}}-${{ github.ref_name }}-windows.zip
