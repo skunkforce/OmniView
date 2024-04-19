@@ -1,78 +1,97 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define STB_IMAGE_IMPLEMENTATION
-#include "style.hpp"
+#include "../stb_image/stb_image.h"
 #include "imagesHeader.hpp"
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
-#include "stb_image.h"
 #include <cmake_git_version/version.hpp>
+
+#include "style.hpp"
+
+#include <iostream>
+#include <string>
+#include <vector>
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_,
                      const nlohmann::json &config) {
   ImGuiStyle &style = ImGui::GetStyle();
 
-  // light style from Pacôme Danhiez (user itamago)
-  // https://github.com/ocornut/imgui/pull/511#issuecomment-175719267
-
   ImGuiIO &io = ImGui::GetIO();
-  io.FontGlobalScale = load_json<float>(config, "text", "scale");
-  style.Alpha = 1.0f;
-  style.FrameRounding = 3.0f;
-  style.Colors[ImGuiCol_Text] = {0.f, 0.f, 0.f, 1.f};
-  style.Colors[ImGuiCol_TextDisabled] = {0.6f, 0.6f, 0.6f, 1.f};
-  style.Colors[ImGuiCol_WindowBg] = {1.f, 1.f, 1.f, 1.f};
-  // style.Colors[ImGuiCol_ChildBg] = {0.1f, 0.1f, 0.1f, 1.f};
-  style.Colors[ImGuiCol_Border] = {0.f, 0.f, 0.f, 0.39f};
-  style.Colors[ImGuiCol_BorderShadow] = {1.f, 1.f, 1.f, 0.1f};
-  style.Colors[ImGuiCol_FrameBg] = {1.f, 1.f, 1.f, 0.94f};
-  style.Colors[ImGuiCol_FrameBgHovered] = {0.26f, 0.59f, 0.98f, 0.40f};
-  style.Colors[ImGuiCol_FrameBgActive] = {0.26f, 0.59f, 0.98f, 0.67f};
-  style.Colors[ImGuiCol_TitleBg] = {0.96f, 0.96f, 0.96f, 1.f};
-  style.Colors[ImGuiCol_TitleBgCollapsed] = {1.f, 1.f, 1.f, 0.51f};
-  style.Colors[ImGuiCol_TitleBgActive] = {0.82f, 0.82f, 0.82f, 1.f};
-  style.Colors[ImGuiCol_ScrollbarBg] = {0.98f, 0.98f, 0.98f, 0.53f};
-  style.Colors[ImGuiCol_ScrollbarGrab] = {0.69f, 0.69f, 0.69f, 1.f};
-  style.Colors[ImGuiCol_ScrollbarGrabHovered] = {0.59f, 0.59f, 0.59f, 1.f};
-  style.Colors[ImGuiCol_ScrollbarGrabActive] = {0.49f, 0.49f, 0.49f, 1.f};
-  style.Colors[ImGuiCol_PopupBg] = {0.86f, 0.86f, 0.86f, 0.99f};
-  style.Colors[ImGuiCol_CheckMark] = {0.26f, 0.59f, 0.98f, 1.f};
-  style.Colors[ImGuiCol_SliderGrab] = {0.24f, 0.52f, 0.88f, 1.f};
-  style.Colors[ImGuiCol_SliderGrabActive] = {0.26f, 0.59f, 0.98f, 1.f};
-  style.Colors[ImGuiCol_Button] = {0.26f, 0.59f, 0.98f, 0.4f};
-  style.Colors[ImGuiCol_ButtonHovered] = {0.26f, 0.59f, 0.98f, 1.f};
-  style.Colors[ImGuiCol_ButtonActive] = {0.06f, 0.53f, 0.98f, 1.f};
-  style.Colors[ImGuiCol_Header] = {0.26f, 0.59f, 0.98f, 0.31f};
-  style.Colors[ImGuiCol_HeaderHovered] = {0.26f, 0.59f, 0.98f, 0.8f};
-  style.Colors[ImGuiCol_HeaderActive] = {0.26f, 0.59f, 0.98f, 1.f};
-  // style.Colors[ImGuiCol_Column] = {0.39f, 0.39f, 0.39f, 1.00f};
-  // style.Colors[ImGuiCol_ColumnHovered] = {0.26f, 0.59f, 0.98f, 0.78f};
-  // style.Colors[ImGuiCol_ColumnActive] = {0.26f, 0.59f, 0.98f, 1.f};
-  style.Colors[ImGuiCol_ResizeGrip] = {1.f, 1.f, 1.f, 0.5f};
-  style.Colors[ImGuiCol_ResizeGripHovered] = {0.26f, 0.59f, 0.98f, 0.67f};
-  style.Colors[ImGuiCol_ResizeGripActive] = {0.26f, 0.59f, 0.98f, 0.95f};
-  // style.Colors[ImGuiCol_CloseButton] = {0.59f, 0.59f, 0.59f, 0.50f};
-  // style.Colors[ImGuiCol_CloseButtonHovered] = {0.98f, 0.39f, 0.36f, 1.f};
-  // style.Colors[ImGuiCol_CloseButtonActive] = {0.98f, 0.39f, 0.36f, 1.f};
-  style.Colors[ImGuiCol_PlotLines] = {0.39f, 0.39f, 0.39f, 1.f};
-  style.Colors[ImGuiCol_PlotLinesHovered] = {1.f, 0.43f, 0.35f, 1.f};
-  style.Colors[ImGuiCol_PlotHistogram] = {0.9f, 0.7f, 0.f, 1.f};
-  style.Colors[ImGuiCol_PlotHistogramHovered] = {1.f, 0.6f, 0.f, 1.f};
-  style.Colors[ImGuiCol_TextSelectedBg] = {0.26f, 0.59f, 0.98f, 0.35f};
-  // style.Colors[ImGuiCol_ModalWindowDarkening] = {0.2f, 0.2f, 0.2f, 0.35f};
 
-  if (bStyleDark_)
+  // io.FontGlobalScale = load_json<float>(config, "text", "scale");
+
+  style.Alpha = 1.0f;
+  style.FrameRounding = 5.0f;
+  style.Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+  style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.972f, 0.976, 0.98f, 0.98f);
+  style.Colors[ImGuiCol_WindowBg] = ImVec4(0.145f, 0.157f, 0.169f, 1.0f);
+  style.Colors[ImGuiCol_ChildBg] = ImVec4(0.145f, 0.157f, 0.169f, 1.0f);
+  style.Colors[ImGuiCol_PopupBg] = ImVec4(0.145f, 0.157f, 0.169f, 1.0f);
+  style.Colors[ImGuiCol_Border] = ImVec4(0.94f, 0.243f, 0.212f, 1.0f);
+  style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+  style.Colors[ImGuiCol_FrameBg] = ImVec4(
+      ImVec4(0.0f, 0.0f, 0.0f,
+             1.0f)); // changes the color of the frame bg for the plot window
+  style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.09f, 0.09f, 0.078, 1.0f);
+  style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
+  style.Colors[ImGuiCol_TitleBg] = ImVec4(0.004f, 0.004f, 0.004f, 1.0f);
+  style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
+  style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.004f, 0.004f, 0.004f, 1.0f);
+  style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
+  style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.09f, 0.09f, 0.078f, 1.0f);
+  style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.972f, 0.976f, 0.98f, 0.98f);
+  style.Colors[ImGuiCol_ScrollbarGrabHovered] =
+      ImVec4(0.96f, 0.96f, 0.96f, 1.0f);
+  style.Colors[ImGuiCol_ScrollbarGrabActive] =
+      ImVec4(0.941f, 0.941f, 0.941f, 1.0f);
+  style.Colors[ImGuiCol_CheckMark] = ImVec4(0.92f, 0.24f, 0.211f, 1.0f);
+  style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.96f, 0.96f, 0.96f, 1.0f);
+  style.Colors[ImGuiCol_SliderGrabActive] =
+      ImVec4(0.941f, 0.941f, 0.941f, 1.0f);
+  style.Colors[ImGuiCol_Button] = ImVec4(0.145f, 0.156f, 0.168f, 1.0f);
+  style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.941f, 0.243f, 0.211f, 1.0f);
+  style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.921f, 0.24f, 0.211, 1.0f);
+  style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+  style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+  style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+  style.Colors[ImGuiCol_Separator] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+  style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
+  style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+  style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
+  style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+  style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+  style.Colors[ImGuiCol_Tab] = ImVec4(0.59f, 0.59f, 0.59f, 0.50f);
+  style.Colors[ImGuiCol_TabHovered] = ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
+  style.Colors[ImGuiCol_TabActive] = ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
+  style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
+  style.Colors[ImGuiCol_TabUnfocusedActive] =
+      ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
+  style.Colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+  style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+  style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+  style.Colors[ImGuiCol_PlotHistogramHovered] =
+      ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+  style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+  style.Colors[ImGuiCol_DragDropTarget] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+
+  if (bStyleDark_) {
     for (int i = 0; i < ImGuiCol_COUNT; i++) {
       ImVec4 &col = style.Colors[i];
       float H, S, V;
       ImGui::ColorConvertRGBtoHSV(col.x, col.y, col.z, H, S, V);
-      if (S < 0.1f)
+
+      if (S < 0.1f) {
         V = 1.0f - V;
+      }
       ImGui::ColorConvertHSVtoRGB(H, S, V, col.x, col.y, col.z);
-      if (col.w < 1.00f)
+      if (col.w < 1.00f) {
         col.w *= alpha_;
+      }
     }
-  else
+  } else {
+    // std::cout << ImGuiCol_COUNT << std::endl;
     for (int i = 0; i < ImGuiCol_COUNT; i++) {
       ImVec4 &col = style.Colors[i];
       if (col.w < 1.00f) {
@@ -82,6 +101,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
         col.w *= alpha_;
       }
     }
+  }
 }
 
 void set_button_style_to(const nlohmann::json &config,
@@ -95,6 +115,32 @@ void set_button_style_to(const nlohmann::json &config,
   ImGui::PushStyleColor(
       ImGuiCol_ButtonActive,
       ImVec4(load_json<Color>(config, "button", name, "active")));
+}
+
+void PushPlotRegionColors() {
+   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 1.0f, 0.93f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.941f, 0.941f, 0.941f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+    ImPlot::PushStyleColor(ImPlotCol_PlotBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_AxisBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_AxisBgHovered, ImVec4(0.61f, 0.61f, 0.61f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_AxisBgActive, ImVec4(0.36f, 0.36f, 0.36f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_TitleText, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_AxisGrid, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+}
+void PopPlotRegionColors(){
+  ImGui::PopStyleColor(5);
+  ImPlot::PopStyleColor(7);
+}
+void SetDeviceMenuStyle() {
+
+  ImGuiStyle &style = ImGui::GetStyle();
+  style.Colors[ImGuiCol_Border] = {0.14f, 0.15f, 0.17f, 1.0f};
 }
 
 namespace ImGui {
@@ -219,11 +265,11 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 
   // The order matters because of the counter for the images !!!
   static const unsigned char *imagesNames[] = {
-      AutoInternLogo_png, SearchDevices_png, Diagnostics_png, Settings_png,
-      Help_png};
+      AutoInternLogo_png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
+      HelpIcon_png};
   static const unsigned int imagesLen[] = {
-      AutoInternLogo_png_len, SearchDevices_png_len, Diagnostics_png_len,
-      Settings_png_len, Help_png_len};
+      AutoInternLogo_png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
+      SettingIcon_png_len, HelpIcon_png_len};
   // Load the images for the SideBarMenu
   for (size_t i = 0; i < size; i++)
     if (!loaded_png[i]) {
@@ -234,13 +280,15 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
+  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005;
+  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
-                 ImVec2(image_width[PngRenderedCnt] * windowSize.x * 0.0005,
-                        image_height[PngRenderedCnt] * windowSize.y * 0.0008));
+                 ImVec2(image_width[PngRenderedCnt] * scaleWidth,
+                        image_height[PngRenderedCnt] * scaleHeight));
   }
-  ImGui::Dummy({0.f, windowSize.y * .2f});
+  ImGui::Dummy({0.f, windowSize.y * .05f});
 
   // Start only if devices are available, otherwise search for devices
   if (loaded_png[++PngRenderedCnt] && // render search for Devices
@@ -300,16 +348,6 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     open_settings = true;
     showSettings = false;
   }
-  if (showSettings && ImGui::Button(appLanguage[Key::Reset])) {
-    rstSettings();
-    flagPaused = true;
-    showSettings = false;
-  }
-  if (showSettings &&
-      ImGui::Button(fmt::format("{}: {}", appLanguage[Key::Version],
-                                CMakeGitVersion::VersionWithGit)
-                        .c_str()))
-    showSettings = false;
 
   if (loaded_png[++PngRenderedCnt] && // render Help
       ImGui::ImageButtonWithText(
@@ -317,5 +355,41 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
           appLanguage[Key::Help])) {
     system(("start " + load_json<std::string>(config, "helplink")).c_str());
     showSettings = false;
+  }
+  ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.90f);
+  ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
+                          CMakeGitVersion::VersionWithGit)
+                  .c_str());
+}
+
+// For Development
+
+void PopupStyleEditor() {
+  ImGuiStyle &style = ImGui::GetStyle();
+  ImPlotStyle &styleImPlot = ImPlot::GetStyle();
+
+  static std::vector<ImVec4> colorVec;
+  static std::vector<ImVec4> plotColors;
+
+  if (colorVec.empty() && plotColors.empty()) { 
+    for (const auto &element : style.Colors)
+      colorVec.push_back(element);
+    for (const auto &element : styleImPlot.Colors)
+      plotColors.push_back(element);
+  }
+
+  if (ImGui::TreeNode("Style Colors")) {
+    for (std::size_t i{0}; i < ImGuiCol_COUNT - 1; ++i) {
+      ImGui::ColorEdit4(ImGui::GetStyleColorName(i), (float *)&colorVec[i]);
+      style.Colors[i] = colorVec[i];
+    }
+    ImGui::TreePop();
+  }
+  if (ImGui::TreeNode("Plot Colors")) {
+    for (size_t i = 0; i < ImPlotCol_COUNT; i++) {
+      ImGui::ColorEdit4(ImPlot::GetStyleColorName(i), (float *)&plotColors[i]);
+      styleImPlot.Colors[i] = plotColors[i];
+    }
+    ImGui::TreePop();
   }
 }

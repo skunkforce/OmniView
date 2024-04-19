@@ -1,15 +1,17 @@
+#include "apihandler.hpp"
+#include "create_training_data.hpp"
+#include "languages.hpp"
+#include "popups.hpp"
+#include "settingspopup.hpp"
+#include "style.hpp"
 #include <boost/asio.hpp>
 #include <cmake_git_version/version.hpp>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
-#include "style.hpp"
-#include "apihandler.hpp"
-#include "create_training_data.hpp"
-#include "languages.hpp"
-#include "settingspopup.hpp"
-#include "popups.hpp"
 
 int main() {
+  bool Development = false;
+
   const std::string configpath = "config/config.json";
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
@@ -36,18 +38,32 @@ int main() {
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
-    ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
-                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f},
-                      ImGuiChildFlags_Border);
+    ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
+                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_NoTitleBar);
+
+    if (Development) {
+
+      if (ImGui::Button("Development")) {
+        ImGui::OpenPopup("Development Colors");
+      }
+
+      // Popup-Fensterinhalt
+      if (ImGui::BeginPopup("Development Colors")) {
+        PopupStyleEditor();
+        ImGui::EndPopup();
+      }
+    }
+
+    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f});
     set_side_menu(config, flagPaused, open_settings,
                   open_generate_training_data);
     // there're four "BeginChild"s, one as the left side and three on the right
     // side
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
-    ImGui::BeginChild("Right Side", {0.f, 0.f}, ImGuiChildFlags_Border);
+    ImGui::BeginChild("Right Side", {0.f, 0.f});
     if (sampler.has_value() && !flagPaused)
       sampler->copyOut(captureData);
     ImGui::BeginChild("Buttonstripe", {-1.f, 100.f}, false,
@@ -167,10 +183,11 @@ int main() {
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .011f);
-    ImGui::PushStyleColor(ImGuiCol_Border, {0.3f, 0.4f, 0.7f, 0.6f});
+    PushPlotRegionColors();
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
                       ImGuiChildFlags_Border);
+
     addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {
       if (!flagPaused) {
         ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
@@ -183,11 +200,13 @@ int main() {
         ImPlot::SetupAxesLimits(0, 10, -10, 200);
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
       }
-    });
+    }); 
     ImGui::EndChild(); // end child Record Data
-    ImGui::PopStyleColor();
     ImGui::PopStyleVar();
+     PopPlotRegionColors();
     // ############################ Devicelist
+    SetDeviceMenuStyle();
+
     ImGui::Dummy({0.f, windowSize.y * .01f});
     ImGui::BeginChild("Devicelist");
     ImGui::Dummy({windowSize.x * .36f, 0.f});
