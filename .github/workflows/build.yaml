@@ -105,23 +105,23 @@ jobs:
           merge-multiple: true
 
       - name: display name of downloaded-artifacts
-        run: ls -R ${{github.event.repository.name}}-${{ github.ref_name }}
+        run: ls -R
 
       - name: zip release files (Ubuntu)
         uses: montudor/action-zip@v1
         with:
           args: zip -qq -r ${{github.event.repository.name}}-${{ github.ref_name }}-ubuntu-latest.zip
-                ${{env.REPO_NAME}}-${{ github.ref_name }}/build/OmniView
-                ${{env.REPO_NAME}}-${{ github.ref_name }}/config/config.json
-                ${{env.REPO_NAME}}-${{ github.ref_name }}/languages/Deutsch.json
+                build/OmniView
+                config/config.json
+                languages/Deutsch.json
 
       - name: zip release files (Windows)
         uses: montudor/action-zip@v1
         with:
           args: zip -qq -r ${{github.event.repository.name}}-${{ github.ref_name }}-windows-latest.zip
-                ${{env.REPO_NAME}}-${{ github.ref_name }}/build/OmniView.exe
-                ${{env.REPO_NAME}}-${{ github.ref_name }}/config/config.json
-                ${{env.REPO_NAME}}-${{ github.ref_name }}/languages/Deutsch.json
+                build/OmniView.exe
+                config/config.json
+                languages/Deutsch.json
 
       - name: create release (Ubunut)
         uses: ncipollo/release-action@v1
