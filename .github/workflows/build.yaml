@@ -89,7 +89,7 @@ jobs:
             languages/Deutsch.json
 
   release:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
@@ -100,18 +100,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: download windows files
+      - name: download files
         uses: actions/download-artifact@v3
-        if: ${{ !contains(matrix.os, 'windows' ) }}
-        with:
-          name: |
-            executable-linux
-            executable-windows
-            assets
-
-      - name: download windows files
-        uses: actions/download-artifact@v3
-        if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
           name: |
             ${{ github.event.repository.name }}-windows
@@ -119,30 +109,30 @@ jobs:
 
       - name: zip release files (Ubuntu)
         uses: montudor/action-zip@v1
-        if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
           args: |
             zip -qq -r ${{env.REPO_NAME}}-${{ github.ref_name }}-linux.zip
-            ${{ github.event.repository.name }}-linux
+            build/OmniView
+            config/config.json
+            languages/Deutsch.json
 
       - name: zip release files (Windows)
         uses: montudor/action-zip@v1
-        if: ${{ contains(matrix.os, 'windows' ) }}
         with:
           args: |
             zip -qq -r ${{env.REPO_NAME}}-${{ github.ref_name }}-windows.zip
-            ${{ github.event.repository.name }}-windows
+            build/Release/OmniView.exe
+            config/config.json
+            languages/Deutsch.json
 
-      - name: create release
+      - name: create release (Ubunut)
         uses: ncipollo/release-action@v1
-        if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
           artifacts: |
             ${{env.REPO_NAME}}-${{ github.ref_name }}-linux.zip
 
-      - name: create release
+      - name: create release (Windows)
         uses: ncipollo/release-action@v1
-        if: ${{ contains(matrix.os, 'windows' ) }}
         with:
           artifacts: |
             ${{env.REPO_NAME}}-${{ github.ref_name }}-windows.zip
