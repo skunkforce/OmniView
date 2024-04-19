@@ -110,7 +110,7 @@ jobs:
       - name: zip release files (Ubuntu)
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r ${{github.event.repository.name}}-${{ github.ref_name }}-ubuntu-latest.zip
+          args: zip -qq -r ${{github.event.repository.name}}-${{ github.ref_name }}-ubuntu.zip
                 build/OmniView
                 config/config.json
                 languages/Deutsch.json
@@ -118,12 +118,12 @@ jobs:
       - name: zip release files (Windows)
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r ${{github.event.repository.name}}-${{ github.ref_name }}-windows-latest.zip
+          args: zip -qq -r ${{github.event.repository.name}}-${{ github.ref_name }}-windows.zip
                 build/OmniView.exe
                 config/config.json
                 languages/Deutsch.json
 
-      - name: create release (Ubunut)
+      - name: create release (Ubuntu)
         uses: ncipollo/release-action@v1
         with:
           artifacts: ${{github.event.repository.name}}-${{ github.ref_name }}-linux.zip
