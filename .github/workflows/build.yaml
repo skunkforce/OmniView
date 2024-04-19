@@ -73,13 +73,84 @@ jobs:
         if: ${{ !contains(matrix.os, 'windows' ) }}
         with:
           name: ${{ github.event.repository.name }}-linux
-          path: build/OmniView
+          path: |
+            build/OmniView
+            config/config.json
+            languages/Deutsch.json
 
       - name: upload executable (Windows)
         uses: actions/upload-artifact@v3
         if: ${{ contains(matrix.os, 'windows' ) }}
         with:
           name: ${{ github.event.repository.name }}-windows
-          path: build/Release/OmniView.exe
+          path: |
+            build/Release/OmniView.exe
+            config/config.json
+            languages/Deutsch.json
 
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+    fail-fast: false
+    matrix:
+      include:
+        - os: windows-latest
+          triplet: x64-windows
+        - os: ubuntu-latest
+          triplet: x64-linux
 
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: download windows files
+        uses: actions/download-artifact@v3
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        with:
+          name: |
+            executable-linux
+            executable-windows
+            assets
+
+      - name: download windows files
+        uses: actions/download-artifact@v3
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        with:
+          name: |
+            ${{ github.event.repository.name }}-windows
+            ${{ github.event.repository.name }}-linux
+
+      - name: zip release files (Ubuntu)
+        uses: montudor/action-zip@v1
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        with:
+          args: |
+            zip -qq -r ${{env.REPO_NAME}}-${{ github.ref_name }}-linux.zip
+            ${{ github.event.repository.name }}-linux
+
+      - name: zip release files (Windows)
+        uses: montudor/action-zip@v1
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        with:
+          args: |
+            zip -qq -r ${{env.REPO_NAME}}-${{ github.ref_name }}-windows.zip
+            ${{ github.event.repository.name }}-windows
+
+      - name: create release
+        uses: ncipollo/release-action@v1
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        with:
+          artifacts: |
+            ${{env.REPO_NAME}}-${{ github.ref_name }}-linux.zip
+
+      - name: create release
+        uses: ncipollo/release-action@v1
+        if: ${{ contains(matrix.os, 'windows' ) }}
+        with:
+          artifacts: |
+            ${{env.REPO_NAME}}-${{ github.ref_name }}-windows.zip
