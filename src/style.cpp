@@ -134,12 +134,8 @@ void PushPlotRegionColors() {
 
 }
 void PopPlotRegionColors(){
-  for(int i = 0; i < 5; i++){
-  ImGui::PopStyleColor();
-  } 
-  for(int i = 0; i < 7; i++){
-  ImPlot::PopStyleColor();
-  } 
+  ImGui::PopStyleColor(5);
+  ImPlot::PopStyleColor(7);
 }
 void SetDeviceMenuStyle() {
 
