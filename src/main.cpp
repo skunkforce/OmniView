@@ -10,17 +10,13 @@
 #include <fmt/core.h>
 
 int main() {
-  bool Development = false;
-
   const std::string configpath = "config/config.json";
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
   set_json(config);
-  constexpr ImVec2 toolBtnSize{200.f, 100.f}; // toolbar buttons size
   nlohmann::json language =
       load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
-
   // local variables
   auto now = std::chrono::system_clock::now();
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
@@ -31,6 +27,7 @@ int main() {
   bool upload_success = false;
   static bool flagPaused = true;
   bool flagDataNotSaved = true;
+  bool Development = false;
 
   // main loop
   auto render = [&]() {
@@ -38,22 +35,19 @@ int main() {
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
-
+    const ImVec2 toolBtnSize{windowSize.x * .1f,
+                             windowSize.y * .1f}; // toolbar buttons size
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
                      ImGuiWindowFlags_NoTitleBar);
 
-    if (Development) {
+    if (Development && ImGui::Button("Development"))
+      ImGui::OpenPopup("Development Colors");
 
-      if (ImGui::Button("Development")) {
-        ImGui::OpenPopup("Development Colors");
-      }
-
-      // Popup-Fensterinhalt
-      if (ImGui::BeginPopup("Development Colors")) {
-        PopupStyleEditor();
-        ImGui::EndPopup();
-      }
+    // Popup-Window content
+    if (ImGui::BeginPopup("Development Colors")) {
+      PopupStyleEditor();
+      ImGui::EndPopup();
     }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f});
@@ -66,7 +60,7 @@ int main() {
     ImGui::BeginChild("Right Side", {0.f, 0.f});
     if (sampler.has_value() && !flagPaused)
       sampler->copyOut(captureData);
-    ImGui::BeginChild("Buttonstripe", {-1.f, 100.f}, false,
+    ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
                       ImGuiWindowFlags_NoScrollbar);
     // ############################ Popup Save
     if (ImGui::BeginPopupModal("Save recorded data", nullptr,
@@ -185,7 +179,7 @@ int main() {
     ImGui::Dummy({0.f, windowSize.y * .01f});
     PushPlotRegionColors();
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
-    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.5f},
+    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
                       ImGuiChildFlags_Border);
 
     addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {
@@ -200,10 +194,10 @@ int main() {
         ImPlot::SetupAxesLimits(0, 10, -10, 200);
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
       }
-    }); 
+    });
     ImGui::EndChild(); // end child Record Data
     ImGui::PopStyleVar();
-     PopPlotRegionColors();
+    PopPlotRegionColors();
     // ############################ Devicelist
     SetDeviceMenuStyle();
 
@@ -218,7 +212,7 @@ int main() {
     ImGui::End();
   };
 
-  ImGuiInstance window{1920, 1080,
+  ImGuiInstance window{1600, 900,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
   while (window.run(render)) {
