@@ -13,12 +13,8 @@ inline size_t cb_write(void *contents, size_t size, size_t nmemb,
 
 inline std::string sendData(const std::string &data) {
   std::string api_message = "empty";
-
-  // init the winsock stuff (Windows)
-  curl_global_init(CURL_GLOBAL_ALL);
-
-  // get a curl handle
-  CURL *curl = curl_easy_init();
+  curl_global_init(CURL_GLOBAL_ALL); // init the winsock stuff (Windows)
+  CURL *curl = curl_easy_init();  // get a curl handle
 
   if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, "https://api.auto-intern.de/analyze");
@@ -29,22 +25,7 @@ inline std::string sendData(const std::string &data) {
       fmt::println("Failed to append the string!");
       return api_message;
     }
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-  //  auto j = R"(
-  //   {
-  //     "meta": ["","","","Maintenance","Off","Normal",""],
-  //     "data": {
-  //       "sampling_rate": 44100,
-  //       "y_values":
-  //       [109.0,82.0,78.0,102.0,121.0,108.0,83.0,78.0,102.0,121.0,
-  //                    109.0,82.0]
-  //     }
-  //   }
-  //   )"_json;
-  //  auto stringified = j.dump();
-  //  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, stringified.c_str());
-  // 
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers); 
     // specify the POST data
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
 
@@ -56,10 +37,8 @@ inline std::string sendData(const std::string &data) {
     // Perform the request and check the returned status
     if (curl_easy_perform(curl) != CURLE_OK)
       fmt::println("{}", appLanguage[Key::Upload_failure]);
-    else {
-      // TODO: check the responce
+    else 
       api_message = response;
-    }
 
     curl_slist_free_all(headers); // free the list again
     curl_easy_cleanup(curl);      // always cleanup

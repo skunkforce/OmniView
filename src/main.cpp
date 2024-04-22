@@ -50,11 +50,11 @@ int main() {
       ImGui::EndPopup();
     }
 
-    ImGui::BeginChild("Left Side", {windowSize.x * .2f, 0.f});
+    ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     set_side_menu(config, flagPaused, open_settings,
                   open_generate_training_data);
-    // there're four "BeginChild"s, one as the left side and three on the right
-    // side
+    // there're four "BeginChild"s, one as the left side 
+    // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
     ImGui::BeginChild("Right Side", {0.f, 0.f});
@@ -212,7 +212,7 @@ int main() {
     ImGui::End();
   };
 
-  ImGuiInstance window{1600, 900,
+  ImGuiInstance window{1500, 800,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
   while (window.run(render)) {
