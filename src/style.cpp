@@ -12,7 +12,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
                      const nlohmann::json &config) {
   ImGuiStyle &style = ImGui::GetStyle();
 
-  // light style from Pacôme Danhiez (user itamago)
+  // light style from Pacï¿½me Danhiez (user itamago)
   // https://github.com/ocornut/imgui/pull/511#issuecomment-175719267
 
   ImGuiIO &io = ImGui::GetIO();
@@ -319,3 +319,4 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     showSettings = false;
   }
 }
+
