@@ -276,6 +276,9 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     ImGui::TreePop();
   }
 
+/*
+Hier beginnt die AW40-HUB-Integration.
+*/
 
   static bool showAW40HUB = false;
   static bool showLogin = false;
