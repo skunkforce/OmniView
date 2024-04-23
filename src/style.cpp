@@ -61,11 +61,11 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   colors[ImGuiCol_TabUnfocused] = {0.98f, 0.39f, 0.36f, 1.f};
   colors[ImGuiCol_TabUnfocusedActive] = {0.98f, 0.39f, 0.36f, 1.00f};
   colors[ImGuiCol_PlotLines] = {0.39f, 0.39f, 0.39f, 1.f};
-  colors[ImGuiCol_PlotLinesHovered] = {1.00f, 0.43f, 0.35f, 1.f};
-  colors[ImGuiCol_PlotHistogram] = {0.90f, 0.70f, 0.00f, 1.f};
-  colors[ImGuiCol_PlotHistogramHovered] = {1.00f, 0.60f, 0.00f, 1.f};
+  colors[ImGuiCol_PlotLinesHovered] = {1.f, 0.43f, 0.35f, 1.f};
+  colors[ImGuiCol_PlotHistogram] = {0.9f, 0.7f, 0.f, 1.f};
+  colors[ImGuiCol_PlotHistogramHovered] = {1.f, 0.6f, 0.f, 1.f};
   colors[ImGuiCol_TextSelectedBg] = {0.26f, 0.59f, 0.98f, 0.35f};
-  colors[ImGuiCol_DragDropTarget] = {0.20f, 0.20f, 0.20f, 0.35f};
+  colors[ImGuiCol_DragDropTarget] = {0.2f, 0.2f, 0.2f, 0.35f};
 
   if (bStyleDark_) {
     for (int i = 0; i < ImGuiCol_COUNT; i++) {
