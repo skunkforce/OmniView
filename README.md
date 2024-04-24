@@ -56,7 +56,6 @@ In order to start the compilation, following packages need to be ensured:
 * xorg-dev 
 * libglu1-mesa-dev 
 * pkg-config
-
 ### Compile
 Move into OmniView-directory, update and initialize all submodules:
 ```shell
@@ -190,7 +189,7 @@ In order to learn more about the project as such, you may visit [www.autowerksta
 
 ## Support 
 
-This work has been supported by the BMWi- project number 68GX21005E
+This work has been supported by the BMWK- project number 68GX21005E
 
 
 ![BMWiPicture](https://www.bmwk.de/SiteGlobals/BMWI/StyleBundles/Bilder/bmwi_logo_de.svg?__blob=normal&v=1)
