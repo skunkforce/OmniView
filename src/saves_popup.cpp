@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
-#include "look_up_saves.hpp"
 #include "popups.hpp"
+#include "look_up_saves.hpp"
 #include "imgui_stdlib.h"
 
 namespace fs = std::filesystem;
@@ -10,8 +10,8 @@ static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  fs::path const &outFile, std::string allData) {
 
-  std::string fileContent = 
-        fmt::format("\n{}-{}\n", device.type, device.serial);
+  std::string fileContent =
+      fmt::format("\n{}-{}\n", device.type, device.serial);
 
   for (std::size_t i{}; i < values.size(); ++i) {
     fileContent += fmt::format("{},", i);

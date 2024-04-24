@@ -1,10 +1,8 @@
 #pragma once
 
-#include "jasonhandler.hpp"
 #include <curl/curl.h>
 #include <imgui.h>
-#include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
+#include "jasonhandler.hpp"
 
 inline std::string send_to_api(nlohmann::json const &config,
                                std::string const &file, std::string const &vin,
