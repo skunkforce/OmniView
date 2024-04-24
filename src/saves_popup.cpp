@@ -3,6 +3,7 @@
 #include "popups.hpp"
 #include "look_up_saves.hpp"
 #include "imgui_stdlib.h"
+#include "style.hpp"
 
 namespace fs = std::filesystem;
 
@@ -57,6 +58,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   // devices checkboxes
   static std::vector<BoolWrapper> dvcCheckedArr(devicesSz, false);
   dvcCheckedArr.resize(devicesSz);
+  ImGui::Text("Select the storage location");
+  ImGui::NewLine();
 
   ImGui::InputTextWithHint("##Lable1", "\".../OmniView/saves/\"",
                            &inptTxtFields[0]);
@@ -73,7 +76,13 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     directoryBrowser.ClearSelected();
   }
 
-  ImGui::SameLine();
+  ImGui::Separator();
+  SetHorizontalSepeareatorColours();
+  ImGui::NewLine();
+
+  ImGui::Text("Select Devices");
+  ImGui::NewLine();
+
   if (ImGui::BeginCombo("##Combo", "DevicesMenu")) {
     std::stringstream ss;
     for (size_t i = 0; i < devicesSz; i++) {
@@ -104,6 +113,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
         deviceCnt++;
     return deviceCnt;
   };
+
+  SetHorizontalSepeareatorColours();
 
   // ############################ Popup Storage Path Input Field(s)
   // ##############################
@@ -206,45 +217,45 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
       ImGui::PopStyleVar();
       ImGui::SetItemTooltip("Add another path");
     }
+}
 
-    // to save captureData from main.cpp into file
-    if (ImGui::Button(" save ")) {
-      flagDataNotSaved = false;
+  ImGui::Separator();
+  ImGui::NewLine();
+  if (ImGui::Button(" back ")) {
+    ImGui::CloseCurrentPopup();
+  }
+  ImGui::SameLine(ImGui::GetWindowWidth() -
+                  100); // Ändern Sie 100 entsprechend Ihrer Anforderungen
+  if (ImGui::Button(" save ")) {
+    flagDataNotSaved = false;
 
-      if (captureData.empty()) {
-        fmt::println("captureData is empty");
-        ImGui::CloseCurrentPopup();
-      }
-      fs::path complete_path;
-
-      size_t i{0};
-      for (const auto &[device, values] : captureData) {
-        if (dvcCheckedArr[i].b) {
-          std::stringstream ss;
-          ss << "device" << i + 1;
-          auto filename = makeFileName(ss.str());
-          if (hasSelectedPathArr[i].b) {
-            complete_path =
-                makeDirectory(true, selectedPathArr[i], "", filename);
-            save(device, values, complete_path, allData);
-            hasSelectedPathArr[i].b = false;
-          } else if (!inptTxtFields[i].empty()) {
-            complete_path =
-                makeDirectory(false, "", inptTxtFields[i], filename);
-            save(device, values, complete_path, allData);
-            inptTxtFields[i].clear();
-          } else {
-            complete_path = makeDirectory(false, "", "", filename);
-            save(device, values, complete_path, allData);
-          }
-        }
-        ++i;
-      }
+    if (captureData.empty()) {
+      fmt::println("captureData is empty");
       ImGui::CloseCurrentPopup();
     }
-    ImGui::SameLine();
-  }
+    fs::path complete_path;
 
-  if (ImGui::Button(" back "))
+    size_t i{0};
+    for (const auto &[device, values] : captureData) {
+      if (dvcCheckedArr[i].b) {
+        std::stringstream ss;
+        ss << "device" << i + 1;
+        auto filename = makeFileName(ss.str());
+        if (hasSelectedPathArr[i].b) {
+          complete_path = makeDirectory(true, selectedPathArr[i], "", filename);
+          save(device, values, complete_path, allData);
+          hasSelectedPathArr[i].b = false;
+        } else if (!inptTxtFields[i].empty()) {
+          complete_path = makeDirectory(false, "", inptTxtFields[i], filename);
+          save(device, values, complete_path, allData);
+          inptTxtFields[i].clear();
+        } else {
+          complete_path = makeDirectory(false, "", "", filename);
+          save(device, values, complete_path, allData);
+        }
+      }
+      ++i;
+    }
     ImGui::CloseCurrentPopup();
+  }
 }
