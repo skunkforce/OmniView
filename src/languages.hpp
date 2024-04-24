@@ -68,7 +68,8 @@ enum class Key {
   Browse,
   Battery_measure,
   Attitude,
-  German
+  German,
+  Ready
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -101,7 +102,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Stop, "Stop"},
     {Key::Continue, "Continue"},
     {Key::Continue_del, "Continue Deletion?"},
-    {Key::Devices_found, "Devices found"},
+    {Key::Devices_found, "Devices found:"},
     {Key::Usr_curnt_wave, "User Current Waveform"},
     {Key::Wv_from_file, "Waveform From File"},
     {Key::WvForms_warning, "Waveforms Warning! "},
@@ -135,7 +136,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Browse, "Browse"},
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
-    {Key::German, "German"}};
+    {Key::German, "German"},
+    {Key::Ready, "Ready"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Menu, "Menü"},
@@ -167,7 +169,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Stop, "Stoppen"},
     {Key::Continue, "Weiter"},
     {Key::Continue_del, "Mit dem Löschen fortfahren?"},
-    {Key::Devices_found, "Geräte Gefunden"},
+    {Key::Devices_found, "Geräte Gefunden:"},
     {Key::Usr_curnt_wave, "Aktuelle Wellenform Des Benutzers"},
     {Key::Wv_from_file, "Wellenform Aus Datei"},
     {Key::WvForms_warning, "Warnung vor Wellenformen!"},
@@ -201,7 +203,8 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Browse, "Durchsuche"},
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
-    {Key::German, "Deutch"}};
+    {Key::German, "Deutch"},
+    {Key::Ready, "Bereit"}};
 
 inline auto appLanguage = englishLan;
 #endif

@@ -389,7 +389,7 @@ void generateTrainingData(
           y_values = std::move(file_measuring_vals);
 
         static nlohmann::ordered_json myJson;
-        myJson["meta"] = {Measurement,   VIN,       Mileage, invest_reason,
+        myJson["meta"] = {Measurement, VIN, Mileage, invest_reason,
                           elec_consumer, assessmnt, comment};
         myJson["data"] = {{"sampling_rate", 44100}, {"y_values", y_values}};
 
@@ -409,7 +409,7 @@ void generateTrainingData(
 
         // upload data asynchronously using a separate thread
         future = std::async(std::launch::async, [&] {
-          std::string jsonData = myJson.dump();
+          auto jsonData = myJson.dump();
           std::string result = sendData(jsonData);
           return result;
         });

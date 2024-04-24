@@ -1,13 +1,7 @@
-#include "apihandler.hpp"
-#include "create_training_data.hpp"
-#include "languages.hpp"
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
-#include <boost/asio.hpp>
 #include <cmake_git_version/version.hpp>
-#include <fmt/chrono.h>
-#include <fmt/core.h>
 
 int main() {
   const std::string configpath = "config/config.json";
@@ -122,9 +116,9 @@ int main() {
 
         set_button_style_to(config, "stop");
         if (ImGui::Button(appLanguage[Key::Reset], toolBtnSize)) {
-          if (flagDataNotSaved) {
+          if (flagDataNotSaved) 
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
-          } else {
+          else {
             rstSettings();
             flagPaused = true;
           }
@@ -215,7 +209,6 @@ int main() {
   ImGuiInstance window{1500, 800,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
-  while (window.run(render)) {
-  }
+  while (window.run(render));
   return 0;
 }

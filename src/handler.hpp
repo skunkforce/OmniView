@@ -3,6 +3,7 @@
 #define HANDLER_HEADER_HPP
 
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
+#include "languages.hpp"
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <set>
