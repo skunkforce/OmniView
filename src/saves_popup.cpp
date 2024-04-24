@@ -3,6 +3,7 @@
 #include "popups.hpp"
 #include "look_up_saves.hpp"
 #include "imgui_stdlib.h"
+#include "languages.hpp"
 #include "style.hpp"
 
 namespace fs = std::filesystem;
@@ -58,13 +59,13 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   // devices checkboxes
   static std::vector<BoolWrapper> dvcCheckedArr(devicesSz, false);
   dvcCheckedArr.resize(devicesSz);
-  ImGui::Text("Select the storage location");
+  ImGui::Text(appLanguage[Key::Select_Storage_Location]);
   ImGui::NewLine();
 
   ImGui::InputTextWithHint("##Lable1", "\".../OmniView/saves/\"",
                            &inptTxtFields[0]);
   ImGui::SameLine();
-  if (ImGui::Button("Browse"))
+  if (ImGui::Button(appLanguage[Key::Browse]))
     directoryBrowser.Open();
 
   directoryBrowser.Display();

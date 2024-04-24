@@ -6,6 +6,8 @@
 #include <map>
 
 enum class Key {
+  Select_Storage_Location,
+  Browse,
   Menu,
   LanOption,
   English,
@@ -72,6 +74,8 @@ enum class Key {
 };
 
 inline const std::map<Key, const char *> englishLan{
+    {Key::Select_Storage_Location, "Select the storage location"},
+    {Key::Browse, "Browse"},
     {Key::Menu, "Menu"},
     {Key::LanOption, "Language Option"},
     {Key::English, "English"},
@@ -138,6 +142,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::German, "German"}};
 
 inline const std::map<Key, const char *> germanLan{
+    {Key::Select_Storage_Location, "Wählen Sie den Speicherort"},
+    {Key::Browse, "Durchsuchen"},
     {Key::Menu, "Menü"},
     {Key::LanOption, "Sprachoption"},
     {Key::English, "Englisch"},
