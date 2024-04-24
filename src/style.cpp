@@ -393,3 +393,9 @@ void PopupStyleEditor() {
     ImGui::TreePop();
   }
 }
+
+void SetHorizontalSepeareatorColours() {
+
+  ImGuiStyle &style = ImGui::GetStyle();
+  style.Colors[ImGuiCol_Separator] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+}

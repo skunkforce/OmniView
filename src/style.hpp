@@ -35,4 +35,5 @@ IMGUI_API bool ImageButtonWithText(ImTextureID texId, const char *label,
                                    const ImVec4 &tint_col = ImVec4(1, 1, 1, 1));
 } // namespace ImGui
 
+void SetHorizontalSepeareatorColours();
 #endif

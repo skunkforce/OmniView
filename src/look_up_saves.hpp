@@ -36,6 +36,13 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
 
     if (isTxtInptFieldsEmpty) {
       const std::string newcar = "New Car";
+      ImGui::Separator();
+      ImGui::NewLine();
+      ImGui::Text("Additional Information");
+      ImGui::NewLine();
+
+      ImGui::Combo("Known Cars", &selectedOption, vins,
+                   static_cast<int>(subdirectories.size()));
 
       ImGui::InputText("Measurement", scantype, IM_ARRAYSIZE(scantype));
 
@@ -50,22 +57,22 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
       ImGui::InputText("Mileage", mileage, IM_ARRAYSIZE(mileage));
 
       // Using vins (char* array) with ImGui
-      if (ImGui::Combo("Known Cars", &selectedOption, vins,
-                       static_cast<int>(subdirectories.size())))
-        selectedFolder = subdirectories[selectedOption];
-    } else {
-      // Using vins (char* array) with ImGui
-      if (ImGui::Combo("Known Cars", &selectedOption, vins,
-                       static_cast<int>(subdirectories.size())))
-        selectedFolder = subdirectories[selectedOption];
+      }else {
+      ImGui::Combo("Known Cars", &selectedOption, vins,
+                   static_cast<int>(subdirectories.size()));
 
+      if (selectedOption == 0) {
+        ImGui::InputText("Fin/Vin", inputvin, IM_ARRAYSIZE(inputvin));
+        selectedFolder = inputvin;
+      }
       static char VIN[18];
       const std::string newcar = "New Car";
 
-      if (selectedOption == 0) {
-        ImGui::InputText("Fin/Vin", VIN, IM_ARRAYSIZE(VIN));
-        selectedFolder = VIN;
-      }
+      ImGui::Separator();
+      ImGui::Text("Additional Information");
+      ImGui::NewLine();
+      ImGui::InputText("Measurement", scantype, IM_ARRAYSIZE(scantype));
+      ImGui::InputText("Mileage", mileage, IM_ARRAYSIZE(mileage));
     }
   }
 
