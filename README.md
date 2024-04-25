@@ -196,6 +196,20 @@ Version numbers for software releases follow a standard format,
  Releases can be found on the right side of the repository. 
  To keep a clean versioning, those versions will only be set by the current product manager @AKMaily. 
 
+ To add a version to the master the following steps need to be followed in an empty directory : 
+
+ ```
+ 
+ git clone git@github.com:skunkforce/OmniView.git
+
+ cd OmniView
+
+ git tag vNUMBER
+
+ git push origin vNUMBER
+ 
+ ```
+
 
 
 ## Project Onboarding
