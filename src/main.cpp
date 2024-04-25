@@ -164,8 +164,7 @@ int main() {
     }
     ImGui::EndChild(); // end child "Buttonstripe"
     // ############################ Settings Menu
-    std::string settingstitle =
-        load_json<std::string>(language, "settings", "title");
+    std::string settingstitle = appLanguage[Key::Settings];
     if (open_settings) {
       ImGui::OpenPopup(settingstitle.c_str());
       open_settings = false;
@@ -200,10 +199,10 @@ int main() {
         ImPlot::SetupAxesLimits(0, 10, -10, 200);
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
       }
-    }); 
+    });
     ImGui::EndChild(); // end child Record Data
     ImGui::PopStyleVar();
-     PopPlotRegionColors();
+    PopPlotRegionColors();
     // ############################ Devicelist
     SetDeviceMenuStyle();
 
