@@ -56,7 +56,6 @@ In order to start the compilation, following packages need to be ensured:
 * xorg-dev 
 * libglu1-mesa-dev 
 * pkg-config
-
 ### Compile
 Move into OmniView-directory, update and initialize all submodules:
 ```shell
@@ -184,13 +183,40 @@ git diff
 
 5. Ensure that the Clang-Formatter configuration file is named: `.clang-format`.
 
+# Versioning
+
+Versioning will only be used for releases in the master branch. 
+Version numbers for software releases follow a standard format,
+ typically consisting of three numbers separated by periods: Major.Minor.Patch. 
+ The first number represents the major version, indicating significant changes or updates that might not be backward compatible. 
+ The second number denotes the minor version, usually signaling smaller enhancements or new features that are backward compatible. 
+ The third number, the patch version, signifies bug fixes or minor updates without introducing new features. 
+ We are using this standard for versioning the different releases. 
+ Releases can be found on the right side of the repository. 
+ To keep a clean versioning, those versions will only be set by the current product manager @AKMaily. 
+
+ To add a version to the master the following steps need to be followed in an empty directory : 
+
+ ```
+ 
+ git clone git@github.com:skunkforce/OmniView.git
+
+ cd OmniView
+
+ git tag vNUMBER
+
+ git push origin vNUMBER
+ 
+ ```
+
+
 
 ## Project Onboarding
 In order to learn more about the project as such, you may visit [www.autowerkstatt40.org](https://www.autowerkstatt40.org/) or have a look at [our online-learning resources](https://moodle.aw4null.de/)
 
 ## Support 
 
-This work has been supported by the BMWi- project number 68GX21005E
+This work has been supported by the BMWK- project number 68GX21005E
 
 
 ![BMWiPicture](https://www.bmwk.de/SiteGlobals/BMWI/StyleBundles/Bilder/bmwi_logo_de.svg?__blob=normal&v=1)
