@@ -139,7 +139,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Attitude, "Attitude"},
     {Key::German, "German"},
     {Key::FontSize, "Fontsize"},
-    {Key::SettingsText, "Set you personal settings for the software"}};
+    {Key::SettingsText, "Set your personal settings for the software"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Menu, "Menü"},
