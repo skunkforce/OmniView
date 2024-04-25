@@ -13,6 +13,9 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
   static nlohmann::json newconfig = config;
   static float fontscale;
 
+  ImGui::Text(appLanguage[Key::SettingsText]);
+  ImGui::Text("                            ");
+
   if (fontscale < load_json<float>(newconfig, "text", "minscale")) {
     fontscale = load_json<float>(newconfig, "text", "minscale");
   }
@@ -32,6 +35,16 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
     newconfig["text"]["scale"] = fontscale;
   }
 
+  if (ImGui::TreeNode(appLanguage[Key::LanOption])) {
+    if (ImGui::Button(appLanguage[Key::English])) {
+      appLanguage = englishLan;
+    }
+    if (ImGui::Button(appLanguage[Key::German])) {
+      appLanguage = germanLan;
+    }
+    ImGui::TreePop();
+  }
+
   if (ImGui::Button(appLanguage[Key::Save])) {
     write_json_file(configpath, newconfig);
     config = newconfig;
@@ -45,6 +58,7 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
   if (ImGui::Button(appLanguage[Key::Reset])) {
     newconfig = config;
     fontscale = load_json<float>(newconfig, "text", "scale");
+    appLanguage = germanLan;
   }
 }
 

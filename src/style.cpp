@@ -118,22 +118,23 @@ void set_button_style_to(const nlohmann::json &config,
 }
 
 void PushPlotRegionColors() {
-   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
   ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 1.0f, 0.93f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.941f, 0.941f, 0.941f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.941f, 0.941f, 0.941f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-    ImPlot::PushStyleColor(ImPlotCol_PlotBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-    ImPlot::PushStyleColor(ImPlotCol_AxisBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-    ImPlot::PushStyleColor(ImPlotCol_AxisBgHovered, ImVec4(0.61f, 0.61f, 0.61f, 1.0f));
-    ImPlot::PushStyleColor(ImPlotCol_AxisBgActive, ImVec4(0.36f, 0.36f, 0.36f, 1.0f));
-    ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-    ImPlot::PushStyleColor(ImPlotCol_TitleText, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-    ImPlot::PushStyleColor(ImPlotCol_AxisGrid, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
+  ImPlot::PushStyleColor(ImPlotCol_PlotBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  ImPlot::PushStyleColor(ImPlotCol_AxisBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  ImPlot::PushStyleColor(ImPlotCol_AxisBgHovered,
+                         ImVec4(0.61f, 0.61f, 0.61f, 1.0f));
+  ImPlot::PushStyleColor(ImPlotCol_AxisBgActive,
+                         ImVec4(0.36f, 0.36f, 0.36f, 1.0f));
+  ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  ImPlot::PushStyleColor(ImPlotCol_TitleText, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+  ImPlot::PushStyleColor(ImPlotCol_AxisGrid, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 }
-void PopPlotRegionColors(){
+void PopPlotRegionColors() {
   ImGui::PopStyleColor(5);
   ImPlot::PopStyleColor(7);
 }
@@ -329,22 +330,6 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Attitude])) {
-    showSettings = !showSettings;
-  }
-  if (showSettings && !showSettingsPrev)
-    ImGui::SetNextItemOpen(false);
-  if (showSettings && ImGui::TreeNode(appLanguage[Key::LanOption])) {
-    if (ImGui::Button(appLanguage[Key::English])) {
-      appLanguage = englishLan;
-      showSettings = false;
-    }
-    if (ImGui::Button(appLanguage[Key::German])) {
-      appLanguage = germanLan;
-      showSettings = false;
-    }
-    ImGui::TreePop();
-  }
-  if (showSettings && ImGui::Button(appLanguage[Key::Settings])) {
     open_settings = true;
     showSettings = false;
   }
@@ -371,7 +356,7 @@ void PopupStyleEditor() {
   static std::vector<ImVec4> colorVec;
   static std::vector<ImVec4> plotColors;
 
-  if (colorVec.empty() && plotColors.empty()) { 
+  if (colorVec.empty() && plotColors.empty()) {
     for (const auto &element : style.Colors)
       colorVec.push_back(element);
     for (const auto &element : styleImPlot.Colors)

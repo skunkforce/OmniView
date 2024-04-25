@@ -69,7 +69,8 @@ enum class Key {
   Battery_measure,
   Attitude,
   German,
-  FontSize
+  FontSize,
+  SettingsText
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -137,7 +138,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
     {Key::German, "German"},
-    {Key::FontSize, "Fontsize"}};
+    {Key::FontSize, "Fontsize"},
+    {Key::SettingsText, "Set you personal settings for the software"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Menu, "Menü"},
@@ -205,7 +207,8 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
     {Key::German, "Deutch"},
-    {Key::FontSize, "Schriftgröße"}};
+    {Key::FontSize, "Schriftgröße"},
+    {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"}};
 
 inline auto appLanguage = englishLan;
 #endif
