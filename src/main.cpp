@@ -69,7 +69,7 @@ int main() {
     ImGui::BeginChild("Buttonstripe", {-1.f, 100.f}, false,
                       ImGuiWindowFlags_NoScrollbar);
     // ############################ Popup Save
-    if (ImGui::BeginPopupModal("Save recorded data", nullptr,
+    if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
       saves_popup(config, language, captureData, now, now_time_t, now_tm,
@@ -140,13 +140,13 @@ int main() {
       ImGui::SameLine();
 
       // gray out "Save" button when pop-up is open
-      const bool pushStyle = ImGui::IsPopupOpen("Save recorded data");
+      const bool pushStyle = ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
 
       if (pushStyle)
         ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
       if (ImGui::Button(appLanguage[Key::Save], toolBtnSize)) {
         if (sampler.has_value())
-          ImGui::OpenPopup("Save recorded data");
+          ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);
         else
           ImGui::OpenPopup(appLanguage[Key::Save_warning],
                            ImGuiPopupFlags_NoOpenOverExistingPopup);

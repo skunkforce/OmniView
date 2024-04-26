@@ -81,10 +81,10 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   SetHorizontalSepeareatorColours();
   ImGui::NewLine();
 
-  ImGui::Text("Select Devices");
+  ImGui::Text(appLanguage[Key::Select_Devices]);
   ImGui::NewLine();
 
-  if (ImGui::BeginCombo("##Combo", "DevicesMenu")) {
+  if (ImGui::BeginCombo("##Combo", appLanguage[Key::Devices_Menu])) {
     std::stringstream ss;
     for (size_t i = 0; i < devicesSz; i++) {
       ss << "Device " << i + 1;
@@ -222,12 +222,12 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   ImGui::Separator();
   ImGui::NewLine();
-  if (ImGui::Button(" back ")) {
+  if (ImGui::Button(appLanguage[Key::Back])) {
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine(ImGui::GetWindowWidth() -
                   100); // Ändern Sie 100 entsprechend Ihrer Anforderungen
-  if (ImGui::Button(" save ")) {
+  if (ImGui::Button(appLanguage[Key::Save])) {
     flagDataNotSaved = false;
 
     if (captureData.empty()) {
