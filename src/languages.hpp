@@ -6,6 +6,14 @@
 #include <map>
 
 enum class Key {
+  Known_Car,
+  New_Car,
+  Additional_Information,
+  Devices_Menu,
+  Select_Devices,
+  Save_Recorded_Data,
+  Select_Storage_Location,
+  Browse,
   Menu,
   LanOption,
   English,
@@ -65,13 +73,20 @@ enum class Key {
   Enter_vin,
   Mileage,
   Enter_mileage,
-  Browse,
   Battery_measure,
   Attitude,
   German
 };
 
 inline const std::map<Key, const char *> englishLan{
+    {Key::Known_Car, "Known Cars"},
+    {Key::New_Car, "New_Car"},
+    {Key::Additional_Information, "Additional_Information"},
+    {Key::Devices_Menu, "Devices Menu"},
+    {Key::Select_Devices, "Select Devices"},
+    {Key::Save_Recorded_Data, "Save recorded Data"},
+    {Key::Select_Storage_Location, "Select the storage location"},
+    {Key::Browse, "Browse"},
     {Key::Menu, "Menu"},
     {Key::LanOption, "Language Option"},
     {Key::English, "English"},
@@ -132,12 +147,19 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Enter_vin, "Enter VIN"},
     {Key::Mileage, "Mileage"},
     {Key::Enter_mileage, "Enter Mileage"},
-    {Key::Browse, "Browse"},
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
     {Key::German, "German"}};
 
 inline const std::map<Key, const char *> germanLan{
+    {Key::Known_Car, "Fahrzeugauswahl"},
+    {Key::New_Car, "Neues Fahrzeug"},
+    {Key::Additional_Information, "Weiterführende Information"},
+    {Key::Devices_Menu, "Geräteliste"},
+    {Key::Select_Devices, "Geräteauswahl"},
+    {Key::Save_Recorded_Data, "Speichern der aufgenommenen Daten"},
+    {Key::Select_Storage_Location, "Wählen Sie den Speicherort"},
+    {Key::Browse, "Durchsuchen"},
     {Key::Menu, "Menü"},
     {Key::LanOption, "Sprachoption"},
     {Key::English, "Englisch"},
@@ -198,7 +220,6 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Enter_vin, "Geben Sie VIN ein"},
     {Key::Mileage, "Kilometerstand"},
     {Key::Enter_mileage, "Geben Sie den Kilometerstand ein"},
-    {Key::Browse, "Durchsuche"},
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
     {Key::German, "Deutch"}};
