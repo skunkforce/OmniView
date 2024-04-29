@@ -199,6 +199,7 @@ int main() {
         ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
         ImPlot::SetupAxesLimits(0, 10, -10, 200);
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+        ImPlot::SetupLegend(ImPlotLocation_NorthEast);
       }
     }); 
     ImGui::EndChild(); // end child Record Data

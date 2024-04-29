@@ -118,8 +118,8 @@ void set_button_style_to(const nlohmann::json &config,
 }
 
 void PushPlotRegionColors() {
-   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-  ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 1.0f, 0.93f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 1.0f, 0.93f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.941f, 0.941f, 0.941f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -131,6 +131,9 @@ void PushPlotRegionColors() {
     ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
     ImPlot::PushStyleColor(ImPlotCol_TitleText, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
     ImPlot::PushStyleColor(ImPlotCol_AxisGrid, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_LegendBg, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImPlot::PushStyleColor(ImPlotCol_LegendBorder, ImVec4(37/255.0f, 40/255.0f, 43/255.0f, 1.0f)); // Schwarz
+
 
 }
 void PopPlotRegionColors(){
