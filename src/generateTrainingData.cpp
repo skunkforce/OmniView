@@ -409,6 +409,7 @@ void generateTrainingData(
 
         // upload data asynchronously using a separate thread
         future = std::async(std::launch::async, [&] {
+         // take temp object returned from dump() and set it to jsonData
           auto jsonData = myJson.dump();
           std::string result = sendData(jsonData);
           return result;

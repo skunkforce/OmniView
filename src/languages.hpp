@@ -169,10 +169,10 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Stop, "Stoppen"},
     {Key::Continue, "Weiter"},
     {Key::Continue_del, "Mit dem Löschen fortfahren?"},
-    {Key::Devices_found, "Geräte Gefunden:"},
-    {Key::Usr_curnt_wave, "Aktuelle Wellenform Des Benutzers"},
-    {Key::Wv_from_file, "Wellenform Aus Datei"},
-    {Key::WvForms_warning, "Warnung vor Wellenformen!"},
+    {Key::Devices_found, "Geräte gefunden:"},
+    {Key::Usr_curnt_wave, "Aktuelle Wellenform des Benutzers"},
+    {Key::Wv_from_file, "Wellenform aus Datei"},
+    {Key::WvForms_warning, "Warnung!"},
     {Key::No_wave_made, "Es wurden keine Wellenformen erstellt!"},
     {Key::Wrong_file_warning, "Warnung vor falscher Datei!"},
     {Key::Wrong_file_type, "Falscher Dateityp! Versuchen Sie es erneut!"},
@@ -203,7 +203,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Browse, "Durchsuche"},
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
-    {Key::German, "Deutch"},
+    {Key::German, "Deutsch"},
     {Key::Ready, "Bereit"}};
 
 inline auto appLanguage = englishLan;
