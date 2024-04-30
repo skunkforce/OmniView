@@ -391,7 +391,7 @@ void generateTrainingData(
         static nlohmann::ordered_json myJson;
         myJson["meta"] = {Measurement, VIN, Mileage, invest_reason,
                           elec_consumer, assessmnt, comment};
-        myJson["data"] = {{"sampling_rate", 44100}, {"y_values", y_values}};
+        myJson["data"] = {{"sampling_rate", 100000}, {"y_values", y_values}};
 
         // Optional - see what you've uploaded
         fs::path outFile = fs::current_path() / "myJson.json";
@@ -409,9 +409,8 @@ void generateTrainingData(
 
         // upload data asynchronously using a separate thread
         future = std::async(std::launch::async, [&] {
-         // take temp object returned from dump() and set it to jsonData
-          auto jsonData = myJson.dump();
-          std::string result = sendData(jsonData);
+         // take temp object returned from dump() and send it to sendData
+         std::string result = sendData(myJson.dump());
           return result;
         });
 

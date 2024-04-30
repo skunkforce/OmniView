@@ -112,7 +112,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Gn_trng_data_pop, "Generate Training Data"},
     {Key::Data_upload, "Uploading data"},
     {Key::Upload_success, "File uploaded successfully!"},
-    {Key::Upload_failure, "File upload failed!  "},
+    {Key::Upload_failure, "File upload failed!"},
     {Key::OK, "OK"},
     {Key::Send, "Send"},
     {Key::Nothing_to_send, "Nothing to send."},
