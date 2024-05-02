@@ -43,6 +43,7 @@ enum class Key {
   Continue,
   Continue_del,
   Devices_found,
+  Device_List,
   Usr_curnt_wave,
   Wv_from_file,
   WvForms_warning,
@@ -75,8 +76,10 @@ enum class Key {
   Enter_mileage,
   Battery_measure,
   Attitude,
-  German,
-  Ready
+  x_axis_label,
+  y_axis_label,
+  Record_Data,
+  German
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -117,7 +120,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Stop, "Stop"},
     {Key::Continue, "Continue"},
     {Key::Continue_del, "Continue Deletion?"},
-    {Key::Devices_found, "Devices found:"},
+    {Key::Devices_found, "Devices found"},
+    {Key::Device_List, "Devicelist"},
     {Key::Usr_curnt_wave, "User Current Waveform"},
     {Key::Wv_from_file, "Waveform From File"},
     {Key::WvForms_warning, "Waveforms Warning! "},
@@ -150,10 +154,13 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Enter_mileage, "Enter Mileage"},
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
-    {Key::German, "German"},
-    {Key::Ready, "Ready"}};
+    {Key::x_axis_label, "x [Seconds]"},
+    {Key::y_axis_label, "y [Volts]"},
+    {Key::Record_Data, "Recording the data"},
+    {Key::German, "German"}};
 
 inline const std::map<Key, const char *> germanLan{
+    {Key::Device_List, "Geräteliste"},
     {Key::Known_Car, "Fahrzeugauswahl"},
     {Key::New_Car, "Neues Fahrzeug"},
     {Key::Additional_Information, "Weiterführende Information"},
@@ -191,10 +198,10 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Stop, "Stoppen"},
     {Key::Continue, "Weiter"},
     {Key::Continue_del, "Mit dem Löschen fortfahren?"},
-    {Key::Devices_found, "Geräte gefunden:"},
-    {Key::Usr_curnt_wave, "Aktuelle Wellenform des Benutzers"},
-    {Key::Wv_from_file, "Wellenform aus Datei"},
-    {Key::WvForms_warning, "Warnung!"},
+    {Key::Devices_found, "Geräte"},
+    {Key::Usr_curnt_wave, "Aktuelle Wellenform Des Benutzers"},
+    {Key::Wv_from_file, "Wellenform Aus Datei"},
+    {Key::WvForms_warning, "Warnung vor Wellenformen!"},
     {Key::No_wave_made, "Es wurden keine Wellenformen erstellt!"},
     {Key::Wrong_file_warning, "Warnung vor falscher Datei!"},
     {Key::Wrong_file_type, "Falscher Dateityp! Versuchen Sie es erneut!"},
@@ -224,8 +231,10 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Enter_mileage, "Geben Sie den Kilometerstand ein"},
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
-    {Key::German, "Deutsch"},
-    {Key::Ready, "Bereit"}};
+    {Key::x_axis_label, "x [Sekunden]"},
+    {Key::y_axis_label, "y [Volt]"},
+    {Key::Record_Data, "Datenaufnahme"},
+    {Key::German, "Deutsch"}};
 
 inline auto appLanguage = englishLan;
 #endif
