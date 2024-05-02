@@ -203,5 +203,6 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Attitude, "Einstellung"},
     {Key::German, "Deutch"}};
 
+
 inline auto appLanguage = englishLan;
 #endif
