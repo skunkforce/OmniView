@@ -79,6 +79,7 @@ enum class Key {
   x_axis_label,
   y_axis_label,
   Record_Data,
+  Ready,
   German
 };
 
@@ -157,6 +158,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::x_axis_label, "x [Seconds]"},
     {Key::y_axis_label, "y [Volts]"},
     {Key::Record_Data, "Recording the data"},
+    {Key::Ready, "Ready"},
     {Key::German, "German"}};
 
 inline const std::map<Key, const char *> germanLan{
@@ -234,7 +236,8 @@ inline const std::map<Key, const char *> germanLan{
     {Key::x_axis_label, "x [Sekunden]"},
     {Key::y_axis_label, "y [Volt]"},
     {Key::Record_Data, "Datenaufnahme"},
-    {Key::German, "Deutsch"}};
+    {Key::Ready, "Ready"},
+    {Key::German, "Bereit"}};
 
 inline auto appLanguage = englishLan;
 #endif
