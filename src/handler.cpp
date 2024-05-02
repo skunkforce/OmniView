@@ -32,9 +32,8 @@ void addPlots(const char *name, const bool flagPaused,
         auto const start = [&]() {
           auto p = std::lower_bound(plot.second.begin(), plot.second.end(),
                                     std::pair<double, double>{limits.X.Min, 0});
-          if (p != plot.second.begin()) {
+          if (p != plot.second.begin())
             return p - 1;
-          }
           return p;
         }();
 
@@ -124,13 +123,12 @@ void devicesList() {
       ImGui::TextUnformatted("Error");
   };
 
-  if (sampler.has_value()) {
+  if (sampler.has_value())
     for (auto &device : sampler->sampleDevices)
-      doDevice(device.first, "Messung");
-  } else {
+      doDevice(device.first, appLanguage[Key::Measurement]);
+  else
     for (auto &device : devices)
-      doDevice(device, "Ready");
-  }
+      doDevice(device, appLanguage[Key::Ready]);
 }
 
 void set_config(const std::string &configpath) {
@@ -143,11 +141,10 @@ void set_config(const std::string &configpath) {
 }
 void set_json(nlohmann::json &config) {
   if (std::filesystem::exists(load_json<std::string>(config, ("languagepath"))))
-    fmt::print("found language: {}\n\r",
-               load_json<std::string>(config, ("language")));
+    fmt::print("Found language: {}\n\r",appLanguage[Key::German]);
   else {
     fmt::print("Did not find {}.\n Download from Github\n\r",
-               load_json<std::string>(config, ("language")));
+               appLanguage[Key::German]);
     update_language_from_github();
   }
 }
