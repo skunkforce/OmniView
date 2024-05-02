@@ -119,6 +119,8 @@ void PushPlotRegionColors() {
   ImPlot::PushStyleColor(ImPlotCol_Line, {1.f, 1.f, 1.f, 1.f});
   ImPlot::PushStyleColor(ImPlotCol_TitleText, {0.f, 0.f, 0.f, 1.f});
   ImPlot::PushStyleColor(ImPlotCol_AxisGrid, {0.f, 0.f, 0.f, 1.f});
+  ImPlot::PushStyleColor(ImPlotCol_LegendBg, {1.0f, 1.0f, 1.0f, 1.0f});
+  ImPlot::PushStyleColor(ImPlotCol_LegendBorder, {37/255.0f, 40/255.0f, 43/255.0f, 1.0f}); // Schwarz
 }
 void PopPlotRegionColors() {
   ImGui::PopStyleColor(5);
