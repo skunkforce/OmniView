@@ -111,8 +111,8 @@
             }
         },
         "font": "comicsans",
-        "minscale": 1,
-        "scale": 1.2
+        "minscale": 1.0,
+        "scale": 1.0
     },
     "title": "Omniview 0.5",
     "window": {

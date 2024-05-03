@@ -8,46 +8,48 @@
 
 static void popup_settings(nlohmann::json &config, nlohmann::json &language,
                            std::string const &configpath) {
-  static float fontscale;
-  static nlohmann::json newconfig = 0;
-  if (newconfig == 0) {
-    newconfig = config;
-  }
-  if (fontscale < load_json<float>(newconfig, "text", "minscale")) {
-    fontscale = load_json<float>(newconfig, "text", "minscale");
-  }
+
+  static float tempfontscale;
+
   ImGuiIO &io = ImGui::GetIO();
-  io.FontGlobalScale = fontscale;
+
+   if (tempfontscale < load_json<float>(config, "text", "minscale")) {
+    tempfontscale = load_json<float>(config, "text", "minscale");
+  }
+
   std::string fontscalestring = fmt::format(
       "{} {:.1f}", load_json<std::string>(language, "settings", "fontsize"),
-      fontscale);
+      tempfontscale);
   ImGui::TextUnformatted(fontscalestring.c_str());
   ImGui::SameLine();
+
+
   if (ImGui::Button("+")) {
-    fontscale += 0.1f;
-    newconfig["text"]["scale"] = fontscale;
+    tempfontscale += 0.1f;
+    io.FontGlobalScale = tempfontscale;
   }
   ImGui::SameLine();
-  if (ImGui::Button("-")) {
-    fontscale -= 0.1f;
-    newconfig["text"]["scale"] = fontscale;
+  if (ImGui::Button("-") && (tempfontscale > 1.0f)) {
+    tempfontscale -= 0.1f;
+    io.FontGlobalScale = tempfontscale;
   }
 
   if (ImGui::Button(
           load_json<std::string>(language, "button", "save").c_str())) {
-    write_json_file(configpath, newconfig);
-    config = newconfig;
+    config["text"]["scale"] = tempfontscale; 
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
   if (ImGui::Button(
           load_json<std::string>(language, "button", "cancel").c_str())) {
+    io.FontGlobalScale = config["text"]["scale"]; 
+    tempfontscale = config["text"]["scale"]; 
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
   if (ImGui::Button(
           load_json<std::string>(language, "button", "restore").c_str())) {
-    newconfig = config;
-    fontscale = load_json<float>(newconfig, "text", "scale");
+    io.FontGlobalScale = config["text"]["minscale"];
+    tempfontscale = config["text"]["minscale"]; 
   }
 }
