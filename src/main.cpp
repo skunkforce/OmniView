@@ -160,7 +160,7 @@ int main() {
     if (ImGui::BeginPopupModal(settingstitle.c_str(), nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      popup_settings(config, language, configpath);
+      popup_settings(config, language, configpath, open_settings);
       ImGui::EndPopup();
     }
     // Generate training data popup
