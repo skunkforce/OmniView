@@ -6,6 +6,14 @@
 #include <map>
 
 enum class Key {
+  Known_Car,
+  New_Car,
+  Additional_Information,
+  Devices_Menu,
+  Select_Devices,
+  Save_Recorded_Data,
+  Select_Storage_Location,
+  Browse,
   Menu,
   LanOption,
   English,
@@ -65,13 +73,21 @@ enum class Key {
   Enter_vin,
   Mileage,
   Enter_mileage,
-  Browse,
   Battery_measure,
   Attitude,
-  German
+  German,
+  Ready
 };
 
 inline const std::map<Key, const char *> englishLan{
+    {Key::Known_Car, "Known Cars"},
+    {Key::New_Car, "New_Car"},
+    {Key::Additional_Information, "Additional_Information"},
+    {Key::Devices_Menu, "Devices Menu"},
+    {Key::Select_Devices, "Select Devices"},
+    {Key::Save_Recorded_Data, "Save recorded Data"},
+    {Key::Select_Storage_Location, "Select the storage location"},
+    {Key::Browse, "Browse"},
     {Key::Menu, "Menu"},
     {Key::LanOption, "Language Option"},
     {Key::English, "English"},
@@ -101,7 +117,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Stop, "Stop"},
     {Key::Continue, "Continue"},
     {Key::Continue_del, "Continue Deletion?"},
-    {Key::Devices_found, "Devices found"},
+    {Key::Devices_found, "Devices found:"},
     {Key::Usr_curnt_wave, "User Current Waveform"},
     {Key::Wv_from_file, "Waveform From File"},
     {Key::WvForms_warning, "Waveforms Warning! "},
@@ -111,7 +127,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Gn_trng_data_pop, "Generate Training Data"},
     {Key::Data_upload, "Uploading data"},
     {Key::Upload_success, "File uploaded successfully!"},
-    {Key::Upload_failure, "File upload failed!  "},
+    {Key::Upload_failure, "File upload failed!"},
     {Key::OK, "OK"},
     {Key::Send, "Send"},
     {Key::Nothing_to_send, "Nothing to send."},
@@ -132,12 +148,20 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Enter_vin, "Enter VIN"},
     {Key::Mileage, "Mileage"},
     {Key::Enter_mileage, "Enter Mileage"},
-    {Key::Browse, "Browse"},
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
-    {Key::German, "German"}};
+    {Key::German, "German"},
+    {Key::Ready, "Ready"}};
 
 inline const std::map<Key, const char *> germanLan{
+    {Key::Known_Car, "Fahrzeugauswahl"},
+    {Key::New_Car, "Neues Fahrzeug"},
+    {Key::Additional_Information, "Weiterführende Information"},
+    {Key::Devices_Menu, "Geräteliste"},
+    {Key::Select_Devices, "Geräteauswahl"},
+    {Key::Save_Recorded_Data, "Speichern der aufgenommenen Daten"},
+    {Key::Select_Storage_Location, "Wählen Sie den Speicherort"},
+    {Key::Browse, "Durchsuchen"},
     {Key::Menu, "Menü"},
     {Key::LanOption, "Sprachoption"},
     {Key::English, "Englisch"},
@@ -167,10 +191,10 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Stop, "Stoppen"},
     {Key::Continue, "Weiter"},
     {Key::Continue_del, "Mit dem Löschen fortfahren?"},
-    {Key::Devices_found, "Geräte Gefunden"},
-    {Key::Usr_curnt_wave, "Aktuelle Wellenform Des Benutzers"},
-    {Key::Wv_from_file, "Wellenform Aus Datei"},
-    {Key::WvForms_warning, "Warnung vor Wellenformen!"},
+    {Key::Devices_found, "Geräte gefunden:"},
+    {Key::Usr_curnt_wave, "Aktuelle Wellenform des Benutzers"},
+    {Key::Wv_from_file, "Wellenform aus Datei"},
+    {Key::WvForms_warning, "Warnung!"},
     {Key::No_wave_made, "Es wurden keine Wellenformen erstellt!"},
     {Key::Wrong_file_warning, "Warnung vor falscher Datei!"},
     {Key::Wrong_file_type, "Falscher Dateityp! Versuchen Sie es erneut!"},
@@ -198,10 +222,10 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Enter_vin, "Geben Sie VIN ein"},
     {Key::Mileage, "Kilometerstand"},
     {Key::Enter_mileage, "Geben Sie den Kilometerstand ein"},
-    {Key::Browse, "Durchsuche"},
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
-    {Key::German, "Deutch"}};
+    {Key::German, "Deutsch"},
+    {Key::Ready, "Bereit"}};
 
 inline auto appLanguage = englishLan;
 #endif
