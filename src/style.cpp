@@ -318,22 +318,6 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Attitude])) {
-    showSettings = !showSettings;
-  }
-  if (showSettings && !showSettingsPrev)
-    ImGui::SetNextItemOpen(false);
-  if (showSettings && ImGui::TreeNode(appLanguage[Key::LanOption])) {
-    if (ImGui::Button(appLanguage[Key::English])) {
-      appLanguage = englishLan;
-      showSettings = false;
-    }
-    if (ImGui::Button(appLanguage[Key::German])) {
-      appLanguage = germanLan;
-      showSettings = false;
-    }
-    ImGui::TreePop();
-  }
-  if (showSettings && ImGui::Button(appLanguage[Key::Settings])) {
     open_settings = true;
     showSettings = false;
   }

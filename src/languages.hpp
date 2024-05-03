@@ -76,7 +76,9 @@ enum class Key {
   Battery_measure,
   Attitude,
   German,
-  Ready
+  Ready,
+  FontSize,
+  SettingsText
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -151,7 +153,10 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
     {Key::German, "German"},
-    {Key::Ready, "Ready"}};
+    {Key::Ready, "Ready"},
+    {Key::FontSize, "Fontsize"},
+    {Key::SettingsText, "Set your personal settings for the software"}};
+
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
@@ -168,8 +173,9 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Settings, "Einstellungen"},
     {Key::Reset, "Zurücksetzen"},
     {Key::Reset_q, "Zurücksetzen?"},
-    {Key::Measure_not_saved, "Die Messung wurde nicht gespeichert!\n"
-                  "Möchten Sie es speichern, bevor Sie es löschen?\n"},
+    {Key::Measure_not_saved,
+     "Die Messung wurde nicht gespeichert!\n"
+     "Möchten Sie es speichern, bevor Sie es löschen?\n"},
     {Key::Version, "Ausführung"},
     {Key::Diagnostics, "Diagnose"},
     {Key::Compression, "Kompression"},
@@ -225,7 +231,9 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
     {Key::German, "Deutsch"},
-    {Key::Ready, "Bereit"}};
+    {Key::Ready, "Bereit"},
+    {Key::FontSize, "Schriftgröße"},
+    {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"}};
 
 inline auto appLanguage = englishLan;
 #endif
