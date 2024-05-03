@@ -13,6 +13,7 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
 
   static float tempfontscale;
   static std::map<Key, const char *> tempLan = appLanguage;
+  static nlohmann::json newconfig = config; 
 
   ImGuiIO &io = ImGui::GetIO();
 
@@ -57,7 +58,9 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
   }
 
   if (ImGui::Button(appLanguage[Key::Save])) {
-    config["text"]["scale"] = tempfontscale;
+    newconfig["text"]["scale"] = tempfontscale;
+    write_json_file(configpath, config); 
+    config = newconfig; 
     tempLan = appLanguage;
     ImGui::CloseCurrentPopup();
   }
