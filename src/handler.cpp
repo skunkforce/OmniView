@@ -27,7 +27,7 @@ void addPlots(const char *name, const bool flagPaused,
       }
       return ImPlot::GetPlotLimits();
     }();
-    auto addPlot = [&](auto const &plot) {
+    auto addPlot = [&](auto const &plot, int plotCount) {
       if (!plot.second.empty()) {
         auto const start = [&]() {
           auto p = std::lower_bound(plot.second.begin(), plot.second.end(),
@@ -51,24 +51,40 @@ void addPlots(const char *name, const bool flagPaused,
             return 1;
           return static_cast<std::size_t>(s);
         }();
-
+        ImAxis_ nextXAxis = static_cast<ImAxis_>(ImAxis_X1 + plotCount);
+        ImAxis_ nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + plotCount);
+        ImPlot::SetAxes(nextXAxis, nextYAxis);
         ImPlot::PlotLine(
             fmt::format("{}-{}", plot.first.type, plot.first.serial).c_str(),
             std::addressof(start->first), std::addressof(start->second),
             static_cast<std::size_t>(std::distance(start, end)) / stride, 0, 0,
             2 * sizeof(double) * stride);
+
       }
     };
 
-    for (auto const &plot : plots) {
+    for (int count = 0; auto const &plot : plots) {
       ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.first][0],
                                       colorMap[plot.first][1],
                                       colorMap[plot.first][2], 1.0f});
-      addPlot(plot);
+      addPlot(plot, count);
+      ++count;
     }
 
     ImPlot::EndPlot();
   }
+}
+
+void parseDeviceMetaData(Omniscope::MetaData metaData, std::shared_ptr<OmniscopeDevice>& device){
+    try{
+        nlohmann::json metaJson = nlohmann::json::parse(metaData.data);
+        fmt::print("{}\n", metaJson.dump());
+        device->setScale(std::stod(metaJson["scale"].dump()));
+        device->setOffset(std::stod(metaJson["offset"].dump()));
+        device->setEgu(metaJson["egu"]);
+    }catch(...){
+        fmt::print("parsing Meta Data error: {}", metaData.data);
+    }
 }
 
 void initDevices() {
@@ -77,7 +93,14 @@ void initDevices() {
 
   devices = deviceManager.getDevices(VID, PID);
   for (auto &device : devices) {
+        auto metaDataCb = [&](auto const& msg) {
+        if (std::holds_alternative<Omniscope::MetaData>(msg)) {
+            parseDeviceMetaData(std::get<Omniscope::MetaData>(msg), device);
+        }
+    };
     auto id = device->getId().value();
+    auto sampleRate = static_cast<double>(id.sampleRate);
+    device->setTimeScale(static_cast<double>(1 / sampleRate));
     if (!colorMap.contains(id)) {
       ImPlot::PushColormap(ImPlotColormap_Dark);
       auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
@@ -88,10 +111,13 @@ void initDevices() {
     device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
                                    static_cast<std::uint8_t>(color[1] * 255),
                                    static_cast<std::uint8_t>(color[2] * 255)});
-  }
+    //set Callback for MetaData
+    device->setMessageCallback(metaDataCb);
+    device->send(Omniscope::GetMetaData{});
+    }
 }
 
-void devicesList() {
+void devicesList(bool const& flagPaused) {
   auto doDevice = [&](auto &device, auto msg) {
     auto &color = colorMap[device->getId().value()];
     if (ImGui::ColorEdit3(
@@ -124,8 +150,13 @@ void devicesList() {
   };
 
   if (sampler.has_value())
-    for (auto &device : sampler->sampleDevices)
-      doDevice(device.first, appLanguage[Key::Measurement]);
+    for (auto &device : sampler->sampleDevices){
+            if(!flagPaused){
+                doDevice(device.first, appLanguage[Key::Measurement]);
+            }else{
+                doDevice(device.first, appLanguage[Key::Stop]);
+            }
+        }
   else
     for (auto &device : devices)
       doDevice(device, appLanguage[Key::Ready]);

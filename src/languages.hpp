@@ -76,7 +76,11 @@ enum class Key {
   Battery_measure,
   Attitude,
   German,
-  Ready
+  Ready,
+  x_label,
+  y_label,
+  Voltage,
+  Time
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -151,7 +155,11 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
     {Key::German, "German"},
-    {Key::Ready, "Ready"}};
+    {Key::Ready, "Ready"},
+    {Key::x_label, "y [ADC counts]"},
+    {Key::y_label, "x [data points]"},
+    {Key::Voltage, "Voltage"},
+    {Key::Time, "Time"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
@@ -225,7 +233,11 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
     {Key::German, "Deutsch"},
-    {Key::Ready, "Bereit"}};
+    {Key::Ready, "Bereit"},
+    {Key::x_label, "y [ADC Zähler]"},
+    {Key::y_label, "x [Datenpunkte]"},
+    {Key::Voltage, "Spannung"},
+    {Key::Time, "Zeit"}};
 
 inline auto appLanguage = englishLan;
 #endif
