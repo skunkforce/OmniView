@@ -96,6 +96,7 @@
     },
     "scanfolder": "saves",
     "text": {
+        "active_language": "German",
         "color": {
             "inactive": {
                 "blue": 0.5,
@@ -112,7 +113,7 @@
         },
         "font": "comicsans",
         "minscale": 1.0,
-        "scale": 1.4000000953674316
+        "scale": 1.5000001192092896
     },
     "title": "Omniview 0.5",
     "window": {

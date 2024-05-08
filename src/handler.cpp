@@ -152,6 +152,10 @@ void set_json(nlohmann::json &config) {
 void set_inital_config(nlohmann::json &config) {
   ImGuiIO &io = ImGui::GetIO();
   io.FontGlobalScale = config["text"]["scale"];
+  if(config["text"]["active_language"] == "German"){
+    appLanguage = germanLan; 
+  }
+  else appLanguage = englishLan; 
 }
 
 void rstSettings() {
