@@ -157,16 +157,20 @@ int main() {
       ImGui::PopStyleColor();
     }
     ImGui::EndChild(); // end child "Buttonstripe"
-    // ############################ Settings Menu
-    std::string settingstitle = appLanguage[Key::Settings];
+                       // ############################ Settings Menu
+                       // ############################ Settings Menu
+    static std::vector titles{
+        (std::string)englishLan.find(Key::Settings)->second + "###ID",
+        (std::string)germanLan.find(Key::Settings)->second + "###ID"};
+    static int title = 0;
     if (open_settings) {
-      ImGui::OpenPopup(settingstitle.c_str());
+      ImGui::OpenPopup(titles[title].c_str());
       open_settings = false;
     }
-    if (ImGui::BeginPopupModal(settingstitle.c_str(), nullptr,
+    if (ImGui::BeginPopupModal(titles[title].c_str(), nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      popup_settings(config, language, configpath, open_settings);
+      popup_settings(config, language, configpath, title);
       ImGui::EndPopup();
     }
     // Generate training data popup

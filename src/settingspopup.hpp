@@ -9,7 +9,7 @@
 #include <nlohmann/json_fwd.hpp>
 
 static void popup_settings(nlohmann::json &config, nlohmann::json &language,
-                           std::string const &configpath, bool &open_settings) {
+                           std::string const &configpath, int &title) {
 
   static float tempfontscale = config["text"]["scale"];
   static std::map<Key, const char *> tempLan = appLanguage;
@@ -42,17 +42,13 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
   }
 
   if (ImGui::TreeNode(appLanguage[Key::LanOption])) {
-    if (ImGui::Button(appLanguage[Key::English])) {
-      if (englishLan != appLanguage) {
-        appLanguage = englishLan;
-        open_settings = true;
-      }
+    if (ImGui::Button(appLanguage[Key::English]) && englishLan != appLanguage) {
+      appLanguage = englishLan;
+      title = 0; // English index
     }
-    if (ImGui::Button(appLanguage[Key::German])) {
-      if (germanLan != appLanguage) {
-        appLanguage = germanLan;
-        open_settings = true;
-      }
+    if (ImGui::Button(appLanguage[Key::German]) && germanLan != appLanguage) {
+      appLanguage = germanLan;
+      title = 1; // German index
     }
     ImGui::TreePop();
   }
