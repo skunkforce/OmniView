@@ -6,13 +6,6 @@
         "input2": "scan_type",
         "url": "https://postapi.aw4null.de/v1/uploadFile/"
     },
-    "helplink": "https://moodle.aw4null.de/",
-    "github": {
-        "url": {
-            "config": "https://raw.githubusercontent.com/skunkforce/omniview/master/config/config.json",
-            "language": "https://raw.githubusercontent.com/skunkforce/omniview/master/languages/Deutsch.json"
-        }
-    },
     "button": {
         "sizex": 0.0,
         "sizey": 0.0,
@@ -78,6 +71,13 @@
         }
     },
     "firststart": true,
+    "github": {
+        "url": {
+            "config": "https://raw.githubusercontent.com/skunkforce/omniview/master/config/config.json",
+            "language": "https://raw.githubusercontent.com/skunkforce/omniview/master/languages/Deutsch.json"
+        }
+    },
+    "helplink": "https://moodle.aw4null.de/",
     "language": "Deutsch",
     "languagepath": "languages/",
     "menubar": {
@@ -112,7 +112,7 @@
         },
         "font": "comicsans",
         "minscale": 1.0,
-        "scale": 1.0
+        "scale": 1.4000000953674316
     },
     "title": "Omniview 0.5",
     "window": {

@@ -4,7 +4,7 @@
 #include <cmake_git_version/version.hpp>
 
 int main() {
-  const std::string configpath = "config/config.json";
+  const std::string configpath = "../config/config.json";
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
   set_json(config);
@@ -22,9 +22,14 @@ int main() {
   static bool flagPaused = true;
   bool flagDataNotSaved = true;
   bool Development = false;
+  bool flagInitStayed = true;
 
   // main loop
   auto render = [&]() {
+    if (flagInitStayed) {
+      set_inital_config(config);
+      flagInitStayed = false;
+    }
     SetupImGuiStyle(false, 0.99f, config);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
@@ -47,7 +52,7 @@ int main() {
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     set_side_menu(config, flagPaused, open_settings,
                   open_generate_training_data);
-    // there're four "BeginChild"s, one as the left side 
+    // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
@@ -116,7 +121,7 @@ int main() {
 
         set_button_style_to(config, "stop");
         if (ImGui::Button(appLanguage[Key::Reset], toolBtnSize)) {
-          if (flagDataNotSaved) 
+          if (flagDataNotSaved)
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           else {
             rstSettings();
@@ -128,7 +133,8 @@ int main() {
       ImGui::SameLine();
 
       // gray out "Save" button when pop-up is open
-      const bool pushStyle = ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
+      const bool pushStyle =
+          ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
 
       if (pushStyle)
         ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
@@ -209,6 +215,7 @@ int main() {
   ImGuiInstance window{1500, 800,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
-  while (window.run(render));
+  while (window.run(render))
+    ;
   return 0;
 }
