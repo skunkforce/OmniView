@@ -51,6 +51,8 @@ void addPlots(const char *name, const bool flagPaused,
             return 1;
           return static_cast<std::size_t>(s);
         }();
+
+        //determine which axes is the right one to choose
         ImAxis_ nextXAxis = static_cast<ImAxis_>(ImAxis_X1 + plotCount);
         ImAxis_ nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + plotCount);
         ImPlot::SetAxes(nextXAxis, nextYAxis);
@@ -62,7 +64,6 @@ void addPlots(const char *name, const bool flagPaused,
 
       }
     };
-
     for (int count = 0; auto const &plot : plots) {
       ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.first][0],
                                       colorMap[plot.first][1],

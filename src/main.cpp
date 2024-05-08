@@ -31,6 +31,7 @@ int main() {
     static bool flagPaused = true;
     bool flagDataNotSaved = true;
     bool Development = false;
+    static bool initAxesSetup = true;
 
     // main loop
     auto render = [&]() {
@@ -80,6 +81,7 @@ int main() {
             ImGui::Text(appLanguage[Key::Measure_not_saved]);
             if (ImGui::Button(appLanguage[Key::Continue_del])) {
                 rstSettings();
+                initAxesSetup = true;
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
@@ -137,6 +139,7 @@ int main() {
                     else {
                         rstSettings();
                         flagPaused = true;
+                        initAxesSetup = true;
                     }
                 }
                 ImGui::PopStyleColor(3);
@@ -200,14 +203,16 @@ int main() {
         addPlots("Recording the data", flagPaused, [](double x_max) {
             ImPlot::SetupLegend(ImPlotLocation_NorthEast |
                                 ImPlotLegendFlags_Outside);
-            // ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr,
-            // true);
+            // ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
             static std::vector<std::string> egus;
-            static std::vector<std::string> x_labels;
+            static std::size_t defaultAxesCounter;
+            static std::string x_label{fmt::format("{} [s]", appLanguage[Key::Time])};
             static std::vector<std::string> y_labels;
-            static bool init = true;
             if (sampler.has_value()) {
-                if (init) {
+                if (initAxesSetup) {
+                    egus.clear();
+                    y_labels.clear();
+                    axesCounter = 0;
                     std::size_t numberOfDevices = sampler->sampleDevices.size();
                     for (auto& device : sampler->sampleDevices) {
                         if (device.first->getEgu().has_value()) {
@@ -215,38 +220,73 @@ int main() {
                             fmt::print("egu found: {}\n", egu);
                             egus.push_back(fmt::format(
                                 "{} {}", appLanguage[Key::Voltage], egu));
+                        }else{
+                            ++defaultAxesCounter;
                         }
                     }
                     egus = uniqueSorted(egus);
-                    fmt::print("egus: {}\n", egus);
-                    init = false;
+                    fmt::print("egus: {} size: {}\n", egus, egus.size());
+                    if(egus.size() <= 3){
+                        y_labels.resize(egus.size());
+                        std::copy(egus.begin(), egus.end(), y_labels.begin());
+                    }else{
+                        fmt::print("Too many different devices!\n");
+                    }
+                    initAxesSetup = false;
                 }
-                if(!egus.empty() && !flagPaused){
-                    //Setup Axes for corresponding EGUs found
-                    if(egus.size() >= 1){
-                        //Setup First Axis with first text from one EGU
+                if (egus.empty() && !flagPaused) {
+                    ImPlot::SetupAxis(ImAxis_X1,
+                                      fmt::format("sample count").c_str(),
+                                      ImPlotAxisFlags_AutoFit);
+                    ImPlot::SetupAxis(ImAxis_Y1,
+                                      fmt::format("ADC value").c_str(),
+                                      ImPlotAxisFlags_AutoFit);
+                    ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 2,
+                                            ImGuiCond_Always);
+                } else if (egus.empty() && flagPaused) {
+                    ImPlot::SetupAxis(ImAxis_X1,
+                                      fmt::format("sample count").c_str());
+                    ImPlot::SetupAxis(ImAxis_Y1,
+                                      fmt::format("ADC value").c_str());
+                    ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 2,
+                                            ImGuiCond_Always);
+                } else if (!egus.empty() && !flagPaused) {
+                    if ((egus.size() + defaultAxesCounter) >= 1) {
+                        // Setup First Axis with first text from one EGU
+                        ImPlot::SetupAxis(ImAxis_X1, x_label.c_str(),
+                                          ImPlotAxisFlags_AutoFit);
+                        ImPlot::SetupAxis(ImAxis_Y1, y_labels[0].c_str(),
+                                          ImPlotAxisFlags_AutoFit);
+                        ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 2,
+                                                ImGuiCond_Always);
                     }
-                    if(egus.size() >= 2){
-                        //Setup second Axis with third text from one EGU
+                    if (egus.size() >= 2) {
+                        // Setup second Axis with third text from one EGU
+                        ImPlot::SetupAxis(ImAxis_X2, x_label.c_str(),
+                                          ImPlotAxisFlags_AutoFit);
+                        ImPlot::SetupAxis(ImAxis_Y2, y_labels[1].c_str(),
+                                          ImPlotAxisFlags_AutoFit);
+                        ImPlot::SetupAxisLimits(ImAxis_X2, x_max - 1, x_max + 2,
+                                                ImGuiCond_Always);
                     }
-                    if(egus.size() >= 3){
-                        //Setup third Axis with third text from one EGU
+                    if (egus.size() >= 3) {
+                        ImPlot::SetupAxis(ImAxis_X3, x_label.c_str(),
+                                          ImPlotAxisFlags_AutoFit);
+                        ImPlot::SetupAxis(ImAxis_Y3, y_labels[2].c_str(),
+                                          ImPlotAxisFlags_AutoFit);
+                        ImPlot::SetupAxisLimits(ImAxis_X3, x_max - 1, x_max + 2,
+                                                ImGuiCond_Always);
                     }
-                }else if(!egus.empty() && flagPaused){
-                    //Same as above but with paused axis
-                    if(egus.size() >= 1){
-                        //Setup First Axis with first text from one EGU
+                } else if (!egus.empty() && flagPaused) {
+                    if (egus.size() >= 1) {
+                        // Setup First Axis with first text from one EGU
                     }
-                    if(egus.size() >= 2){
-                        //Setup second Axis with third text from one EGU
+                    if (egus.size() >= 2) {
+                        // Setup second Axis with third text from one EGU
                     }
-                    if(egus.size() >= 3){
-                        //Setup third Axis with third text from one EGU
+                    if (egus.size() >= 3) {
+                        // Setup second Axis with third text from one EGU
                     }
-                }else if(egus.empty() && !flagPaused){
-                    //Setup first Axis for default Text Measuring
-                }else if(egus.empty() && flagPaused){
-                    //Setup first Axis for default Text Paused
                 }
             }
             auto auxFlagsMeasuring =
@@ -255,13 +295,7 @@ int main() {
             /*
                         if (!flagPaused) {
                             if (numberOfDevices >= 1) {
-                                ImPlot::SetupAxis(ImAxis_X1,
-               x_labels[0].c_str(), ImPlotAxisFlags_AutoFit);
-                                ImPlot::SetupAxis(ImAxis_Y1,
-               y_labels[0].c_str(), ImPlotAxisFlags_AutoFit);
-                                ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1,
-               x_max + 2, ImGuiCond_Always);
-                            }
+                                                            }
                             if (numberOfDevices >= 2) {
                                 ImPlot::SetupAxis(ImAxis_X2,
                x_labels[1].c_str(), auxFlagsMeasuring);
