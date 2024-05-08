@@ -63,10 +63,8 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
 
   if (ImGui::Button(appLanguage[Key::Save])) {
     newconfig["text"]["scale"] = tempfontscale;
-    if (appLanguage == germanLan) {
-      newconfig["text"]["active_language"] = "German";
-    } else
-      newconfig["text"]["active_language"] = "English";
+    newconfig["text"]["active_language"] =
+        appLanguage == germanLan ? "German" : "English";
     config = newconfig;
     write_json_file(configpath, config);
     tempLan = appLanguage;
