@@ -41,14 +41,22 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
     io.FontGlobalScale = tempfontscale;
   }
 
-  if (ImGui::TreeNode(appLanguage[Key::LanOption])) {
+  static bool treeopen = true;
+
+  if (!treeopen) {
+    ImGui::SetNextItemOpen(false);
+    treeopen = true;
+  }
+  if (ImGui::TreeNode(appLanguage[Key::LanOption]) && treeopen) {
     if (ImGui::Button(appLanguage[Key::English]) && englishLan != appLanguage) {
       appLanguage = englishLan;
       title = 0; // English index
+      treeopen = false;
     }
     if (ImGui::Button(appLanguage[Key::German]) && germanLan != appLanguage) {
       appLanguage = germanLan;
       title = 1; // German index
+      treeopen = false;
     }
     ImGui::TreePop();
   }
@@ -62,6 +70,7 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
     config = newconfig;
     write_json_file(configpath, config);
     tempLan = appLanguage;
+    treeopen = false;
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
@@ -69,6 +78,7 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
     io.FontGlobalScale = config["text"]["scale"];
     tempfontscale = config["text"]["scale"];
     appLanguage = tempLan;
+    treeopen = false;
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
@@ -77,6 +87,7 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
     tempfontscale = config["text"]["minscale"];
     appLanguage = germanLan;
     tempLan = germanLan;
+    treeopen = false;
   }
 }
 
