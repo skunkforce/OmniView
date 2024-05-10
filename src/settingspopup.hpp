@@ -1,103 +1,92 @@
-#pragma once
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
 #include "jasonhandler.hpp"
+#include "languages.hpp"
 #include <fmt/format.h>
 #include <imgui.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
 static void popup_settings(nlohmann::json &config, nlohmann::json &language,
-                           std::string const &configpath) {
-  static float fontscale;
-  static nlohmann::json newconfig = 0;
-  if (newconfig == 0) {
-    newconfig = config;
-  }
-  if (fontscale < load_json<float>(newconfig, "text", "minscale")) {
-    fontscale = load_json<float>(newconfig, "text", "minscale");
-  }
+                           std::string const &configpath, int &title) {
+
+  static float tempfontscale = config["text"]["scale"];
+  static std::map<Key, const char *> tempLan = appLanguage;
+  static nlohmann::json newconfig = config;
+
   ImGuiIO &io = ImGui::GetIO();
-  io.FontGlobalScale = fontscale;
-  std::string fontscalestring = fmt::format(
-      "{} {:.1f}", load_json<std::string>(language, "settings", "fontsize"),
-      fontscale);
+
+  ImGui::Text(appLanguage[Key::SettingsText]);
+  ImGui::Text("                            ");
+
+  if (tempfontscale < load_json<float>(config, "text", "minscale")) {
+    tempfontscale = load_json<float>(config, "text", "minscale");
+  }
+
+  std::string fontscalestring =
+      fmt::format("{} {:.1f}", appLanguage[Key::FontSize], tempfontscale);
+
   ImGui::TextUnformatted(fontscalestring.c_str());
   ImGui::SameLine();
+
   if (ImGui::Button("+")) {
-    fontscale += 0.1f;
-    newconfig["text"]["scale"] = fontscale;
+    tempfontscale += 0.1f;
+    io.FontGlobalScale = tempfontscale;
   }
   ImGui::SameLine();
-  if (ImGui::Button("-")) {
-    fontscale -= 0.1f;
-    newconfig["text"]["scale"] = fontscale;
+
+  if (ImGui::Button("-") && (tempfontscale > 1.0f)) {
+    tempfontscale -= 0.1f;
+    io.FontGlobalScale = tempfontscale;
   }
 
-  // ####################################################################################
-  //                           Button Size
-  // ####################################################################################
-  static float ButtonSizeX = load_json<float>(config, "button", "sizex");
-  static float ButtonSizeY = load_json<float>(config, "button", "sizey");
-  ImGui::TextUnformatted(
-      load_json<std::string>(language, "settings", "buttonexplain").c_str());
-  ImGui::TextUnformatted(
-      load_json<std::string>(language, "general", "width").c_str());
-  ImGui::SameLine();
+  static bool treeopen = true;
 
-  float oldButtonSizeX = ButtonSizeX;
-  float oldButtonSizeY = ButtonSizeY;
-  ImGui::InputFloat("X##ButtonSizeX", &ButtonSizeX);
-
-  ImGui::SameLine();
-  if (ImGui::Button("X+")) {
-    ButtonSizeX += 10.0f;
+  if (!treeopen) {
+    ImGui::SetNextItemOpen(false);
+    treeopen = true;
+  }
+  if (ImGui::TreeNode(appLanguage[Key::LanOption]) && treeopen) {
+    if (ImGui::Button(appLanguage[Key::English]) && englishLan != appLanguage) {
+      appLanguage = englishLan;
+      title = 0; // English index
+      treeopen = false;
+    }
+    if (ImGui::Button(appLanguage[Key::German]) && germanLan != appLanguage) {
+      appLanguage = germanLan;
+      title = 1; // German index
+      treeopen = false;
+    }
+    ImGui::TreePop();
   }
 
-  ImGui::SameLine();
-  if (ImGui::Button("X-")) {
-    ButtonSizeX -= 10.0f;
-  }
-  ImGui::TextUnformatted(
-      load_json<std::string>(language, "general", "height").c_str());
-  ImGui::SameLine();
-
-  ImGui::InputFloat("Y##ButtonSizeY",
-                    &ButtonSizeY); // Eingabe-Float für Y-Größe
-  ImGui::SameLine();
-  if (ImGui::Button("Y+")) {
-    ButtonSizeY += 10.0f;
-  }
-
-  ImGui::SameLine();
-  if (ImGui::Button("Y-")) {
-    ButtonSizeY -= 10.0f;
-  }
-
-  if (ImGui::Button(load_json<std::string>(language, "button", "save").c_str(),
-                    ImVec2(ButtonSizeX, ButtonSizeY))) {
-    write_json_file(configpath, newconfig);
+  if (ImGui::Button(appLanguage[Key::Save])) {
+    newconfig["text"]["scale"] = tempfontscale;
+    newconfig["text"]["active_language"] =
+        appLanguage == germanLan ? "German" : "English";
     config = newconfig;
+    write_json_file(configpath, config);
+    tempLan = appLanguage;
+    treeopen = false;
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
-  if (ImGui::Button(
-          load_json<std::string>(language, "button", "cancel").c_str(),
-          ImVec2(ButtonSizeX, ButtonSizeY))) {
+  if (ImGui::Button(appLanguage[Key::Back])) {
+    io.FontGlobalScale = config["text"]["scale"];
+    tempfontscale = config["text"]["scale"];
+    appLanguage = tempLan;
+    treeopen = false;
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
-  if (ImGui::Button(
-          load_json<std::string>(language, "button", "restore").c_str(),
-          ImVec2(ButtonSizeX, ButtonSizeY))) {
-    newconfig = config;
-    fontscale = load_json<float>(newconfig, "text", "scale");
-    ButtonSizeX = load_json<float>(config, "button", "sizex");
-    ButtonSizeY = load_json<float>(config, "button", "sizey");
-  }
-  if (oldButtonSizeX != ButtonSizeX || oldButtonSizeY != ButtonSizeY) {
-    oldButtonSizeX = ButtonSizeX;
-    oldButtonSizeY = ButtonSizeY;
-    newconfig["button"]["sizey"] = ButtonSizeY;
-    newconfig["button"]["sizex"] = ButtonSizeX;
+  if (ImGui::Button(appLanguage[Key::Reset])) {
+    io.FontGlobalScale = config["text"]["minscale"];
+    tempfontscale = config["text"]["minscale"];
+    appLanguage = germanLan;
+    tempLan = germanLan;
+    treeopen = false;
   }
 }
+
+#endif // SETTING_H

@@ -1,7 +1,7 @@
-#include <set>
-#include <implot.h>
 #include "handler.hpp"
 #include "get_from_github.hpp"
+#include <implot.h>
+#include <set>
 
 void addPlots(const char *name, const bool flagPaused,
               std::function<void(double)> axesSetup) {
@@ -141,13 +141,21 @@ void set_config(const std::string &configpath) {
 }
 void set_json(nlohmann::json &config) {
   if (std::filesystem::exists(load_json<std::string>(config, ("languagepath"))))
-    fmt::print("Found language: {}\n\r",appLanguage[Key::German]);
+    fmt::print("Found language: {}\n\r", appLanguage[Key::German]);
   else {
     fmt::print("Did not find {}.\n Download from Github\n\r",
                appLanguage[Key::German]);
     update_language_from_github();
   }
 }
+
+void set_inital_config(nlohmann::json &config) {
+  ImGuiIO &io = ImGui::GetIO();
+  io.FontGlobalScale = config["text"]["scale"];
+  appLanguage =
+      config["text"]["active_language"] == "German" ? germanLan : englishLan;
+}
+
 void rstSettings() {
   sampler.reset();
   devices.clear();

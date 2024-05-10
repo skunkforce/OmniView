@@ -22,9 +22,17 @@ int main() {
   static bool flagPaused = true;
   bool flagDataNotSaved = true;
   bool Development = false;
+  bool flagInitState = true;
+
 
   // main loop
   auto render = [&]() {
+    if (flagInitState) {
+
+      set_inital_config(config);
+      flagInitState = false;
+
+    }
     SetupImGuiStyle(false, 0.99f, config);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
@@ -47,7 +55,7 @@ int main() {
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     set_side_menu(config, flagPaused, open_settings,
                   open_generate_training_data);
-    // there're four "BeginChild"s, one as the left side 
+    // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
@@ -116,7 +124,7 @@ int main() {
 
         set_button_style_to(config, "stop");
         if (ImGui::Button(appLanguage[Key::Reset], toolBtnSize)) {
-          if (flagDataNotSaved) 
+          if (flagDataNotSaved)
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           else {
             rstSettings();
@@ -128,7 +136,8 @@ int main() {
       ImGui::SameLine();
 
       // gray out "Save" button when pop-up is open
-      const bool pushStyle = ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
+      const bool pushStyle =
+          ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
 
       if (pushStyle)
         ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
@@ -151,17 +160,20 @@ int main() {
       ImGui::PopStyleColor();
     }
     ImGui::EndChild(); // end child "Buttonstripe"
-    // ############################ Settings Menu
-    std::string settingstitle =
-        load_json<std::string>(language, "settings", "title");
+                       // ############################ Settings Menu
+                       // ############################ Settings Menu
+    static std::vector titles{
+        (std::string)englishLan.find(Key::Settings)->second + "###ID",
+        (std::string)germanLan.find(Key::Settings)->second + "###ID"};
+    static int title = 0;
     if (open_settings) {
-      ImGui::OpenPopup(settingstitle.c_str());
+      ImGui::OpenPopup(titles[title].c_str());
       open_settings = false;
     }
-    if (ImGui::BeginPopupModal(settingstitle.c_str(), nullptr,
+    if (ImGui::BeginPopupModal(titles[title].c_str(), nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      popup_settings(config, language, configpath);
+      popup_settings(config, language, configpath, title);
       ImGui::EndPopup();
     }
     // Generate training data popup
@@ -210,6 +222,7 @@ int main() {
   ImGuiInstance window{1500, 800,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
-  while (window.run(render));
+  while (window.run(render))
+    ;
   return 0;
 }
