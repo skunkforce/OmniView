@@ -30,7 +30,8 @@ int main() {
     if (flagInitState) {
 
       set_inital_config(config);
-      flagInitStayed = false;
+      flagInitState = false;
+
     }
     SetupImGuiStyle(false, 0.99f, config);
     ImGui::SetNextWindowPos({0.f, 0.f});
