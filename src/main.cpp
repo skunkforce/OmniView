@@ -27,7 +27,8 @@ int main() {
 
   // main loop
   auto render = [&]() {
-    if (flagInitStayed) {
+    if (flagInitState) {
+
       set_inital_config(config);
       flagInitStayed = false;
     }
