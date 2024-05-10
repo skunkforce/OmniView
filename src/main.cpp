@@ -22,7 +22,8 @@ int main() {
   static bool flagPaused = true;
   bool flagDataNotSaved = true;
   bool Development = false;
-  bool flagInitStayed = true;
+  bool flagInitState = true;
+
 
   // main loop
   auto render = [&]() {
