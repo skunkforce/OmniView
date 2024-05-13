@@ -24,14 +24,11 @@ int main() {
   bool Development = false;
   bool flagInitState = true;
 
-
   // main loop
   auto render = [&]() {
     if (flagInitState) {
-
       set_inital_config(config);
       flagInitState = false;
-
     }
     SetupImGuiStyle(false, 0.99f, config);
     ImGui::SetNextWindowPos({0.f, 0.f});
@@ -108,8 +105,6 @@ int main() {
       ImGui::PopStyleColor(3);
     }
     if (flagPaused) {
-      ImGui::SameLine();
-
       // Start/reset the measurement when the measurement is paused,
       // followed by a query as to whether the old data should be saved
       if (sampler.has_value()) {
@@ -160,14 +155,19 @@ int main() {
       ImGui::PopStyleColor();
     }
     ImGui::EndChild(); // end child "Buttonstripe"
-                       // ############################ Settings Menu
-                       // ############################ Settings Menu
-    static std::vector titles{
-        (std::string)englishLan.find(Key::Settings)->second + "###ID",
-        (std::string)germanLan.find(Key::Settings)->second + "###ID"};
+    // ############################ Settings Menu
     static int title = 0;
+    static std::vector<std::string> titles(2); // two languages
     if (open_settings) {
-      ImGui::OpenPopup(titles[title].c_str());
+      const auto EngItr = englishLan.find(Key::Settings);
+      const auto GrmItr = germanLan.find(Key::Settings);
+      // check returned value from find() and set titles 
+      if (EngItr != englishLan.end() && GrmItr != germanLan.end()) {
+        titles[0] = (std::string)EngItr->second + "###ID";
+        titles[1] = (std::string)GrmItr->second + "###ID";
+        ImGui::OpenPopup(titles[title].c_str());
+      } else
+        fmt::println("Settings values not found.");
       open_settings = false;
     }
     if (ImGui::BeginPopupModal(titles[title].c_str(), nullptr,
