@@ -2,6 +2,7 @@
 #include <sstream>
 #include <future>
 #include <charconv>
+#include <format>
 #include "popups.hpp"
 #include "look_up_saves.hpp"
 #include "imgui_stdlib.h"
