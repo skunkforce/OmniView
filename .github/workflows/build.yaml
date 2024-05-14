@@ -13,6 +13,8 @@ jobs:
           - os: windows-latest
             triplet: x64-windows
           - os: ubuntu-latest
+            compiler: gcc
+            gcc: 13
             triplet: x64-linux
 
     steps:
