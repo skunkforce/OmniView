@@ -2,7 +2,6 @@
 #include <sstream>
 #include <future>
 #include <charconv>
-#include <format>
 #include "popups.hpp"
 #include "look_up_saves.hpp"
 #include "imgui_stdlib.h"
@@ -15,8 +14,8 @@ static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  const fs::path &outFile, std::string allData, size_t &y_indx) {
 
-  allData += fmt::format("\n{}-{}\nSamplying rate is 100000\n", device.type,
-                         device.serial);
+  allData += fmt::format("\nType: {}\nSerial: {}\nSamplyingRate: {}\n", device.type,
+                        device.serial, device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
       // five bytes for each y_value, three for the number
@@ -247,7 +246,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     fs::path path;
     for (size_t i{}; const auto &[device, values] : captureData) {
       if (dvcCheckedArr[i].b) {
-        auto filename = mkFileName(std::format("device{}", i + 1).c_str());
+        auto filename = mkFileName(fmt::format("device{}", i + 1).c_str());
         if (hasSelectedPathArr[i].b) {
           path = mkdir(true, selectedPathArr[i], "", filename);
           hasSelectedPathArr[i].b = false;
@@ -278,7 +277,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
       } else { 
         ImGui::ProgressBar((float)y_indx / valuesSize, {0.f, 0.f});
         ImGui::SameLine();
-        ImGui::Text(appLanguage[Key::saving]);
+        ImGui::Text(appLanguage[Key::Saving]);
       }
     }
 }

@@ -12,7 +12,7 @@ jobs:
         include:
           - os: windows-latest
             triplet: x64-windows
-          - os: ubuntu-latest
+          - os: ubuntu-23.04 
             triplet: x64-linux
 
     steps:
@@ -89,7 +89,7 @@ jobs:
             languages/Deutsch.json
 
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-23.04 
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
 
