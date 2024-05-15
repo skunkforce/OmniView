@@ -3,6 +3,7 @@
 #define HANDLER_HEADER_HPP
 
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
+#include "languages.hpp"
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <set>
@@ -21,6 +22,7 @@ void initDevices();
 void devicesList();
 void set_config(const std::string &);
 void set_json(nlohmann::json &);
+void set_inital_config(nlohmann::json &);
 void rstSettings();
 
 #endif

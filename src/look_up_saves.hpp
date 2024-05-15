@@ -1,10 +1,10 @@
 #pragma once
-
 #include "jasonhandler.hpp"
 #include <filesystem>
 #include <fmt/format.h>
 #include <imgui.h>
 #include <nlohmann/json.hpp>
+#include "languages.hpp"
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -18,7 +18,7 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
     isTxtInptFieldsEmpty = true;
 
   std::vector<std::string> subdirectories;
-  subdirectories.push_back("New Car");
+  subdirectories.push_back(appLanguage[Key::New_Car]);
 
   if (fs::exists(saves_folder_path) && fs::is_directory(saves_folder_path)) {
     for (const auto &entry : fs::directory_iterator(saves_folder_path))
@@ -27,7 +27,7 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
   }
 
   static int selectedOption = 0;
-  static std::string selectedFolder = "New Car";
+  static std::string selectedFolder = appLanguage[Key::New_Car];
   if (!subdirectories.empty()) {
     // Creating an array of C strings (char*)
     char **vins = new char *[subdirectories.size()];
@@ -35,9 +35,16 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
       vins[i] = strdup(subdirectories[i].c_str());
 
     if (isTxtInptFieldsEmpty) {
-      const std::string newcar = "New Car";
+      const std::string newcar = appLanguage[Key::New_Car];
+      ImGui::Separator();
+      ImGui::NewLine();
+      ImGui::Text(appLanguage[Key::Additional_Information]);
+      ImGui::NewLine();
 
-      ImGui::InputText("Measurement", scantype, IM_ARRAYSIZE(scantype));
+      ImGui::Combo(appLanguage[Key::Known_Car], &selectedOption, vins,
+                   static_cast<int>(subdirectories.size()));
+
+      ImGui::InputText(appLanguage[Key::Measurement], scantype, IM_ARRAYSIZE(scantype));
 
       if (selectedOption == 0) {
         ImGui::InputText("Fin/Vin", inputvin, IM_ARRAYSIZE(inputvin),
@@ -47,25 +54,25 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
         selectedFolder = inputvin;
       }
 
-      ImGui::InputText("Mileage", mileage, IM_ARRAYSIZE(mileage));
+      ImGui::InputText(appLanguage[Key::Mileage], mileage, IM_ARRAYSIZE(mileage));
 
       // Using vins (char* array) with ImGui
-      if (ImGui::Combo("Known Cars", &selectedOption, vins,
-                       static_cast<int>(subdirectories.size())))
-        selectedFolder = subdirectories[selectedOption];
-    } else {
-      // Using vins (char* array) with ImGui
-      if (ImGui::Combo("Known Cars", &selectedOption, vins,
-                       static_cast<int>(subdirectories.size())))
-        selectedFolder = subdirectories[selectedOption];
-
-      static char VIN[18];
-      const std::string newcar = "New Car";
+      }else {
+      ImGui::Combo(appLanguage[Key::Known_Car], &selectedOption, vins,
+                   static_cast<int>(subdirectories.size()));
 
       if (selectedOption == 0) {
-        ImGui::InputText("Fin/Vin", VIN, IM_ARRAYSIZE(VIN));
-        selectedFolder = VIN;
+        ImGui::InputText("Fin/Vin", inputvin, IM_ARRAYSIZE(inputvin));
+        selectedFolder = inputvin;
       }
+      static char VIN[18];
+      const std::string newcar = appLanguage[Key::New_Car];
+
+      ImGui::Separator();
+      ImGui::Text(appLanguage[Key::Additional_Information]);
+      ImGui::NewLine();
+      ImGui::InputText(appLanguage[Key::Measurement], scantype, IM_ARRAYSIZE(scantype));
+      ImGui::InputText(appLanguage[Key::Mileage], mileage, IM_ARRAYSIZE(mileage));
     }
   }
 
