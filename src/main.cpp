@@ -92,6 +92,9 @@ int main() {
             sampler.emplace(deviceManager, std::move(devices));
             flagPaused = false;
             flagDataNotSaved = true;
+            for(auto& device : devices){
+                device->send(Omniscope::Start{});
+            }
           }
           ImGui::PopStyleColor(3);
         }
@@ -99,8 +102,12 @@ int main() {
     } else {
       // ############################ Stop Button
       set_button_style_to(config, "stop");
-      if (ImGui::Button(appLanguage[Key::Stop], toolBtnSize))
+      if (ImGui::Button(appLanguage[Key::Stop], toolBtnSize)){
         flagPaused = true;
+        for(auto& device : sampler->sampleDevices){
+            device.first->send(Omniscope::Stop{});
+        }
+      }
       ImGui::PopStyleColor(3);
     }
     if (flagPaused) {
@@ -112,15 +119,21 @@ int main() {
         if (ImGui::Button(appLanguage[Key::Continue], toolBtnSize)) {
           flagPaused = false;
           flagDataNotSaved = true;
+          for(auto& device : sampler->sampleDevices){
+            device.first->send(Omniscope::Start{});
+          }
         }
         ImGui::PopStyleColor(3);
         ImGui::SameLine();
 
         set_button_style_to(config, "stop");
         if (ImGui::Button(appLanguage[Key::Reset], toolBtnSize)) {
-          if (flagDataNotSaved)
+          if (flagDataNotSaved){
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
-          else {
+            for(auto& device : sampler->sampleDevices){
+                device.first->send(Omniscope::Stop{});
+            }
+        } else {
             rstSettings();
             flagPaused = true;
           }
@@ -160,7 +173,7 @@ int main() {
     if (open_settings) {
       const auto EngItr = englishLan.find(Key::Settings);
       const auto GrmItr = germanLan.find(Key::Settings);
-      // check returned value from find() and set titles 
+      // check returned value from find() and set titles
       if (EngItr != englishLan.end() && GrmItr != germanLan.end()) {
         titles[0] = (std::string)EngItr->second + "###ID";
         titles[1] = (std::string)GrmItr->second + "###ID";
@@ -188,17 +201,44 @@ int main() {
                       ImGuiChildFlags_Border);
 
     addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {
-      if (!flagPaused) {
-        ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
+      ImPlot::SetupLegend(ImPlotLocation_NorthEast);
+      std::string y_label{"y [ADC counts]"};
+      std::string x_label{"x [data points]"};
+      if(sampler.has_value()){
+        for(auto& device : sampler->sampleDevices){
+          if(device.first->getEgu().has_value()){
+              y_label = device.first->getEgu().value();
+          }
+          if(device.first->getScale().has_value() && device.first->getOffset().has_value() && device.first->getTimeScale().has_value()){
+              x_label = "time [s]";
+          }
+          if (!flagPaused) {
+            ImPlot::SetupAxes(x_label.c_str(), fmt::format("Voltage {}", y_label).c_str(),
                           ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-        ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+            ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 5, x_max + 5,
                                 ImGuiCond_Always);
-      } else {
-        xmax_paused = x_max;
-        ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
-        ImPlot::SetupAxesLimits(0, 10, -10, 200);
-        ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-        ImPlot::SetupLegend(ImPlotLocation_NorthEast);
+            //TODO evaluate y max and add + 5V 
+            ImPlot::SetupAxisLimits(ImAxis_Y1, -10, 10,
+                                ImGuiCond_Always);
+          } else {
+            xmax_paused = x_max;
+            ImPlot::SetupAxes(x_label.c_str(), fmt::format("Voltage {}", y_label).c_str());
+            ImPlot::SetupAxesLimits(-10, 10, -10, 200);
+            ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+          }
+        }
+      }else{
+        if (!flagPaused) {
+            ImPlot::SetupAxes(x_label.c_str(), y_label.c_str(),
+                          ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
+                                ImGuiCond_Always);
+        } else {
+            xmax_paused = x_max;
+            ImPlot::SetupAxes(x_label.c_str(), y_label.c_str());
+            ImPlot::SetupAxesLimits(0, 10, -10, 200);
+            ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+        }
       }
     });
     ImGui::EndChild(); // end child Record Data
@@ -212,7 +252,7 @@ int main() {
     ImGui::Dummy({windowSize.x * .36f, 0.f});
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
-    devicesList();
+    devicesList(flagPaused);
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();

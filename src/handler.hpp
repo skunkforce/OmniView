@@ -18,8 +18,9 @@ inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
     captureData;
 
 void addPlots(const char *, const bool, std::function<void(double)>);
+void parseDeviceMetaData(Omniscope::MetaData, std::shared_ptr<OmniscopeDevice>&);
 void initDevices();
-void devicesList();
+void devicesList(bool const& flagPaused);
 void set_config(const std::string &);
 void set_json(nlohmann::json &);
 void set_inital_config(nlohmann::json &);

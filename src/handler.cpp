@@ -71,13 +71,32 @@ void addPlots(const char *name, const bool flagPaused,
   }
 }
 
+void parseDeviceMetaData(Omniscope::MetaData metaData, std::shared_ptr<OmniscopeDevice>& device){
+    try{
+        nlohmann::json metaJson = nlohmann::json::parse(metaData.data);
+        fmt::print("{}\n", metaJson.dump());
+        device->setScale(std::stod(metaJson["scale"].dump()));
+        device->setOffset(std::stod(metaJson["offset"].dump()));
+        device->setEgu(metaJson["egu"]);
+    }catch(...){
+        fmt::print("parsing Meta Data error: {}", metaData.data);
+    }
+}
+
 void initDevices() {
   constexpr int VID = 0x2e8au;
   constexpr int PID = 0x000au;
 
   devices = deviceManager.getDevices(VID, PID);
   for (auto &device : devices) {
+    auto metaDataCb = [&](auto const& msg) {
+        if (std::holds_alternative<Omniscope::MetaData>(msg)) {
+            parseDeviceMetaData(std::get<Omniscope::MetaData>(msg), device);
+        }
+    };
     auto id = device->getId().value();
+    auto sampleRate = static_cast<double>(id.sampleRate);
+    device->setTimeScale(static_cast<double>(1 / sampleRate));
     if (!colorMap.contains(id)) {
       ImPlot::PushColormap(ImPlotColormap_Dark);
       auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
@@ -88,10 +107,12 @@ void initDevices() {
     device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
                                    static_cast<std::uint8_t>(color[1] * 255),
                                    static_cast<std::uint8_t>(color[2] * 255)});
+    device->setMessageCallback(metaDataCb);
+    device->send(Omniscope::GetMetaData{});
   }
 }
 
-void devicesList() {
+void devicesList(bool const& flagPaused) {
   auto doDevice = [&](auto &device, auto msg) {
     auto &color = colorMap[device->getId().value()];
     if (ImGui::ColorEdit3(
@@ -124,8 +145,13 @@ void devicesList() {
   };
 
   if (sampler.has_value())
-    for (auto &device : sampler->sampleDevices)
-      doDevice(device.first, appLanguage[Key::Measurement]);
+    for (auto &device : sampler->sampleDevices){
+      if(!flagPaused){
+        doDevice(device.first, appLanguage[Key::Measurement]);
+      }else{
+        doDevice(device.first, appLanguage[Key::Stop]);
+      }
+    }
   else
     for (auto &device : devices)
       doDevice(device, appLanguage[Key::Ready]);
