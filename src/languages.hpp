@@ -68,7 +68,8 @@ enum class Key {
   Browse,
   Battery_measure,
   Attitude,
-  German
+  German,
+  Costumer_id
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -135,7 +136,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Browse, "Browse"},
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
-    {Key::German, "German"}};
+    {Key::German, "German"},
+    {Key::Costumer_id, "Costumer ID"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Menu, "Menü"},
@@ -201,7 +203,8 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Browse, "Durchsuche"},
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
-    {Key::German, "Deutch"}};
+    {Key::German, "Deutch"},
+    {Key::Costumer_id, "Benutzer ID"}};
 
 inline auto appLanguage = englishLan;
 #endif

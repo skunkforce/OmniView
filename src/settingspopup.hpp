@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+#include <imgui_stdlib.h>
 
 static void popup_settings(nlohmann::json &config, nlohmann::json &language,
                            std::string const &configpath) {
@@ -16,6 +17,17 @@ static void popup_settings(nlohmann::json &config, nlohmann::json &language,
   if (fontscale < load_json<float>(newconfig, "text", "minscale")) {
     fontscale = load_json<float>(newconfig, "text", "minscale");
   }
+  //create id and save in config (works but old id doesnt load)
+  //static char Costumer_id[20]= "";
+  //ImGui::InputText(fmt::format("{}", appLanguage[Key::Costumer_id]).c_str(),Costumer_id, sizeof(Costumer_id));
+  //newconfig["Costumer_id"]= Costumer_id;
+                  //for comparison:     //load_json<std::string>(language, "settings", "buttonexplain").c_str()
+  //new idea: load id from config file
+  //std::string KnownCostumer_id = load_json<std::string>(config, "Costumer_id");
+  //ImGui::InputText(fmt::format("{}", appLanguage[Key::Costumer_id]).c_str(), &KnownCostumer_id);
+  //newconfig["Costumer_id"]= KnownCostumer_id;
+//error: key not found initially in config, does not save when closed
+
   ImGuiIO &io = ImGui::GetIO();
   io.FontGlobalScale = fontscale;
   std::string fontscalestring = fmt::format(
