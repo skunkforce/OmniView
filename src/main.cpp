@@ -18,7 +18,6 @@ int main() {
   double xmax_paused{0};
   bool open_settings = false;
   bool open_generate_training_data = false;
-  bool upload_success = false;
   static bool flagPaused = true;
   bool flagDataNotSaved = true;
   bool Development = false;
@@ -173,7 +172,7 @@ int main() {
     if (ImGui::BeginPopupModal(titles[title].c_str(), nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      popup_settings(config, language, configpath, title);
+      popup_settings(config, configpath, title);
       ImGui::EndPopup();
     }
     // Generate training data popup
