@@ -78,7 +78,8 @@ enum class Key {
   German,
   Ready,
   FontSize,
-  SettingsText
+  SettingsText,
+  Saving
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -155,7 +156,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::German, "German"},
     {Key::Ready, "Ready"},
     {Key::FontSize, "Fontsize"},
-    {Key::SettingsText, "Set your personal settings for the software"}};
+    {Key::SettingsText, "Set your personal settings for the software"},
+    {Key::Saving, "saving ..."}};
 
 
 inline const std::map<Key, const char *> germanLan{
@@ -233,7 +235,8 @@ inline const std::map<Key, const char *> germanLan{
     {Key::German, "Deutsch"},
     {Key::Ready, "Bereit"},
     {Key::FontSize, "Schriftgröße"},
-    {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"}};
+    {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"},
+    {Key::Saving, "speichern ..."}};
 
 inline auto appLanguage = englishLan;
 #endif
