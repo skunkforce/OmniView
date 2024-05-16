@@ -13,19 +13,17 @@ namespace fs = std::filesystem;
 static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  const fs::path &outFile, std::string allData, size_t &y_indx) {
-
-  allData += fmt::format("\nType: {}\nSerial: {}\nSamplyingRate: {}\n",
+  allData += fmt::format(",Type: {},Serial: {},SamplyingRate: {}\n",
                          device.type, device.serial, device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
       // five bytes for each y_value, three for the number
       // and two spaces as a separator between the numbers
-      values.size() * 5, [&values, &y_indx](char *begin, std::size_t) {
+      values.size() * 4, [&values, &y_indx](char *begin, std::size_t) {
         auto end = begin;
         for (; y_indx < values.size(); y_indx++) {
           end = std::to_chars(end, end + 3, values[y_indx].second).ptr;
-          *end++ = ' ';
-          *end++ = ' ';
+          *end++ = '\n';
         }
         return end - begin;
       });
