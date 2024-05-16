@@ -10,6 +10,7 @@
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
 #include "../imgui-filebrowser/imfilebrowser.h"
 
+
 // Have address of bool for std::vector
 struct BoolWrapper {
   BoolWrapper() : b(false) {}
@@ -25,6 +26,7 @@ void generateTrainingData(
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &,
     std::set<std::string> &, const nlohmann::json &);
 void info_popup(std::string_view, std::string_view);
+void info_popup_test(std::string title, std::string const& text);
 void saves_popup(
     nlohmann::json const &, nlohmann::json const &,
     std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &,

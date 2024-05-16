@@ -2,6 +2,7 @@
 #include "settingspopup.hpp"
 #include "style.hpp"
 #include <cmake_git_version/version.hpp>
+#include "VCDS_data.hpp"
 
 int main() {
   const std::string configpath = "config/config.json";
@@ -22,6 +23,8 @@ int main() {
   bool flagDataNotSaved = true;
   bool Development = false;
   bool flagInitState = true;
+  bool open_VCDS = false; 
+  bool upload_success = false; 
 
   // main loop
   auto render = [&]() {
@@ -192,6 +195,18 @@ int main() {
     if (open_generate_training_data)
       generateTrainingData(open_generate_training_data, captureData,
                            savedFileNames, config);
+
+     // ############################### VCDS Menu
+    if (open_VCDS) {
+      ImGui::OpenPopup("Generiere Trainingsdaten");
+      open_VCDS = false;
+    }
+    if (ImGui::BeginPopupModal("Generiere Trainingsdaten", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      ImGui::SetItemDefaultFocus();
+      popup_create_training_data_select(config, upload_success);
+      ImGui::EndPopup();
+    }
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});

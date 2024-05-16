@@ -290,6 +290,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     initDevices();
   }
 
+    if (ImGui::Button("Generiere Trainingsdaten/ VCDS")) {
+    open_VCDS = true;
+  }
+
   static bool showDiag = false;
   const bool showDiagPrev = showDiag;
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
