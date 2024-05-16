@@ -17,8 +17,8 @@ static void save(const Omniscope::Id &device,
                          device.type, device.serial, device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
-      // five bytes for each y_value, three for the number
-      // and two spaces as a separator between the numbers
+      // four bytes for each y_value, three for the number
+      // and one new line as a separator between the numbers
       values.size() * 4, [&values, &y_indx](char *begin, std::size_t) {
         auto end = begin;
         for (; y_indx < values.size(); y_indx++) {
@@ -97,7 +97,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   }
 
   static char scantype[255] = "";
-  static char vin[18] = "";
+  static char vin[19] = "";
   static char mileage[10] = "";
   std::string inputvin =
       getSubdirectoriesInFolder(language, "saves", scantype, vin, mileage);
@@ -226,7 +226,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (ImGui::Button(appLanguage[Key::Back])) {
     ImGui::CloseCurrentPopup();
   }
-  ImGui::SameLine(ImGui::GetWindowWidth() - 100.f); // offset from start x
+  ImGui::SameLine(ImGui::GetWindowWidth() * 0.75f); // offset from start x
 
   static std::future<void> future;
   static size_t y_indx; // used for the progress bar too

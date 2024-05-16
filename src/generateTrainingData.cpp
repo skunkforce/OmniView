@@ -100,7 +100,7 @@ void generateTrainingData(
 
     static std::string Measurement;
     // one extra space for '\0' character
-    static char VIN[18];
+    static char VIN[19];
     static std::string Mileage;
     static std::vector<double> file_measuring_vals; // measurement values
     static bool grayFields = false;
@@ -236,8 +236,7 @@ void generateTrainingData(
       s += data->EventChar;
       // strlen is updated when entered char passes the filter
       size_t indx = strlen(VIN);
-
-      if (indx < 17)
+      if (indx < 18)
         return !std::regex_match(
             s, chars_regex); // return 0 as passed for matched chars
       return 1;              // discard exceeding chars
