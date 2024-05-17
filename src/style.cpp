@@ -23,9 +23,11 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   auto colors = ImGui::GetStyle().Colors;
   colors[ImGuiCol_Text] = {1.f, 1.f, 1.f, 1.f};
   colors[ImGuiCol_TextDisabled] = {0.972f, 0.976, 0.98f, 0.98f};
-  colors[ImGuiCol_WindowBg] = {0.145f, 0.157f, 0.169f, 1.f};
-  colors[ImGuiCol_ChildBg] = {0.145f, 0.157f, 0.169f, 1.f};
-  colors[ImGuiCol_PopupBg] = {0.145f, 0.157f, 0.169f, 1.f};
+  colors[ImGuiCol_WindowBg] = {0.0f, 0.0f, 0.0f,
+             1.0f};
+  colors[ImGuiCol_ChildBg] = {0.0f, 0.0f, 0.0f,
+             1.0f};
+  colors[ImGuiCol_PopupBg] = {37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 100 / 100.0f};
   colors[ImGuiCol_Border] = {0.94f, 0.243f, 0.212f, 1.0f};
   colors[ImGuiCol_BorderShadow] = {0.f, 0.f, 0.f, 1.f};
   // changes the color of the frame bg for the plot window
@@ -254,10 +256,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 
   // The order matters because of the counter for the images !!!
   static const unsigned char *imagesNames[] = {
-      OmnAIScope_logo_wei______png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
+      OmnAiLogo_png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
       HelpIcon_png};
   static const unsigned int imagesLen[] = {
-     OmnAIScope_logo_wei______png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
+     OmnAiLogo_png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
       SettingIcon_png_len, HelpIcon_png_len};
   // Load the images for the SideBarMenu
   for (size_t i = 0; i < size; i++)
@@ -269,8 +271,8 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
-  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.00012;
-  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.00036;
+ float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0003;
+  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0005;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -290,11 +292,13 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     initDevices();
   }
 
-    if (ImGui::Button("Generiere Trainingsdaten/ VCDS")) {
+    if (loaded_png[++PngRenderedCnt] && ImGui::ImageButtonWithText(
+          (void *)(intptr_t)image_texture[PngRenderedCnt],
+          appLanguage[Key::Diagnostics])) {
     open_VCDS = true;
   }
 
-  static bool showDiag = false;
+ /* static bool showDiag = false;
   const bool showDiagPrev = showDiag;
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
       ImGui::ImageButtonWithText(
@@ -314,7 +318,7 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
       showDiag = false;
     }
     ImGui::TreePop();
-  }
+  }*/
 
   static bool showSettings = false;
   const bool showSettingsPrev = showSettings;

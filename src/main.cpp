@@ -95,7 +95,7 @@ int main() {
     static int image_height[size];
     static int image_width[size];
     static GLuint image_texture[size];
-    static constexpr float iconsSacle{0.5f};
+    static constexpr float iconsSacle{0.8f};
 
     // The order matters because of the counter for the images !!!
     static const unsigned char *imagesNames[] = {
@@ -114,7 +114,7 @@ int main() {
           fmt::println("Error Loading Png #{}.", i);
       }
 
-    ImGui::SetCursorPosY(windowSize.y * 0.05f);
+   // ImGui::SetCursorPosY(windowSize.y * 0.05f);
 
     if (flagPaused) {
       // ######################## Buttonstripe
