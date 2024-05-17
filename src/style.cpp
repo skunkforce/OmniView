@@ -254,10 +254,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 
   // The order matters because of the counter for the images !!!
   static const unsigned char *imagesNames[] = {
-      AutoInternLogo_png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
+      OmnAIScope_logo_wei______png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
       HelpIcon_png};
   static const unsigned int imagesLen[] = {
-      AutoInternLogo_png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
+     OmnAIScope_logo_wei______png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
       SettingIcon_png_len, HelpIcon_png_len};
   // Load the images for the SideBarMenu
   for (size_t i = 0; i < size; i++)
@@ -269,8 +269,8 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
-  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005;
-  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008;
+  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.00012;
+  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.00036;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
