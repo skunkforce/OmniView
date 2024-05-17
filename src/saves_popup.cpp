@@ -228,7 +228,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (ImGui::Button(appLanguage[Key::Back])) {
     ImGui::CloseCurrentPopup();
   }
-  ImGui::SameLine(ImGui::GetWindowWidth() - 100.f); // offset from start x
+  ImGui::SameLine(ImGui::GetWindowWidth() * 0.75f); // offset from start x
 
   static std::future<void> future;
   static size_t y_indx; // used for the progress bar too
