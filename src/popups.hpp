@@ -21,6 +21,10 @@ struct BoolWrapper {
 inline ImGui::FileBrowser fileBrowser;
 inline ImGui::FileBrowser
     directoryBrowser(ImGuiFileBrowserFlags_SelectDirectory);
+inline ImGui::FileBrowser
+    directoryBrowser_VCDS(ImGuiFileBrowserFlags_SelectDirectory);
+inline ImGui::FileBrowser
+    directoryBrowser_GenerateData(ImGuiFileBrowserFlags_SelectDirectory);
 void generateTrainingData(
     bool &,
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &,

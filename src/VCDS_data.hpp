@@ -27,35 +27,33 @@ static void show_standart_input(nlohmann::json const &config,
   static char mileage[10];
   static char comment[1000];
 
-  static ImGui::FileBrowser fileBrowser;
+  static bool hasSelectedPath;
+
+  /*static ImGui::FileBrowser fileBrowser;
   static bool first_job = true;
 
   if (first_job) {
     fileBrowser.SetPwd(load_json<std::filesystem::path>(config, "scanfolder"));
     first_job = false;
   }
-
+ */
   ImGui::Text("Messdaten auswählen");
 
   ImGui::InputText("##path1", path1, sizeof(path1));
   ImGui::SameLine();
-  if (ImGui::Button("Durchsuchen")) {
-    fileBrowser.Open();
-  }
+  if (ImGui::Button("Durchsuchen"))
+    directoryBrowser_GenerateData.Open();
 
-  fileBrowser.Display();
-  if (fileBrowser.HasSelected()) {
+  directoryBrowser_GenerateData.Display();
+
+  if (directoryBrowser_GenerateData.HasSelected()) {
     std::string filepath;
-    for (auto const &selectedFile : fileBrowser.GetSelected()) {
-      if (!filepath.empty()) {
-        filepath += "\\";
-      }
-      filepath += selectedFile.string();
-    }
+    hasSelectedPath = true;
+    filepath = directoryBrowser_GenerateData.GetPwd().string();
     strcpy(path1, filepath.c_str());
-
-    fileBrowser.ClearSelected();
+    directoryBrowser_GenerateData.ClearSelected();
   }
+
   ImGui::Columns(1);
 
   ImVec2 windowSize = ImGui::GetWindowSize();
@@ -115,38 +113,27 @@ static void show_standart_input(nlohmann::json const &config,
   metadata["Anormales Verhalten"] = anomaly;
 }
 
-static void select_vcds_data(nlohmann::json const &config, char *PATH2) {
+static void select_vcds_data(nlohmann::json const &config, char *path2) {
 
-  static ImGui::FileBrowser fileBrowser_VCDS;
-  static bool first_job_VCDS = true;
-
-  if (first_job_VCDS) {
-    fileBrowser_VCDS.SetPwd(
-        load_json<std::filesystem::path>(config, "scanfolder"));
-    first_job_VCDS = false;
-  }
+  static bool hasSelectedPath_VCDS = false;
 
   ImGui::Text("VCDS Daten auswählen");
 
-  ImGui::InputText("##PATH2", PATH2, sizeof(PATH2));
+  ImGui::InputText("##path2", path2, sizeof(path2));
   ImGui::SameLine();
-  if (ImGui::Button("Durchsuche")) {
-    fileBrowser_VCDS.Open();
-  }
+  if (ImGui::Button("Durchsuche"))
+    directoryBrowser_VCDS.Open();
 
-  fileBrowser_VCDS.Display();
-  if (fileBrowser_VCDS.HasSelected()) {
+  directoryBrowser_VCDS.Display();
+
+  if (directoryBrowser_VCDS.HasSelected()) {
     std::string filepath_VCDS;
-    for (auto const &selectedFile_VCDS : fileBrowser_VCDS.GetSelected()) {
-      if (!filepath_VCDS.empty()) {
-        filepath_VCDS += "/";
-      }
-      filepath_VCDS += selectedFile_VCDS.string();
-    }
-    strcpy(PATH2, filepath_VCDS.c_str());
-
-    fileBrowser_VCDS.ClearSelected();
+    hasSelectedPath_VCDS = true;
+    filepath_VCDS = directoryBrowser_VCDS.GetPwd().string();
+    strcpy(path2, filepath_VCDS.c_str());
+    directoryBrowser_VCDS.ClearSelected();
   }
+
   ImGui::Columns(1);
 }
 
