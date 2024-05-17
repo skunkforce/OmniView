@@ -318,8 +318,11 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
       }
       // ImGui::CloseCurrentPopup();
     } else {
-      ImGui::SameLine();
-      ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+      if (data_was_send) {
+        ImGui::SameLine();
+        ImGui::Text("senden... %c",
+                    "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+      }
     }
   }
 
