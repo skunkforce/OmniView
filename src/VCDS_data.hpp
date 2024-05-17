@@ -153,8 +153,8 @@ inline void send_VCDS_data(nlohmann::json const &config,
                                 nlohmann::json &metadata,
                                 std::string &inputvin,
                                 std::string &mileage,
-                                std::string &comment, bool &flagApiSending_VCDS, std::future<std::string> &future_VCDS, bool wurdegesendet_VCDS, 
-                                char* path2, std::string &api_message, bool &upload_success){
+                                std::string &comment, bool &flagApiSending_VCDS, std::future<std::string> &future_VCDS, bool &wurdegesendet_VCDS, 
+                                char* path2, std::string &api_message_VCDS, bool &upload_success){
  using namespace std::chrono_literals;
   if (!flagApiSending_VCDS) {
       wurdegesendet_VCDS = true;
@@ -177,9 +177,9 @@ inline void send_VCDS_data(nlohmann::json const &config,
       upload_success = true;
       flagApiSending_VCDS = false;
       if (future_VCDS.valid()) {
-        api_message = future_VCDS.get();
+        api_message_VCDS = future_VCDS.get();
         if (wurdegesendet_VCDS) {
-         ImGui::OpenPopup("message");
+        // ImGui::OpenPopup("message");
         wurdegesendet_VCDS = false;
         }
       }
@@ -192,7 +192,7 @@ inline void send_VCDS_data(nlohmann::json const &config,
   
   // Open API Message 
     if (!flagApiSending_VCDS && !wurdegesendet_VCDS) {
-        info_popup_test("message", api_message.c_str());
+       // info_popup_test("message", api_message_VCDS.c_str());
     }
 }
 
@@ -200,10 +200,9 @@ inline void send_battery_measurement(nlohmann::json const &config,
                                 nlohmann::json &metadata,
                                 std::string &inputvin,
                                 std::string &mileage,
-                                std::string &comment, bool &flagApiSending, std::future<std::string> &future, bool wurdegesendet, 
-                                char* path1, std::string &api_message, bool &upload_success){
+                                std::string &comment, bool &flagApiSending, std::future<std::string> &future, bool &wurdegesendet, 
+                                char* path1){
  // Sending Battery Measurement to API 
-  using namespace std::chrono_literals;
   if (!flagApiSending) {
       wurdegesendet = true;
       metadata["kommentar"] = comment;
@@ -216,30 +215,7 @@ inline void send_battery_measurement(nlohmann::json const &config,
       });
       flagApiSending = true;
   }
-  if (flagApiSending) {
-    ImGui::PushStyleColor(
-        ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
-    ImGui::PopStyleColor();
-    auto status = future.wait_for(10ms);
-    if (status == std::future_status::ready) {
-      upload_success = true;
-      flagApiSending = false;
-      if (future.valid()) {
-        api_message = future.get();
-         if (wurdegesendet) {
-         ImGui::OpenPopup("message");
-        wurdegesendet = false;
-        }
-      }
-      // ImGui::CloseCurrentPopup();
-    } else {
-      ImGui::SameLine();
-      ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-    }
-  }
- if (!flagApiSending && !wurdegesendet) {
-        info_popup_test("message", api_message.c_str());
-    }
+    
 }
 
 inline void popup_create_training_data_select(nlohmann::json const &config,
@@ -259,6 +235,7 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
   static std::string comment = "";
   static nlohmann::json metadata;
   static std::string api_message;
+  static std::string api_message_VCDS;
   static char path1[255];
   static char path2[255];
   static bool VCDS_is_selected = false; 
@@ -284,6 +261,9 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
    static bool flagApiSending = false;
   static std::future<std::string> future;
    static bool wurdegesendet = false;
+   static bool test = false; 
+
+     using namespace std::chrono_literals;
 
     if(ImGui::Button("SENDEN", ImVec2(load_json<Size>(config, "button")))){
         switch(selectedOption){
@@ -292,19 +272,45 @@ inline void popup_create_training_data_select(nlohmann::json const &config,
                                 metadata,
                                 inputvin,
                                 mileage,
-                                comment, flagApiSending_VCDS, future_VCDS, wurdegesendet_VCDS, path1, api_message, upload_success);
+                                comment, flagApiSending, future, wurdegesendet, path1);
                  break; 
             default:
                      ImGui::Text("Fehler, Switchcase mit unerwarteter Auswahl");
         }
-        if(VCDS_is_selected){
+       /* if(VCDS_is_selected){
             send_VCDS_data(config, 
                                 metadata,
                                 inputvin,
                                 mileage,
-                                comment, flagApiSending, future, wurdegesendet, path2, api_message, upload_success); 
-        }
+                                comment, flagApiSending, future, wurdegesendet, path2, api_message_VCDS, upload_success); 
+        }*/
    }
+   
+    if (flagApiSending) {
+    ImGui::PushStyleColor(
+        ImGuiCol_Text, load_json<Color>(config, "text", "color", "inactive"));
+    ImGui::PopStyleColor();
+    auto status = future.wait_for(10ms);
+    if (status == std::future_status::ready) {
+      upload_success = true;
+      flagApiSending = false;
+      if (future.valid()) {
+        api_message = future.get();
+         if (wurdegesendet) {
+         ImGui::OpenPopup("message");
+        wurdegesendet = false;
+        }
+      }
+      // ImGui::CloseCurrentPopup();
+    } else {
+      ImGui::SameLine();
+      ImGui::Text("senden... %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+    }
+  }
+
+  if (!flagApiSending && !wurdegesendet) {
+    info_popup_test("message", api_message.c_str());
+  }
 
   ImGui::SameLine();
   if (ImGui::Button("schließen", ImVec2(load_json<Size>(config, "button")))) {
