@@ -48,7 +48,7 @@ static void show_standart_input(nlohmann::json const &config,
     std::string filepath;
     for (auto const &selectedFile : fileBrowser.GetSelected()) {
       if (!filepath.empty()) {
-        filepath += "/";
+        filepath += "\\";
       }
       filepath += selectedFile.string();
     }
