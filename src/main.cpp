@@ -53,7 +53,7 @@ int main() {
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     set_side_menu(config, flagPaused, open_settings,
-                  open_generate_training_data);
+                  open_generate_training_data, open_VCDS);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"

@@ -241,7 +241,7 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
 }
 
 void set_side_menu(const nlohmann::json &config, bool &flagPaused,
-                   bool &open_settings, bool &open_generate_training_data) {
+                   bool &open_settings, bool &open_generate_training_data, bool &open_VCDS) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images

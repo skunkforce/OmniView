@@ -16,7 +16,7 @@ inline constexpr ImVec4 normColStyle{0.1f, 0.1f, 0.1f, 1.f};
 void SetupImGuiStyle(bool, float, const nlohmann::json &);
 void set_button_style_to(const nlohmann::json &, const std::string &);
 bool LoadTextureFromHeader(unsigned char const *, int, GLuint *, int *, int *);
-void set_side_menu(const nlohmann::json &, bool &, bool &, bool &);
+void set_side_menu(const nlohmann::json &, bool &, bool &, bool &, bool &);
 
 void PopupStyleEditor();
 
