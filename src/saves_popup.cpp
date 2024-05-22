@@ -41,8 +41,6 @@ static void save(const Omniscope::Id &device,
   fmt::print("Finished saving.\n");
 }
 void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
-                 std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
-                     &captureData,
                  std::chrono::system_clock::time_point &now,
                  std::time_t &now_time_t, std::tm &now_tm,
                  bool &flagDataNotSaved) {

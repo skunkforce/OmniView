@@ -17,7 +17,7 @@ inline std::optional<OmniscopeSampler> sampler{};
 inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
     captureData;
 
-void addPlots(const char *, const bool, std::function<void(double)>);
+void addPlots(const char *, std::function<void(double)>);
 void initDevices();
 void devicesList();
 void set_config(const std::string &);

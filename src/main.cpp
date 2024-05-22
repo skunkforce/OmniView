@@ -15,13 +15,13 @@ int main() {
   auto now = std::chrono::system_clock::now();
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   std::tm now_tm = *std::gmtime(&now_time_t);
-  double xmax_paused{0};
   bool open_settings = false;
   bool open_generate_training_data = false;
   static bool flagPaused = true;
   bool flagDataNotSaved = true;
   bool Development = false;
   bool flagInitState = true;
+  bool load_old_data = false;
 
   // main loop
   auto render = [&]() {
@@ -29,7 +29,7 @@ int main() {
       set_inital_config(config);
       flagInitState = false;
     }
-    SetupImGuiStyle(false, 0.99f, config);
+    SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
@@ -49,10 +49,51 @@ int main() {
     }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
-    set_side_menu(config, flagPaused, open_settings,
-                  open_generate_training_data);
+    set_side_menu(config, open_settings, open_generate_training_data);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
+    if (!sampler.has_value()) {
+      if (ImGui::Button("Display file data"))
+        fileBrowser.Open();
+      ImGui::SameLine();
+      if (ImGui::Button("Exit")) {
+        captureData.clear();
+        load_old_data = false;
+      }
+    }
+    static std::filesystem::path fileName;
+    fileBrowser.Display();
+    if (fileBrowser.HasSelected()) {
+      fileName = fileBrowser.GetSelected();
+      fileBrowser.ClearSelected();
+      captureData.clear(); // clear if it's alreay filled
+                           // example data
+      Omniscope::Id id{"E4620C205B234D21", "Omniscope", 100'000};
+      std::ifstream readfile(fileName, std::ios::binary);
+      if (!readfile.is_open())
+        fmt::println("Failed to open file {}", fileName);
+      else {
+        size_t indx{2};
+        std::string first_line;
+        std::getline(readfile, first_line);
+        while (!readfile.eof()) {
+          double value{};
+          readfile >> value;
+          captureData[id].emplace_back(indx++, value);
+          static constexpr size_t bigNumber{10'000'000};
+          readfile.ignore(bigNumber,
+                          '\n'); // new line separator between elements
+        }
+        load_old_data = true;
+        readfile.close();
+        // pop the extra last element
+        captureData[id].pop_back();
+      }
+    }
+    ImGui::SetCursorPosY(windowSize.y * 0.9f);
+    ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
+                            CMakeGitVersion::VersionWithGit)
+                    .c_str());
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
     ImGui::BeginChild("Right Side", {0.f, 0.f});
@@ -64,7 +105,7 @@ int main() {
     if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, captureData, now, now_time_t, now_tm,
+      saves_popup(config, language, now, now_time_t, now_tm,
                   flagDataNotSaved);
       ImGui::EndPopup();
     }
@@ -178,7 +219,7 @@ int main() {
     // Generate training data popup
     if (open_generate_training_data)
       generateTrainingData(open_generate_training_data, captureData,
-                           savedFileNames, config);
+                           savedFileNames);
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
@@ -187,14 +228,13 @@ int main() {
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
                       ImGuiChildFlags_Border);
 
-    addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {
+    addPlots("Recording the data", [](double x_max) {
       if (!flagPaused) {
         ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
                           ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
                                 ImGuiCond_Always);
       } else {
-        xmax_paused = x_max;
         ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
         ImPlot::SetupAxesLimits(0, 10, -10, 200);
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
@@ -213,6 +253,8 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList();
+    if (load_old_data)
+      ImGui::TextUnformatted(fileName.filename().string().c_str());
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();

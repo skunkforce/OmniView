@@ -11,10 +11,9 @@
 #include <string>
 #include <vector>
 
-void SetupImGuiStyle(bool bStyleDark_, float alpha_,
-                     const nlohmann::json &config) {
+void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
-  ImGuiIO &io = ImGui::GetIO();
+  // ImGuiIO &io = ImGui::GetIO();
   // io.FontGlobalScale = load_json<float>(config, "text", "scale");
 
   ImGui::GetStyle().Alpha = 1.0f;
@@ -22,7 +21,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
 
   auto colors = ImGui::GetStyle().Colors;
   colors[ImGuiCol_Text] = {1.f, 1.f, 1.f, 1.f};
-  colors[ImGuiCol_TextDisabled] = {0.972f, 0.976, 0.98f, 0.98f};
+  colors[ImGuiCol_TextDisabled] = {0.972f, 0.976f, 0.98f, 0.98f};
   colors[ImGuiCol_WindowBg] = {0.145f, 0.157f, 0.169f, 1.f};
   colors[ImGuiCol_ChildBg] = {0.145f, 0.157f, 0.169f, 1.f};
   colors[ImGuiCol_PopupBg] = {0.145f, 0.157f, 0.169f, 1.f};
@@ -30,7 +29,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   colors[ImGuiCol_BorderShadow] = {0.f, 0.f, 0.f, 1.f};
   // changes the color of the frame bg for the plot window
   colors[ImGuiCol_FrameBg] = {0.f, 0.f, 0.f, 1.f};
-  colors[ImGuiCol_FrameBgHovered] = {0.09f, 0.09f, 0.078, 1.f};
+  colors[ImGuiCol_FrameBgHovered] = {0.09f, 0.09f, 0.078f, 1.f};
   colors[ImGuiCol_FrameBgActive] = {0.09f, 0.09f, 0.078f, 1.f};
   colors[ImGuiCol_TitleBg] = {0.004f, 0.004f, 0.004f, 1.f};
   colors[ImGuiCol_TitleBgCollapsed] = {0.09f, 0.09f, 0.078f, 1.f};
@@ -45,7 +44,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   colors[ImGuiCol_SliderGrabActive] = {0.941f, 0.941f, 0.941f, 1.f};
   colors[ImGuiCol_Button] = {0.145f, 0.156f, 0.168f, 1.f};
   colors[ImGuiCol_ButtonHovered] = {0.941f, 0.243f, 0.211f, 1.f};
-  colors[ImGuiCol_ButtonActive] = {0.921f, 0.24f, 0.211, 1.f};
+  colors[ImGuiCol_ButtonActive] = {0.921f, 0.24f, 0.211f, 1.f};
   colors[ImGuiCol_Header] = {0.26f, 0.59f, 0.98f, 0.31f};
   colors[ImGuiCol_HeaderHovered] = {0.26f, 0.59f, 0.98f, 0.80f};
   colors[ImGuiCol_HeaderActive] = {0.26f, 0.59f, 0.98f, 1.f};
@@ -240,7 +239,7 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
   return true;
 }
 
-void set_side_menu(const nlohmann::json &config, bool &flagPaused,
+void set_side_menu(const nlohmann::json &config,
                    bool &open_settings, bool &open_generate_training_data) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
@@ -269,8 +268,8 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
-  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005;
-  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008;
+  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005f;
+  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008f;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -313,7 +312,6 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
   }
 
   static bool showSettings = false;
-  const bool showSettingsPrev = showSettings;
   if (loaded_png[++PngRenderedCnt] && // render Settings
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -329,10 +327,6 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     system(("start " + load_json<std::string>(config, "helplink")).c_str());
     showSettings = false;
   }
-  ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.90f);
-  ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
-                          CMakeGitVersion::VersionWithGit)
-                  .c_str());
 }
 
 // For Development

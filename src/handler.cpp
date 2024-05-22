@@ -3,7 +3,7 @@
 #include <implot.h>
 #include <set>
 
-void addPlots(const char *name, const bool flagPaused,
+void addPlots(const char *name,
               std::function<void(double)> axesSetup) {
   static std::set<std::string> firstRun;
   const auto &plots{captureData};

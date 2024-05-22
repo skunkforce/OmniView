@@ -32,7 +32,7 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
     // Creating an array of C strings (char*)
     char **vins = new char *[subdirectories.size()];
     for (size_t i = 0; i < subdirectories.size(); ++i)
-      vins[i] = strdup(subdirectories[i].c_str());
+      vins[i] = _strdup(subdirectories[i].c_str());
 
     if (isTxtInptFieldsEmpty) {
       const std::string newcar = appLanguage[Key::New_Car];
@@ -87,7 +87,7 @@ inline std::string select_combo_from_json(nlohmann::json const &language,
   // Creating an array of C strings (char*)
   char **option_c = new char *[options.size()];
   for (size_t i = 0; i < options.size(); ++i) 
-    option_c[i] = strdup(options[i].c_str());
+    option_c[i] = _strdup(options[i].c_str());
 
   std::string combo_name = "##" + key;
   ImGui::Combo(combo_name.c_str(), &selectedOption, option_c,
