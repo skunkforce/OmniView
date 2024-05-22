@@ -291,12 +291,12 @@ int main() {
             ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 5, x_max + 5,
                                 ImGuiCond_Always);
             //TODO evaluate y max and add + 5V 
-            ImPlot::SetupAxisLimits(ImAxis_Y1, -10, 10,
+            ImPlot::SetupAxisLimits(ImAxis_Y1, -15, 15,
                                 ImGuiCond_Always);
           } else {
             xmax_paused = x_max;
             ImPlot::SetupAxes(x_label.c_str(), fmt::format("Voltage {}", y_label).c_str());
-            ImPlot::SetupAxesLimits(-10, 10, -10, 200);
+            ImPlot::SetupAxesLimits(-15, 15, -5, 200);
             ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
           }
         }
