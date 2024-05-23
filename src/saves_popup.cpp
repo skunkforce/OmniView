@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  const fs::path &outFile, std::string allData, size_t &y_indx) {
-  allData += fmt::format(",Type: {},Serial: {},SamplyingRate: {}\n",
+  allData += fmt::format(",{},{},{}\n",
                          device.type, device.serial, device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(

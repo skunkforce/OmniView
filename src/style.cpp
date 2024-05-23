@@ -240,7 +240,8 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
 }
 
 void set_side_menu(const nlohmann::json &config,
-                   bool &open_settings, bool &open_generate_training_data) {
+                   bool &open_settings, bool &open_generate_training_data,
+                   bool &load_old_data_visible) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -287,6 +288,7 @@ void set_side_menu(const nlohmann::json &config,
     devices.clear();
     deviceManager.clearDevices();
     initDevices();
+    load_old_data_visible = false;
   }
 
   static bool showDiag = false;

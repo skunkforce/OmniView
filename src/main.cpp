@@ -22,6 +22,7 @@ int main() {
   bool Development = false;
   bool flagInitState = true;
   bool load_old_data = false;
+  bool load_old_data_visible = true;
 
   // main loop
   auto render = [&]() {
@@ -49,10 +50,13 @@ int main() {
     }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
-    set_side_menu(config, open_settings, open_generate_training_data);
+    set_side_menu(config, open_settings, open_generate_training_data,
+        load_old_data_visible);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
-    if (!sampler.has_value()) {
+    static std::filesystem::path fileName;
+    // a function may do this section's job
+    if (!sampler.has_value() && load_old_data_visible) {
       if (ImGui::Button("Display file data"))
         fileBrowser.Open();
       ImGui::SameLine();
@@ -60,34 +64,43 @@ int main() {
         captureData.clear();
         load_old_data = false;
       }
-    }
-    static std::filesystem::path fileName;
-    fileBrowser.Display();
-    if (fileBrowser.HasSelected()) {
-      fileName = fileBrowser.GetSelected();
-      fileBrowser.ClearSelected();
-      captureData.clear(); // clear if it's alreay filled
-                           // example data
-      Omniscope::Id id{"E4620C205B234D21", "Omniscope", 100'000};
-      std::ifstream readfile(fileName, std::ios::binary);
-      if (!readfile.is_open())
-        fmt::println("Failed to open file {}", fileName);
-      else {
-        size_t indx{2};
-        std::string first_line;
-        std::getline(readfile, first_line);
-        while (!readfile.eof()) {
-          double value{};
-          readfile >> value;
-          captureData[id].emplace_back(indx++, value);
-          static constexpr size_t bigNumber{10'000'000};
-          readfile.ignore(bigNumber,
-                          '\n'); // new line separator between elements
+      fileBrowser.Display();
+      if (fileBrowser.HasSelected()) {
+        fileName = fileBrowser.GetSelected();
+        fileBrowser.ClearSelected();
+        captureData.clear(); // clear if it's alreay filled
+        Omniscope::Id id;
+        std::ifstream readfile(fileName, std::ios::binary);
+        if (!readfile.is_open())
+          fmt::println("Failed to open file {}", fileName);
+        else {
+          size_t indx{2};
+          std::string first_line;
+          std::getline(readfile, first_line);
+          std::istringstream ss{first_line};
+          constexpr size_t fieldsSz{6};
+          // extract input fields data from the first line
+          for (size_t i = 0; i < fieldsSz; i++) {
+            std::string substr;
+            std::getline(ss, substr, ',');
+            if (i == 3) // third element (Type of scope)
+              id.type = substr;
+            if (i == 4) // fourth element (serial of scope)
+              id.serial = substr;
+          }
+          while (!readfile.eof()) {
+            double value{};
+            readfile >> value;
+            captureData[id].emplace_back(indx++, value);
+            static constexpr size_t bigNumber{10'000'000};
+            readfile.ignore(bigNumber,
+                            '\n'); // new line separator between elements
+          }
+          load_old_data = true;
+          readfile.close();
+          // pop the extra last element
+          captureData[id].pop_back();
         }
-        load_old_data = true;
-        readfile.close();
-        // pop the extra last element
-        captureData[id].pop_back();
       }
     }
     ImGui::SetCursorPosY(windowSize.y * 0.9f);
@@ -165,6 +178,7 @@ int main() {
             rstSettings();
             flagPaused = true;
           }
+          load_old_data_visible = true;
         }
         ImGui::PopStyleColor(3);
       }
