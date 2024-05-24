@@ -1,8 +1,9 @@
-#include "imagesHeaderToolbar.hpp"
+
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
 #include <cmake_git_version/version.hpp>
+#include "imagesHeaderToolbar.hpp"
 
 int main() {
   const std::string configpath = "config/config.json";
