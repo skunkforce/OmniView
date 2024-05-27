@@ -17,7 +17,8 @@ int main() {
   std::tm now_tm = *std::gmtime(&now_time_t);
   static bool flagPaused{true};
   bool flagDataNotSaved{true}, Development{false}, flagInitState{true},
-      b{false}, open_generate_training_data{false}, open_settings{false};
+      loadedFileChkBx{false}, open_generate_training_data{false},
+      open_settings{false};
 
   // main loop
   auto render = [&]() {
@@ -61,8 +62,7 @@ int main() {
     if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, now, now_time_t, now_tm,
-                  flagDataNotSaved);
+      saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved);
       ImGui::EndPopup();
     }
     // ############################ Popup Reset
@@ -73,7 +73,7 @@ int main() {
       if (ImGui::Button(appLanguage[Key::Continue_del])) {
         rstSettings();
         loadedFileName.clear();
-        b = false;
+        loadedFileChkBx = false;
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
@@ -122,7 +122,7 @@ int main() {
           else {
             rstSettings();
             loadedFileName.clear();
-            b = false;
+            loadedFileChkBx = false;
             flagPaused = true;
           }
         }
@@ -161,7 +161,7 @@ int main() {
     if (open_settings) {
       const auto EngItr = englishLan.find(Key::Settings);
       const auto GrmItr = germanLan.find(Key::Settings);
-      // check returned value from find() and set titles 
+      // check returned value from find() and set titles
       if (EngItr != englishLan.end() && GrmItr != germanLan.end()) {
         titles[0] = (std::string)EngItr->second + "###ID";
         titles[1] = (std::string)GrmItr->second + "###ID";
@@ -215,18 +215,18 @@ int main() {
     devicesList();
     static std::optional<Omniscope::Id> id;
     if (!loadedFileName.empty())
-      if (ImGui::Checkbox("##", &b))
-        if (b)
+      if (ImGui::Checkbox("##", &loadedFileChkBx))
+        if (loadedFileChkBx)
           id = load_file(loadedFileName);
         else if (id.has_value())
-          fmt::println("{} device erased.", captureData.erase(id.value()));
+          fmt::println("{} device erased from list.",
+                       captureData.erase(id.value()));
     ImGui::SameLine();
     ImGui::TextUnformatted(loadedFileName.filename().string().c_str());
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
   };
-
   ImGuiInstance window{1500, 800,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};

@@ -120,7 +120,9 @@ void PushPlotRegionColors() {
   ImPlot::PushStyleColor(ImPlotCol_TitleText, {0.f, 0.f, 0.f, 1.f});
   ImPlot::PushStyleColor(ImPlotCol_AxisGrid, {0.f, 0.f, 0.f, 1.f});
   ImPlot::PushStyleColor(ImPlotCol_LegendBg, {1.0f, 1.0f, 1.0f, 1.0f});
-  ImPlot::PushStyleColor(ImPlotCol_LegendBorder, {37/255.0f, 40/255.0f, 43/255.0f, 1.0f}); // Schwarz
+  ImPlot::PushStyleColor(
+      ImPlotCol_LegendBorder,
+      {37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 1.0f}); // Schwarz
 }
 void PopPlotRegionColors() {
   ImGui::PopStyleColor(5);
@@ -292,7 +294,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
   }
 
   static ImGui::FileBrowser fileBrowser;
-  if (ImGui::Button("Display file data"))
+  if (ImGui::Button(appLanguage[Key::Load_file_Data]))
     fileBrowser.Open();
   fileBrowser.Display();
   if (fileBrowser.HasSelected()) {
@@ -380,7 +382,7 @@ load_file(fs::path &loadedFileName) { // load and display data from file
   }
 }
 
-void PopupStyleEditor() {  // For Development
+void PopupStyleEditor() { // For Development
   ImGuiStyle &style = ImGui::GetStyle();
   ImPlotStyle &styleImPlot = ImPlot::GetStyle();
   static std::vector<ImVec4> colorVec;

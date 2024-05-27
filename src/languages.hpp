@@ -79,7 +79,8 @@ enum class Key {
   Ready,
   FontSize,
   SettingsText,
-  Saving
+  Saving,
+  Load_file_Data
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -157,7 +158,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Ready, "Ready"},
     {Key::FontSize, "Fontsize"},
     {Key::SettingsText, "Set your personal settings for the software"},
-    {Key::Saving, "saving ..."}};
+    {Key::Saving, "saving ..."},
+    {Key::Load_file_Data, "Load file data"}};
 
 
 inline const std::map<Key, const char *> germanLan{
@@ -236,7 +238,8 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Ready, "Bereit"},
     {Key::FontSize, "Schriftgröße"},
     {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"},
-    {Key::Saving, "speichern ..."}};
+    {Key::Saving, "speichern ..."},
+    {Key::Load_file_Data, "Dateidaten laden"}};
 
 inline auto appLanguage = englishLan;
 namespace fs = std::filesystem;
