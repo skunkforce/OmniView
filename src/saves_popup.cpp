@@ -8,8 +8,6 @@
 #include "languages.hpp"
 #include "style.hpp"
 
-namespace fs = std::filesystem;
-
 static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  const fs::path &outFile, std::string allData, size_t &y_indx) {
@@ -65,6 +63,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   ImGui::InputTextWithHint("##Lable1", "\".../OmniView/saves/\"",
                            &inptTxtFields[0]);
   ImGui::SameLine();
+  static ImGui::FileBrowser directoryBrowser(
+      ImGuiFileBrowserFlags_SelectDirectory);
   if (ImGui::Button(appLanguage[Key::Browse]))
     directoryBrowser.Open();
 

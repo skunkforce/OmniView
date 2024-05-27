@@ -7,7 +7,6 @@
 #include "languages.hpp"
 #include <vector>
 
-namespace fs = std::filesystem;
 inline std::string getSubdirectoriesInFolder(nlohmann::json language,
                                       fs::path const &saves_folder_path,
                                       char scantype[255] = 0,

@@ -15,14 +15,9 @@ int main() {
   auto now = std::chrono::system_clock::now();
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   std::tm now_tm = *std::gmtime(&now_time_t);
-  bool open_settings = false;
-  bool open_generate_training_data = false;
-  static bool flagPaused = true;
-  bool flagDataNotSaved = true;
-  bool Development = false;
-  bool flagInitState = true;
-  bool load_old_data = false;
-  bool load_old_data_visible = true;
+  static bool flagPaused{true};
+  bool flagDataNotSaved{true}, Development{false}, flagInitState{true},
+      b{false}, open_generate_training_data{false}, open_settings{false};
 
   // main loop
   auto render = [&]() {
@@ -50,63 +45,11 @@ int main() {
     }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
+    static fs::path loadedFileName;
     set_side_menu(config, open_settings, open_generate_training_data,
-        load_old_data_visible);
+                  loadedFileName);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
-    static std::filesystem::path fileName;
-    // a function may do this section's job
-    if (!sampler.has_value() && load_old_data_visible) {
-      if (ImGui::Button("Display file data"))
-        fileBrowser.Open();
-      ImGui::SameLine();
-      if (ImGui::Button("Exit")) {
-        captureData.clear();
-        load_old_data = false;
-      }
-      fileBrowser.Display();
-      if (fileBrowser.HasSelected()) {
-        fileName = fileBrowser.GetSelected();
-        fileBrowser.ClearSelected();
-        captureData.clear(); // clear if it's alreay filled
-        Omniscope::Id id;
-        std::ifstream readfile(fileName, std::ios::binary);
-        if (!readfile.is_open())
-          fmt::println("Failed to open file {}", fileName);
-        else {
-          size_t indx{2};
-          std::string first_line;
-          std::getline(readfile, first_line);
-          std::istringstream ss{first_line};
-          constexpr size_t fieldsSz{6};
-          // extract input fields data from the first line
-          for (size_t i = 0; i < fieldsSz; i++) {
-            std::string substr;
-            std::getline(ss, substr, ',');
-            if (i == 3) // third element (Type of scope)
-              id.type = substr;
-            if (i == 4) // fourth element (serial of scope)
-              id.serial = substr;
-          }
-          while (!readfile.eof()) {
-            double value{};
-            readfile >> value;
-            captureData[id].emplace_back(indx++, value);
-            static constexpr size_t bigNumber{10'000'000};
-            readfile.ignore(bigNumber,
-                            '\n'); // new line separator between elements
-          }
-          load_old_data = true;
-          readfile.close();
-          // pop the extra last element
-          captureData[id].pop_back();
-        }
-      }
-    }
-    ImGui::SetCursorPosY(windowSize.y * 0.9f);
-    ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
-                            CMakeGitVersion::VersionWithGit)
-                    .c_str());
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
     ImGui::BeginChild("Right Side", {0.f, 0.f});
@@ -129,6 +72,8 @@ int main() {
       ImGui::Text(appLanguage[Key::Measure_not_saved]);
       if (ImGui::Button(appLanguage[Key::Continue_del])) {
         rstSettings();
+        loadedFileName.clear();
+        b = false;
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
@@ -176,9 +121,10 @@ int main() {
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           else {
             rstSettings();
+            loadedFileName.clear();
+            b = false;
             flagPaused = true;
           }
-          load_old_data_visible = true;
         }
         ImGui::PopStyleColor(3);
       }
@@ -267,8 +213,15 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList();
-    if (load_old_data)
-      ImGui::TextUnformatted(fileName.filename().string().c_str());
+    static std::optional<Omniscope::Id> id;
+    if (!loadedFileName.empty())
+      if (ImGui::Checkbox("##", &b))
+        if (b)
+          id = load_file(loadedFileName);
+        else if (id.has_value())
+          fmt::println("{} device erased.", captureData.erase(id.value()));
+    ImGui::SameLine();
+    ImGui::TextUnformatted(loadedFileName.filename().string().c_str());
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();

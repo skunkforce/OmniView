@@ -1,3 +1,7 @@
+#include <cmake_git_version/version.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define STB_IMAGE_IMPLEMENTATION
 #include "style.hpp"
@@ -6,10 +10,7 @@
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
-#include <cmake_git_version/version.hpp>
-#include <iostream>
-#include <string>
-#include <vector>
+#include "../imgui-filebrowser/imfilebrowser.h"
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
@@ -239,9 +240,9 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
   return true;
 }
 
-void set_side_menu(const nlohmann::json &config,
-                   bool &open_settings, bool &open_generate_training_data,
-                   bool &load_old_data_visible) {
+void set_side_menu(const nlohmann::json &config, bool &open_settings,
+                   bool &open_generate_training_data,
+                   fs::path &loadedFileName) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -288,7 +289,15 @@ void set_side_menu(const nlohmann::json &config,
     devices.clear();
     deviceManager.clearDevices();
     initDevices();
-    load_old_data_visible = false;
+  }
+
+  static ImGui::FileBrowser fileBrowser;
+  if (ImGui::Button("Display file data"))
+    fileBrowser.Open();
+  fileBrowser.Display();
+  if (fileBrowser.HasSelected()) {
+    loadedFileName = fileBrowser.GetSelected();
+    fileBrowser.ClearSelected();
   }
 
   static bool showDiag = false;
@@ -329,10 +338,49 @@ void set_side_menu(const nlohmann::json &config,
     system(("start " + load_json<std::string>(config, "helplink")).c_str());
     showSettings = false;
   }
+  ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.9f);
+  ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
+                          CMakeGitVersion::VersionWithGit)
+                  .c_str());
 }
 
-// For Development
-void PopupStyleEditor() {
+std::optional<Omniscope::Id>
+load_file(fs::path &loadedFileName) { // load and display data from file
+  std::ifstream readfile(loadedFileName, std::ios::binary);
+  if (!readfile.is_open())
+    fmt::println("Failed to open file {}", loadedFileName);
+  else {
+    size_t indx{2};
+    std::string first_line;
+    std::getline(readfile, first_line);
+    std::istringstream ss{first_line};
+    constexpr size_t fieldsSz{6};
+    Omniscope::Id id;
+    // extract input fields data from the first line
+    for (size_t i = 0; i < fieldsSz; i++) {
+      std::string substr;
+      std::getline(ss, substr, ',');
+      if (i == 3) // fourth element (Type of scope)
+        id.type = substr;
+      if (i == 4) // fifth element (serial of scope)
+        id.serial = substr;
+    }
+    while (!readfile.eof()) {
+      double value{};
+      readfile >> value;
+      captureData[id].emplace_back(indx++, value);
+      static constexpr size_t bigNumber{10'000'000};
+      readfile.ignore(bigNumber,
+                      '\n'); // new line separator between elements
+    }
+    readfile.close();
+    // pop the extra last element
+    captureData[id].pop_back();
+    return id;
+  }
+}
+
+void PopupStyleEditor() {  // For Development
   ImGuiStyle &style = ImGui::GetStyle();
   ImPlotStyle &styleImPlot = ImPlot::GetStyle();
   static std::vector<ImVec4> colorVec;

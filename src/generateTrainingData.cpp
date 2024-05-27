@@ -19,7 +19,6 @@ void generateTrainingData(
         &captureData,
     std::set<std::string> &savedFileNames) {
 
-  namespace fs = std::filesystem;
   ImGui::OpenPopup(appLanguage[Key::Gn_trng_data_pop]);
   if (ImGui::BeginPopupModal(appLanguage[Key::Gn_trng_data_pop], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -93,11 +92,6 @@ void generateTrainingData(
         } // End of the algorithm
       ImGui::EndCombo();
     }
-
-    // set browser properties
-    fileBrowser.SetTitle("Searching for .csv files");
-    // fileBrowser.SetTypeFilters({".csv"});
-
     static std::string Measurement;
     // one extra space for '\0' character
     static char VIN[19];
@@ -186,6 +180,9 @@ void generateTrainingData(
       callSetInptFields = false;
     }
 
+    static ImGui::FileBrowser fileBrowser;
+    fileBrowser.SetTitle("Searching for .csv files"); // properties
+    // fileBrowser.SetTypeFilters({".csv"});
     fileBrowser.Display();
     if (fileBrowser.HasSelected()) {
       if (isWrongFile(fileBrowser.GetSelected().string())) {
