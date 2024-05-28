@@ -413,9 +413,6 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
             sampler.emplace(deviceManager, std::move(devices));
             flagPaused = false;
             flagDataNotSaved = true;
-            for (auto &device : devices) {
-              device->send(Omniscope::Start{});
-            }
           }
           ImGui::PopStyleColor(3);
         }
