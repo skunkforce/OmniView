@@ -9,7 +9,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
-static void popup_settings(nlohmann::json &config, nlohmann::json &language,
+static void popup_settings(nlohmann::json &config,
                            std::string const &configpath, int &title) {
 
   static float tempfontscale = config["text"]["scale"];
