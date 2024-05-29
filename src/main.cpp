@@ -18,13 +18,17 @@ int main() {
   double xmax_paused{0};
   bool open_settings = false;
   bool open_generate_training_data = false;
-  bool upload_success = false;
   static bool flagPaused = true;
   bool flagDataNotSaved = true;
   bool Development = false;
+  bool flagInitState = true;
 
   // main loop
   auto render = [&]() {
+    if (flagInitState) {
+      set_inital_config(config);
+      flagInitState = false;
+    }
     SetupImGuiStyle(false, 0.99f, config);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
@@ -47,7 +51,7 @@ int main() {
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     set_side_menu(config, flagPaused, open_settings,
                   open_generate_training_data);
-    // there're four "BeginChild"s, one as the left side 
+    // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
     ImGui::SameLine();
@@ -100,8 +104,6 @@ int main() {
       ImGui::PopStyleColor(3);
     }
     if (flagPaused) {
-      ImGui::SameLine();
-
       // Start/reset the measurement when the measurement is paused,
       // followed by a query as to whether the old data should be saved
       if (sampler.has_value()) {
@@ -116,7 +118,7 @@ int main() {
 
         set_button_style_to(config, "stop");
         if (ImGui::Button(appLanguage[Key::Reset], toolBtnSize)) {
-          if (flagDataNotSaved) 
+          if (flagDataNotSaved)
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           else {
             rstSettings();
@@ -128,7 +130,8 @@ int main() {
       ImGui::SameLine();
 
       // gray out "Save" button when pop-up is open
-      const bool pushStyle = ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
+      const bool pushStyle =
+          ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
 
       if (pushStyle)
         ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
@@ -152,16 +155,24 @@ int main() {
     }
     ImGui::EndChild(); // end child "Buttonstripe"
     // ############################ Settings Menu
-    std::string settingstitle =
-        load_json<std::string>(language, "settings", "title");
+    static int title = 0;
+    static std::vector<std::string> titles(2); // two languages
     if (open_settings) {
-      ImGui::OpenPopup(settingstitle.c_str());
+      const auto EngItr = englishLan.find(Key::Settings);
+      const auto GrmItr = germanLan.find(Key::Settings);
+      // check returned value from find() and set titles 
+      if (EngItr != englishLan.end() && GrmItr != germanLan.end()) {
+        titles[0] = (std::string)EngItr->second + "###ID";
+        titles[1] = (std::string)GrmItr->second + "###ID";
+        ImGui::OpenPopup(titles[title].c_str());
+      } else
+        fmt::println("Settings values not found.");
       open_settings = false;
     }
-    if (ImGui::BeginPopupModal(settingstitle.c_str(), nullptr,
+    if (ImGui::BeginPopupModal(titles[title].c_str(), nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      popup_settings(config, language, configpath);
+      popup_settings(config, configpath, title);
       ImGui::EndPopup();
     }
     // Generate training data popup
@@ -210,6 +221,7 @@ int main() {
   ImGuiInstance window{1500, 800,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};
-  while (window.run(render));
+  while (window.run(render))
+    ;
   return 0;
 }

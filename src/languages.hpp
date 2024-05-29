@@ -177,8 +177,9 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Settings, "Einstellungen"},
     {Key::Reset, "Zurücksetzen"},
     {Key::Reset_q, "Zurücksetzen?"},
-    {Key::Measure_not_saved, "Die Messung wurde nicht gespeichert!\n"
-                  "Möchten Sie es speichern, bevor Sie es löschen?\n"},
+    {Key::Measure_not_saved,
+     "Die Messung wurde nicht gespeichert!\n"
+     "Möchten Sie es speichern, bevor Sie es löschen?\n"},
     {Key::Version, "Ausführung"},
     {Key::Diagnostics, "Diagnose"},
     {Key::Compression, "Kompression"},

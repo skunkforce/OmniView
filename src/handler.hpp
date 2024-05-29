@@ -22,6 +22,7 @@ void initDevices();
 void devicesList();
 void set_config(const std::string &);
 void set_json(nlohmann::json &);
+void set_inital_config(nlohmann::json &);
 void rstSettings();
 
 #endif
