@@ -19,6 +19,7 @@ int main() {
   bool flagDataNotSaved{true}, Development{false}, flagInitState{true},
       loadedFileChkBx{false}, open_generate_training_data{false},
       open_settings{false};
+  std::optional<Omniscope::Id> id;
 
   // main loop
   auto render = [&]() {
@@ -72,8 +73,7 @@ int main() {
       ImGui::Text(appLanguage[Key::Measure_not_saved]);
       if (ImGui::Button(appLanguage[Key::Continue_del])) {
         rstSettings();
-        loadedFileName.clear();
-        loadedFileChkBx = false;
+        id = load_file(loadedFileName);
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
@@ -121,8 +121,7 @@ int main() {
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           else {
             rstSettings();
-            loadedFileName.clear();
-            loadedFileChkBx = false;
+            id = load_file(loadedFileName);
             flagPaused = true;
           }
         }
@@ -213,7 +212,6 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList();
-    static std::optional<Omniscope::Id> id;
     if (!loadedFileName.empty())
       if (ImGui::Checkbox("##", &loadedFileChkBx))
         if (loadedFileChkBx)

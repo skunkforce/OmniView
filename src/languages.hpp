@@ -239,7 +239,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::FontSize, "Schriftgröße"},
     {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"},
     {Key::Saving, "speichern ..."},
-    {Key::Load_file_Data, "Dateidaten laden"}};
+    {Key::Load_file_Data, "Alte Daten laden"}};
 
 inline auto appLanguage = englishLan;
 namespace fs = std::filesystem;
