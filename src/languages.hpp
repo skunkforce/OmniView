@@ -79,6 +79,7 @@ enum class Key {
   Ready,
   FontSize,
   SettingsText,
+  Costumer_id,
   Saving
 };
 
@@ -154,11 +155,11 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
     {Key::German, "German"},
+    {Key::Costumer_id, "Costumer ID"},
     {Key::Ready, "Ready"},
     {Key::FontSize, "Fontsize"},
     {Key::SettingsText, "Set your personal settings for the software"},
     {Key::Saving, "saving ..."}};
-
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
@@ -233,6 +234,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
     {Key::German, "Deutsch"},
+    {Key::Costumer_id, "Benutzer ID"},
     {Key::Ready, "Bereit"},
     {Key::FontSize, "Schriftgröße"},
     {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"},
