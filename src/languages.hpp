@@ -122,7 +122,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Continue, "Continue"},
     {Key::Continue_del, "Continue Deletion?"},
     {Key::Devices_found, "Devices found"},
-    {Key::Device_List, "Devicelist"},
+    {Key::Device_List, "Devices List"},
     {Key::Usr_curnt_wave, "User Current Waveform"},
     {Key::Wv_from_file, "Waveform From File"},
     {Key::WvForms_warning, "Waveforms Warning! "},
@@ -236,8 +236,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::x_axis_label, "x [Sekunden]"},
     {Key::y_axis_label, "y [Volt]"},
     {Key::Record_Data, "Datenaufnahme"},
-    {Key::Ready, "Ready"},
-    {Key::German, "Bereit"}};
+    {Key::Ready, "bereit"}};
 
 inline auto appLanguage = englishLan;
 #endif
