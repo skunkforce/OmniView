@@ -339,11 +339,11 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, bool &flagPaused){
 
   // variable declaration
-   auto now = std::chrono::system_clock::now();
-  std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
-  std::tm now_tm = *std::gmtime(&now_time_t);
-  auto windowSize{ImGui::GetIO().DisplaySize};
-  bool flagDataNotSaved = true;
+   static auto now = std::chrono::system_clock::now();
+  static std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+  static std::tm now_tm = *std::gmtime(&now_time_t);
+  static auto windowSize{ImGui::GetIO().DisplaySize};
+  static bool flagDataNotSaved = true;
 
   // begin Toolbar ############################################
   ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
@@ -463,9 +463,6 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
                        image_height[PngRenderedCnt] * iconsSacle))) {
           if (flagDataNotSaved) {
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
-            for (auto &device : sampler->sampleDevices) {
-              device.first->send(Omniscope::Stop{});
-            }
           } else {
             rstSettings();
             flagPaused = true;
