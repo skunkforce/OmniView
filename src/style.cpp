@@ -355,13 +355,13 @@ load_file(fs::path &loadedFileName) { // load and display data from file
     size_t indx{2};
     std::string first_line;
     std::getline(readfile, first_line);
-    std::istringstream ss{first_line};
+    std::istringstream input{first_line};
     constexpr size_t fieldsSz{6};
     Omniscope::Id id;
     // extract input fields data from the first line
     for (size_t i = 0; i < fieldsSz; i++) {
       std::string substr;
-      std::getline(ss, substr, ',');
+      std::getline(input, substr, ',');
       if (i == 3) // fourth element (Type of scope)
         id.type = substr;
       if (i == 4) // fifth element (serial of scope)

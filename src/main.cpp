@@ -73,7 +73,8 @@ int main() {
       ImGui::Text(appLanguage[Key::Measure_not_saved]);
       if (ImGui::Button(appLanguage[Key::Continue_del])) {
         rstSettings();
-        id = load_file(loadedFileName);
+        if(loadedFileChkBx)
+            id = load_file(loadedFileName);
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
@@ -121,7 +122,8 @@ int main() {
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           else {
             rstSettings();
-            id = load_file(loadedFileName);
+            if (loadedFileChkBx)
+              id = load_file(loadedFileName);
             flagPaused = true;
           }
         }
