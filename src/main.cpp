@@ -5,9 +5,12 @@
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
-std::vector<std::string> uniqueSorted(const std::vector<std::string>& input) {
-    std::set<std::string> uniqueSet(input.begin(), input.end());
-
+std::vector<std::string> uniqueSortedEgus(
+    std::vector<std::pair<std::string, std::string>> const& input) {
+    std::set<std::string> uniqueSet;
+    for (auto const& [str1, str2] : input) {
+        uniqueSet.emplace(str1);
+    }
     std::vector<std::string> result(uniqueSet.begin(), uniqueSet.end());
 
     return result;
@@ -40,7 +43,7 @@ int main() {
         auto windowSize{ImGui::GetIO().DisplaySize};
         ImGui::SetNextWindowSize(windowSize);
         const ImVec2 toolBtnSize{windowSize.x * .1f,
-                                 windowSize.y * .1f};  // toolbar buttons size
+                windowSize.y * .1f};  // toolbar buttons size
         ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                      ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
                          ImGuiWindowFlags_NoTitleBar);
@@ -203,159 +206,45 @@ int main() {
         addPlots("Recording the data", flagPaused, [](double x_max) {
             ImPlot::SetupLegend(ImPlotLocation_NorthEast |
                                 ImPlotLegendFlags_Outside);
-            // ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-            static std::vector<std::string> egus;
-            static std::size_t defaultAxesCounter;
-            static std::string x_label{fmt::format("{} [s]", appLanguage[Key::Time])};
-            static std::vector<std::string> y_labels;
-            if (sampler.has_value()) {
-                if (initAxesSetup) {
-                    egus.clear();
-                    y_labels.clear();
-                    axesCounter = 0;
-                    std::size_t numberOfDevices = sampler->sampleDevices.size();
-                    for (auto& device : sampler->sampleDevices) {
-                        if (device.first->getEgu().has_value()) {
-                            auto egu = device.first->getEgu().value();
-                            fmt::print("egu found: {}\n", egu);
-                            egus.push_back(fmt::format(
-                                "{} {}", appLanguage[Key::Voltage], egu));
-                        }else{
-                            ++defaultAxesCounter;
-                        }
-                    }
-                    egus = uniqueSorted(egus);
-                    fmt::print("egus: {} size: {}\n", egus, egus.size());
-                    if(egus.size() <= 3){
-                        y_labels.resize(egus.size());
-                        std::copy(egus.begin(), egus.end(), y_labels.begin());
-                    }else{
-                        fmt::print("Too many different devices!\n");
-                    }
-                    initAxesSetup = false;
-                }
-                if (egus.empty() && !flagPaused) {
-                    ImPlot::SetupAxis(ImAxis_X1,
-                                      fmt::format("sample count").c_str(),
-                                      ImPlotAxisFlags_AutoFit);
-                    ImPlot::SetupAxis(ImAxis_Y1,
-                                      fmt::format("ADC value").c_str(),
-                                      ImPlotAxisFlags_AutoFit);
-                    ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 2,
-                                            ImGuiCond_Always);
-                } else if (egus.empty() && flagPaused) {
-                    ImPlot::SetupAxis(ImAxis_X1,
-                                      fmt::format("sample count").c_str());
-                    ImPlot::SetupAxis(ImAxis_Y1,
-                                      fmt::format("ADC value").c_str());
-                    ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 2,
-                                            ImGuiCond_Always);
-                } else if (!egus.empty() && !flagPaused) {
-                    if ((egus.size() + defaultAxesCounter) >= 1) {
-                        // Setup First Axis with first text from one EGU
-                        ImPlot::SetupAxis(ImAxis_X1, x_label.c_str(),
-                                          ImPlotAxisFlags_AutoFit);
-                        ImPlot::SetupAxis(ImAxis_Y1, y_labels[0].c_str(),
-                                          ImPlotAxisFlags_AutoFit);
-                        ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 2,
-                                                ImGuiCond_Always);
-                    }
-                    if (egus.size() >= 2) {
-                        // Setup second Axis with third text from one EGU
-                        ImPlot::SetupAxis(ImAxis_X2, x_label.c_str(),
-                                          ImPlotAxisFlags_AutoFit);
-                        ImPlot::SetupAxis(ImAxis_Y2, y_labels[1].c_str(),
-                                          ImPlotAxisFlags_AutoFit);
-                        ImPlot::SetupAxisLimits(ImAxis_X2, x_max - 1, x_max + 2,
-                                                ImGuiCond_Always);
-                    }
-                    if (egus.size() >= 3) {
-                        ImPlot::SetupAxis(ImAxis_X3, x_label.c_str(),
-                                          ImPlotAxisFlags_AutoFit);
-                        ImPlot::SetupAxis(ImAxis_Y3, y_labels[2].c_str(),
-                                          ImPlotAxisFlags_AutoFit);
-                        ImPlot::SetupAxisLimits(ImAxis_X3, x_max - 1, x_max + 2,
-                                                ImGuiCond_Always);
-                    }
-                } else if (!egus.empty() && flagPaused) {
-                    if (egus.size() >= 1) {
-                        // Setup First Axis with first text from one EGU
-                    }
-                    if (egus.size() >= 2) {
-                        // Setup second Axis with third text from one EGU
-                    }
-                    if (egus.size() >= 3) {
-                        // Setup second Axis with third text from one EGU
-                    }
-                }
-            }
             auto auxFlagsMeasuring =
                 ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
             auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
+            // ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
             /*
-                        if (!flagPaused) {
-                            if (numberOfDevices >= 1) {
-                                                            }
-                            if (numberOfDevices >= 2) {
-                                ImPlot::SetupAxis(ImAxis_X2,
-               x_labels[1].c_str(), auxFlagsMeasuring);
-                                ImPlot::SetupAxis(ImAxis_Y2,
-               y_labels[1].c_str(), auxFlagsMeasuring);
-                                ImPlot::SetupAxisLimits(ImAxis_X2, x_max - 1,
-               x_max + 2, ImGuiCond_Always);
-                            }
-                            if (numberOfDevices >= 3) {
-                                ImPlot::SetupAxis(ImAxis_X3,
-               x_labels[2].c_str(), auxFlagsMeasuring);
-                                ImPlot::SetupAxis(ImAxis_Y3,
-               y_labels[2].c_str(), auxFlagsMeasuring);
-                                ImPlot::SetupAxisLimits(ImAxis_X3, x_max - 1,
-               x_max + 2, ImGuiCond_Always);
-                            }
-                        } else {
-                            ImPlot::SetupAxis(ImAxis_X1, x_labels[0].c_str());
-                            ImPlot::SetupAxis(ImAxis_Y1, y_labels[0].c_str());
-                            ImPlot::SetupAxesLimits(0, 10, -10, 200);
-                            if (numberOfDevices >= 2) {
-                                ImPlot::SetupAxis(ImAxis_X2,
-               x_labels[1].c_str(), auxFlagsPaused);
-                                ImPlot::SetupAxis(ImAxis_Y2,
-               y_labels[1].c_str(), auxFlagsPaused);
-                                ImPlot::SetupAxisLimits(ImAxis_X2, 0, 10);
-                                ImPlot::SetupAxisLimits(ImAxis_Y2, -10, 200);
-                            }
-                            if (numberOfDevices >= 3) {
-                                ImPlot::SetupAxis(ImAxis_X3,
-               x_labels[2].c_str(), auxFlagsPaused);
-                                ImPlot::SetupAxis(ImAxis_Y3,
-               y_labels[2].c_str(), auxFlagsPaused);
-                                ImPlot::SetupAxisLimits(ImAxis_X3, 0, 10);
-                                ImPlot::SetupAxisLimits(ImAxis_Y3, -10, 200);
-                            }
-                        }
-                */
-        });
-        ImGui::EndChild();  // end child Record Data
-        ImGui::PopStyleVar();
-        PopPlotRegionColors();
-        // ############################ Devicelist
-        SetDeviceMenuStyle();
+            if(!flagPaused){
+                ImPlot::SetupAxis(axis.plotXAxis, axis.xLabel.c_str(), ImPlotAxisFlags_AutoFit);
+                ImPlot::SetupAxis(axis.plotYAxis, axis.yLabel.c_str(), ImPlotAxisFlags_AutoFit);
+                ImPlot::SetupAxisLimits(axis.plotXAxis, axis.xMin - 2, axis.xMax + 2, ImGuiCond_Always);
+                ImPlot::SetupAxisLimits(axis.plotYAxis, axis.yMin - 2, axis.yMax + 2, ImGuiCond_Always);
+            }else{
+                ImPlot::SetupAxis(axis.plotXAxis, axis.xLabel.c_str());
+                ImPlot::SetupAxis(axis.plotYAxis, axis.yLabel.c_str());
+                ImPlot::SetupAxisLimits(axis.plotXAxis, axis.xMin - 2, axis.xMax + 2, ImGuiCond_Always);
+                ImPlot::SetupAxisLimits(axis.plotYAxis, axis.yMin - 2, axis.yMax + 2, ImGuiCond_Always);
+            }
+                 */
+               });
+    ImGui::EndChild();  // end child Record Data
+    ImGui::PopStyleVar();
+    PopPlotRegionColors();
+    // ############################ Devicelist
+    SetDeviceMenuStyle();
 
-        ImGui::Dummy({0.f, windowSize.y * .01f});
-        ImGui::BeginChild("Devicelist");
-        ImGui::Dummy({windowSize.x * .36f, 0.f});
-        ImGui::SameLine();
-        ImGui::Text(appLanguage[Key::Devices_found]);
-        devicesList(flagPaused);
-        ImGui::EndChild();  // end child "Devicelist"
-        ImGui::EndChild();  // end child "Right Side"
-        ImGui::End();
-    };
+    ImGui::Dummy({0.f, windowSize.y * .01f});
+    ImGui::BeginChild("Devicelist");
+    ImGui::Dummy({windowSize.x * .36f, 0.f});
+    ImGui::SameLine();
+    ImGui::Text(appLanguage[Key::Devices_found]);
+    devicesList(flagPaused);
+    ImGui::EndChild();  // end child "Devicelist"
+    ImGui::EndChild();  // end child "Right Side"
+    ImGui::End();
+};
 
-    ImGuiInstance window{1500, 800,
-                         fmt::format("{} {}", CMakeGitVersion::Target::Name,
-                                     CMakeGitVersion::Project::Version)};
-    while (window.run(render))
-        ;
-    return 0;
+ImGuiInstance window{1500, 800,
+                     fmt::format("{} {}", CMakeGitVersion::Target::Name,
+                                 CMakeGitVersion::Project::Version)};
+while (window.run(render))
+    ;
+return 0;
 }
