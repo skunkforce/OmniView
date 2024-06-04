@@ -15,13 +15,11 @@ int main() {
   auto now = std::chrono::system_clock::now();
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   std::tm now_tm = *std::gmtime(&now_time_t);
-  double xmax_paused{0};
-  bool open_settings = false;
-  bool open_generate_training_data = false;
-  static bool flagPaused = true;
-  bool flagDataNotSaved = true;
-  bool Development = false;
-  bool flagInitState = true;
+  static bool flagPaused{true};
+  bool flagDataNotSaved{true}, Development{false}, flagInitState{true},
+      loadedFileChkBx{false}, open_generate_training_data{false},
+      open_settings{false};
+  dvcPair loadedDvc;
 
   // main loop
   auto render = [&]() {
@@ -29,7 +27,7 @@ int main() {
       set_inital_config(config);
       flagInitState = false;
     }
-    SetupImGuiStyle(false, 0.99f, config);
+    SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
@@ -49,8 +47,9 @@ int main() {
     }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
-    set_side_menu(config, flagPaused, open_settings,
-                  open_generate_training_data);
+    static fs::path loadedFileName;
+    set_side_menu(config, open_settings, open_generate_training_data,
+                  loadedFileName, loadedDvc);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
@@ -64,8 +63,7 @@ int main() {
     if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, captureData, now, now_time_t, now_tm,
-                  flagDataNotSaved);
+      saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved);
       ImGui::EndPopup();
     }
     // ############################ Popup Reset
@@ -74,7 +72,7 @@ int main() {
       ImGui::SetItemDefaultFocus();
       ImGui::Text(appLanguage[Key::Measure_not_saved]);
       if (ImGui::Button(appLanguage[Key::Continue_del])) {
-        rstSettings();
+        rstSettings(loadedDvc);
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
@@ -121,7 +119,7 @@ int main() {
           if (flagDataNotSaved)
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           else {
-            rstSettings();
+            rstSettings(loadedDvc);
             flagPaused = true;
           }
         }
@@ -160,7 +158,7 @@ int main() {
     if (open_settings) {
       const auto EngItr = englishLan.find(Key::Settings);
       const auto GrmItr = germanLan.find(Key::Settings);
-      // check returned value from find() and set titles 
+      // check returned value from find() and set titles
       if (EngItr != englishLan.end() && GrmItr != germanLan.end()) {
         titles[0] = (std::string)EngItr->second + "###ID";
         titles[1] = (std::string)GrmItr->second + "###ID";
@@ -178,7 +176,7 @@ int main() {
     // Generate training data popup
     if (open_generate_training_data)
       generateTrainingData(open_generate_training_data, captureData,
-                           savedFileNames, config);
+                           savedFileNames);
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
@@ -187,14 +185,13 @@ int main() {
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
                       ImGuiChildFlags_Border);
 
-    addPlots("Recording the data", flagPaused, [&xmax_paused](double x_max) {
+    addPlots("Recording the data", [](double x_max) {
       if (!flagPaused) {
         ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
                           ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
                                 ImGuiCond_Always);
       } else {
-        xmax_paused = x_max;
         ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
         ImPlot::SetupAxesLimits(0, 10, -10, 200);
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
@@ -213,11 +210,26 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList();
+    if (loadedDvc.second.size()) { // if device was successfully loaded from file
+      if (ImGui::Checkbox("##", &loadedFileChkBx))
+        if (loadedFileChkBx)
+          captureData[loadedDvc.first] = loadedDvc.second;
+        else
+          fmt::println("{} device erased from list.",
+                       captureData.erase(loadedDvc.first));
+      ImGui::SameLine();
+      ImGui::TextUnformatted(loadedFileName.filename().string().c_str());
+      ImGui::SameLine();
+      if (ImGui::Button(appLanguage[Key::Reset])) {
+        captureData.erase(loadedDvc.first);
+        loadedDvc = {};
+        loadedFileChkBx = false;
+      }
+    }
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
   };
-
   ImGuiInstance window{1500, 800,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,
                                    CMakeGitVersion::Project::Version)};

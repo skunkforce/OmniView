@@ -8,12 +8,10 @@
 #include "languages.hpp"
 #include "style.hpp"
 
-namespace fs = std::filesystem;
-
 static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  const fs::path &outFile, std::string allData, size_t &y_indx) {
-  allData += fmt::format(",Type: {},Serial: {},SamplyingRate: {}\n",
+  allData += fmt::format(",{},{},{}\n",
                          device.type, device.serial, device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
@@ -41,8 +39,6 @@ static void save(const Omniscope::Id &device,
   fmt::print("Finished saving.\n");
 }
 void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
-                 std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
-                     &captureData,
                  std::chrono::system_clock::time_point &now,
                  std::time_t &now_time_t, std::tm &now_tm,
                  bool &flagDataNotSaved) {
@@ -67,6 +63,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   ImGui::InputTextWithHint("##Lable1", "\".../OmniView/saves/\"",
                            &inptTxtFields[0]);
   ImGui::SameLine();
+  static ImGui::FileBrowser directoryBrowser(
+      ImGuiFileBrowserFlags_SelectDirectory);
   if (ImGui::Button(appLanguage[Key::Browse]))
     directoryBrowser.Open();
 
