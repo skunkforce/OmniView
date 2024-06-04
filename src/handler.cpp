@@ -156,10 +156,16 @@ void set_inital_config(nlohmann::json &config) {
       config["text"]["active_language"] == "German" ? germanLan : englishLan;
 }
 
-void rstSettings() {
+void rstSettings(const dvcPair &loadedDvc) {
   sampler.reset();
   devices.clear();
   savedFileNames.clear();
   deviceManager.clearDevices();
-  captureData.clear();
+  // erase all elements excpet loadedDvc
+  for (auto it = captureData.begin(); it != captureData.end();) {
+    if (it->first != loadedDvc.first)
+      it = captureData.erase(it);
+    else
+      ++it;
+  }
 }

@@ -19,7 +19,7 @@ int main() {
   bool flagDataNotSaved{true}, Development{false}, flagInitState{true},
       loadedFileChkBx{false}, open_generate_training_data{false},
       open_settings{false};
-  std::optional<Omniscope::Id> id;
+  dvcPair loadedDvc;
 
   // main loop
   auto render = [&]() {
@@ -49,7 +49,7 @@ int main() {
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     static fs::path loadedFileName;
     set_side_menu(config, open_settings, open_generate_training_data,
-                  loadedFileName);
+                  loadedFileName, loadedDvc);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
@@ -72,9 +72,7 @@ int main() {
       ImGui::SetItemDefaultFocus();
       ImGui::Text(appLanguage[Key::Measure_not_saved]);
       if (ImGui::Button(appLanguage[Key::Continue_del])) {
-        rstSettings();
-        if(loadedFileChkBx)
-            id = load_file(loadedFileName);
+        rstSettings(loadedDvc);
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
@@ -121,9 +119,7 @@ int main() {
           if (flagDataNotSaved)
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           else {
-            rstSettings();
-            if (loadedFileChkBx)
-              id = load_file(loadedFileName);
+            rstSettings(loadedDvc);
             flagPaused = true;
           }
         }
@@ -214,15 +210,22 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList();
-    if (!loadedFileName.empty())
+    if (loadedDvc.second.size()) { // if device was successfully loaded from file
       if (ImGui::Checkbox("##", &loadedFileChkBx))
         if (loadedFileChkBx)
-          id = load_file(loadedFileName);
-        else if (id.has_value())
+          captureData[loadedDvc.first] = loadedDvc.second;
+        else
           fmt::println("{} device erased from list.",
-                       captureData.erase(id.value()));
-    ImGui::SameLine();
-    ImGui::TextUnformatted(loadedFileName.filename().string().c_str());
+                       captureData.erase(loadedDvc.first));
+      ImGui::SameLine();
+      ImGui::TextUnformatted(loadedFileName.filename().string().c_str());
+      ImGui::SameLine();
+      if (ImGui::Button(appLanguage[Key::Reset])) {
+        captureData.erase(loadedDvc.first);
+        loadedDvc = {};
+        loadedFileChkBx = false;
+      }
+    }
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();

@@ -243,8 +243,8 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
 }
 
 void set_side_menu(const nlohmann::json &config, bool &open_settings,
-                   bool &open_generate_training_data,
-                   fs::path &loadedFileName) {
+                   bool &open_generate_training_data, fs::path &loadedFileName,
+                   dvcPair &loadedDvc) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -299,6 +299,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
   fileBrowser.Display();
   if (fileBrowser.HasSelected()) {
     loadedFileName = fileBrowser.GetSelected();
+    load_file(loadedFileName, loadedDvc);
     fileBrowser.ClearSelected();
   }
 
@@ -346,39 +347,37 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
                   .c_str());
 }
 
-std::optional<Omniscope::Id>
-load_file(fs::path &loadedFileName) { // load and display data from file
+void load_file(fs::path &loadedFileName,
+               dvcPair &loadedDvc) { // load and display data from file
   std::ifstream readfile(loadedFileName, std::ios::binary);
   if (!readfile.is_open())
     fmt::println("Failed to open file {}", loadedFileName);
   else {
-    size_t indx{2};
     std::string first_line;
     std::getline(readfile, first_line);
     std::istringstream input{first_line};
     constexpr size_t fieldsSz{6};
-    Omniscope::Id id;
     // extract input fields data from the first line
     for (size_t i = 0; i < fieldsSz; i++) {
       std::string substr;
       std::getline(input, substr, ',');
       if (i == 3) // fourth element (Type of scope)
-        id.type = substr;
+        loadedDvc.first.type = substr;
       if (i == 4) // fifth element (serial of scope)
-        id.serial = substr;
+        loadedDvc.first.serial = substr;
     }
-    while (!readfile.eof()) {
+    size_t indx{2}; // y_values start from line 2 of the file
+    while (!readfile.eof()) { // fill the vector of the values
       double value{};
       readfile >> value;
-      captureData[id].emplace_back(indx++, value);
+      loadedDvc.second.emplace_back(indx++, value);
       static constexpr size_t bigNumber{10'000'000};
       readfile.ignore(bigNumber,
                       '\n'); // new line separator between elements
     }
     readfile.close();
     // pop the extra last element
-    captureData[id].pop_back();
-    return id;
+    loadedDvc.second.pop_back();
   }
 }
 
