@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <set>
+#include <implot.h>
 
 // global variables
 inline OmniscopeDeviceManager deviceManager{};
@@ -17,7 +18,7 @@ inline std::optional<OmniscopeSampler> sampler{};
 inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
     captureData;
 
-void addPlots(const char *, const bool, std::function<void(double)>);
+void addPlots(const char *, const bool, std::function<void(double, std::string, ImAxis_, double, double)>);
 void parseDeviceMetaData(Omniscope::MetaData, std::shared_ptr<OmniscopeDevice>&);
 void initDevices();
 void devicesList(bool const& flagPaused);

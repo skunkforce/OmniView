@@ -2,8 +2,8 @@
 
 #include <implot.h>
 
-#include <set>
 #include <functional>
+#include <set>
 
 #include "get_from_github.hpp"
 
@@ -49,38 +49,56 @@ valuePair.second << ") ";
 }
 */
 struct AxisInfo {
-    std::vector<std::pair<double, double>>& data;
+    std::vector<std::pair<double, double>> &data;
     Omniscope::Id deviceId;
-    std::string egu;
+    std::pair<std::string, ImAxis_> egu;
     std::string timebase;
-    ImAxis_ axis;
 
-    AxisInfo(auto& data_, std::string egu_, Omniscope::Id deviceId_) : data{data_}, egu{egu_}, deviceId{deviceId_}
-    {}
+    AxisInfo(auto &data_, std::pair<std::string, ImAxis_> egu_,
+             Omniscope::Id deviceId_, std::string timebase_)
+        : data{data_}, egu{egu_}, deviceId{deviceId_}, timebase{timebase_} {}
 };
 
 std::vector<AxisInfo> getDeviceInfos() {
     std::vector<AxisInfo> axisInfos;
-
+    std::vector<std::pair<std::string, ImAxis_>> assignedEgus;
     if (sampler.has_value()) {
         for (auto const &device : sampler->sampleDevices) {
             std::string egu = device.first->getEgu().value_or("default");
             auto id = device.first->getId();
             if (id.has_value()) {
                 Omniscope::Id deviceId = id.value();
-
+                std::string timebase{std::to_string(deviceId.sampleRate)};
                 if (captureData.find(deviceId) != captureData.end()) {
-                    AxisInfo axisInfo{captureData[deviceId], egu, deviceId};
+                    auto eguIterator = std::ranges::find(
+                        assignedEgus, egu,
+                        &std::pair<std::string, ImAxis_>::first);
+
+                    if (eguIterator == assignedEgus.end()) {
+                        if (assignedEgus.size() <= 3) {
+                            ImAxis_ nextYAxis = static_cast<ImAxis_>(
+                                ImAxis_Y1 + assignedEgus.size());
+                            assignedEgus.push_back(
+                                std::make_pair(egu, nextYAxis));
+                            eguIterator = (assignedEgus.end() - 1);
+                        } else {
+                            fmt::print(
+                                "too many Axes added, egu not added: "
+                                "{}\nDevice id: {}",
+                                egu, id.value());
+                            break;
+                        }
+                    }
+
+                    AxisInfo axisInfo{captureData[deviceId], *eguIterator,
+                                      deviceId, timebase};
                     axisInfos.push_back(axisInfo);
                 }
-            }
-            else{
+            } else {
                 fmt::print("Error no device id found\n");
             }
         }
-
     }
-
     return axisInfos;
 }
 
@@ -92,23 +110,32 @@ std::vector<AxisInfo> getDeviceInfos() {
  */
 
 void addPlots(const char *name, bool const flagPaused,
-              std::function<void(double)> axesSetup) {
+              std::function<void(double, std::string, ImAxis_, double, double)>
+                  axesSetup) {
     static std::set<std::string> firstRun;
     static bool initialAxesSetup = true;
     auto const plotRegion = ImGui::GetContentRegionAvail();
     static std::vector<AxisInfo> plotAxes;
 
-    if(initialAxesSetup){
-        //plotAxes = getDeviceInfos();
-        if(plotAxes.size() > 0){
+    if (initialAxesSetup) {
+        plotAxes = getDeviceInfos();
+        if (plotAxes.size() > 0) {
             fmt::print("foo Size: {}\n", plotAxes.size());
             initialAxesSetup = false;
         }
+        fmt::print("plot axes: {}\n", plotAxes.size());
     }
-
     if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
         double x_min = std::numeric_limits<double>::max();
         double x_max = std::numeric_limits<double>::min();
+
+        for (auto const &axes : plotAxes) {
+            fmt::print("data size:{}, egu: {}\n", axes.data.size(),
+                       axes.egu.first);
+            auto [yMin, yMax] =
+                std::minmax_element(axes.data.begin(), axes.data.end());
+            axesSetup(x_max, axes.egu.first, axes.egu.second, yMin->second, yMax->second);
+        }
 
         auto const limits = [&]() {
             if (!firstRun.contains(name)) {
@@ -117,6 +144,9 @@ void addPlots(const char *name, bool const flagPaused,
             }
             return ImPlot::GetPlotLimits();
         }();
+
+
+
         auto addPlot = [&](auto const &plot, int plotCount) {
             if (!plot.second.empty()) {
                 auto const start = [&]() {

@@ -5,16 +5,6 @@
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
-std::vector<std::string> uniqueSortedEgus(
-    std::vector<std::pair<std::string, std::string>> const& input) {
-    std::set<std::string> uniqueSet;
-    for (auto const& [str1, str2] : input) {
-        uniqueSet.emplace(str1);
-    }
-    std::vector<std::string> result(uniqueSet.begin(), uniqueSet.end());
-
-    return result;
-}
 
 int main() {
     const std::string configpath = "config/config.json";
@@ -203,26 +193,26 @@ int main() {
         // Check if time base for axes are same
         // check if egu and timescale for plot are same
         // error if third device is added
-        addPlots("Recording the data", flagPaused, [](double x_max) {
+        addPlots("Recording the data", flagPaused, [](double x_max, std::string yLabel, ImAxis_ axis, double yMin, double yMax) {
             ImPlot::SetupLegend(ImPlotLocation_NorthEast |
                                 ImPlotLegendFlags_Outside);
             auto auxFlagsMeasuring =
                 ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
             auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
-            // ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-            /*
+            ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+
             if(!flagPaused){
-                ImPlot::SetupAxis(axis.plotXAxis, axis.xLabel.c_str(), ImPlotAxisFlags_AutoFit);
-                ImPlot::SetupAxis(axis.plotYAxis, axis.yLabel.c_str(), ImPlotAxisFlags_AutoFit);
-                ImPlot::SetupAxisLimits(axis.plotXAxis, axis.xMin - 2, axis.xMax + 2, ImGuiCond_Always);
-                ImPlot::SetupAxisLimits(axis.plotYAxis, axis.yMin - 2, axis.yMax + 2, ImGuiCond_Always);
+                ImPlot::SetupAxis(axis, yLabel.c_str(), ImPlotAxisFlags_AutoFit);
+                ImPlot::SetupAxis(ImAxis_X1, "time [s]", ImPlotAxisFlags_AutoFit);
+                ImPlot::SetupAxisLimits(axis, yMin - 2, yMax + 2, ImGuiCond_Always);
+                ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 9, ImGuiCond_Always);
+
             }else{
-                ImPlot::SetupAxis(axis.plotXAxis, axis.xLabel.c_str());
-                ImPlot::SetupAxis(axis.plotYAxis, axis.yLabel.c_str());
-                ImPlot::SetupAxisLimits(axis.plotXAxis, axis.xMin - 2, axis.xMax + 2, ImGuiCond_Always);
-                ImPlot::SetupAxisLimits(axis.plotYAxis, axis.yMin - 2, axis.yMax + 2, ImGuiCond_Always);
+                ImPlot::SetupAxis(ImAxis_X1, "time [s]");
+                ImPlot::SetupAxis(axis, yLabel.c_str());
+                ImPlot::SetupAxisLimits(ImAxis_X1, 0, 10);
+                ImPlot::SetupAxisLimits(axis, yMin - 2, yMax + 2);
             }
-                 */
                });
     ImGui::EndChild();  // end child Record Data
     ImGui::PopStyleVar();
