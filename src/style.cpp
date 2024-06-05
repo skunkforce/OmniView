@@ -354,7 +354,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
    static auto now = std::chrono::system_clock::now();
   static std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   static std::tm now_tm = *std::gmtime(&now_time_t);
-  static auto windowSize{ImGui::GetIO().DisplaySize};
+  auto windowSize{ImGui::GetIO().DisplaySize};
   static bool flagDataNotSaved = true;
 
   // begin Toolbar ############################################
@@ -389,7 +389,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
     static int image_height[size];
     static int image_width[size];
     static GLuint image_texture[size];
-    static constexpr float iconsSacle{0.8f};
+    static constexpr float iconsSacle{0.8};
 
     // The order matters because of the counter for the images !!!
     static const unsigned char *imagesNames[] = {
