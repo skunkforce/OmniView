@@ -1,4 +1,3 @@
-
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"

@@ -389,7 +389,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
     static int image_height[size];
     static int image_width[size];
     static GLuint image_texture[size];
-    static constexpr float iconsSacle{0.8};
+    float iconsSacle = 0.8f;
 
     // The order matters because of the counter for the images !!!
     static const unsigned char *imagesNames[] = {
