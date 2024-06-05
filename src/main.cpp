@@ -16,7 +16,7 @@ int main() {
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   std::tm now_tm = *std::gmtime(&now_time_t);
   static bool flagPaused{true};
-  bool flagDataNotSaved{true}, Development{false}, flagInitState{true},
+  bool  Development{false}, flagInitState{true},
       loadedFileChkBx{false}, open_generate_training_data{false},
       open_settings{false};
   dvcPair loadedDvc;
@@ -47,6 +47,8 @@ int main() {
     }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
+
+    // ############################################# Side Menu 
     static fs::path loadedFileName;
     set_side_menu(config, open_settings, open_generate_training_data,
                   loadedFileName, loadedDvc);
@@ -57,101 +59,10 @@ int main() {
     ImGui::BeginChild("Right Side", {0.f, 0.f});
     if (sampler.has_value() && !flagPaused)
       sampler->copyOut(captureData);
-    ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
-                      ImGuiWindowFlags_NoScrollbar);
-    // ############################ Popup Save
-    if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved);
-      ImGui::EndPopup();
-    }
-    // ############################ Popup Reset
-    if (ImGui::BeginPopupModal(appLanguage[Key::Reset_q], nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGui::SetItemDefaultFocus();
-      ImGui::Text(appLanguage[Key::Measure_not_saved]);
-      if (ImGui::Button(appLanguage[Key::Continue_del])) {
-        rstSettings(loadedDvc);
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::SameLine();
-      if (ImGui::Button(appLanguage[Key::Back]))
-        ImGui::CloseCurrentPopup();
-      ImGui::EndPopup();
-    }
 
-    if (flagPaused) {
-      // ######################## Buttonstripe
-      if (!devices.empty())
-        if (!sampler.has_value()) {
-          set_button_style_to(config, "start"); // Start Button
-          if (ImGui::Button(appLanguage[Key::Start], toolBtnSize)) {
-            sampler.emplace(deviceManager, std::move(devices));
-            flagPaused = false;
-            flagDataNotSaved = true;
-          }
-          ImGui::PopStyleColor(3);
-        }
-      // set_button_style_to(config, "standart");
-    } else {
-      // ############################ Stop Button
-      set_button_style_to(config, "stop");
-      if (ImGui::Button(appLanguage[Key::Stop], toolBtnSize))
-        flagPaused = true;
-      ImGui::PopStyleColor(3);
-    }
-    if (flagPaused) {
-      // Start/reset the measurement when the measurement is paused,
-      // followed by a query as to whether the old data should be saved
-      if (sampler.has_value()) {
-        ImGui::SameLine();
-        set_button_style_to(config, "start");
-        if (ImGui::Button(appLanguage[Key::Continue], toolBtnSize)) {
-          flagPaused = false;
-          flagDataNotSaved = true;
-        }
-        ImGui::PopStyleColor(3);
-        ImGui::SameLine();
-
-        set_button_style_to(config, "stop");
-        if (ImGui::Button(appLanguage[Key::Reset], toolBtnSize)) {
-          if (flagDataNotSaved)
-            ImGui::OpenPopup(appLanguage[Key::Reset_q]);
-          else {
-            rstSettings(loadedDvc);
-            flagPaused = true;
-          }
-        }
-        ImGui::PopStyleColor(3);
-      }
-      ImGui::SameLine();
-
-      // gray out "Save" button when pop-up is open
-      const bool pushStyle =
-          ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
-
-      if (pushStyle)
-        ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
-      if (ImGui::Button(appLanguage[Key::Save], toolBtnSize)) {
-        if (sampler.has_value())
-          ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);
-        else
-          ImGui::OpenPopup(appLanguage[Key::Save_warning],
-                           ImGuiPopupFlags_NoOpenOverExistingPopup);
-      }
-      info_popup(appLanguage[Key::Save_warning],
-                 appLanguage[Key::No_dvc_available]);
-
-      if (pushStyle)
-        ImGui::PopStyleColor();
-    } else {
-      ImGui::SameLine();
-      ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
-      ImGui::Button(appLanguage[Key::Save], toolBtnSize);
-      ImGui::PopStyleColor();
-    }
-    ImGui::EndChild(); // end child "Buttonstripe"
+    // ######################################### Toolbar 
+    set_toolbar(config, language, flagPaused, loadedDvc); 
+    
     // ############################ Settings Menu
     static int title = 0;
     static std::vector<std::string> titles(2); // two languages

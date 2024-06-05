@@ -11,6 +11,7 @@
 #include "jasonhandler.hpp"
 #include "languages.hpp"
 #include "../imgui-filebrowser/imfilebrowser.h"
+#include "popups.hpp"
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
@@ -346,6 +347,178 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
                           CMakeGitVersion::VersionWithGit)
                   .c_str());
 }
+
+void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, bool &flagPaused, dvcPair &loadedDvc){
+
+  // variable declaration
+   static auto now = std::chrono::system_clock::now();
+  static std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+  static std::tm now_tm = *std::gmtime(&now_time_t);
+  auto windowSize{ImGui::GetIO().DisplaySize};
+  static bool flagDataNotSaved = true;
+
+  // begin Toolbar ############################################
+  ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
+                      ImGuiWindowFlags_NoScrollbar);
+    // ############################ Popup Save
+    if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      ImGui::SetItemDefaultFocus();
+       saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved);
+      ImGui::EndPopup();
+    }
+    // ############################ Popup Reset
+    if (ImGui::BeginPopupModal(appLanguage[Key::Reset_q], nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      ImGui::SetItemDefaultFocus();
+      ImGui::Text(appLanguage[Key::Measure_not_saved]);
+      if (ImGui::Button(appLanguage[Key::Continue_del])) {
+        rstSettings(loadedDvc);
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      if (ImGui::Button(appLanguage[Key::Back]))
+        ImGui::CloseCurrentPopup();
+      ImGui::EndPopup();
+    }
+
+    // Initializing all variables for images in the toolbar
+    static constexpr size_t size{4}; // number of pictures
+    int PngRenderedCnt = 0;
+    static bool loaded_png[size]{};
+    static int image_height[size];
+    static int image_width[size];
+    static GLuint image_texture[size];
+    float iconsSacle = 0.8f;
+
+    // The order matters because of the counter for the images !!!
+    static const unsigned char *imagesNames[] = {
+        PlayButton_png, PauseButton_png, SaveButton_png, ResetButton_png};
+    static const unsigned int imagesLen[] = {
+        PlayButton_png_len, PauseButton_png_len, SaveButton_png_len,
+        ResetButton_png_len};
+    // Load the images for the SideBarMenu
+    for (int i = 0; i < size; i++)
+      if (!loaded_png[i]) {
+        if (LoadTextureFromHeader(imagesNames[i], imagesLen[i],
+                                  &image_texture[i], &image_width[i],
+                                  &image_height[i]))
+          loaded_png[i] = true;
+        else
+          fmt::println("Error Loading Png #{}.", i);
+      }
+
+    // ImGui::SetCursorPosY(windowSize.y * 0.05f);
+
+    if (flagPaused) {
+      // ######################## Buttonstripe
+      if (!devices.empty())
+        if (!sampler.has_value()) {
+          PngRenderedCnt = 0;
+          set_button_style_to(config, "start"); // Start Button
+          if (ImGui::ImageButton(
+                  appLanguage[Key::Start],
+                  (void *)(intptr_t)image_texture[PngRenderedCnt],
+                  ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                         image_height[PngRenderedCnt] * iconsSacle))) {
+            sampler.emplace(deviceManager, std::move(devices));
+            flagPaused = false;
+            flagDataNotSaved = true;
+          }
+          ImGui::PopStyleColor(3);
+        }
+      // set_button_style_to(config, "standart");
+    } else {
+      // ############################ Stop Button
+      PngRenderedCnt = 1;
+      set_button_style_to(config, "stop");
+      if (ImGui::ImageButton(
+              appLanguage[Key::Stop],
+              (void *)(intptr_t)image_texture[PngRenderedCnt],
+              ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                     image_height[PngRenderedCnt] * iconsSacle))) {
+        flagPaused = true;
+        for (auto &device : sampler->sampleDevices) {
+          device.first->send(Omniscope::Stop{});
+        }
+      }
+      ImGui::PopStyleColor(3);
+    }
+    if (flagPaused) {
+      // Start/reset the measurement when the measurement is paused,
+      // followed by a query as to whether the old data should be saved
+      if (sampler.has_value()) {
+        ImGui::SameLine();
+        PngRenderedCnt = 0;
+        set_button_style_to(config, "start");
+        if (ImGui::ImageButton(
+                appLanguage[Key::Continue],
+                (void *)(intptr_t)image_texture[PngRenderedCnt],
+                ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                       image_height[PngRenderedCnt] * iconsSacle))) {
+          flagPaused = false;
+          flagDataNotSaved = true;
+          for (auto &device : sampler->sampleDevices) {
+            device.first->send(Omniscope::Start{});
+          }
+        }
+        ImGui::PopStyleColor(3);
+        ImGui::SameLine();
+        PngRenderedCnt = 3;
+
+        set_button_style_to(config, "stop");
+        if (ImGui::ImageButton(
+                appLanguage[Key::Reset],
+                (void *)(intptr_t)image_texture[PngRenderedCnt],
+                ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                       image_height[PngRenderedCnt] * iconsSacle))) {
+          if (flagDataNotSaved) {
+            ImGui::OpenPopup(appLanguage[Key::Reset_q]);
+          } else {
+            rstSettings(loadedDvc);
+            flagPaused = true;
+          }
+        }
+        ImGui::PopStyleColor(3);
+      }
+      ImGui::SameLine();
+
+      // gray out "Save" button when pop-up is open
+      const bool pushStyle =
+          ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
+
+      if (pushStyle)
+        ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+      PngRenderedCnt = 2;
+      if (ImGui::ImageButton(
+              appLanguage[Key::Save],
+              (void *)(intptr_t)image_texture[PngRenderedCnt],
+              ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                     image_height[PngRenderedCnt] * iconsSacle))) {
+        if (sampler.has_value())
+          ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);
+        else
+          ImGui::OpenPopup(appLanguage[Key::Save_warning],
+                           ImGuiPopupFlags_NoOpenOverExistingPopup);
+      }
+      info_popup(appLanguage[Key::Save_warning],
+                 appLanguage[Key::No_dvc_available]);
+
+      if (pushStyle)
+        ImGui::PopStyleColor();
+    } else {
+      ImGui::SameLine();
+      ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+      PngRenderedCnt = 2;
+      ImGui::ImageButton(appLanguage[Key::Save],
+                         (void *)(intptr_t)image_texture[PngRenderedCnt],
+                         ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                                image_height[PngRenderedCnt] * iconsSacle));
+      ImGui::PopStyleColor();
+    }
+    ImGui::EndChild(); // end child "Buttonstripe"
+}
+
 
 void load_file(fs::path &loadedFileName,
                dvcPair &loadedDvc) { // load and display data from file

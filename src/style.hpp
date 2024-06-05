@@ -18,6 +18,7 @@ void set_button_style_to(const nlohmann::json &, const std::string &);
 bool LoadTextureFromHeader(unsigned char const *, int, GLuint *, int *, int *);
 void set_side_menu(const nlohmann::json &, bool &, bool &, fs::path &,
                    dvcPair &);
+void set_toolbar(const nlohmann::json &, const nlohmann::json &, bool &, dvcPair &);
 void load_file(fs::path &loadedFileName, dvcPair&);
 void PopupStyleEditor();
 void PushPlotRegionColors(); 
