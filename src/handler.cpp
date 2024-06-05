@@ -7,64 +7,13 @@
 
 #include "get_from_github.hpp"
 
-/*
-std::vector<AxisInfo> categorizeDevices() {
-    std::unordered_map<
-        std::string,
-        std::map<Omniscope::Id, std::vector<std::pair<double, double>>>>
-        groupedData;
-
-    for (auto const &device : sampler->sampleDevices) {
-        auto id = device.first->getId();
-        if (id.has_value()) {
-            std::string egu{"default"};
-            if (device.first->getEgu().has_value()) {
-                egu = device.first->getEgu().value();
-            }
-            if (captureData.find(id.value()) != captureData.end()) {
-                groupedData[egu][id.value()] = captureData.at(id.value());
-            }
-        }
-    }
-    std::vector<AxisInfo> axisInfos;
-    for (const auto &group : groupedData) {
-        std::string timebase;
-        ImAxis_ axis;
-        //AxisInfo info{group.second, "test", timebase, axis};
-        //axisInfos.push_back(info);
-    }
-
-    for (const auto& info : axisInfos) {
-        std::cout << "EGU: " << info.egu << ", Timebase: " << info.timebase <<
-", Axis: " << info.axis << std::endl; std::cout << "Data:" << std::endl; for
-(const auto& dataEntry : info.data) { std::cout << "  ID: " <<
-dataEntry.first.serial << ", Values: "; for (const auto& valuePair :
-dataEntry.second) { std::cout << "(" << valuePair.first << ", " <<
-valuePair.second << ") ";
-            }
-            std::cout << std::endl;
-        }
-    }
-    return axisInfos;
-}
-*/
-struct AxisInfo {
-    std::vector<std::pair<double, double>> &data;
-    Omniscope::Id deviceId;
-    std::pair<std::string, ImAxis_> egu;
-    std::string timebase;
-
-    AxisInfo(auto &data_, std::pair<std::string, ImAxis_> egu_,
-             Omniscope::Id deviceId_, std::string timebase_)
-        : data{data_}, egu{egu_}, deviceId{deviceId_}, timebase{timebase_} {}
-};
-
 std::vector<AxisInfo> getDeviceInfos() {
     std::vector<AxisInfo> axisInfos;
     std::vector<std::pair<std::string, ImAxis_>> assignedEgus;
     if (sampler.has_value()) {
         for (auto const &device : sampler->sampleDevices) {
-            std::string egu = device.first->getEgu().value_or("default");
+            // TODO replace ADC counts with language variable
+            std::string egu = device.first->getEgu().value_or("ADC counts");
             auto id = device.first->getId();
             if (id.has_value()) {
                 Omniscope::Id deviceId = id.value();
@@ -73,7 +22,6 @@ std::vector<AxisInfo> getDeviceInfos() {
                     auto eguIterator = std::ranges::find(
                         assignedEgus, egu,
                         &std::pair<std::string, ImAxis_>::first);
-
                     if (eguIterator == assignedEgus.end()) {
                         if (assignedEgus.size() <= 3) {
                             ImAxis_ nextYAxis = static_cast<ImAxis_>(
@@ -89,9 +37,10 @@ std::vector<AxisInfo> getDeviceInfos() {
                             break;
                         }
                     }
-
-                    AxisInfo axisInfo{captureData[deviceId], *eguIterator,
-                                      deviceId, timebase};
+                    AxisInfo axisInfo{
+                        std::make_pair(deviceId,
+                                       std::ref(captureData[deviceId])),
+                        *eguIterator, timebase};
                     axisInfos.push_back(axisInfo);
                 }
             } else {
@@ -102,39 +51,32 @@ std::vector<AxisInfo> getDeviceInfos() {
     return axisInfos;
 }
 
-/*
- * Compute connected devices
- * catogerize them after EGU an timebase
- * setup axes
- * plot data in rigt axis
- */
-
 void addPlots(const char *name, bool const flagPaused,
               std::function<void(double, std::string, ImAxis_, double, double)>
                   axesSetup) {
     static std::set<std::string> firstRun;
-    static bool initialAxesSetup = true;
     auto const plotRegion = ImGui::GetContentRegionAvail();
-    static std::vector<AxisInfo> plotAxes;
-
-    if (initialAxesSetup) {
+    //TODO search devices must work aswell
+    if (plotAxes.size() <= 0) {
         plotAxes = getDeviceInfos();
-        if (plotAxes.size() > 0) {
-            fmt::print("foo Size: {}\n", plotAxes.size());
-            initialAxesSetup = false;
-        }
-        fmt::print("plot axes: {}\n", plotAxes.size());
     }
     if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
         double x_min = std::numeric_limits<double>::max();
         double x_max = std::numeric_limits<double>::min();
 
         for (auto const &axes : plotAxes) {
-            fmt::print("data size:{}, egu: {}\n", axes.data.size(),
-                       axes.egu.first);
-            auto [yMin, yMax] =
-                std::minmax_element(axes.data.begin(), axes.data.end());
-            axesSetup(x_max, axes.egu.first, axes.egu.second, yMin->second, yMax->second);
+            // fmt::print("data size:{}, egu: {}\n", axes.data.second.size(),
+            //           axes.egu.first);
+            if (!axes.data.second.empty()) {
+                x_max = std::max(x_max, axes.data.second.back().first);
+                //TODO save max and min value over same axis
+                auto [min, max] = std::minmax_element(axes.data.second.begin(),
+                                                      axes.data.second.end());
+                double yMin = min->first + (min->first * 0.15);
+                double yMax = max->second + (max->second * 0.15);
+                // fmt::print("yMin {}, yMax{}\n", yMin, yMax);
+                axesSetup(x_max, axes.egu.first, axes.egu.second, yMin, yMax);
+            }
         }
 
         auto const limits = [&]() {
@@ -145,9 +87,7 @@ void addPlots(const char *name, bool const flagPaused,
             return ImPlot::GetPlotLimits();
         }();
 
-
-
-        auto addPlot = [&](auto const &plot, int plotCount) {
+        auto addPlot = [&](auto const &plot, ImAxis_ yAxis) {
             if (!plot.second.empty()) {
                 auto const start = [&]() {
                     auto p = std::lower_bound(
@@ -173,9 +113,7 @@ void addPlots(const char *name, bool const flagPaused,
                 }();
 
                 // determine which axes is the right one to choose
-                ImAxis_ nextXAxis = static_cast<ImAxis_>(ImAxis_X1 + plotCount);
-                ImAxis_ nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + plotCount);
-                ImPlot::SetAxes(nextXAxis, nextYAxis);
+                ImPlot::SetAxes(ImAxis_X1, yAxis);
                 ImPlot::PlotLine(
                     fmt::format("{}-{}", plot.first.type, plot.first.serial)
                         .c_str(),
@@ -185,12 +123,11 @@ void addPlots(const char *name, bool const flagPaused,
                     0, 0, 2 * sizeof(double) * stride);
             }
         };
-        for (int count = 0; auto const &plot : captureData) {
-            ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.first][0],
-                                            colorMap[plot.first][1],
-                                            colorMap[plot.first][2], 1.0f});
-            addPlot(plot, count);
-            ++count;
+        for (int count = 0; auto const &plot : plotAxes) {
+            ImPlot::SetNextLineStyle(ImVec4{
+                colorMap[plot.data.first][0], colorMap[plot.data.first][1],
+                colorMap[plot.data.first][2], 1.0f});
+            addPlot(plot.data, plot.egu.second);
         }
 
         ImPlot::EndPlot();
@@ -310,4 +247,5 @@ void rstSettings() {
     savedFileNames.clear();
     deviceManager.clearDevices();
     captureData.clear();
+    plotAxes.clear();
 }
