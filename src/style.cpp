@@ -1,3 +1,7 @@
+#include <cmake_git_version/version.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define STB_IMAGE_IMPLEMENTATION
 #include "style.hpp"
@@ -6,16 +10,12 @@
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
-#include <cmake_git_version/version.hpp>
-#include <iostream>
-#include <string>
-#include <vector>
+#include "../imgui-filebrowser/imfilebrowser.h"
 #include "popups.hpp"
 
-void SetupImGuiStyle(bool bStyleDark_, float alpha_,
-                     const nlohmann::json &config) {
+void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
-  ImGuiIO &io = ImGui::GetIO();
+  // ImGuiIO &io = ImGui::GetIO();
   // io.FontGlobalScale = load_json<float>(config, "text", "scale");
 
   ImGui::GetStyle().Alpha = 1.0f;
@@ -23,7 +23,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
 
   auto colors = ImGui::GetStyle().Colors;
   colors[ImGuiCol_Text] = {1.f, 1.f, 1.f, 1.f};
-  colors[ImGuiCol_TextDisabled] = {0.972f, 0.976, 0.98f, 0.98f};
+  colors[ImGuiCol_TextDisabled] = {0.972f, 0.976f, 0.98f, 0.98f};
   colors[ImGuiCol_WindowBg] = {0.145f, 0.157f, 0.169f, 1.f};
   colors[ImGuiCol_ChildBg] = {0.145f, 0.157f, 0.169f, 1.f};
   colors[ImGuiCol_PopupBg] = {0.145f, 0.157f, 0.169f, 1.f};
@@ -31,7 +31,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   colors[ImGuiCol_BorderShadow] = {0.f, 0.f, 0.f, 1.f};
   // changes the color of the frame bg for the plot window
   colors[ImGuiCol_FrameBg] = {0.f, 0.f, 0.f, 1.f};
-  colors[ImGuiCol_FrameBgHovered] = {0.09f, 0.09f, 0.078, 1.f};
+  colors[ImGuiCol_FrameBgHovered] = {0.09f, 0.09f, 0.078f, 1.f};
   colors[ImGuiCol_FrameBgActive] = {0.09f, 0.09f, 0.078f, 1.f};
   colors[ImGuiCol_TitleBg] = {0.004f, 0.004f, 0.004f, 1.f};
   colors[ImGuiCol_TitleBgCollapsed] = {0.09f, 0.09f, 0.078f, 1.f};
@@ -46,7 +46,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   colors[ImGuiCol_SliderGrabActive] = {0.941f, 0.941f, 0.941f, 1.f};
   colors[ImGuiCol_Button] = {0.145f, 0.156f, 0.168f, 1.f};
   colors[ImGuiCol_ButtonHovered] = {0.941f, 0.243f, 0.211f, 1.f};
-  colors[ImGuiCol_ButtonActive] = {0.921f, 0.24f, 0.211, 1.f};
+  colors[ImGuiCol_ButtonActive] = {0.921f, 0.24f, 0.211f, 1.f};
   colors[ImGuiCol_Header] = {0.26f, 0.59f, 0.98f, 0.31f};
   colors[ImGuiCol_HeaderHovered] = {0.26f, 0.59f, 0.98f, 0.80f};
   colors[ImGuiCol_HeaderActive] = {0.26f, 0.59f, 0.98f, 1.f};
@@ -121,7 +121,9 @@ void PushPlotRegionColors() {
   ImPlot::PushStyleColor(ImPlotCol_TitleText, {0.f, 0.f, 0.f, 1.f});
   ImPlot::PushStyleColor(ImPlotCol_AxisGrid, {0.f, 0.f, 0.f, 1.f});
   ImPlot::PushStyleColor(ImPlotCol_LegendBg, {1.0f, 1.0f, 1.0f, 1.0f});
-  ImPlot::PushStyleColor(ImPlotCol_LegendBorder, {37/255.0f, 40/255.0f, 43/255.0f, 1.0f}); // Schwarz
+  ImPlot::PushStyleColor(
+      ImPlotCol_LegendBorder,
+      {37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 1.0f}); // Schwarz
 }
 void PopPlotRegionColors() {
   ImGui::PopStyleColor(5);
@@ -241,8 +243,9 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
   return true;
 }
 
-void set_side_menu(const nlohmann::json &config, bool &flagPaused,
-                   bool &open_settings, bool &open_generate_training_data) {
+void set_side_menu(const nlohmann::json &config, bool &open_settings,
+                   bool &open_generate_training_data, fs::path &loadedFileName,
+                   dvcPair &loadedDvc) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -270,8 +273,8 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
-  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005;
-  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008;
+  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005f;
+  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008f;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -289,6 +292,16 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     devices.clear();
     deviceManager.clearDevices();
     initDevices();
+  }
+
+  static ImGui::FileBrowser fileBrowser;
+  if (ImGui::Button(appLanguage[Key::Load_file_Data]))
+    fileBrowser.Open();
+  fileBrowser.Display();
+  if (fileBrowser.HasSelected()) {
+    loadedFileName = fileBrowser.GetSelected();
+    load_file(loadedFileName, loadedDvc);
+    fileBrowser.ClearSelected();
   }
 
   static bool showDiag = false;
@@ -314,7 +327,6 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
   }
 
   static bool showSettings = false;
-  const bool showSettingsPrev = showSettings;
   if (loaded_png[++PngRenderedCnt] && // render Settings
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -330,13 +342,13 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     system(("start " + load_json<std::string>(config, "helplink")).c_str());
     showSettings = false;
   }
-  ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.90f);
+  ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.9f);
   ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
                           CMakeGitVersion::VersionWithGit)
                   .c_str());
 }
 
-void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, bool &flagPaused){
+void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, bool &flagPaused, dvcPair &loadedDvc){
 
   // variable declaration
    static auto now = std::chrono::system_clock::now();
@@ -352,8 +364,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
     if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
                                ImGuiWindowFlags_AlwaysAutoResize)) {
       ImGui::SetItemDefaultFocus();
-      saves_popup(config, language, captureData, now, now_time_t, now_tm,
-                  flagDataNotSaved);
+       saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved);
       ImGui::EndPopup();
     }
     // ############################ Popup Reset
@@ -362,7 +373,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
       ImGui::SetItemDefaultFocus();
       ImGui::Text(appLanguage[Key::Measure_not_saved]);
       if (ImGui::Button(appLanguage[Key::Continue_del])) {
-        rstSettings();
+        rstSettings(loadedDvc);
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
@@ -464,7 +475,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
           if (flagDataNotSaved) {
             ImGui::OpenPopup(appLanguage[Key::Reset_q]);
           } else {
-            rstSettings();
+            rstSettings(loadedDvc);
             flagPaused = true;
           }
         }
@@ -508,8 +519,42 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language, b
     ImGui::EndChild(); // end child "Buttonstripe"
 }
 
-// For Development
-void PopupStyleEditor() {
+
+void load_file(fs::path &loadedFileName,
+               dvcPair &loadedDvc) { // load and display data from file
+  std::ifstream readfile(loadedFileName, std::ios::binary);
+  if (!readfile.is_open())
+    fmt::println("Failed to open file {}", loadedFileName);
+  else {
+    std::string first_line;
+    std::getline(readfile, first_line);
+    std::istringstream input{first_line};
+    constexpr size_t fieldsSz{6};
+    // extract input fields data from the first line
+    for (size_t i = 0; i < fieldsSz; i++) {
+      std::string substr;
+      std::getline(input, substr, ',');
+      if (i == 3) // fourth element (Type of scope)
+        loadedDvc.first.type = substr;
+      if (i == 4) // fifth element (serial of scope)
+        loadedDvc.first.serial = substr;
+    }
+    size_t indx{2}; // y_values start from line 2 of the file
+    while (!readfile.eof()) { // fill the vector of the values
+      double value{};
+      readfile >> value;
+      loadedDvc.second.emplace_back(indx++, value);
+      static constexpr size_t bigNumber{10'000'000};
+      readfile.ignore(bigNumber,
+                      '\n'); // new line separator between elements
+    }
+    readfile.close();
+    // pop the extra last element
+    loadedDvc.second.pop_back();
+  }
+}
+
+void PopupStyleEditor() { // For Development
   ImGuiStyle &style = ImGui::GetStyle();
   ImPlotStyle &styleImPlot = ImPlot::GetStyle();
   static std::vector<ImVec4> colorVec;

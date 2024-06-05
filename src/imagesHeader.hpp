@@ -10647,8 +10647,12 @@ inline constexpr size_t Diagnostics_png_len =
 inline constexpr size_t Settings_png_len =
     sizeof(Settings_png) / sizeof(Settings_png[0]);
 inline constexpr size_t Help_png_len = sizeof(Help_png) / sizeof(Help_png[0]);
-inline constexpr size_t RefreshIcon_png_len = sizeof(RefreshIcon_png) /sizeof(RefreshIcon_png[0]);
-inline constexpr size_t SettingIcon_png_len = sizeof(SettingIcon_png) /sizeof(SettingIcon_png[0]);
-inline constexpr size_t HelpIcon_png_len = sizeof(HelpIcon_png) /sizeof(HelpIcon_png[0]); 
-inline constexpr size_t DiagnosticIcon_png_len = sizeof(DiagnosticIcon_png) /sizeof(DiagnosticIcon_png[0]); 
+inline constexpr size_t RefreshIcon_png_len =
+    sizeof(RefreshIcon_png) / sizeof(RefreshIcon_png[0]);
+inline constexpr size_t SettingIcon_png_len =
+    sizeof(SettingIcon_png) / sizeof(SettingIcon_png[0]);
+inline constexpr size_t HelpIcon_png_len =
+    sizeof(HelpIcon_png) / sizeof(HelpIcon_png[0]);
+inline constexpr size_t DiagnosticIcon_png_len =
+    sizeof(DiagnosticIcon_png) / sizeof(DiagnosticIcon_png[0]);
 #endif

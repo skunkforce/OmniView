@@ -16,19 +16,12 @@ struct BoolWrapper {
   BoolWrapper(bool _b) : b(_b) {}
   bool b;
 };
-
-inline ImGui::FileBrowser fileBrowser;
-inline ImGui::FileBrowser
-    directoryBrowser(ImGuiFileBrowserFlags_SelectDirectory);
 void generateTrainingData(
     bool &,
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &,
-    std::set<std::string> &, const nlohmann::json &);
+    std::set<std::string> &);
 void info_popup(std::string_view, std::string_view);
-void saves_popup(
-    nlohmann::json const &, nlohmann::json const &,
-    std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &,
-    std::chrono::system_clock::time_point &, std::time_t &now_time_t,
-    std::tm &now_tm, bool &);
-
+void saves_popup(nlohmann::json const &, nlohmann::json const &,
+                 std::chrono::system_clock::time_point &,
+                 std::time_t &now_time_t, std::tm &now_tm, bool &);
 #endif

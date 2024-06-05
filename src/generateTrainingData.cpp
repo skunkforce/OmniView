@@ -17,9 +17,8 @@ void generateTrainingData(
     bool &open_generate_training_data,
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
         &captureData,
-    std::set<std::string> &savedFileNames, const nlohmann::json &config) {
+    std::set<std::string> &savedFileNames) {
 
-  namespace fs = std::filesystem;
   ImGui::OpenPopup(appLanguage[Key::Gn_trng_data_pop]);
   if (ImGui::BeginPopupModal(appLanguage[Key::Gn_trng_data_pop], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -56,7 +55,7 @@ void generateTrainingData(
         (ImGui::BeginCombo("##ComboDevice", "Devices & Waveforms Menu"))) {
       // only one checkbox out of two sets of
       // devices/waveforms is selected at any time
-      size_t i{};
+      int i{};
       bool is_checked{false};
       if (captureData.size())
         for (const auto &[device, values] : captureData) {
@@ -93,11 +92,6 @@ void generateTrainingData(
         } // End of the algorithm
       ImGui::EndCombo();
     }
-
-    // set browser properties
-    fileBrowser.SetTitle("Searching for .csv files");
-    // fileBrowser.SetTypeFilters({".csv"});
-
     static std::string Measurement;
     // one extra space for '\0' character
     static char VIN[19];
@@ -117,8 +111,8 @@ void generateTrainingData(
       if (!readfile.is_open())
         fmt::println("Failed to open file {}", filename);
       else {
-        // first, second and third lines of file
-        std::string first_line, second_line, third_line;
+        // first line of file
+        std::string first_line;
         std::getline(readfile, first_line);
         first_line.pop_back(); // remove ending new line
         std::stringstream ss(first_line);
@@ -128,18 +122,14 @@ void generateTrainingData(
           std::getline(ss, substr, ',');
           FieldsData[j] = substr;
         }
-        std::getline(readfile, second_line); // device ID
-        second_line.pop_back();
-        std::getline(readfile, third_line); // samplying rate
-        third_line.pop_back();
         while (!readfile.eof()) {
           // read measuring values into the vector
           double value{};
           readfile >> value;
           file_measuring_vals.emplace_back(value);
           static constexpr size_t bigNumber{10'000'000};
-          readfile.ignore(bigNumber, ' '); // two spaces between elements
-          readfile.ignore(bigNumber, ' ');
+          readfile.ignore(bigNumber,
+                          '\n'); // new line separator between elements
           // at the last loop, the last number is picked, loop
           // goes on and vector pushes value before eof is reached
         }
@@ -190,6 +180,9 @@ void generateTrainingData(
       callSetInptFields = false;
     }
 
+    static ImGui::FileBrowser fileBrowser;
+    fileBrowser.SetTitle("Searching for .csv files"); // properties
+    // fileBrowser.SetTypeFilters({".csv"});
     fileBrowser.Display();
     if (fileBrowser.HasSelected()) {
       if (isWrongFile(fileBrowser.GetSelected().string())) {
@@ -408,8 +401,8 @@ void generateTrainingData(
 
         // upload data asynchronously using a separate thread
         future = std::async(std::launch::async, [&] {
-         // take temp object returned from dump() and send it to sendData
-         std::string result = sendData(myJson.dump());
+          // take temp object returned from dump() and send it to sendData
+          std::string result = sendData(myJson.dump());
           return result;
         });
 
