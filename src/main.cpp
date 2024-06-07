@@ -16,10 +16,10 @@ int main() {
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   std::tm now_tm = *std::gmtime(&now_time_t);
   static bool flagPaused{true};
-  bool  Development{false}, flagInitState{true},
-      loadedFileChkBx{false}, open_generate_training_data{false},
-      open_settings{false};
-  dvcPair loadedDvc;
+  bool Development{false}, flagInitState{true},
+      open_generate_training_data{false}, open_settings{false};
+  auto loadedDvcs = captureData;
+  std::map<Omniscope::Id, std::string> Dvcs_filenames;
 
   // main loop
   auto render = [&]() {
@@ -31,8 +31,6 @@ int main() {
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
-    const ImVec2 toolBtnSize{windowSize.x * .1f,
-                             windowSize.y * .1f}; // toolbar buttons size
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
                      ImGuiWindowFlags_NoTitleBar);
@@ -48,10 +46,9 @@ int main() {
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
 
-    // ############################################# Side Menu 
-    static fs::path loadedFileName;
+    // ############################################# Side Menu
     set_side_menu(config, open_settings, open_generate_training_data,
-                  loadedFileName, loadedDvc);
+                  loadedDvcs, Dvcs_filenames);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
@@ -60,9 +57,9 @@ int main() {
     if (sampler.has_value() && !flagPaused)
       sampler->copyOut(captureData);
 
-    // ######################################### Toolbar 
-    set_toolbar(config, language, flagPaused, loadedDvc); 
-    
+    // ######################################### Toolbar
+    set_toolbar(config, language, flagPaused, loadedDvcs);
+
     // ############################ Settings Menu
     static int title = 0;
     static std::vector<std::string> titles(2); // two languages
@@ -115,28 +112,35 @@ int main() {
     // ############################ Devicelist
     SetDeviceMenuStyle();
 
-    ImGui::Dummy({0.f, windowSize.y * .01f});
+    ImGui::Dummy({0.f, windowSize.y * .01f}); 
     ImGui::BeginChild("Devicelist");
     ImGui::Dummy({windowSize.x * .36f, 0.f});
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList();
-    if (loadedDvc.second.size()) { // if device was successfully loaded from file
-      if (ImGui::Checkbox("##", &loadedFileChkBx))
-        if (loadedFileChkBx)
-          captureData[loadedDvc.first] = loadedDvc.second;
-        else
-          fmt::println("{} device erased from list.",
-                       captureData.erase(loadedDvc.first));
-      ImGui::SameLine();
-      ImGui::TextUnformatted(loadedFileName.filename().string().c_str());
-      ImGui::SameLine();
-      if (ImGui::Button(appLanguage[Key::Reset])) {
-        captureData.erase(loadedDvc.first);
-        loadedDvc = {};
-        loadedFileChkBx = false;
-      }
-    }
+    static std::map<Omniscope::Id, BoolWrapper> loadedFilesChkBxs;
+    if (!loadedDvcs.empty()) { // if devices were successfully loaded from file
+      for (auto it = loadedDvcs.begin(); it != loadedDvcs.end();) {
+        ImGui::PushID(&it->first); // make unique IDs
+        if (ImGui::Checkbox("##", &loadedFilesChkBxs[it->first].b))
+          if (loadedFilesChkBxs[it->first].b) { // if checked
+            if (!captureData.contains(it->first))
+              captureData.emplace(it->first, it->second);
+          } else
+            captureData.erase(it->first);
+        ImGui::SameLine();
+        ImGui::TextUnformatted(Dvcs_filenames[it->first].c_str());
+        ImGui::SameLine();
+        if (ImGui::Button(appLanguage[Key::Reset])) {
+          captureData.erase(it->first);
+          Dvcs_filenames.erase(it->first);
+          loadedFilesChkBxs[it->first].b = false;
+          it = loadedDvcs.erase(it);
+        } else 
+          it++;
+        ImGui::PopID();
+      } // end of for-loop
+    } 
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
