@@ -45,7 +45,6 @@ int main() {
     }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
-
     // ############################################# Side Menu
     set_side_menu(config, open_settings, open_generate_training_data,
                   loadedDvcs, Dvcs_filenames);
@@ -111,7 +110,6 @@ int main() {
     PopPlotRegionColors();
     // ############################ Devicelist
     SetDeviceMenuStyle();
-
     ImGui::Dummy({0.f, windowSize.y * .01f}); 
     ImGui::BeginChild("Devicelist");
     ImGui::Dummy({windowSize.x * .36f, 0.f});

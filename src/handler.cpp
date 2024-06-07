@@ -137,7 +137,7 @@ void load_files(decltype(captureData) &loadedDvcs,
                 std::map<Omniscope::Id, std::string> &Dvcs_filenames, bool& loadFile) {
   static std::set<fs::path> loadedFileNames;
   auto do_load = [&loadedDvcs, &Dvcs_filenames] {
-    pairDvc loadedDvc{};
+    std::pair<Omniscope::Id, std::vector<std::pair<double, double>>> loadedDvc;
     for (const auto &path : loadedFileNames) {
       std::ifstream readfile(path, std::ios::binary);
       if (!readfile.is_open())
@@ -166,8 +166,7 @@ void load_files(decltype(captureData) &loadedDvcs,
                           '\n'); // new line separator between elements
         }
         readfile.close();
-        // pop the extra last element
-        loadedDvc.second.pop_back();
+        loadedDvc.second.pop_back();  // pop the extra last element
         loadedDvcs.emplace(loadedDvc);
         Dvcs_filenames.emplace(loadedDvc.first, path.filename().string());
       }
@@ -180,7 +179,7 @@ void load_files(decltype(captureData) &loadedDvcs,
     static ImGui::FileBrowser fileBrowser;
     static std::vector<std::string> pathArr{""};
     for (auto& path : pathArr) {
-      ImGui::PushID(&path);
+      ImGui::PushID(&path); // unique IDs
       ImGui::InputTextWithHint("##", appLanguage[Key::Path], &path);
       ImGui::SameLine();
       if (ImGui::Button(appLanguage[Key::Browse]))
