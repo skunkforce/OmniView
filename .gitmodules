@@ -16,3 +16,6 @@
 [submodule "stb_Image"]
 	path = stb_Image
 	url = https://github.com/nothings/stb.git
+[submodule "external/ImGuiFileDialog"]
+	path = external/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog.git
