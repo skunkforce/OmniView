@@ -307,8 +307,8 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
   if (showDiag && !showDiagPrev)
     ImGui::SetNextItemOpen(false);
   if (showDiag && ImGui::TreeNode("FFT Analyse")) {
-    ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
-    /*if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform]))
+   /* ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+    if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform]))
       showDiag = false;
     ImGui::PopStyleColor();*/
     if (ImGui::Button("Analysiere Daten")) {
