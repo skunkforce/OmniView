@@ -14,8 +14,8 @@ static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  const fs::path &outFile, std::string allData, size_t &y_indx) {
 
-  allData += fmt::format("\nType: {}\nSerial: {}\nSamplyingRate: {}\n",
-                         device.type, device.serial, device.sampleRate);
+  allData += fmt::format("\nSerial: {}\nSamplyingRate: {}\n",
+                          device.serial, device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
       // five bytes for each y_value, three for the number
