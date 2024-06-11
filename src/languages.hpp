@@ -167,8 +167,6 @@ inline const std::map<Key, const char *> englishLan{
     {Key::SettingsText, "Set your personal settings for the software"},
     {Key::Saving, "saving ..."}};
 
->>>>>>> VideoDreh
-
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
     {Key::New_Car, "Neues Fahrzeug"},
