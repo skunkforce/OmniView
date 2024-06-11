@@ -56,9 +56,12 @@ void addPlots(const char *name, bool const flagPaused,
                   axesSetup) {
     static std::set<std::string> firstRun;
     auto const plotRegion = ImGui::GetContentRegionAvail();
+    static int activeAxes{0};
     //TODO search devices must work aswell
-    if (plotAxes.size() <= 0) {
+    if (plotAxes.size() <= activeAxes) {
         plotAxes = getDeviceInfos();
+        activeAxes = plotAxes.size();
+
     }
     if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
         double x_min = std::numeric_limits<double>::max();
