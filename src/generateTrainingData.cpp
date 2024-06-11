@@ -117,31 +117,31 @@ void generateTrainingData(
       if (!readfile.is_open())
         fmt::println("Failed to open file {}", filename);
       else {
-        // first and second lines of file
-        std::string first_line, second_line;
-        for (size_t i = 0; !readfile.eof(); i++) {
-          if (i == 0) {
-            std::getline(readfile, first_line);
-            first_line.pop_back(); // remove ending new line
-            std::stringstream ss(first_line);
-            // extract input fields data from the first line
-            for (size_t j = 0; j < fieldsSize; j++) {
-              std::string substr;
-              std::getline(ss, substr, ',');
-              FieldsData[j] = substr;
-            }
-          } else if (i == 1)
-            std::getline(readfile, second_line); // device ID
-          else {
-            // read measuring values into the vector
-            constexpr size_t bigNumber{10'000'000};
-            readfile.ignore(bigNumber, ',');
-            double value{};
-            readfile >> value;
-            file_measuring_vals.emplace_back(value);
-            // at the last loop, the last number is picked and loop goes on
-            // vector pushes value before eof is reached
-          }
+        // first, second and third lines of file
+        std::string first_line, second_line, third_line;
+        std::getline(readfile, first_line);
+        first_line.pop_back(); // remove ending new line
+        std::stringstream ss(first_line);
+        // extract input fields data from the first line
+        for (size_t j = 0; j < fieldsSize; j++) {
+          std::string substr;
+          std::getline(ss, substr, ',');
+          FieldsData[j] = substr;
+        }
+        std::getline(readfile, second_line); // device ID
+        second_line.pop_back();
+        std::getline(readfile, third_line); // samplying rate
+        third_line.pop_back();
+        while (!readfile.eof()) {
+          // read measuring values into the vector
+          double value{};
+          readfile >> value;
+          file_measuring_vals.emplace_back(value);
+          static constexpr size_t bigNumber{10'000'000};
+          readfile.ignore(bigNumber, ' '); // two spaces between elements
+          readfile.ignore(bigNumber, ' ');
+          // at the last loop, the last number is picked, loop
+          // goes on and vector pushes value before eof is reached
         }
         // pop the extra last element
         file_measuring_vals.pop_back();
