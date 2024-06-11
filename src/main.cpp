@@ -15,11 +15,11 @@ int main() {
   auto now = std::chrono::system_clock::now();
   std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
   std::tm now_tm = *std::gmtime(&now_time_t);
-  static bool flagPaused{true};
+  bool flagPaused{true};
   bool Development{false}, flagInitState{true},
       open_generate_training_data{false}, open_settings{false};
-  auto loadedDvcs = captureData;
-  std::map<Omniscope::Id, std::string> Dvcs_filenames;
+  auto loadedFiles = captureData;
+  std::map<Omniscope::Id, std::string> loadedFilenames;
 
   // main loop
   auto render = [&]() {
@@ -47,7 +47,7 @@ int main() {
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     // ############################################# Side Menu
     set_side_menu(config, open_settings, open_generate_training_data,
-                  loadedDvcs, Dvcs_filenames);
+                  loadedFiles, loadedFilenames);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
@@ -57,7 +57,7 @@ int main() {
       sampler->copyOut(captureData);
 
     // ######################################### Toolbar
-    set_toolbar(config, language, flagPaused, loadedDvcs);
+    set_toolbar(config, language, flagPaused, loadedFiles);
 
     // ############################ Settings Menu
     static int title = 0;
@@ -92,7 +92,7 @@ int main() {
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
                       ImGuiChildFlags_Border);
 
-    addPlots("Recording the data", [](double x_max) {
+    addPlots("Recording the data", [flagPaused](double x_max) {
       if (!flagPaused) {
         ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
                           ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
@@ -116,9 +116,9 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList();
-    static std::map<Omniscope::Id, BoolWrapper> loadedFilesChkBxs;
-    if (!loadedDvcs.empty()) { // if devices were successfully loaded from file
-      for (auto it = loadedDvcs.begin(); it != loadedDvcs.end();) {
+    if (!loadedFiles.empty()) { // if devices were successfully loaded from file
+      static std::map<Omniscope::Id, BoolWrapper> loadedFilesChkBxs;
+      for (auto it = loadedFiles.begin(); it != loadedFiles.end();) {
         ImGui::PushID(&it->first); // make unique IDs
         if (ImGui::Checkbox("##", &loadedFilesChkBxs[it->first].b))
           if (loadedFilesChkBxs[it->first].b) { // if checked
@@ -127,13 +127,13 @@ int main() {
           } else
             captureData.erase(it->first);
         ImGui::SameLine();
-        ImGui::TextUnformatted(Dvcs_filenames[it->first].c_str());
+        ImGui::TextUnformatted(loadedFilenames[it->first].c_str());
         ImGui::SameLine();
         if (ImGui::Button(appLanguage[Key::Reset])) {
           captureData.erase(it->first);
-          Dvcs_filenames.erase(it->first);
+          loadedFilenames.erase(it->first);
           loadedFilesChkBxs[it->first].b = false;
-          it = loadedDvcs.erase(it);
+          it = loadedFiles.erase(it);
         } else 
           it++;
         ImGui::PopID();

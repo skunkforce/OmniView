@@ -245,8 +245,8 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
 
 void set_side_menu(const nlohmann::json &config, bool &open_settings,
                    bool &open_generate_training_data,
-                   decltype(captureData) &loadedDvcs,
-                   std::map<Omniscope::Id, std::string> &Dvcs_filenames) {
+                   decltype(captureData) &loadedFiles,
+                   std::map<Omniscope::Id, std::string> &loadedFilenames) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -304,8 +304,8 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
     ImGui::OpenPopup(appLanguage[Key::Load_file_data]);
   }
   if (loadFile)
-    load_files(loadedDvcs, Dvcs_filenames, loadFile);
- 
+    load_files(loadedFiles, loadedFilenames, loadFile);
+
   static bool showDiag = false;
   const bool showDiagPrev = showDiag;
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
@@ -351,7 +351,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
 }
 
 void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
-                 bool &flagPaused, const decltype(captureData) &loadedDvcs) {
+                 bool &flagPaused, const decltype(captureData) &loadedFiles) {
 
   // variable declaration
   static auto now = std::chrono::system_clock::now();
@@ -359,6 +359,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
   static std::tm now_tm = *std::gmtime(&now_time_t);
   auto windowSize{ImGui::GetIO().DisplaySize};
   static bool flagDataNotSaved = true;
+  static decltype(captureData) liveDvcs;
 
   // begin Toolbar ############################################
   ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
@@ -367,7 +368,8 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
   if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
-    saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved);
+    saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved,
+                liveDvcs);
     ImGui::EndPopup();
   }
   // ############################ Popup Reset
@@ -376,7 +378,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
     ImGui::SetItemDefaultFocus();
     ImGui::Text(appLanguage[Key::Measure_not_saved]);
     if (ImGui::Button(appLanguage[Key::Continue_del])) {
-      rstSettings(loadedDvcs);
+      rstSettings(loadedFiles);
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
@@ -476,7 +478,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
         if (flagDataNotSaved) {
           ImGui::OpenPopup(appLanguage[Key::Reset_q]);
         } else {
-          rstSettings(loadedDvcs);
+          rstSettings(loadedFiles);
           flagPaused = true;
         }
       }
@@ -495,6 +497,10 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                            (void *)(intptr_t)image_texture[PngRenderedCnt],
                            ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                                   image_height[PngRenderedCnt] * iconsSacle))) {
+      for (const auto &[device, values] : captureData)
+        if (!loadedFiles.contains(device))
+          liveDvcs.emplace(device, values); // extract live devices data
+
       if (sampler.has_value())
         ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);
       else

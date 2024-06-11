@@ -1,8 +1,7 @@
-#include <implot.h>
-#include <set>
 #include "handler.hpp"
+#include <implot.h>
+#include "popups.hpp"
 #include "get_from_github.hpp"
-#include "../imgui-filebrowser/imfilebrowser.h"
 #include "../imgui-stdlib/imgui_stdlib.h"
 
 void addPlots(const char *name,
@@ -14,7 +13,6 @@ void addPlots(const char *name,
   if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
     double x_min = std::numeric_limits<double>::max();
     double x_max = std::numeric_limits<double>::min();
-
     for (auto const &plot : plots)
       if (!plot.second.empty()) {
         x_min = std::min(x_min, plot.second.front().first);
@@ -133,12 +131,13 @@ void devicesList() {
       doDevice(device, appLanguage[Key::Ready]);
 }
 
-void load_files(decltype(captureData) &loadedDvcs,
-                std::map<Omniscope::Id, std::string> &Dvcs_filenames, bool& loadFile) {
-  static std::set<fs::path> loadedFileNames;
-  auto do_load = [&loadedDvcs, &Dvcs_filenames] {
+void load_files(decltype(captureData) &loadedFiles,
+                std::map<Omniscope::Id, std::string> &loadedFilenames,
+                bool &loadFile) {
+  static std::set<fs::path> loadedFilePaths;
+  auto do_load = [&loadedFiles, &loadedFilenames] {
     std::pair<Omniscope::Id, std::vector<std::pair<double, double>>> loadedDvc;
-    for (const auto &path : loadedFileNames) {
+    for (const auto &path : loadedFilePaths) {
       std::ifstream readfile(path, std::ios::binary);
       if (!readfile.is_open())
         fmt::println("Failed to open file {}", path.string());
@@ -166,31 +165,41 @@ void load_files(decltype(captureData) &loadedDvcs,
                           '\n'); // new line separator between elements
         }
         readfile.close();
-        loadedDvc.second.pop_back();  // pop the extra last element
-        loadedDvcs.emplace(loadedDvc);
-        Dvcs_filenames.emplace(loadedDvc.first, path.filename().string());
+        loadedDvc.second.pop_back(); // pop the extra last element
+        loadedFiles.emplace(loadedDvc);
+        loadedFilenames.emplace(loadedDvc.first, path.filename().string());
       }
     }
+    loadedFilePaths.clear();
   };
 
   if (ImGui::BeginPopupModal(appLanguage[Key::Load_file_data], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
     static ImGui::FileBrowser fileBrowser;
-    static std::vector<std::string> pathArr{""};
-    for (auto& path : pathArr) {
+    static std::vector<std::string> pathArr;
+    if (pathArr.empty())
+      pathArr.emplace_back("");
+
+    for (auto &path : pathArr) {
       ImGui::PushID(&path); // unique IDs
       ImGui::InputTextWithHint("##", appLanguage[Key::Path], &path);
       ImGui::SameLine();
       if (ImGui::Button(appLanguage[Key::Browse]))
         fileBrowser.Open();
       fileBrowser.Display();
+      info_popup(appLanguage[Key::Wrong_file_warning],
+                 appLanguage[Key::Wrong_file_type]);
       if (fileBrowser.HasSelected()) {
-        loadedFileNames.emplace(fileBrowser.GetSelected()); // absolute path
-        path = fileBrowser.GetSelected().string();
+        if (fileBrowser.GetSelected().extension() != ".csv")
+          ImGui::OpenPopup(appLanguage[Key::Wrong_file_warning]);
+        else {
+          loadedFilePaths.emplace(fileBrowser.GetSelected()); // absolute path
+          path = fileBrowser.GetSelected().string();
+          loadedFilePaths.emplace(path);
+        }
         fileBrowser.ClearSelected();
-      } else if (!path.empty())
-        loadedFileNames.emplace(path);
+      }
       ImGui::PopID();
     }
     if (ImGui::Button(" + "))
@@ -198,10 +207,12 @@ void load_files(decltype(captureData) &loadedDvcs,
     ImGui::SetItemTooltip(appLanguage[Key::Load_another_file]);
     if (ImGui::Button(appLanguage[Key::Back])) {
       loadFile = false;
+      pathArr.clear();
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
     if (ImGui::Button(appLanguage[Key::Load_file])) {
+      pathArr.clear();
       do_load();
       ImGui::CloseCurrentPopup();
       loadFile = false;
@@ -209,16 +220,18 @@ void load_files(decltype(captureData) &loadedDvcs,
     ImGui::EndPopup();
   }
 }
+
 void set_config(const std::string &configpath) {
-  if (std::filesystem::exists(configpath))
+  if (fs::exists(configpath))
     fmt::print("found config.json\n\r");
   else {
     fmt::print("Did not find config.json.\n Download from Github\n\r");
     update_config_from_github();
   }
 }
+
 void set_json(nlohmann::json &config) {
-  if (std::filesystem::exists(load_json<std::string>(config, ("languagepath"))))
+  if (fs::exists(load_json<std::string>(config, ("languagepath"))))
     fmt::print("Found language: {}\n\r", appLanguage[Key::German]);
   else {
     fmt::print("Did not find {}.\n Download from Github\n\r",
@@ -234,14 +247,14 @@ void set_inital_config(nlohmann::json &config) {
       config["text"]["active_language"] == "German" ? germanLan : englishLan;
 }
 
-void rstSettings(const decltype(captureData) &loadedDvcs) {
+void rstSettings(const decltype(captureData) &loadedFiles) {
   sampler.reset();
   devices.clear();
   savedFileNames.clear();
   deviceManager.clearDevices();
-  // erase all elements excpet loadedDvcs
+  // erase all elements excpet loadedFiles
   for (auto it = captureData.begin(); it != captureData.end();) {
-    if (!loadedDvcs.contains(it->first))
+    if (!loadedFiles.contains(it->first))
       it = captureData.erase(it);
     else
       ++it;
