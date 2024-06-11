@@ -122,7 +122,7 @@ static void select_vcds_data(nlohmann::json const &config, char *path2) {
   ImGui::Text("Messdaten auswählen");
   ImGui::InputText("##path2", path2, sizeof(path2));
   ImGui::SameLine();
-  if (ImGui::Button("Durchsuchen")) {
+  if (ImGui::Button("Durchsuche")) {
     fileBrowser.Open();
   }
   fileBrowser.Display();
