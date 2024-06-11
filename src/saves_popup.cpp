@@ -20,10 +20,10 @@ static void save(const Omniscope::Id &device,
   fileContent.resize_and_overwrite(
       // five bytes for each y_value, three for the number
       // and two spaces as a separator between the numbers
-      values.size() * 5, [&values, &y_indx](char *begin, std::size_t) {
+      values.size() * 64, [&values, &y_indx](char *begin, std::size_t) {
         auto end = begin;
         for (; y_indx < values.size(); y_indx++) {
-          end = std::to_chars(end, end + 3, values[y_indx].second).ptr;
+          end = std::to_chars(end, end + 61, values[y_indx].second).ptr;
           *end++ = ' ';
           *end++ = ' ';
         }
