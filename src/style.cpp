@@ -499,7 +499,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                                   image_height[PngRenderedCnt] * iconsSacle))) {
       for (const auto &[device, values] : captureData)
         if (!loadedFiles.contains(device))
-          liveDvcs.emplace(device, values); // extract live devices data
+          liveDvcs.emplace(device, values); // extract live devices (the little overhead)
 
       if (sampler.has_value())
         ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);
@@ -555,7 +555,6 @@ void PopupStyleEditor() { // For Development
 }
 
 void SetHorizontalSepeareatorColours() {
-
   ImGuiStyle &style = ImGui::GetStyle();
   style.Colors[ImGuiCol_Separator] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 }

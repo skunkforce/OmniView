@@ -4,8 +4,7 @@
 #include "get_from_github.hpp"
 #include "../imgui-stdlib/imgui_stdlib.h"
 
-void addPlots(const char *name,
-              std::function<void(double)> axesSetup) {
+void addPlots(const char *name, std::function<void(double)> axesSetup) {
   static std::set<std::string> firstRun;
   const auto &plots{captureData};
   auto const plotRegion = ImGui::GetContentRegionAvail();
@@ -136,7 +135,7 @@ void load_files(decltype(captureData) &loadedFiles,
                 bool &loadFile) {
   static std::set<fs::path> loadedFilePaths;
   auto do_load = [&loadedFiles, &loadedFilenames] {
-    std::pair<Omniscope::Id, std::vector<std::pair<double, double>>> loadedDvc;
+    std::pair<Omniscope::Id, std::vector<std::pair<double, double>>> loadedFile;
     for (const auto &path : loadedFilePaths) {
       std::ifstream readfile(path, std::ios::binary);
       if (!readfile.is_open())
@@ -151,23 +150,23 @@ void load_files(decltype(captureData) &loadedFiles,
           std::string substr;
           std::getline(input, substr, ',');
           if (i == 3) // fourth element (Type of scope)
-            loadedDvc.first.type = substr;
+            loadedFile.first.type = substr;
           if (i == 4) // fifth element (serial of scope)
-            loadedDvc.first.serial = substr;
+            loadedFile.first.serial = substr;
         }
         size_t indx{2};           // y_values start from line 2 of the file
         while (!readfile.eof()) { // fill the vector of the values
           double value{};
           readfile >> value;
-          loadedDvc.second.emplace_back(indx++, value);
+          loadedFile.second.emplace_back(indx++, value);
           static constexpr size_t bigNumber{10'000'000};
           readfile.ignore(bigNumber,
                           '\n'); // new line separator between elements
         }
         readfile.close();
-        loadedDvc.second.pop_back(); // pop the extra last element
-        loadedFiles.emplace(loadedDvc);
-        loadedFilenames.emplace(loadedDvc.first, path.filename().string());
+        loadedFile.second.pop_back(); // pop the extra last element
+        loadedFiles.emplace(loadedFile);
+        loadedFilenames.emplace(loadedFile.first, path.filename().string());
       }
     }
     loadedFilePaths.clear();
@@ -191,31 +190,33 @@ void load_files(decltype(captureData) &loadedFiles,
       info_popup(appLanguage[Key::Wrong_file_warning],
                  appLanguage[Key::Wrong_file_type]);
       if (fileBrowser.HasSelected()) {
-        if (fileBrowser.GetSelected().extension() != ".csv")
-          ImGui::OpenPopup(appLanguage[Key::Wrong_file_warning]);
-        else {
-          loadedFilePaths.emplace(fileBrowser.GetSelected()); // absolute path
-          path = fileBrowser.GetSelected().string();
-          loadedFilePaths.emplace(path);
-        }
+        path = fileBrowser.GetSelected().string();
         fileBrowser.ClearSelected();
       }
+      if (!path.empty())
+        if (fs::path(path).extension() != ".csv") {
+          ImGui::OpenPopup(appLanguage[Key::Wrong_file_warning],
+                           ImGuiPopupFlags_NoOpenOverExistingPopup);
+          path.clear();
+        } else
+          loadedFilePaths.emplace(path);
       ImGui::PopID();
     }
     if (ImGui::Button(" + "))
       pathArr.emplace_back("");
     ImGui::SetItemTooltip(appLanguage[Key::Load_another_file]);
     if (ImGui::Button(appLanguage[Key::Back])) {
-      loadFile = false;
       pathArr.clear();
+      loadedFilePaths.clear();
+      loadFile = false;
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
     if (ImGui::Button(appLanguage[Key::Load_file])) {
       pathArr.clear();
       do_load();
-      ImGui::CloseCurrentPopup();
       loadFile = false;
+      ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
   }
