@@ -17,7 +17,7 @@ static void popup_settings(nlohmann::json &config,
 
   ImGuiIO &io = ImGui::GetIO();
 
-  ImGui::Text(appLanguage[Key::SettingsText]);
+  ImGui::Text(appLanguage[Key::Set_id_in_setting]);
   ImGui::Text("                            ");
 
   if (tempfontscale < load_json<float>(config, "text", "minscale")) {

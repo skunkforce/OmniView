@@ -6,6 +6,8 @@
 #include <map>
 
 enum class Key {
+  Load_file_Data,
+  Saving,
   Known_Car,
   New_Car,
   Additional_Information,
@@ -43,6 +45,7 @@ enum class Key {
   Continue,
   Continue_del,
   Devices_found,
+  Device_List,
   Usr_curnt_wave,
   Wv_from_file,
   WvForms_warning,
@@ -75,15 +78,18 @@ enum class Key {
   Enter_mileage,
   Battery_measure,
   Attitude,
-  German,
+  x_axis_label,
+  y_axis_label,
+  Record_Data,
   Ready,
   FontSize,
-  SettingsText,
-  Saving,
-  Load_file_Data
+  German
 };
 
 inline const std::map<Key, const char *> englishLan{
+    {Key::Load_file_Data, "Load File"},
+    {Key::Saving, "saving"},
+    {Key::FontSize, "Font Size"},
     {Key::Known_Car, "Known Cars"},
     {Key::New_Car, "New_Car"},
     {Key::Additional_Information, "Additional_Information"},
@@ -121,7 +127,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Stop, "Stop"},
     {Key::Continue, "Continue"},
     {Key::Continue_del, "Continue Deletion?"},
-    {Key::Devices_found, "Devices found:"},
+    {Key::Devices_found, "Devices found"},
+    {Key::Device_List, "Devices List"},
     {Key::Usr_curnt_wave, "User Current Waveform"},
     {Key::Wv_from_file, "Waveform From File"},
     {Key::WvForms_warning, "Waveforms Warning! "},
@@ -154,15 +161,17 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Enter_mileage, "Enter Mileage"},
     {Key::Battery_measure, "Battery measurement"},
     {Key::Attitude, "Attitude"},
-    {Key::German, "German"},
+    {Key::x_axis_label, "x [Seconds]"},
+    {Key::y_axis_label, "y [Volts]"},
+    {Key::Record_Data, "Recording the data"},
     {Key::Ready, "Ready"},
-    {Key::FontSize, "Fontsize"},
-    {Key::SettingsText, "Set your personal settings for the software"},
-    {Key::Saving, "saving ..."},
-    {Key::Load_file_Data, "Load file data"}};
-
+    {Key::German, "German"}};
 
 inline const std::map<Key, const char *> germanLan{
+    {Key::Load_file_Data, "Laden alter Daten"},
+    {Key::Saving, "speichert"},
+    {Key::FontSize, "Schriftgröße"},
+    {Key::Device_List, "Geräteliste"},
     {Key::Known_Car, "Fahrzeugauswahl"},
     {Key::New_Car, "Neues Fahrzeug"},
     {Key::Additional_Information, "Weiterführende Information"},
@@ -201,10 +210,10 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Stop, "Stoppen"},
     {Key::Continue, "Weiter"},
     {Key::Continue_del, "Mit dem Löschen fortfahren?"},
-    {Key::Devices_found, "Geräte gefunden:"},
-    {Key::Usr_curnt_wave, "Aktuelle Wellenform des Benutzers"},
-    {Key::Wv_from_file, "Wellenform aus Datei"},
-    {Key::WvForms_warning, "Warnung!"},
+    {Key::Devices_found, "Geräte"},
+    {Key::Usr_curnt_wave, "Aktuelle Wellenform Des Benutzers"},
+    {Key::Wv_from_file, "Wellenform Aus Datei"},
+    {Key::WvForms_warning, "Warnung vor Wellenformen!"},
     {Key::No_wave_made, "Es wurden keine Wellenformen erstellt!"},
     {Key::Wrong_file_warning, "Warnung vor falscher Datei!"},
     {Key::Wrong_file_type, "Falscher Dateityp! Versuchen Sie es erneut!"},
@@ -234,12 +243,10 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Enter_mileage, "Geben Sie den Kilometerstand ein"},
     {Key::Battery_measure, "Batteriemessung"},
     {Key::Attitude, "Einstellung"},
-    {Key::German, "Deutsch"},
-    {Key::Ready, "Bereit"},
-    {Key::FontSize, "Schriftgröße"},
-    {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"},
-    {Key::Saving, "speichern ..."},
-    {Key::Load_file_Data, "Alte Daten laden"}};
+    {Key::x_axis_label, "x [Sekunden]"},
+    {Key::y_axis_label, "y [Volt]"},
+    {Key::Record_Data, "Datenaufnahme"},
+    {Key::Ready, "bereit"}};
 
 inline auto appLanguage = englishLan;
 namespace fs = std::filesystem;

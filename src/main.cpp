@@ -98,7 +98,7 @@ int main() {
 
     addPlots("Recording the data", [](double x_max) {
       if (!flagPaused) {
-        ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
+        ImPlot::SetupAxes(appLanguage[Key::x_axis_label], appLanguage[Key::y_axis_label],
                           ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
                                 ImGuiCond_Always);
