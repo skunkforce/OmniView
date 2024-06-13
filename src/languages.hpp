@@ -6,6 +6,7 @@
 #include <map>
 
 enum class Key {
+  Saving,
   Known_Car,
   New_Car,
   Additional_Information,
@@ -80,10 +81,13 @@ enum class Key {
   y_axis_label,
   Record_Data,
   Ready,
+  FontSize,
   German
 };
 
 inline const std::map<Key, const char *> englishLan{
+    {Key::Saving, "saving"},
+    {Key::FontSize, "Font Size"},
     {Key::Known_Car, "Known Cars"},
     {Key::New_Car, "New_Car"},
     {Key::Additional_Information, "Additional_Information"},
@@ -162,6 +166,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::German, "German"}};
 
 inline const std::map<Key, const char *> germanLan{
+    {Key::Saving, "speichert"},
+    {Key::FontSize, "Schriftgröße"},
     {Key::Device_List, "Geräteliste"},
     {Key::Known_Car, "Fahrzeugauswahl"},
     {Key::New_Car, "Neues Fahrzeug"},
