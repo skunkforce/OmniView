@@ -6,6 +6,7 @@
 #include <map>
 
 enum class Key {
+  Load_file_Data,
   Saving,
   Known_Car,
   New_Car,
@@ -86,6 +87,7 @@ enum class Key {
 };
 
 inline const std::map<Key, const char *> englishLan{
+    {Key::Load_file_Data, "Load File"},
     {Key::Saving, "saving"},
     {Key::FontSize, "Font Size"},
     {Key::Known_Car, "Known Cars"},
@@ -166,6 +168,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::German, "German"}};
 
 inline const std::map<Key, const char *> germanLan{
+    {Key::Load_file_Data, "Laden alter Daten"},
     {Key::Saving, "speichert"},
     {Key::FontSize, "Schriftgröße"},
     {Key::Device_List, "Geräteliste"},

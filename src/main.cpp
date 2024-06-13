@@ -96,23 +96,14 @@ int main() {
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
                       ImGuiChildFlags_Border);
 
-<<<<<<< HEAD
-    addPlots(appLanguage[Key::Record_Data], flagPaused, [&xmax_paused](double x_max) {
-=======
     addPlots("Recording the data", [](double x_max) {
->>>>>>> master
       if (!flagPaused) {
         ImPlot::SetupAxes(appLanguage[Key::x_axis_label], appLanguage[Key::y_axis_label],
                           ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
                                 ImGuiCond_Always);
       } else {
-<<<<<<< HEAD
-        xmax_paused = x_max;
-        ImPlot::SetupAxes(appLanguage[Key::x_axis_label], appLanguage[Key::y_axis_label]);
-=======
         ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
->>>>>>> master
         ImPlot::SetupAxesLimits(0, 10, -10, 200);
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
         ImPlot::SetupLegend(ImPlotLocation_NorthEast);
