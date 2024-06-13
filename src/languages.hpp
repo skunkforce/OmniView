@@ -246,4 +246,5 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Ready, "bereit"}};
 
 inline auto appLanguage = englishLan;
+namespace fs = std::filesystem;
 #endif
