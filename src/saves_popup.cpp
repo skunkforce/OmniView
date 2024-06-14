@@ -10,9 +10,11 @@
 
 static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
-                 const fs::path &outFile, std::string allData, size_t &y_indx) {
-  allData += fmt::format(",{},{},{}\n",
-                         device.type, device.serial, device.sampleRate);
+                 const fs::path &outFile, std::string allData, size_t &y_indx,
+                 std::string filename) {
+  std::string serialFilename = device.serial + " " + filename;
+  allData += fmt::format(",{},{},{}\n", device.type, serialFilename,
+                         device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
       // four bytes for each y_value, three for the number
@@ -41,10 +43,10 @@ static void save(const Omniscope::Id &device,
 void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
                  std::chrono::system_clock::time_point &now,
                  std::time_t &now_time_t, std::tm &now_tm,
-                 bool &flagDataNotSaved) {
-
+                 bool &flagDataNotSaved,
+                 decltype(captureData) &liveDvcs) {
   ImGui::SetItemDefaultFocus();
-  const size_t devicesSz{captureData.size()};
+  const size_t devicesSz{liveDvcs.size()};
   // input text fields
   static std::vector<std::string> inptTxtFields(devicesSz);
   inptTxtFields.resize(devicesSz);
@@ -80,23 +82,19 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   ImGui::Separator();
   SetHorizontalSepeareatorColours();
   ImGui::NewLine();
-
   ImGui::Text(appLanguage[Key::Select_Devices]);
   ImGui::NewLine();
 
   if (ImGui::BeginCombo("##Combo", appLanguage[Key::Devices_Menu])) {
-    std::stringstream ss;
-    for (size_t i = 0; i < devicesSz; i++) {
-      ss << "Device " << i + 1;
-      ImGui::Checkbox(ss.str().c_str(), &(dvcCheckedArr[i].b));
-      ss.str(std::string());
-    }
+    for (size_t i = 0; i < devicesSz; i++)
+      ImGui::Checkbox(fmt::format("Device {}", i + 1).c_str(),
+                      &(dvcCheckedArr[i].b));
     ImGui::EndCombo();
   }
 
-  static char scantype[255] = "";
-  static char vin[19] = "";
-  static char mileage[10] = "";
+  static char scantype[255];
+  static char vin[19];
+  static char mileage[10];
   std::string inputvin =
       getSubdirectoriesInFolder(language, "saves", scantype, vin, mileage);
 
@@ -143,18 +141,17 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
       ImGui::PopID();
     }
 
-    if (ImGui::Button("Cancel")) {
+    if (ImGui::Button(appLanguage[Key::Back])) {
       for (size_t i = 1; i < devicesSz; ++i) {
         hasSelectedPathArr[i].b = false;
         selectedPathArr[i].clear();
         inptTxtFields[i].clear();
       }
-
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
 
-    if (ImGui::Button("Close"))
+    if (ImGui::Button(appLanguage[Key::OK]))
       ImGui::CloseCurrentPopup();
 
     ImGui::EndPopup();
@@ -172,7 +169,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   // make a directory (if not exists) and return a path to it
   auto mkdir = [&](bool hasSelectedPath, std::string selectedPath,
-                           std::string second_folder, std::string outFile) {
+                   std::string second_folder, std::string outFile) {
     fs::path complete_path;
     auto first_folder = load_json<fs::path>(config, "scanfolder");
 
@@ -206,7 +203,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     return complete_path / outFile;
   };
 
-  if (const size_t checkedDvc_cnt = count_checked_devices()) 
+  if (const size_t checkedDvc_cnt = count_checked_devices())
     if (checkedDvc_cnt > 1) {
       ImGui::SameLine();
       ImGui::Dummy({200, 0});
@@ -222,6 +219,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   ImGui::Separator();
   ImGui::NewLine();
   if (ImGui::Button(appLanguage[Key::Back])) {
+      liveDvcs.clear();
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine(ImGui::GetWindowWidth() * 0.75f); // offset from start x
@@ -233,14 +231,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   if (ImGui::Button(appLanguage[Key::Save])) {
     flagDataNotSaved = false;
-
-    if (captureData.empty()) {
-      fmt::println("captureData is empty");
-      ImGui::CloseCurrentPopup();
-    }
-
     fs::path path;
-    for (size_t i{}; const auto &[device, values] : captureData) {
+    for (size_t i{}; const auto &[device, values] : liveDvcs) {
       if (dvcCheckedArr[i].b) {
         auto filename = mkFileName(fmt::format("device{}", i + 1).c_str());
         if (hasSelectedPathArr[i].b) {
@@ -252,28 +244,29 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
         } else
           path = mkdir(false, "", "", filename);
         valuesSize = values.size();
-        future = std::async(std::launch::async, [&, path] {
-          save(device, values, path, allData, y_indx);
+        future = std::async(std::launch::async, [&, path, filename] {
+          save(device, values, path, allData, y_indx, filename);
         });
         progress = true;
       }
       i++;
     }
   }
-    if (progress) {
-      auto status = future.wait_for(std::chrono::milliseconds{1});
-      if (status == std::future_status::ready && future.valid()) {
-        future.get();
-        // reset related stuff
-        y_indx = 0;
-        valuesSize = 0;
-        progress = false;
-        inptTxtFields[0].clear(); // reset storage location after each save
-        ImGui::CloseCurrentPopup();
-      } else { 
-        ImGui::ProgressBar((float)y_indx / valuesSize, {0.f, 0.f});
-        ImGui::SameLine();
-        ImGui::Text(appLanguage[Key::Saving]);
-      }
+  if (progress) {
+    auto status = future.wait_for(std::chrono::milliseconds{1});
+    if (status == std::future_status::ready && future.valid()) {
+      future.get();
+      // reset related stuff
+      y_indx = 0;
+      valuesSize = 0;
+      progress = false;
+      inptTxtFields[0].clear(); // reset storage location after each save
+      ImGui::CloseCurrentPopup();
+      liveDvcs.clear();
+    } else {
+      ImGui::ProgressBar((float)y_indx / valuesSize, {0.f, 0.f});
+      ImGui::SameLine();
+      ImGui::Text(appLanguage[Key::Saving]);
     }
+  }
 }
