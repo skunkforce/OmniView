@@ -122,8 +122,17 @@ int main() {
         ImGui::PushID(&it->first); // make unique IDs
         if (ImGui::Checkbox("##", &loadedFilesChkBxs[it->first].b))
           if (loadedFilesChkBxs[it->first].b) { // if checked
-            if (!captureData.contains(it->first))
+            if (!captureData.contains(it->first)) {
               captureData.emplace(it->first, it->second);
+              // set different colors for files data
+              if (!colorMap.contains(it->first)) {
+                ImPlot::PushColormap(ImPlotColormap_Dark);
+                auto color =
+                    ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
+                colorMap[it->first] = {color.x, color.y, color.z};
+                ImPlot::PopColormap();
+              }
+            }
           } else
             captureData.erase(it->first);
         ImGui::SameLine();
