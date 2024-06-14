@@ -82,19 +82,13 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   ImGui::Separator();
   SetHorizontalSepeareatorColours();
   ImGui::NewLine();
-
   ImGui::Text(appLanguage[Key::Select_Devices]);
   ImGui::NewLine();
 
   if (ImGui::BeginCombo("##Combo", appLanguage[Key::Devices_Menu])) {
-    //std::stringstream ss;
-    for (size_t i = 0; i < devicesSz; i++) {
-      //ss << "Device " << i + 1;
-     // ImGui::Checkbox(ss.str().c_str(), &(dvcCheckedArr[i].b));
+    for (size_t i = 0; i < devicesSz; i++)
       ImGui::Checkbox(fmt::format("Device {}", i + 1).c_str(),
                       &(dvcCheckedArr[i].b));
-      //ss.str(std::string());
-    }
     ImGui::EndCombo();
   }
 
@@ -157,7 +151,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     }
     ImGui::SameLine();
 
-    if (ImGui::Button("OK"))
+    if (ImGui::Button(appLanguage[Key::OK]))
       ImGui::CloseCurrentPopup();
 
     ImGui::EndPopup();

@@ -247,7 +247,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Saving, "speichern ..."},
     {Key::Load_file, "Datei laden"},
     {Key::Load_file_data, "Alte Daten laden"},
-    {Key::Load_another_file, "Eine andere Datei laden"},
+    {Key::Load_another_file, "Eine weitere Datei laden"},
     {Key::Path, "Pfad"}};
 
 inline auto appLanguage = englishLan;
