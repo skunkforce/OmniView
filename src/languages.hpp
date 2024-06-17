@@ -83,10 +83,13 @@ enum class Key {
   Time,
   FontSize,
   SettingsText,
+  AW_40_HUB,
+  Speichern,
   Saving
 };
 
 inline const std::map<Key, const char *> englishLan{
+    {Key::AW_40_HUB, "AW4.0 HUB"},
     {Key::Known_Car, "Known Cars"},
     {Key::New_Car, "New_Car"},
     {Key::Additional_Information, "Additional_Information"},
@@ -165,9 +168,11 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Time, "Time"},
     {Key::FontSize, "Fontsize"},
     {Key::SettingsText, "Set your personal settings for the software"},
+    {Key::Speichern, "Save"},
     {Key::Saving, "saving ..."}};
 
 inline const std::map<Key, const char *> germanLan{
+    {Key::AW_40_HUB, "AW4.0 HUB"},
     {Key::Known_Car, "Fahrzeugauswahl"},
     {Key::New_Car, "Neues Fahrzeug"},
     {Key::Additional_Information, "Weiterführende Information"},
@@ -247,6 +252,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Time, "Zeit"},
     {Key::FontSize, "Schriftgröße"},
     {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"},
+    {Key::Speichern, "Speichern"},
     {Key::Saving, "speichern ..."}};
 
 inline auto appLanguage = englishLan;

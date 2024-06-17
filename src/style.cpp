@@ -294,29 +294,29 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
 
     if (loaded_png[++PngRenderedCnt] && ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
-          appLanguage[Key::Diagnostics])) {
+          appLanguage[Key::AW_40_HUB])) {
     open_VCDS = true;
   }
 
- static bool showDiag = false;
-  const bool showDiagPrev = showDiag;
-  if (loaded_png[++PngRenderedCnt] && // render Diagnostics
-      ImGui::Button("Analyse")) {
-    showDiag = !showDiag;
-  }
-  if (showDiag && !showDiagPrev)
-    ImGui::SetNextItemOpen(false);
-  if (showDiag && ImGui::TreeNode("FFT Analyse")) {
-   /* ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
-    if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform]))
-      showDiag = false;
-    ImGui::PopStyleColor();*/
-    if (ImGui::Button("Analysiere Daten")) {
-      open_generate_training_data = true;
-      showDiag = false;
-    }
-    ImGui::TreePop();
-  }
+//  static bool showDiag = false;
+//   const bool showDiagPrev = showDiag;
+//   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
+//       ImGui::Button("Analyse")) {
+//     showDiag = !showDiag;
+//   }
+//   if (showDiag && !showDiagPrev)
+//     ImGui::SetNextItemOpen(false);
+//   if (showDiag && ImGui::TreeNode("FFT Analyse")) {
+//    /* ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+//     if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform]))
+//       showDiag = false;
+//     ImGui::PopStyleColor();*/
+//     if (ImGui::Button("Analysiere Daten")) {
+//       open_generate_training_data = true;
+//       showDiag = false;
+//     }
+//     ImGui::TreePop();
+//   }
 
   static bool showSettings = false;
   const bool showSettingsPrev = showSettings;

@@ -7,6 +7,34 @@
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
+#include <cstdlib> // Für std::system
+
+
+    void OpenURLInBrowser(const std::string& url) {
+    // Plattformabhängiger Code zum Öffnen einer URL im Standardbrowser
+    #ifdef _WIN32
+        HINSTANCE result = ShellExecute(0, 0, url.c_str(), 0, 0, SW_SHOW);
+        if ((int)result <= 32) {
+            std::cerr << "Fehler beim Öffnen der URL: " << (int)result << std::endl;
+        }
+    #elif __APPLE__
+        std::string command = "open " + url;
+        int result = std::system(command.c_str());
+        if (result != 0) {
+            std::cerr << "Fehler beim Öffnen der URL: " << result << std::endl;
+        }
+    #elif __linux__
+        std::string command = "xdg-open " + url;
+        int result = std::system(command.c_str());
+        if (result != 0) {
+            std::cerr << "Fehler beim Öffnen der URL: " << result << std::endl;
+        }
+    #else
+        std::cerr << "Plattform nicht unterstützt!" << std::endl;
+    #endif
+    }
+
+
 
 int main() {
     const std::string configpath = "config/config.json";
@@ -29,6 +57,7 @@ int main() {
     bool flagInitState = true;
     bool open_VCDS = false;
     bool upload_success = false;
+
 
     // main loop
     auto render = [&]() {
@@ -263,7 +292,11 @@ int main() {
 
             // ############################### VCDS Menu
             if (open_VCDS) {
-                ImGui::OpenPopup("Generiere Trainingsdaten");
+                // ImGui::OpenPopup("Generiere Trainingsdaten");
+                // Hier wird eine Logik implementiert um die AW4.0 HUB-Oberfläche im Browser zu öffnen.
+
+                OpenURLInBrowser("https://bo-i-t.selfhost.eu/aw40-hub-test/demo/ui");
+
                 open_VCDS = false;
             }
             if (ImGui::BeginPopupModal("Generiere Trainingsdaten", nullptr,
