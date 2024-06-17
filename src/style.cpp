@@ -153,7 +153,8 @@ bool ImageButtonWithText(ImTextureID texId, const char *label,
       size.y = size.x;
     size *= window->FontWindowScale * ImGui::GetIO().FontGlobalScale;
   }
-
+  size.y *= 2.0f;
+  size.x *= 2.0f;
   ImGuiContext &g = *GImGui;
   const ImGuiStyle &style = g.Style;
   const ImGuiID id = window->GetID(label);
@@ -257,10 +258,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
   // The order matters because of the counter for the images !!!
   static const unsigned char *imagesNames[] = {
       OmnAiLogo_png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
-      HelpIcon_png};
+      HelpIcon_png, BMWK_png};
   static const unsigned int imagesLen[] = {
      OmnAiLogo_png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
-      SettingIcon_png_len, HelpIcon_png_len};
+      SettingIcon_png_len, HelpIcon_png_len, BMWK_png_len};
   // Load the images for the SideBarMenu
   for (size_t i = 0; i < size; i++)
     if (!loaded_png[i]) {
@@ -271,8 +272,8 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
- float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0003;
-  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0005;
+  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.00015;
+  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.00025;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -339,7 +340,9 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
   ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
                           CMakeGitVersion::VersionWithGit)
                   .c_str());
-}
+  
+
+  }
 
 // For Development
 void PopupStyleEditor() {

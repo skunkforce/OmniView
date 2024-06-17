@@ -10,6 +10,8 @@
 #include <cstdlib> // Für std::system
 
 
+    
+
     void OpenURLInBrowser(const std::string& url) {
     // Plattformabhängiger Code zum Öffnen einer URL im Standardbrowser
     #ifdef _WIN32
