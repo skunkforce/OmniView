@@ -10,6 +10,7 @@
 #include <cstdlib> // Für std::system
 
 
+
     
 
     void OpenURLInBrowser(const std::string& url) {
@@ -296,8 +297,25 @@ int main() {
             if (open_VCDS) {
                 // ImGui::OpenPopup("Generiere Trainingsdaten");
                 // Hier wird eine Logik implementiert um die AW4.0 HUB-Oberfläche im Browser zu öffnen.
+                    // Pfad zu deinem Python-Skript
+                const char* script_path = "../src/script.py";
+                
+                // Befehl zum Ausführen des Python-Skripts
+                std::string command = "python3 ";
+                command += script_path;
+
+                // Ausführen des Befehls mit system()
+                int result = system(command.c_str());
+
+                // Überprüfen des Rückgabewerts
+                if (result == 0) {
+                    std::cout << "Python script executed successfully." << std::endl;
+                } else {
+                    std::cerr << "Error executing Python script." << std::endl;
+                }
 
                 OpenURLInBrowser("https://bo-i-t.selfhost.eu/aw40-hub-test/demo/ui");
+
 
                 open_VCDS = false;
             }
