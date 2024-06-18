@@ -230,54 +230,79 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   }
   ImGui::SameLine(ImGui::GetWindowWidth() * 0.75f); // offset from start x
 
-  static std::future<void> future;
-  static size_t y_indx; // used for the progress bar too
-  static size_t valuesSize;
-  static bool progress{false};
+  
+static std::vector<std::future<void>> futures; 
+static size_t y_indx; // used for the progress bar too 
+static size_t totalValuesSize; 
+static bool savingInProgress{false}; 
+ 
+if (ImGui::Button(appLanguage[Key::Save])) { 
+    flagDataNotSaved = false; 
+ 
+    if (captureData.empty()) { 
+        fmt::println("captureData is empty"); 
+        ImGui::CloseCurrentPopup(); 
+        return; // Exit early if there's no data to save 
+    } 
+ 
+    futures.clear(); // Clear previous futures 
+ 
+    size_t i = 0; 
+    for (const auto& [device, values] : captureData) { 
+        if (dvcCheckedArr[i].b) { 
+            auto filename = mkFileName(fmt::format("device{}", i + 1).c_str()); 
+            fs::path path; 
+ 
+            if (hasSelectedPathArr[i].b) { 
+                path = mkdir(true, selectedPathArr[i], "", filename); 
+                hasSelectedPathArr[i].b = false; 
+            } else if (!inptTxtFields[i].empty()) { 
+                path = mkdir(false, "", inptTxtFields[i], filename); 
+                inptTxtFields[i].clear(); 
+            } else { 
+                path = mkdir(false, "", "", filename); 
+            } 
+ 
+            totalValuesSize += values.size(); 
+            futures.push_back(std::async(std::launch::async, [&, path] { 
+                save(device, values, path, allData, y_indx); 
+            })); 
+            savingInProgress = true; 
+        } 
+        i++; 
+    } 
+} 
+ 
+if (savingInProgress) { 
+    bool allDone = true; 
+    for (auto& future : futures) { 
+        auto status = future.wait_for(std::chrono::milliseconds{ 1 }); 
+        if (status != std::future_status::ready) { 
+            allDone = false; 
+            break; 
+        } 
+    } 
+ 
+    if (allDone) { 
+        // Reset related stuff 
+        y_indx = 0; 
+        totalValuesSize = 0; 
+        savingInProgress = false; 
+        for (auto& field : inptTxtFields) { 
+            field.clear(); // Reset storage location after each save 
+        } 
+        ImGui::CloseCurrentPopup(); 
+    } else { 
+        float progressValue = 0.0f; 
+        for (const auto& future : futures) { 
+            if (future.valid() && future.wait_for(std::chrono::seconds{ 0 }) == std::future_status::ready) { 
+                progressValue += (float)y_indx / totalValuesSize; 
+            } 
+        } 
+        ImGui::ProgressBar(progressValue, { 0.f, 0.f }); 
+        ImGui::SameLine(); 
+        ImGui::Text(appLanguage[Key::Saving]); 
+    } 
+} 
 
-  if (ImGui::Button(appLanguage[Key::Save])) {
-    flagDataNotSaved = false;
-
-    if (captureData.empty()) {
-      fmt::println("captureData is empty");
-      ImGui::CloseCurrentPopup();
-    }
-
-    fs::path path;
-    for (size_t i{}; const auto &[device, values] : captureData) {
-      if (dvcCheckedArr[i].b) {
-        auto filename = mkFileName(fmt::format("device{}", i + 1).c_str());
-        if (hasSelectedPathArr[i].b) {
-          path = mkdir(true, selectedPathArr[i], "", filename);
-          hasSelectedPathArr[i].b = false;
-        } else if (!inptTxtFields[i].empty()) {
-          path = mkdir(false, "", inptTxtFields[i], filename);
-          inptTxtFields[i].clear();
-        } else
-          path = mkdir(false, "", "", filename);
-        valuesSize = values.size();
-        future = std::async(std::launch::async, [&, path] {
-          save(device, values, path, allData, y_indx);
-        });
-        progress = true;
-      }
-      i++;
-    }
-  }
-    if (progress) {
-      auto status = future.wait_for(std::chrono::milliseconds{1});
-      if (status == std::future_status::ready && future.valid()) {
-        future.get();
-        // reset related stuff
-        y_indx = 0;
-        valuesSize = 0;
-        progress = false;
-        inptTxtFields[0].clear(); // reset storage location after each save
-        ImGui::CloseCurrentPopup();
-      } else { 
-        ImGui::ProgressBar((float)y_indx / valuesSize, {0.f, 0.f});
-        ImGui::SameLine();
-        ImGui::Text(appLanguage[Key::Saving]);
-      }
-    }
 }
