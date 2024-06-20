@@ -30,10 +30,22 @@ for file in csv_files:
     df['Values'] = df['Values'].astype(float)
 
     # Zeitwerte berechnen
-    df['Zeit'] = df.index / 100000  # Beispiel: Annahme, dass Zeit in Sekunden berechnet wird
+    df['Time'] = df.index / 100000  # Beispiel: Annahme, dass Zeit in Sekunden berechnet wird
 
     # Spaltennamen anpassen
-    df.columns = ['Zeit', 'Kanal A']
+    df.columns = ['Time', 'Channel A']
+
+    # Erste Zeile anpassen
+    first_row = pd.DataFrame([['(ms)', '(V)', '(V)', '(V)', '(V)']], columns=['Time', 'Channel A', 'Channel B', 'Channel C', 'Channel D'])
+
+    # DataFrame zusammenfügen
+    df = pd.concat([first_row, df], ignore_index=True)
+
+    # Werte in den Spalten 'Channel A' bis 'Channel D' auf 6 Nachkommastellen runden
+    df[['Channel A', 'Channel B', 'Channel C', 'Channel D']] = df[['Channel A', 'Channel B', 'Channel C', 'Channel D']].round(6)
+
+    # Fehlende Werte mit 0.0 auffüllen
+    df = df.fillna(0.0)
 
     # Dateinamen für die neue CSV-Datei
     new_filename = f"{i}.csv"
@@ -41,7 +53,7 @@ for file in csv_files:
     # Pfad für die neue Datei
     new_file_path = os.path.join(directory_path, new_filename)
 
-    # DataFrame als CSV speichern, ohne Indexspalte
-    df.to_csv(new_file_path, index=False, float_format='%.8f')
+    # DataFrame als CSV speichern, ohne Indexspalte und ohne wissenschaftliche Notation
+    df.to_csv(new_file_path, index=False, float_format='%.6f')
 
     print(f"DataFrame wurde erfolgreich als '{new_filename}' gespeichert.")

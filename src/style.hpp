@@ -36,4 +36,5 @@ IMGUI_API bool ImageButtonWithText(ImTextureID texId, const char *label,
 } // namespace ImGui
 
 void SetHorizontalSepeareatorColours();
+void OpenURLInBrowser(const std::string& url);
 #endif

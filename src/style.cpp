@@ -333,8 +333,9 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Help])) {
-    system(("start " + load_json<std::string>(config, "helplink")).c_str());
-    showSettings = false;
+          OpenURLInBrowser("https://moodle.thga.de/course/view.php?id=2742");
+
+          showSettings = false;
   }
   ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.90f);
   ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
@@ -378,4 +379,28 @@ void SetHorizontalSepeareatorColours() {
 
   ImGuiStyle &style = ImGui::GetStyle();
   style.Colors[ImGuiCol_Separator] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+}
+
+void OpenURLInBrowser(const std::string& url) {
+    // Plattformabhängiger Code zum Öffnen einer URL im Standardbrowser
+    #ifdef _WIN32
+        HINSTANCE result = ShellExecute(0, 0, url.c_str(), 0, 0, SW_SHOW);
+        if ((int)result <= 32) {
+            std::cerr << "Fehler beim Öffnen der URL: " << (int)result << std::endl;
+        }
+    #elif __APPLE__
+        std::string command = "open " + url;
+        int result = std::system(command.c_str());
+        if (result != 0) {
+            std::cerr << "Fehler beim Öffnen der URL: " << result << std::endl;
+        }
+    #elif __linux__
+        std::string command = "xdg-open " + url;
+        int result = std::system(command.c_str());
+        if (result != 0) {
+            std::cerr << "Fehler beim Öffnen der URL: " << result << std::endl;
+        }
+    #else
+        std::cerr << "Plattform nicht unterstützt!" << std::endl;
+    #endif
 }

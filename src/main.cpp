@@ -13,32 +13,6 @@
 
     
 
-    void OpenURLInBrowser(const std::string& url) {
-    // Plattformabhängiger Code zum Öffnen einer URL im Standardbrowser
-    #ifdef _WIN32
-        HINSTANCE result = ShellExecute(0, 0, url.c_str(), 0, 0, SW_SHOW);
-        if ((int)result <= 32) {
-            std::cerr << "Fehler beim Öffnen der URL: " << (int)result << std::endl;
-        }
-    #elif __APPLE__
-        std::string command = "open " + url;
-        int result = std::system(command.c_str());
-        if (result != 0) {
-            std::cerr << "Fehler beim Öffnen der URL: " << result << std::endl;
-        }
-    #elif __linux__
-        std::string command = "xdg-open " + url;
-        int result = std::system(command.c_str());
-        if (result != 0) {
-            std::cerr << "Fehler beim Öffnen der URL: " << result << std::endl;
-        }
-    #else
-        std::cerr << "Plattform nicht unterstützt!" << std::endl;
-    #endif
-    }
-
-
-
 int main() {
     const std::string configpath = "config/config.json";
     set_config(configpath);
@@ -314,7 +288,7 @@ int main() {
                     std::cerr << "Error executing Python script." << std::endl;
                 }
 
-                OpenURLInBrowser("https://bo-i-t.selfhost.eu/aw40-hub-test/demo/ui");
+                OpenURLInBrowser("https://d-ws175.server.est1816.de/ui/");
 
 
                 open_VCDS = false;
