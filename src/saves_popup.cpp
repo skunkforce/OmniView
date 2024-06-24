@@ -1,7 +1,6 @@
 #include <fstream>
 #include <future>
 #include <charconv>
-#include <iostream>
 #include "popups.hpp"
 #include "look_up_saves.hpp"
 #include "imgui_stdlib.h"
@@ -11,8 +10,8 @@
 static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
                  const fs::path &outFile, std::string allData,
-                 std::atomic_uint32_t &y_indx, std::string filename,
-                 std::atomic_uint32_t &saved_files_cnt) {
+                 std::atomic_uint64_t &y_indx, std::string filename,
+                 std::atomic_uint16_t &saved_files_cnt) {
   std::string serialFilename = device.serial + " " + filename;
   allData += fmt::format(",{},{},{}\n", device.type, serialFilename,
                          device.sampleRate);
@@ -108,7 +107,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   allData += mileage;
 
   auto count_checked_devices = [&]() {
-    size_t deviceCnt{0};
+    unsigned deviceCnt{0};
     for (size_t i = 0; i < devicesSz; ++i)
       if (dvcCheckedArr[i].b)
         deviceCnt++;
@@ -123,7 +122,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (ImGui::BeginPopupModal("StoragePathInputFields", nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
-    for (size_t i = 1; i < count_checked_devices(); ++i) {
+    for (unsigned i = 1; i < count_checked_devices(); ++i) {
       // each iteration to get a unique ID
       ImGui::PushID(i);
       ImGui::InputTextWithHint("##Lable2", "\".../OmniView/saves/\"",
@@ -202,7 +201,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     return complete_path / outFile;
   };
 
-  if (const size_t checkedDvc_cnt = count_checked_devices())
+  if (const unsigned checkedDvc_cnt = count_checked_devices())
     if (checkedDvc_cnt > 1) {
       ImGui::SameLine();
       ImGui::Dummy({200, 0});
@@ -217,50 +216,47 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   ImGui::Separator();
   ImGui::NewLine();
-  if (ImGui::Button(appLanguage[Key::Back])) {
-    liveDvcs.clear();
+  if (ImGui::Button(appLanguage[Key::Back]))
     ImGui::CloseCurrentPopup();
-  }
   ImGui::SameLine(ImGui::GetWindowWidth() * 0.75f); // offset from start x
 
   static std::future<void> future;
-  static std::atomic_uint32_t y_indx; // used for the progress bar too
-  static std::atomic_uint32_t valuesSize;
-  static std::atomic_uint32_t saved_files_cnt;
-  static bool progress;
-  static fs::path path;
+  static std::atomic_uint64_t y_indx, valuesSize;
+  static std::atomic_uint16_t saved_files_cnt;
   static unsigned checked_devices_cnt;
+  static bool progress;
 
   if (ImGui::Button(appLanguage[Key::Save])) {
     checked_devices_cnt = count_checked_devices();
     flagDataNotSaved = false;
-    future = std::async(std::launch::async, [&, allData] {
-      for (size_t i{}; const auto &[device, values] : liveDvcs) {
-        if (dvcCheckedArr[i].b) {
-          auto filename = mkFileName(fmt::format("device{}", i + 1).c_str());
-          if (hasSelectedPathArr[i].b) {
-            path = mkdir(true, selectedPathArr[i], "", filename);
-            hasSelectedPathArr[i].b = false;
-          } else if (!inptTxtFields[i].empty()) {
-            path = mkdir(false, "", inptTxtFields[i], filename);
-            inptTxtFields[i].clear();
-          } else
-            path = mkdir(false, "", "", filename);
-          valuesSize = values.size();
-          save(device, values, path, allData, y_indx, filename,
-               saved_files_cnt);
-        }
-        i++;
-      }
-    });
+    future =
+        std::async(std::launch::async, [=] {
+          for (size_t i{}; const auto &[device, values] : liveDvcs) {
+            if (dvcCheckedArr[i].b) {
+              fs::path path;
+              auto filename = mkFileName(fmt::format("device{}", i + 1));
+              if (hasSelectedPathArr[i].b) {
+                path = mkdir(true, selectedPathArr[i], "", filename);
+                hasSelectedPathArr[i].b = false;
+              } else if (!inptTxtFields[i].empty()) {
+                path = mkdir(false, "", inptTxtFields[i], filename);
+                inptTxtFields[i].clear();
+              } else
+                path = mkdir(false, "", "", filename);
+              valuesSize = values.size();
+              save(device, values, path, allData, y_indx, filename,
+                   saved_files_cnt);
+            }
+            i++;
+          }
+        });
     progress = true;
   }
-  if (progress) {
+  if (progress) {    // check selected devices are saved
     if (saved_files_cnt == checked_devices_cnt) {
       future.get();
       progress = false;
       inptTxtFields.clear(); // reset storage location(s) after save
-      liveDvcs.clear();
       saved_files_cnt = 0;
       ImGui::CloseCurrentPopup();
     } else {
