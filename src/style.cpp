@@ -360,6 +360,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
   auto windowSize{ImGui::GetIO().DisplaySize};
   static bool flagDataNotSaved = true;
   static decltype(captureData) liveDvcs;
+  static bool has_loaded_file;
 
   // begin Toolbar ############################################
   ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
@@ -369,7 +370,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
     saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved,
-                liveDvcs);
+                has_loaded_file ? liveDvcs : captureData);
     ImGui::EndPopup();
   }
   // ############################ Popup Reset
@@ -497,9 +498,14 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                            (void *)(intptr_t)image_texture[PngRenderedCnt],
                            ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                                   image_height[PngRenderedCnt] * iconsSacle))) {
-      for (const auto &[device, values] : captureData)
-        if (!loadedFiles.contains(device))
-          liveDvcs.emplace(device, values); // extract live devices (the little overhead)
+      if (!loadedFiles.empty()) { 
+        has_loaded_file = true;
+        for (const auto &[device, values] : captureData)
+          if (!loadedFiles.contains(device))
+            liveDvcs.emplace(
+                device, values); // extract live devices (the little overhead)
+      } else
+        has_loaded_file = false;
 
       if (sampler.has_value())
         ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);
