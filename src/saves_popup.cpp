@@ -229,8 +229,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (ImGui::Button(appLanguage[Key::Save])) {
     checked_devices_cnt = count_checked_devices();
     flagDataNotSaved = false;
-    future =
-        std::async(std::launch::async, [=] {
+    future = std::async(       // const reference to the conatainer 
+        std::launch::async, [=, &liveDvcs = std::as_const(liveDvcs)] {
           for (size_t i{}; const auto &[device, values] : liveDvcs) {
             if (dvcCheckedArr[i].b) {
               fs::path path;
@@ -256,7 +256,8 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     if (saved_files_cnt == checked_devices_cnt) {
       future.get();
       progress = false;
-      inptTxtFields.clear(); // reset storage location(s) after save
+      inptTxtFields.clear(); // reset storage location(s) 
+      dvcCheckedArr.clear(); // rest check boxes
       saved_files_cnt = 0;
       ImGui::CloseCurrentPopup();
     } else {
