@@ -80,7 +80,14 @@ enum class Key {
   x_label,
   y_label,
   Voltage,
-  Time
+  Time,
+  FontSize,
+  SettingsText,
+  Saving,
+  Load_file_data,
+  Load_file,
+  Load_another_file,
+  Path
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -159,7 +166,15 @@ inline const std::map<Key, const char *> englishLan{
     {Key::x_label, "y [ADC counts]"},
     {Key::y_label, "x [data points]"},
     {Key::Voltage, "Voltage"},
-    {Key::Time, "Time"}};
+    {Key::Time, "Time"},
+    {Key::FontSize, "Fontsize"},
+    {Key::SettingsText, "Set your personal settings for the software"},
+    {Key::Saving, "saving ..."},
+    {Key::Load_file, "Load file"},
+    {Key::Load_file_data, "Load file data"},
+    {Key::Load_another_file, "Load another file"},
+    {Key::Path, "Path"}};
+
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
@@ -176,8 +191,9 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Settings, "Einstellungen"},
     {Key::Reset, "Zurücksetzen"},
     {Key::Reset_q, "Zurücksetzen?"},
-    {Key::Measure_not_saved, "Die Messung wurde nicht gespeichert!\n"
-                  "Möchten Sie es speichern, bevor Sie es löschen?\n"},
+    {Key::Measure_not_saved,
+     "Die Messung wurde nicht gespeichert!\n"
+     "Möchten Sie es speichern, bevor Sie es löschen?\n"},
     {Key::Version, "Ausführung"},
     {Key::Diagnostics, "Diagnose"},
     {Key::Compression, "Kompression"},
@@ -237,7 +253,15 @@ inline const std::map<Key, const char *> germanLan{
     {Key::x_label, "y [ADC Zähler]"},
     {Key::y_label, "x [Datenpunkte]"},
     {Key::Voltage, "Spannung"},
-    {Key::Time, "Zeit"}};
+    {Key::Time, "Zeit"},
+    {Key::FontSize, "Schriftgröße"},
+    {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"},
+    {Key::Saving, "speichern ..."},
+    {Key::Load_file, "Datei laden"},
+    {Key::Load_file_data, "Alte Daten laden"},
+    {Key::Load_another_file, "Eine weitere Datei laden"},
+    {Key::Path, "Pfad"}};
 
 inline auto appLanguage = englishLan;
+namespace fs = std::filesystem;
 #endif

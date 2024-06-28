@@ -1,3 +1,7 @@
+#include <cmake_git_version/version.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define STB_IMAGE_IMPLEMENTATION
 #include "style.hpp"
@@ -6,15 +10,12 @@
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
-#include <cmake_git_version/version.hpp>
-#include <iostream>
-#include <string>
-#include <vector>
+#include "../imgui-filebrowser/imfilebrowser.h"
+#include "popups.hpp"
 
-void SetupImGuiStyle(bool bStyleDark_, float alpha_,
-                     const nlohmann::json &config) {
+void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
-  ImGuiIO &io = ImGui::GetIO();
+  // ImGuiIO &io = ImGui::GetIO();
   // io.FontGlobalScale = load_json<float>(config, "text", "scale");
 
   ImGui::GetStyle().Alpha = 1.0f;
@@ -22,7 +23,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
 
   auto colors = ImGui::GetStyle().Colors;
   colors[ImGuiCol_Text] = {1.f, 1.f, 1.f, 1.f};
-  colors[ImGuiCol_TextDisabled] = {0.972f, 0.976, 0.98f, 0.98f};
+  colors[ImGuiCol_TextDisabled] = {0.972f, 0.976f, 0.98f, 0.98f};
   colors[ImGuiCol_WindowBg] = {0.145f, 0.157f, 0.169f, 1.f};
   colors[ImGuiCol_ChildBg] = {0.145f, 0.157f, 0.169f, 1.f};
   colors[ImGuiCol_PopupBg] = {0.145f, 0.157f, 0.169f, 1.f};
@@ -30,7 +31,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   colors[ImGuiCol_BorderShadow] = {0.f, 0.f, 0.f, 1.f};
   // changes the color of the frame bg for the plot window
   colors[ImGuiCol_FrameBg] = {0.f, 0.f, 0.f, 1.f};
-  colors[ImGuiCol_FrameBgHovered] = {0.09f, 0.09f, 0.078, 1.f};
+  colors[ImGuiCol_FrameBgHovered] = {0.09f, 0.09f, 0.078f, 1.f};
   colors[ImGuiCol_FrameBgActive] = {0.09f, 0.09f, 0.078f, 1.f};
   colors[ImGuiCol_TitleBg] = {0.004f, 0.004f, 0.004f, 1.f};
   colors[ImGuiCol_TitleBgCollapsed] = {0.09f, 0.09f, 0.078f, 1.f};
@@ -45,7 +46,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_,
   colors[ImGuiCol_SliderGrabActive] = {0.941f, 0.941f, 0.941f, 1.f};
   colors[ImGuiCol_Button] = {0.145f, 0.156f, 0.168f, 1.f};
   colors[ImGuiCol_ButtonHovered] = {0.941f, 0.243f, 0.211f, 1.f};
-  colors[ImGuiCol_ButtonActive] = {0.921f, 0.24f, 0.211, 1.f};
+  colors[ImGuiCol_ButtonActive] = {0.921f, 0.24f, 0.211f, 1.f};
   colors[ImGuiCol_Header] = {0.26f, 0.59f, 0.98f, 0.31f};
   colors[ImGuiCol_HeaderHovered] = {0.26f, 0.59f, 0.98f, 0.80f};
   colors[ImGuiCol_HeaderActive] = {0.26f, 0.59f, 0.98f, 1.f};
@@ -120,7 +121,9 @@ void PushPlotRegionColors() {
   ImPlot::PushStyleColor(ImPlotCol_TitleText, {0.f, 0.f, 0.f, 1.f});
   ImPlot::PushStyleColor(ImPlotCol_AxisGrid, {0.f, 0.f, 0.f, 1.f});
   ImPlot::PushStyleColor(ImPlotCol_LegendBg, {1.0f, 1.0f, 1.0f, 1.0f});
-  ImPlot::PushStyleColor(ImPlotCol_LegendBorder, {37/255.0f, 40/255.0f, 43/255.0f, 1.0f}); // Schwarz
+  ImPlot::PushStyleColor(
+      ImPlotCol_LegendBorder,
+      {37 / 255.0f, 40 / 255.0f, 43 / 255.0f, 1.0f}); // Schwarz
 }
 void PopPlotRegionColors() {
   ImGui::PopStyleColor(5);
@@ -240,25 +243,27 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
   return true;
 }
 
-void set_side_menu(const nlohmann::json &config, bool &flagPaused,
-                   bool &open_settings, bool &open_generate_training_data) {
+void set_side_menu(const nlohmann::json &config, bool &open_settings,
+                   bool &open_generate_training_data,
+                   decltype(captureData) &loadedFiles,
+                   std::map<Omniscope::Id, std::string> &loadedFilenames) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
-  static constexpr size_t size{5}; // number of pictures
+  static constexpr size_t size{6}; // number of pictures
   size_t PngRenderedCnt{};
-  static bool loaded_png[size]{};
+  static bool loaded_png[size];
   static int image_height[size];
   static int image_width[size];
   static GLuint image_texture[size];
 
   // The order matters because of the counter for the images !!!
   static const unsigned char *imagesNames[] = {
-      AutoInternLogo_png, RefreshIcon_png, DiagnosticIcon_png, SettingIcon_png,
-      HelpIcon_png};
+      AutoInternLogo_png, RefreshIcon_png, Load_file_png,
+      DiagnosticIcon_png, SettingIcon_png, HelpIcon_png};
   static const unsigned int imagesLen[] = {
-      AutoInternLogo_png_len, RefreshIcon_png_len, DiagnosticIcon_png_len,
-      SettingIcon_png_len, HelpIcon_png_len};
+      AutoInternLogo_png_len, RefreshIcon_png_len, Load_file_png_len,
+      DiagnosticIcon_png_len, SettingIcon_png_len, HelpIcon_png_len};
   // Load the images for the SideBarMenu
   for (size_t i = 0; i < size; i++)
     if (!loaded_png[i]) {
@@ -269,8 +274,8 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
         fmt::println("Error Loading Png #{}.", i);
     }
 
-  float scaleWidth = ImGui::GetIO().DisplaySize.x * 0.0005;
-  float scaleHeight = ImGui::GetIO().DisplaySize.y * 0.0008;
+  float scaleWidth = windowSize.x * 0.0005f;
+  float scaleHeight = windowSize.y * 0.0008f;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -289,6 +294,17 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     deviceManager.clearDevices();
     initDevices();
   }
+
+  static bool loadFile;
+  if (loaded_png[++PngRenderedCnt] && // load old files data
+      ImGui::ImageButtonWithText(
+          (void *)(intptr_t)image_texture[PngRenderedCnt],
+          appLanguage[Key::Load_file_data])) {
+    loadFile = true;
+    ImGui::OpenPopup(appLanguage[Key::Load_file_data]);
+  }
+  if (loadFile)
+    load_files(loadedFiles, loadedFilenames, loadFile);
 
   static bool showDiag = false;
   const bool showDiagPrev = showDiag;
@@ -313,27 +329,10 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
   }
 
   static bool showSettings = false;
-  const bool showSettingsPrev = showSettings;
   if (loaded_png[++PngRenderedCnt] && // render Settings
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Attitude])) {
-    showSettings = !showSettings;
-  }
-  if (showSettings && !showSettingsPrev)
-    ImGui::SetNextItemOpen(false);
-  if (showSettings && ImGui::TreeNode(appLanguage[Key::LanOption])) {
-    if (ImGui::Button(appLanguage[Key::English])) {
-      appLanguage = englishLan;
-      showSettings = false;
-    }
-    if (ImGui::Button(appLanguage[Key::German])) {
-      appLanguage = germanLan;
-      showSettings = false;
-    }
-    ImGui::TreePop();
-  }
-  if (showSettings && ImGui::Button(appLanguage[Key::Settings])) {
     open_settings = true;
     showSettings = false;
   }
@@ -345,14 +344,188 @@ void set_side_menu(const nlohmann::json &config, bool &flagPaused,
     system(("start " + load_json<std::string>(config, "helplink")).c_str());
     showSettings = false;
   }
-  ImGui::SetCursorPosY(ImGui::GetIO().DisplaySize.y * 0.90f);
+  ImGui::SetCursorPosY(windowSize.y * 0.9f);
   ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
                           CMakeGitVersion::VersionWithGit)
                   .c_str());
 }
 
-// For Development
-void PopupStyleEditor() {
+void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
+                 bool &flagPaused, const decltype(captureData) &loadedFiles) {
+
+  // variable declaration
+  static auto now = std::chrono::system_clock::now();
+  static std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+  static std::tm now_tm = *std::gmtime(&now_time_t);
+  auto windowSize{ImGui::GetIO().DisplaySize};
+  static bool flagDataNotSaved = true;
+  static decltype(captureData) liveDvcs;
+
+  // begin Toolbar ############################################
+  ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
+                    ImGuiWindowFlags_NoScrollbar);
+  // ############################ Popup Save
+  if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
+                             ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::SetItemDefaultFocus();
+    saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved,
+                liveDvcs);
+    ImGui::EndPopup();
+  }
+  // ############################ Popup Reset
+  if (ImGui::BeginPopupModal(appLanguage[Key::Reset_q], nullptr,
+                             ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::SetItemDefaultFocus();
+    ImGui::Text(appLanguage[Key::Measure_not_saved]);
+    if (ImGui::Button(appLanguage[Key::Continue_del])) {
+      rstSettings(loadedFiles);
+      ImGui::CloseCurrentPopup();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button(appLanguage[Key::Back]))
+      ImGui::CloseCurrentPopup();
+    ImGui::EndPopup();
+  }
+
+  // Initializing all variables for images in the toolbar
+  static constexpr size_t size{4}; // number of pictures
+  int PngRenderedCnt = 0;
+  static bool loaded_png[size]{};
+  static int image_height[size];
+  static int image_width[size];
+  static GLuint image_texture[size];
+  float iconsSacle = 0.8f;
+
+  // The order matters because of the counter for the images !!!
+  static const unsigned char *imagesNames[] = {PlayButton_png, PauseButton_png,
+                                               SaveButton_png, ResetButton_png};
+  static const unsigned int imagesLen[] = {
+      PlayButton_png_len, PauseButton_png_len, SaveButton_png_len,
+      ResetButton_png_len};
+  // Load the images for the SideBarMenu
+  for (int i = 0; i < size; i++)
+    if (!loaded_png[i]) {
+      if (LoadTextureFromHeader(imagesNames[i], imagesLen[i], &image_texture[i],
+                                &image_width[i], &image_height[i]))
+        loaded_png[i] = true;
+      else
+        fmt::println("Error Loading Png #{}.", i);
+    }
+
+  // ImGui::SetCursorPosY(windowSize.y * 0.05f);
+
+  if (flagPaused) {
+    // ######################## Buttonstripe
+    if (!devices.empty())
+      if (!sampler.has_value()) {
+        PngRenderedCnt = 0;
+        set_button_style_to(config, "start"); // Start Button
+        if (ImGui::ImageButton(
+                appLanguage[Key::Start],
+                (void *)(intptr_t)image_texture[PngRenderedCnt],
+                ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                       image_height[PngRenderedCnt] * iconsSacle))) {
+          sampler.emplace(deviceManager, std::move(devices));
+          flagPaused = false;
+          flagDataNotSaved = true;
+        }
+        ImGui::PopStyleColor(3);
+      }
+    // set_button_style_to(config, "standart");
+  } else {
+    // ############################ Stop Button
+    PngRenderedCnt = 1;
+    set_button_style_to(config, "stop");
+    if (ImGui::ImageButton(appLanguage[Key::Stop],
+                           (void *)(intptr_t)image_texture[PngRenderedCnt],
+                           ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                                  image_height[PngRenderedCnt] * iconsSacle))) {
+      flagPaused = true;
+      for (auto &device : sampler->sampleDevices) {
+        device.first->send(Omniscope::Stop{});
+      }
+    }
+    ImGui::PopStyleColor(3);
+  }
+  if (flagPaused) {
+    // Start/reset the measurement when the measurement is paused,
+    // followed by a query as to whether the old data should be saved
+    if (sampler.has_value()) {
+      ImGui::SameLine();
+      PngRenderedCnt = 0;
+      set_button_style_to(config, "start");
+      if (ImGui::ImageButton(
+              appLanguage[Key::Continue],
+              (void *)(intptr_t)image_texture[PngRenderedCnt],
+              ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                     image_height[PngRenderedCnt] * iconsSacle))) {
+        flagPaused = false;
+        flagDataNotSaved = true;
+        for (auto &device : sampler->sampleDevices) {
+          device.first->send(Omniscope::Start{});
+        }
+      }
+      ImGui::PopStyleColor(3);
+      ImGui::SameLine();
+      PngRenderedCnt = 3;
+
+      set_button_style_to(config, "stop");
+      if (ImGui::ImageButton(
+              appLanguage[Key::Reset],
+              (void *)(intptr_t)image_texture[PngRenderedCnt],
+              ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                     image_height[PngRenderedCnt] * iconsSacle))) {
+        if (flagDataNotSaved) {
+          ImGui::OpenPopup(appLanguage[Key::Reset_q]);
+        } else {
+          rstSettings(loadedFiles);
+          flagPaused = true;
+        }
+      }
+      ImGui::PopStyleColor(3);
+    }
+    ImGui::SameLine();
+
+    // gray out "Save" button when pop-up is open
+    const bool pushStyle =
+        ImGui::IsPopupOpen(appLanguage[Key::Save_Recorded_Data]);
+
+    if (pushStyle)
+      ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+    PngRenderedCnt = 2;
+    if (ImGui::ImageButton(appLanguage[Key::Save],
+                           (void *)(intptr_t)image_texture[PngRenderedCnt],
+                           ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                                  image_height[PngRenderedCnt] * iconsSacle))) {
+      for (const auto &[device, values] : captureData)
+        if (!loadedFiles.contains(device))
+          liveDvcs.emplace(device, values); // extract live devices (the little overhead)
+
+      if (sampler.has_value())
+        ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);
+      else
+        ImGui::OpenPopup(appLanguage[Key::Save_warning],
+                         ImGuiPopupFlags_NoOpenOverExistingPopup);
+    }
+    info_popup(appLanguage[Key::Save_warning],
+               appLanguage[Key::No_dvc_available]);
+
+    if (pushStyle)
+      ImGui::PopStyleColor();
+  } else {
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+    PngRenderedCnt = 2;
+    ImGui::ImageButton(appLanguage[Key::Save],
+                       (void *)(intptr_t)image_texture[PngRenderedCnt],
+                       ImVec2(image_width[PngRenderedCnt] * iconsSacle,
+                              image_height[PngRenderedCnt] * iconsSacle));
+    ImGui::PopStyleColor();
+  }
+  ImGui::EndChild(); // end child "Buttonstripe"
+}
+
+void PopupStyleEditor() { // For Development
   ImGuiStyle &style = ImGui::GetStyle();
   ImPlotStyle &styleImPlot = ImPlot::GetStyle();
   static std::vector<ImVec4> colorVec;
@@ -382,7 +555,6 @@ void PopupStyleEditor() {
 }
 
 void SetHorizontalSepeareatorColours() {
-
   ImGuiStyle &style = ImGui::GetStyle();
   style.Colors[ImGuiCol_Separator] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 }

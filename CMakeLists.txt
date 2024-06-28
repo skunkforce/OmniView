@@ -67,4 +67,4 @@ target_include_directories(OmniView PUBLIC ${LIBUSB_INCLUDE_DIRS})
 target_link_libraries(OmniView PUBLIC ${LIBUSB_LIBRARIES})
 
 target_compile_definitions(OmniView PUBLIC BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
-target_compile_features(OmniView PUBLIC cxx_std_20)
+target_compile_features(OmniView PUBLIC cxx_std_23)

@@ -7,11 +7,10 @@
 #include "languages.hpp"
 #include <vector>
 
-namespace fs = std::filesystem;
 inline std::string getSubdirectoriesInFolder(nlohmann::json language,
                                       fs::path const &saves_folder_path,
                                       char scantype[255] = 0,
-                                      char inputvin[18] = 0,
+                                      char inputvin[19] = 0,
                                       char mileage[10] = 0) {
   bool isTxtInptFieldsEmpty = false;
   if (scantype != 0 && inputvin != 0 && mileage != 0)
@@ -44,17 +43,16 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
       ImGui::Combo(appLanguage[Key::Known_Car], &selectedOption, vins,
                    static_cast<int>(subdirectories.size()));
 
-      ImGui::InputText(appLanguage[Key::Measurement], scantype, IM_ARRAYSIZE(scantype));
-
+      ImGui::InputText(appLanguage[Key::Measurement], scantype, 255);
       if (selectedOption == 0) {
-        ImGui::InputText("Fin/Vin", inputvin, IM_ARRAYSIZE(inputvin),
+        ImGui::InputText("Fin/Vin", inputvin, 19,
                          ImGuiInputTextFlags_CharsUppercase |
                              ImGuiInputTextFlags_CharsNoBlank |
                              ImGuiInputTextFlags_None);
         selectedFolder = inputvin;
       }
 
-      ImGui::InputText(appLanguage[Key::Mileage], mileage, IM_ARRAYSIZE(mileage));
+      ImGui::InputText(appLanguage[Key::Mileage], mileage, 10);
 
       // Using vins (char* array) with ImGui
       }else {
@@ -62,7 +60,7 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
                    static_cast<int>(subdirectories.size()));
 
       if (selectedOption == 0) {
-        ImGui::InputText("Fin/Vin", inputvin, IM_ARRAYSIZE(inputvin));
+        ImGui::InputText("Fin/Vin", inputvin, 19);
         selectedFolder = inputvin;
       }
       static char VIN[18];
@@ -71,8 +69,8 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
       ImGui::Separator();
       ImGui::Text(appLanguage[Key::Additional_Information]);
       ImGui::NewLine();
-      ImGui::InputText(appLanguage[Key::Measurement], scantype, IM_ARRAYSIZE(scantype));
-      ImGui::InputText(appLanguage[Key::Mileage], mileage, IM_ARRAYSIZE(mileage));
+      ImGui::InputText(appLanguage[Key::Measurement], scantype, 255);
+      ImGui::InputText(appLanguage[Key::Mileage], mileage, 10);
     }
   }
 

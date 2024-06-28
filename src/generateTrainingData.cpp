@@ -17,9 +17,8 @@ void generateTrainingData(
     bool &open_generate_training_data,
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
         &captureData,
-    std::set<std::string> &savedFileNames, const nlohmann::json &config) {
+    std::set<std::string> &savedFileNames) {
 
-  namespace fs = std::filesystem;
   ImGui::OpenPopup(appLanguage[Key::Gn_trng_data_pop]);
   if (ImGui::BeginPopupModal(appLanguage[Key::Gn_trng_data_pop], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -56,7 +55,7 @@ void generateTrainingData(
         (ImGui::BeginCombo("##ComboDevice", "Devices & Waveforms Menu"))) {
       // only one checkbox out of two sets of
       // devices/waveforms is selected at any time
-      size_t i{};
+      int i{};
       bool is_checked{false};
       if (captureData.size())
         for (const auto &[device, values] : captureData) {
@@ -93,14 +92,9 @@ void generateTrainingData(
         } // End of the algorithm
       ImGui::EndCombo();
     }
-
-    // set browser properties
-    fileBrowser.SetTitle("Searching for .csv files");
-    // fileBrowser.SetTypeFilters({".csv"});
-
     static std::string Measurement;
     // one extra space for '\0' character
-    static char VIN[18];
+    static char VIN[19];
     static std::string Mileage;
     static std::vector<double> file_measuring_vals; // measurement values
     static bool grayFields = false;
@@ -117,31 +111,27 @@ void generateTrainingData(
       if (!readfile.is_open())
         fmt::println("Failed to open file {}", filename);
       else {
-        // first and second lines of file
-        std::string first_line, second_line;
-        for (size_t i = 0; !readfile.eof(); i++) {
-          if (i == 0) {
-            std::getline(readfile, first_line);
-            first_line.pop_back(); // remove ending new line
-            std::stringstream ss(first_line);
-            // extract input fields data from the first line
-            for (size_t j = 0; j < fieldsSize; j++) {
-              std::string substr;
-              std::getline(ss, substr, ',');
-              FieldsData[j] = substr;
-            }
-          } else if (i == 1)
-            std::getline(readfile, second_line); // device ID
-          else {
-            // read measuring values into the vector
-            constexpr size_t bigNumber{10'000'000};
-            readfile.ignore(bigNumber, ',');
-            double value{};
-            readfile >> value;
-            file_measuring_vals.emplace_back(value);
-            // at the last loop, the last number is picked and loop goes on
-            // vector pushes value before eof is reached
-          }
+        // first line of file
+        std::string first_line;
+        std::getline(readfile, first_line);
+        first_line.pop_back(); // remove ending new line
+        std::stringstream ss(first_line);
+        // extract input fields data from the first line
+        for (size_t j = 0; j < fieldsSize; j++) {
+          std::string substr;
+          std::getline(ss, substr, ',');
+          FieldsData[j] = substr;
+        }
+        while (!readfile.eof()) {
+          // read measuring values into the vector
+          double value{};
+          readfile >> value;
+          file_measuring_vals.emplace_back(value);
+          static constexpr size_t bigNumber{10'000'000};
+          readfile.ignore(bigNumber,
+                          '\n'); // new line separator between elements
+          // at the last loop, the last number is picked, loop
+          // goes on and vector pushes value before eof is reached
         }
         // pop the extra last element
         file_measuring_vals.pop_back();
@@ -190,6 +180,9 @@ void generateTrainingData(
       callSetInptFields = false;
     }
 
+    static ImGui::FileBrowser fileBrowser;
+    fileBrowser.SetTitle("Searching for .csv files"); // properties
+    // fileBrowser.SetTypeFilters({".csv"});
     fileBrowser.Display();
     if (fileBrowser.HasSelected()) {
       if (isWrongFile(fileBrowser.GetSelected().string())) {
@@ -236,8 +229,7 @@ void generateTrainingData(
       s += data->EventChar;
       // strlen is updated when entered char passes the filter
       size_t indx = strlen(VIN);
-
-      if (indx < 17)
+      if (indx < 18)
         return !std::regex_match(
             s, chars_regex); // return 0 as passed for matched chars
       return 1;              // discard exceeding chars
@@ -409,8 +401,8 @@ void generateTrainingData(
 
         // upload data asynchronously using a separate thread
         future = std::async(std::launch::async, [&] {
-         // take temp object returned from dump() and send it to sendData
-         std::string result = sendData(myJson.dump());
+          // take temp object returned from dump() and send it to sendData
+          std::string result = sendData(myJson.dump());
           return result;
         });
 
