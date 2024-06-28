@@ -1,7 +1,10 @@
+#include <algorithm>
+#include <cmake_git_version/version.hpp>
+#include <set>
+
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
-#include <cmake_git_version/version.hpp>
 
 int main() {
   const std::string configpath = "config/config.json";
@@ -36,7 +39,7 @@ int main() {
                      ImGuiWindowFlags_NoTitleBar);
 
     if (Development && ImGui::Button("Development"))
-      ImGui::OpenPopup("Development Colors");
+        ImGui::OpenPopup("Development Colors");
 
     // Popup-Window content
     if (ImGui::BeginPopup("Development Colors")) {
@@ -88,34 +91,47 @@ int main() {
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
     PushPlotRegionColors();
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize,
+                        windowSize.x * .009f);
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
-                      ImGuiChildFlags_Border);
+                     ImGuiChildFlags_Border);
 
-    addPlots("Recording the data", [flagPaused](double x_max) {
-      if (!flagPaused) {
-        ImPlot::SetupAxes("x [Data points]", "y [ADC Value]",
-                          ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-        ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 7500, x_max + 7500,
-                                ImGuiCond_Always);
-      } else {
-        ImPlot::SetupAxes("x [Seconds]", "y [Volts]");
-        ImPlot::SetupAxesLimits(0, 10, -10, 200);
+    // Axes 1 to 3
+    // Check if time base for axes are same
+    // check if egu and timescale for plot are same
+    // error if third device is added
+    addPlots("Recording the data", flagPaused, [&flagPaused](double x_max, std::string yLabel, ImAxis_ axis, double yMin, double yMax) {
+        ImPlot::SetupLegend(ImPlotLocation_NorthEast |
+                            ImPlotLegendFlags_Outside);
+        auto auxFlagsMeasuring =
+            ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
+        auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
         ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-        ImPlot::SetupLegend(ImPlotLocation_NorthEast);
-      }
+
+        if(!flagPaused){
+            ImPlot::SetupAxis(axis, yLabel.c_str(), ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxis(ImAxis_X1, "time [s]", ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxisLimits(axis, yMin - 2, yMax + 2, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 9, ImGuiCond_Always);
+
+        }else{
+            ImPlot::SetupAxis(ImAxis_X1, "time [s]");
+            ImPlot::SetupAxis(axis, yLabel.c_str());
+            ImPlot::SetupAxisLimits(ImAxis_X1, 0, 10);
+            ImPlot::SetupAxisLimits(axis, yMin - 2, yMax + 2);
+        }
     });
-    ImGui::EndChild(); // end child Record Data
+    ImGui::EndChild();  // end child Record Data
     ImGui::PopStyleVar();
     PopPlotRegionColors();
     // ############################ Devicelist
     SetDeviceMenuStyle();
-    ImGui::Dummy({0.f, windowSize.y * .01f}); 
+    ImGui::Dummy({0.f, windowSize.y * .01f});
     ImGui::BeginChild("Devicelist");
     ImGui::Dummy({windowSize.x * .36f, 0.f});
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
-    devicesList();
+    devicesList(flagPaused);
     if (!loadedFiles.empty()) { // if devices were successfully loaded from file
       static std::map<Omniscope::Id, BoolWrapper> loadedFilesChkBxs;
       for (auto it = loadedFiles.begin(); it != loadedFiles.end();) {
@@ -143,11 +159,11 @@ int main() {
           loadedFilenames.erase(it->first);
           loadedFilesChkBxs[it->first].b = false;
           it = loadedFiles.erase(it);
-        } else 
+        } else
           it++;
         ImGui::PopID();
       } // end of for-loop
-    } 
+    }
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
