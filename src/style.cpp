@@ -498,6 +498,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                            (void *)(intptr_t)image_texture[PngRenderedCnt],
                            ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                                   image_height[PngRenderedCnt] * iconsSacle))) {
+      liveDvcs.clear(); // get updated live devices for saving 
       if (!loadedFiles.empty()) { 
         has_loaded_file = true;
         for (const auto &[device, values] : captureData)

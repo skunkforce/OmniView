@@ -216,7 +216,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   ImGui::Separator();
   ImGui::NewLine();
-  if (ImGui::Button(appLanguage[Key::Back]))
+  if (ImGui::Button(appLanguage[Key::Back])) 
     ImGui::CloseCurrentPopup();
   ImGui::SameLine(ImGui::GetWindowWidth() * 0.75f); // offset from start x
 
@@ -229,9 +229,10 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (ImGui::Button(appLanguage[Key::Save])) {
     checked_devices_cnt = count_checked_devices();
     flagDataNotSaved = false;
-    future = std::async(       // const reference to the conatainer 
+    future = std::async(       // const reference to the container 
         std::launch::async, [=, &liveDvcs = std::as_const(liveDvcs)] {
           for (size_t i{}; const auto &[device, values] : liveDvcs) {
+            // measurement saving preparation if device is checked
             if (dvcCheckedArr[i].b) {
               fs::path path;
               auto filename = mkFileName(fmt::format("device{}", i + 1));
@@ -244,6 +245,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
               } else
                 path = mkdir(false, "", "", filename);
               valuesSize = values.size();
+              // save measurement of each device in a separate file
               save(device, values, path, allData, y_indx, filename,
                    saved_files_cnt);
             }
