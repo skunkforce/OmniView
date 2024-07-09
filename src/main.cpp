@@ -33,26 +33,14 @@ int main() {
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
                      ImGuiWindowFlags_NoTitleBar);
-
-    ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     // ############################################# Side Menu
     set_side_menu(config, open_settings, open_generate_training_data,
                   loadedFiles, loadedFilenames);
-    // there're four "BeginChild"s, one as the left side
-    // and three on the right side
-    ImGui::EndChild(); // end child "Left Side"
-    ImGui::SameLine();
-    ImGui::BeginChild("Right Side", {0.f, 0.f});
     if (sampler.has_value() && !flagPaused)
       sampler->copyOut(captureData);
 
     // ######################################### Toolbar
     set_toolbar(config, language, flagPaused, loadedFiles);
-
-
-    // ############################ addPlots("Recording the data", ...)
-    ImGui::Dummy({0.f, windowSize.y * .01f});
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
                       ImGuiChildFlags_Border);
 

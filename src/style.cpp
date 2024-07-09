@@ -16,8 +16,6 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
                    decltype(captureData) &loadedFiles,
                    std::map<Omniscope::Id, std::string> &loadedFilenames) {
 
-  auto windowSize{ImGui::GetIO().DisplaySize};
-
   // Start only if devices are available, otherwise search for devices
   if ( // render search for Devices
       !sampler.has_value() &&
