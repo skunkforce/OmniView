@@ -6,12 +6,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "style.hpp"
 #include "../stb_image/stb_image.h"
-#include "imagesHeader.hpp"
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
 #include "../imgui-filebrowser/imfilebrowser.h"
-#include "popups.hpp"
 
 void set_side_menu(const nlohmann::json &config, bool &open_settings,
                    bool &open_generate_training_data,

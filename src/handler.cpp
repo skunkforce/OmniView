@@ -1,6 +1,5 @@
 #include "handler.hpp"
 #include <implot.h>
-#include "popups.hpp"
 #include "get_from_github.hpp"
 #include "../imgui-stdlib/imgui_stdlib.h"
 
@@ -128,98 +127,6 @@ void devicesList() {
   else
     for (auto &device : devices)
       doDevice(device, appLanguage[Key::Ready]);
-}
-
-void load_files(decltype(captureData) &loadedFiles,
-                std::map<Omniscope::Id, std::string> &loadedFilenames,
-                bool &loadFile) {
-  static std::set<fs::path> loadedFilePaths;
-  auto do_load = [&loadedFiles, &loadedFilenames] {
-    std::pair<Omniscope::Id, std::vector<std::pair<double, double>>> loadedFile;
-    for (const auto &path : loadedFilePaths) {
-      std::ifstream readfile(path, std::ios::binary);
-      if (!readfile.is_open())
-        fmt::println("Failed to open file {}", path.string());
-      else {
-        std::string first_line;
-        std::getline(readfile, first_line);
-        std::istringstream input{first_line};
-        static constexpr size_t fieldsSz{6};
-        // extract input fields data from the first line
-        for (size_t i = 0; i < fieldsSz; i++) {
-          std::string substr;
-          std::getline(input, substr, ',');
-          if (i == 3) // fourth element (Type of scope)
-            loadedFile.first.type = substr;
-          if (i == 4) // fifth element (serial of scope)
-            loadedFile.first.serial = substr;
-        }
-        size_t indx{2};           // y_values start from line 2 of the file
-        while (!readfile.eof()) { // fill the vector of the values
-          double value{};
-          readfile >> value;
-          loadedFile.second.emplace_back(indx++, value);
-          static constexpr size_t bigNumber{10'000'000};
-          readfile.ignore(bigNumber,
-                          '\n'); // new line separator between elements
-        }
-        readfile.close();
-        loadedFile.second.pop_back(); // pop the extra last element
-        loadedFiles.emplace(loadedFile);
-        loadedFilenames.emplace(loadedFile.first, path.filename().string());
-      }
-    }
-    loadedFilePaths.clear();
-  };
-
-  if (ImGui::BeginPopupModal(appLanguage[Key::Load_file_data], nullptr,
-                             ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::SetItemDefaultFocus();
-    static ImGui::FileBrowser fileBrowser;
-    static std::vector<std::string> pathArr;
-    if (pathArr.empty())
-      pathArr.emplace_back("");
-
-    for (auto &path : pathArr) {
-      ImGui::PushID(&path); // unique IDs
-      ImGui::InputTextWithHint("##", appLanguage[Key::Path], &path);
-      ImGui::SameLine();
-      if (ImGui::Button(appLanguage[Key::Browse]))
-        fileBrowser.Open();
-      fileBrowser.Display();
-      info_popup(appLanguage[Key::Wrong_file_warning],
-                 appLanguage[Key::Wrong_file_type]);
-      if (fileBrowser.HasSelected()) {
-        path = fileBrowser.GetSelected().string();
-        fileBrowser.ClearSelected();
-      }
-      if (!path.empty())
-        if (fs::path(path).extension() != ".csv") {
-          ImGui::OpenPopup(appLanguage[Key::Wrong_file_warning],
-                           ImGuiPopupFlags_NoOpenOverExistingPopup);
-          path.clear();
-        } else
-          loadedFilePaths.emplace(path);
-      ImGui::PopID();
-    }
-    if (ImGui::Button(" + "))
-      pathArr.emplace_back("");
-    ImGui::SetItemTooltip(appLanguage[Key::Load_another_file]);
-    if (ImGui::Button(appLanguage[Key::Back])) {
-      pathArr.clear();
-      loadedFilePaths.clear();
-      loadFile = false;
-      ImGui::CloseCurrentPopup();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(appLanguage[Key::Load_file])) {
-      pathArr.clear();
-      do_load();
-      loadFile = false;
-      ImGui::CloseCurrentPopup();
-    }
-    ImGui::EndPopup();
-  }
 }
 
 void set_config(const std::string &configpath) {

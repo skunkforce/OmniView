@@ -31,10 +31,7 @@ include(cmake_helpers/FindOrFetch.cmake)
 
 add_executable(OmniView 
                src/main.cpp 
-               src/generateTrainingData.cpp 
-               src/info_popup.cpp
-               src/imgui_stdlib.cpp
-               src/saves_popup.cpp     
+               src/imgui_stdlib.cpp  
                src/style.cpp
                src/handler.cpp
                )
