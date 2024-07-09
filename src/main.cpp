@@ -27,7 +27,6 @@ int main() {
       set_inital_config(config);
       flagInitState = false;
     }
-    
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
@@ -53,7 +52,6 @@ int main() {
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
-    PushPlotRegionColors();
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
                       ImGuiChildFlags_Border);
@@ -72,11 +70,7 @@ int main() {
       }
     });
     ImGui::EndChild(); // end child Record Data
-    ImGui::PopStyleVar();
-    PopPlotRegionColors();
-    // ############################ Devicelist
-    ImGui::EndChild(); // end child "Devicelist"
-    ImGui::EndChild(); // end child "Right Side"
+
     ImGui::End();
   };
   ImGuiInstance window{1500, 800,
