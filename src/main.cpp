@@ -27,22 +27,13 @@ int main() {
       set_inital_config(config);
       flagInitState = false;
     }
-    SetupImGuiStyle(false, 0.99f);
+    
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("OmniScopev2 Data Capture Tool", nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
                      ImGuiWindowFlags_NoTitleBar);
-
-    if (Development && ImGui::Button("Development"))
-      ImGui::OpenPopup("Development Colors");
-
-    // Popup-Window content
-    if (ImGui::BeginPopup("Development Colors")) {
-      PopupStyleEditor();
-      ImGui::EndPopup();
-    }
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     // ############################################# Side Menu
@@ -59,31 +50,6 @@ int main() {
     // ######################################### Toolbar
     set_toolbar(config, language, flagPaused, loadedFiles);
 
-    // ############################ Settings Menu
-    static int title = 0;
-    static std::vector<std::string> titles(2); // two languages
-    if (open_settings) {
-      const auto EngItr = englishLan.find(Key::Settings);
-      const auto GrmItr = germanLan.find(Key::Settings);
-      // check returned value from find() and set titles
-      if (EngItr != englishLan.end() && GrmItr != germanLan.end()) {
-        titles[0] = (std::string)EngItr->second + "###ID";
-        titles[1] = (std::string)GrmItr->second + "###ID";
-        ImGui::OpenPopup(titles[title].c_str());
-      } else
-        fmt::println("Settings values not found.");
-      open_settings = false;
-    }
-    if (ImGui::BeginPopupModal(titles[title].c_str(), nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGui::SetItemDefaultFocus();
-      popup_settings(config, configpath, title);
-      ImGui::EndPopup();
-    }
-    // Generate training data popup
-    if (open_generate_training_data)
-      generateTrainingData(open_generate_training_data, captureData,
-                           savedFileNames);
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
@@ -109,45 +75,6 @@ int main() {
     ImGui::PopStyleVar();
     PopPlotRegionColors();
     // ############################ Devicelist
-    SetDeviceMenuStyle();
-    ImGui::Dummy({0.f, windowSize.y * .01f}); 
-    ImGui::BeginChild("Devicelist");
-    ImGui::Dummy({windowSize.x * .36f, 0.f});
-    ImGui::SameLine();
-    ImGui::Text(appLanguage[Key::Devices_found]);
-    devicesList();
-    if (!loadedFiles.empty()) { // if devices were successfully loaded from file
-      static std::map<Omniscope::Id, BoolWrapper> loadedFilesChkBxs;
-      for (auto it = loadedFiles.begin(); it != loadedFiles.end();) {
-        ImGui::PushID(&it->first); // make unique IDs
-        if (ImGui::Checkbox("##", &loadedFilesChkBxs[it->first].b))
-          if (loadedFilesChkBxs[it->first].b) { // if checked
-            if (!captureData.contains(it->first)) {
-              captureData.emplace(it->first, it->second);
-              // set different colors for files data
-              if (!colorMap.contains(it->first)) {
-                ImPlot::PushColormap(ImPlotColormap_Dark);
-                auto color =
-                    ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
-                colorMap[it->first] = {color.x, color.y, color.z};
-                ImPlot::PopColormap();
-              }
-            }
-          } else
-            captureData.erase(it->first);
-        ImGui::SameLine();
-        ImGui::TextUnformatted(loadedFilenames[it->first].c_str());
-        ImGui::SameLine();
-        if (ImGui::Button(appLanguage[Key::Reset])) {
-          captureData.erase(it->first);
-          loadedFilenames.erase(it->first);
-          loadedFilesChkBxs[it->first].b = false;
-          it = loadedFiles.erase(it);
-        } else 
-          it++;
-        ImGui::PopID();
-      } // end of for-loop
-    } 
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
