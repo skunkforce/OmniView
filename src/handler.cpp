@@ -77,16 +77,16 @@ void initDevices() {
   devices = deviceManager.getDevices(VID, PID);
   for (auto &device : devices) {
     auto id = device->getId().value();
-    if (!colorMap.contains(id)) {
+    /*if (!colorMap.contains(id)) {
       ImPlot::PushColormap(ImPlotColormap_Dark);
       auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
       colorMap[id] = std::array<float, 3>{c.x, c.y, c.z};
       ImPlot::PopColormap();
-    }
-    auto &color = colorMap[id];
-    device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
-                                   static_cast<std::uint8_t>(color[1] * 255),
-                                   static_cast<std::uint8_t>(color[2] * 255)});
+    }*/
+    /*auto &color = colorMap[id];*/
+    device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(0),
+                                   static_cast<std::uint8_t>(0),
+                                   static_cast<std::uint8_t>(255)});
   }
 }
 
