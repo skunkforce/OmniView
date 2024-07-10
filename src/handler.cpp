@@ -84,8 +84,8 @@ void initDevices() {
       ImPlot::PopColormap();
     }*/
     /*auto &color = colorMap[id];*/
-    device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(0),
-                                   static_cast<std::uint8_t>(255),
+    device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(255),
+                                   static_cast<std::uint8_t>(0),
                                    static_cast<std::uint8_t>(0)});
   }
 }
