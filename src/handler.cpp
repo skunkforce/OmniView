@@ -102,9 +102,9 @@ void devicesList() {
             ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker |
                 ImGuiColorEditFlags_NoTooltip)) {
       device->send(
-          Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
-                            static_cast<std::uint8_t>(color[1] * 255),
-                            static_cast<std::uint8_t>(color[2] * 255)});
+          Omniscope::SetRgb{static_cast<std::uint8_t>(0),
+                            static_cast<std::uint8_t>(0),
+                            static_cast<std::uint8_t>(255)});
     }
     ImGui::SameLine();
     ImGui::TextUnformatted(fmt::format("HW: v{}.{}.{} SW: v{}.{}.{}    ",
