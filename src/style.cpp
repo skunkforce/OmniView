@@ -11,10 +11,7 @@
 #include "languages.hpp"
 #include "../imgui-filebrowser/imfilebrowser.h"
 
-void set_side_menu(const nlohmann::json &config, bool &open_settings,
-                   bool &open_generate_training_data,
-                   decltype(captureData) &loadedFiles,
-                   std::map<Omniscope::Id, std::string> &loadedFilenames) {
+void set_side_menu(const nlohmann::json &config) {
 
   // Start only if devices are available, otherwise search for devices
   if ( // render search for Devices
@@ -27,35 +24,13 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
   }
 }
 
-void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
-                 bool &flagPaused, const decltype(captureData) &loadedFiles) {
+void set_toolbar(const nlohmann::json &config, bool &flagPaused) {
 
-  // variable declaration
-  static auto now = std::chrono::system_clock::now();
-  static std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
-  static std::tm now_tm = *std::gmtime(&now_time_t);
   auto windowSize{ImGui::GetIO().DisplaySize};
-  static bool flagDataNotSaved = true;
-  static decltype(captureData) liveDvcs;
 
   // begin Toolbar ############################################
   ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
                     ImGuiWindowFlags_NoScrollbar);
- 
-  // ############################ Popup Reset
-  if (ImGui::BeginPopupModal(appLanguage[Key::Reset_q], nullptr,
-                             ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::SetItemDefaultFocus();
-    ImGui::Text(appLanguage[Key::Measure_not_saved]);
-    if (ImGui::Button(appLanguage[Key::Continue_del])) {
-      rstSettings(loadedFiles);
-      ImGui::CloseCurrentPopup();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(appLanguage[Key::Back]))
-      ImGui::CloseCurrentPopup();
-    ImGui::EndPopup();
-  }
 
   if (flagPaused) {
     // ######################## Buttonstripe
@@ -65,7 +40,6 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                 appLanguage[Key::Start])) {
           sampler.emplace(deviceManager, std::move(devices));
           flagPaused = false;
-          flagDataNotSaved = true;
         }
       }
   } else {
@@ -86,21 +60,15 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
       if (ImGui::Button(
               appLanguage[Key::Continue])) {
         flagPaused = false;
-        flagDataNotSaved = true;
         for (auto &device : sampler->sampleDevices) {
           device.first->send(Omniscope::Start{});
         }
       }
       if (ImGui::Button(
               appLanguage[Key::Reset])) {
-        if (flagDataNotSaved) {
-          ImGui::OpenPopup(appLanguage[Key::Reset_q]);
-        } else {
-          rstSettings(loadedFiles);
           flagPaused = true;
         }
       }
     }
-  }
   ImGui::EndChild(); // end child "Buttonstripe"
 }

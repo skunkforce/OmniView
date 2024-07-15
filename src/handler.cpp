@@ -154,17 +154,3 @@ void set_inital_config(nlohmann::json &config) {
   appLanguage =
       config["text"]["active_language"] == "German" ? germanLan : englishLan;
 }
-
-void rstSettings(const decltype(captureData) &loadedFiles) {
-  sampler.reset();
-  devices.clear();
-  savedFileNames.clear();
-  deviceManager.clearDevices();
-  // erase all elements excpet loadedFiles
-  for (auto it = captureData.begin(); it != captureData.end();) {
-    if (!loadedFiles.contains(it->first))
-      it = captureData.erase(it);
-    else
-      ++it;
-  }
-}

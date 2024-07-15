@@ -3,23 +3,52 @@
 #include <cmake_git_version/version.hpp>
 #include "jasonhandler.hpp"
 
+// For DEBUG
+#include <fmt/core.h>
+
+// Websockat Client
+#include <cpprest/ws_client.h>
+
+// Deklaration der Funktionen
+void sendToWebSocket(const nlohmann::json& jsonData);
+nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& captureData);
+
+
+// Function for sending captureData to the WebSocket server
+void sendToWebSocket(const nlohmann::json& jsonData) {
+    using namespace web;
+    using namespace web::websockets::client;
+
+    websocket_client client;
+    client.connect(U("ws://localhost:8080/ws")).wait();
+
+    websocket_outgoing_message msg;
+    msg.set_utf8_message(jsonData.dump());
+    client.send(msg).wait();
+    client.close().wait();
+}
+
+// Konvertfunction captureDate to JSON
+nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& data) {
+    nlohmann::json jsonData = nlohmann::json::array();
+
+    for (const auto& entry : data) {
+        const auto& value = entry.second;
+        for (const auto& pair : value) {
+            nlohmann::json dataPoint = {{"x", pair.first}, {"y", pair.second}};
+            jsonData.push_back(dataPoint);
+        }
+    }
+    return jsonData;
+}
+
 int main() {
   const std::string configpath = "config/config.json";
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
   set_json(config);
-  nlohmann::json language =
-      load_json_file(load_json<std::string>(config, "languagepath") +
-                     load_json<std::string>(config, "language") + ".json");
-  // local variables
-  auto now = std::chrono::system_clock::now();
-  std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
-  std::tm now_tm = *std::gmtime(&now_time_t);
   bool flagPaused{true};
-  bool Development{false}, flagInitState{true},
-      open_generate_training_data{false}, open_settings{false};
-  auto loadedFiles = captureData;
-  std::map<Omniscope::Id, std::string> loadedFilenames;
+  bool flagInitState{true};
 
   // main loop
   auto render = [&]() {
@@ -34,13 +63,21 @@ int main() {
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
                      ImGuiWindowFlags_NoTitleBar);
     // ############################################# Side Menu
-    set_side_menu(config, open_settings, open_generate_training_data,
-                  loadedFiles, loadedFilenames);
-    if (sampler.has_value() && !flagPaused)
+    set_side_menu(config);
+
+    if(sampler.has_value()) {
+        fmt::print("Data will be snet from now on");
+    }
+
+    if (sampler.has_value() && !flagPaused) {
       sampler->copyOut(captureData);
+      auto jsonData = captureDataToJson(captureData);
+      sendToWebSocket(jsonData);
+      //fmt::print("CaptureData: {}\n", jsonData);
+    }
 
     // ######################################### Toolbar
-    set_toolbar(config, language, flagPaused, loadedFiles);
+    set_toolbar(config, flagPaused);
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
                       ImGuiChildFlags_Border);
 

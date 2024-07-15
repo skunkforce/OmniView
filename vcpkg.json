@@ -15,6 +15,7 @@
         "boost-core",
 		"nlohmann-json",
 		"curl",
-        "libusb"
+        "libusb",
+        "cpprestsdk"
 	]
 }

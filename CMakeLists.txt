@@ -13,7 +13,7 @@ FetchContent_Populate(
 list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
 
-set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
 project("OmniscopeGui" VERSION 0.9.0)
 
@@ -50,8 +50,11 @@ target_link_libraries(OmniView PUBLIC imgui_instance::imgui_instance)
 add_subdirectory(aglio)
 target_link_libraries(OmniView PUBLIC aglio::aglio)
 
+find_package(cpprestsdk CONFIG REQUIRED)
+target_link_libraries(OmniView PUBLIC cpprest)
+
 find_package(fmt CONFIG REQUIRED)
-target_link_libraries(OmniView PUBLIC fmt::fmt-header-only)
+target_link_libraries(OmniView PUBLIC fmt::fmt)
 
 find_package(Boost REQUIRED)
 target_link_libraries(OmniView PUBLIC Boost::boost)
