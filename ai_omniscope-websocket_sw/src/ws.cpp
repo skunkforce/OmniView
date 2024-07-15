@@ -3,7 +3,7 @@
 
 void configureWebSocketRoutes(crow::SimpleApp& app) {
     fmt::print("The WebSocket is started\n");
-    CROW_WEBSOCKET_ROUTE(app, "/ws")
+    CROW_WEBSOCKET_ROUTE(app, "/")
         .onopen([&](crow::websocket::connection& conn) {
             fmt::print("WebSocket connection opended: {}\n", static_cast<void*>(&conn));
             

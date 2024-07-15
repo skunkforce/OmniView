@@ -20,7 +20,7 @@ void sendToWebSocket(const nlohmann::json& jsonData) {
     using namespace web::websockets::client;
 
     websocket_client client;
-    client.connect(U("ws://localhost:8080/ws")).wait();
+    client.connect(U("ws://localhost:8080/")).wait();
 
     websocket_outgoing_message msg;
     msg.set_utf8_message(jsonData.dump());
