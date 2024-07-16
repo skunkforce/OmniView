@@ -7,6 +7,23 @@
 // For DEBUG
 #include <fmt/core.h>
 
+// Declaration of the functions
+nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& captureData);
+
+// Conversion function captureDate to JSON
+nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& data) {
+    nlohmann::json jsonData = nlohmann::json::array();
+
+    for (const auto& entry : data) {
+        const auto& value = entry.second;
+        for (const auto& pair : value) {
+            nlohmann::json dataPoint = {{"x", pair.first}, {"y", pair.second}};
+            jsonData.push_back(dataPoint);
+        }
+    }
+    return jsonData;
+}
+
 int main() {
     
   const std::string configpath = "config/config.json";
@@ -15,6 +32,8 @@ int main() {
   set_json(config);
   bool flagPaused{true};
   bool flagInitState{true};
+
+  WebSocketClient wsClient("ws://localhost:8080/");
 
   // main loop
   auto render = [&]() {
@@ -32,9 +51,9 @@ int main() {
     set_side_menu(config);
 
     if (sampler.has_value() && !flagPaused) {
-      //sampler->copyOut(captureData);
-      auto jsonData = captureDataToJson(sampler.value());
-      sendToWebSocket(jsonData);
+      sampler->copyOut(captureData);
+      auto jsonData = captureDataToJson(captureData);
+      wsClient.send(jsonData);
       //fmt::print("CaptureData: {}\n", jsonData);
     }
 

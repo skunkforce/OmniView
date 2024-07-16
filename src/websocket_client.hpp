@@ -3,13 +3,15 @@
 
 #include <cpprest/ws_client.h>
 #include <nlohmann/json.hpp>
-#include <map>
-#include <vector>
-#include <fmt/core.h>
-#include "style.hpp"
-#include "jasonhandler.hpp"
 
-void sendToWebSocket(const nlohmann::json& jsonData);
-nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& data);
+class WebSocketClient {
+public:
+    WebSocketClient(const std::string& uri);
+    ~WebSocketClient();
+    void send(const nlohmann::json& jsonData);
+    void close();
+private:
+    web::websockets::client::websocket_client client;
+};
 
 #endif
