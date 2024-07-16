@@ -2,47 +2,13 @@
 #include "style.hpp"
 #include <cmake_git_version/version.hpp>
 #include "jasonhandler.hpp"
+#include "websocket_client.hpp"
 
 // For DEBUG
 #include <fmt/core.h>
 
-// Websockat Client
-#include <cpprest/ws_client.h>
-
-// Deklaration der Funktionen
-void sendToWebSocket(const nlohmann::json& jsonData);
-nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& captureData);
-
-
-// Function for sending captureData to the WebSocket server
-void sendToWebSocket(const nlohmann::json& jsonData) {
-    using namespace web;
-    using namespace web::websockets::client;
-
-    websocket_client client;
-    client.connect(U("ws://localhost:8080/")).wait();
-
-    websocket_outgoing_message msg;
-    msg.set_utf8_message(jsonData.dump());
-    client.send(msg).wait();
-    client.close().wait();
-}
-
-// Konvertfunction captureDate to JSON
-nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& data) {
-    nlohmann::json jsonData = nlohmann::json::array();
-
-    for (const auto& entry : data) {
-        const auto& value = entry.second;
-        for (const auto& pair : value) {
-            nlohmann::json dataPoint = {{"x", pair.first}, {"y", pair.second}};
-            jsonData.push_back(dataPoint);
-        }
-    }
-    return jsonData;
-}
-
 int main() {
+    
   const std::string configpath = "config/config.json";
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
@@ -65,13 +31,9 @@ int main() {
     // ############################################# Side Menu
     set_side_menu(config);
 
-    if(sampler.has_value()) {
-        fmt::print("Data will be snet from now on");
-    }
-
     if (sampler.has_value() && !flagPaused) {
-      sampler->copyOut(captureData);
-      auto jsonData = captureDataToJson(captureData);
+      //sampler->copyOut(captureData);
+      auto jsonData = captureDataToJson(sampler.value());
       sendToWebSocket(jsonData);
       //fmt::print("CaptureData: {}\n", jsonData);
     }
