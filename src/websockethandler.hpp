@@ -1,5 +1,5 @@
-#ifndef WEBSOCKET_CLIENT_HPP
-#define WEBSOCKET_CLIENT_HPP
+#ifndef WEBSOCKETHANDLER_HPP
+#define WEBSOCKETHANDLER_HPP
 
 #include <cpprest/ws_client.h>
 #include <nlohmann/json.hpp>

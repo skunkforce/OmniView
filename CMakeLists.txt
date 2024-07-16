@@ -34,7 +34,7 @@ add_executable(OmniView
                src/imgui_stdlib.cpp  
                src/style.cpp
                src/handler.cpp
-               src/websocket_client.cpp
+               src/websockethandler.cpp
                )
 
 target_add_default_build_options(OmniView PUBLIC)

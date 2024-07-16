@@ -2,7 +2,7 @@
 #include "style.hpp"
 #include <cmake_git_version/version.hpp>
 #include "jasonhandler.hpp"
-#include "websocket_client.hpp"
+#include "websockethandler.hpp"
 
 // For DEBUG
 #include <fmt/core.h>

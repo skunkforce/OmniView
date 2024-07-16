@@ -1,4 +1,4 @@
-#include "websocket_client.hpp"
+#include "websockethandler.hpp"
 
 WebSocketClient::WebSocketClient(const std::string& uri) {
     client.connect(uri).wait();
