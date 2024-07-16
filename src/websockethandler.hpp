@@ -4,14 +4,14 @@
 #include <cpprest/ws_client.h>
 #include <nlohmann/json.hpp>
 
-class WebSocketClient {
+class WebSocketHandler {
 public:
-    WebSocketClient(const std::string& uri);
-    ~WebSocketClient();
+    WebSocketHandler(const std::string& uri);
+    ~WebSocketHandler();
     void send(const nlohmann::json& jsonData);
     void close();
 private:
-    web::websockets::client::websocket_client client;
+    web::websockets::client::websocket_client handler;
 };
 
 #endif

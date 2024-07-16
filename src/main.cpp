@@ -33,7 +33,7 @@ int main() {
   bool flagPaused{true};
   bool flagInitState{true};
 
-  WebSocketClient wsClient("ws://localhost:8080/");
+  WebSocketHandler wsHandler("ws://localhost:8080/");
 
   // main loop
   auto render = [&]() {
@@ -53,7 +53,7 @@ int main() {
     if (sampler.has_value() && !flagPaused) {
       sampler->copyOut(captureData);
       auto jsonData = captureDataToJson(captureData);
-      wsClient.send(jsonData);
+      wsHandler.send(jsonData);
       //fmt::print("CaptureData: {}\n", jsonData);
     }
 
