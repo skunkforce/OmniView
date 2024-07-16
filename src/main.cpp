@@ -272,6 +272,9 @@ int main() {
                 // ImGui::OpenPopup("Generiere Trainingsdaten");
                 // Hier wird eine Logik implementiert um die AW4.0 HUB-Oberfläche im Browser zu öffnen.
                     // Pfad zu deinem Python-Skript
+                
+                OpenURLInBrowser("https://d-ws175.server.est1816.de/ui/");
+
                 const char* script_path = "../src/script.py";
                 
                 // Befehl zum Ausführen des Python-Skripts
@@ -288,7 +291,7 @@ int main() {
                     std::cerr << "Error executing Python script." << std::endl;
                 }
 
-                OpenURLInBrowser("https://d-ws175.server.est1816.de/ui/");
+                
 
 
                 open_VCDS = false;
