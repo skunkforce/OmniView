@@ -2,7 +2,7 @@
 #define WEBSOCKETHANDLER_HPP
 
 #include <cpprest/ws_client.h>
-#include <nlohmann/json.hpp>
+#include "jasonhandler.hpp"
 
 class WebSocketHandler {
 public:
