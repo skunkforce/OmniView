@@ -15,6 +15,19 @@ nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::
     nlohmann::json jsonData = nlohmann::json::array();
 
     for (const auto& entry : data) {
+        const Omniscope::Id& id = entry.first;
+        /* Debug
+        fmt::print("Id Serial: {}\n", id.serial);
+        fmt::print("Id Type: {}\n", id.type);
+        fmt::print("Id SampleRate: {}\n", id.sampleRate);
+        fmt::print("Id hwVersion: {}.{}.{}\n", static_cast<int>(id.hwVersion.major),
+                static_cast<int>(id.hwVersion.minor),
+                static_cast<int>(id.hwVersion.patch));
+        fmt::print("Id swVersion: {}.{}.{}\n", static_cast<int>(id.swVersion.major),
+                static_cast<int>(id.swVersion.minor),
+                static_cast<int>(id.swVersion.patch));
+        fmt::print("Id swGitHash; {}\n", id.swGitHash);
+        */
         const auto& value = entry.second;
         for (const auto& pair : value) {
             nlohmann::json dataPoint = {{"x", pair.first}, {"y", pair.second}};
