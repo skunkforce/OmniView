@@ -40,7 +40,7 @@ nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::
 }
 
 // Separate function to handle console input
-void consoleHandler(bool &flagInitState, nlohmann::json &config) {
+void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused) {
     std::string input;
     while (true) {
         std::cout << "Enter command: ";
@@ -50,8 +50,38 @@ void consoleHandler(bool &flagInitState, nlohmann::json &config) {
             deviceManager.clearDevices();
             initDevices();
             if (flagInitState) {
+                // devicesList();
                 set_inital_config(config);
                 flagInitState = false;
+            }
+        }
+        else if (input == "Start") {
+            if (!devices.empty() && flagPaused) {
+                if (!sampler.has_value()) {
+                    sampler.emplace(deviceManager, std::move(devices));
+                    flagPaused = false;
+                }
+            }
+        }
+        else if (input == "Stop") {
+            if (!flagPaused) {
+                flagPaused = true;
+                for (auto &device : sampler->sampleDevices) {
+                    device.first->send(Omniscope::Stop{});
+                }
+            }
+        }
+        else if (input == "Continue") {
+            if (flagPaused && sampler.has_value()) {
+                flagPaused = false;
+                for (auto &device : sampler->sampleDevices) {
+                    device.first->send(Omniscope::Start{});
+                }
+            }
+        }
+        else if (input == "Reset") {
+            if (flagPaused && sampler.has_value()) {
+                flagPaused = true;
             }
         }
     }
@@ -69,7 +99,7 @@ int main() {
   WebSocketHandler wsHandler("ws://localhost:8080/");
 
   // Start console handler thread
-  std::thread consoleThread(consoleHandler, std::ref(flagInitState), std::ref(config));
+  std::thread consoleThread(consoleHandler, std::ref(flagInitState), std::ref(config), std::ref(flagPaused));
 
   // main loop
   auto render = [&]() {
