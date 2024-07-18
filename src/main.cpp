@@ -48,6 +48,22 @@ int main() {
 
   WebSocketHandler wsHandler("ws://localhost:8080/");
 
+  // Search for devices in the console
+  fmt::print("Suche nach Omniscopes...\n");
+  initDevices();
+  if (devices.empty()) {
+      fmt::print("Keine Geräte gefunden.\n");
+  } else {
+      fmt::print("Gefundene Geräte:\n");
+      for (const auto& device : devices) {
+          auto id = device->getId().value();
+          fmt::print("Gerät: {}-{}, HW: v{}.{}.{} SW: v{}.{}.{}\n",
+                     id.type, id.serial,
+                     id.hwVersion.major, id.hwVersion.minor, id.hwVersion.patch,
+                     id.swVersion.major, id.swVersion.minor, id.swVersion.patch);
+      }
+  }
+  
   // main loop
   auto render = [&]() {
     if (flagInitState) {
