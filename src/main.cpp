@@ -6,6 +6,8 @@
 
 // For DEBUG
 #include <fmt/core.h>
+#include <iostream>
+#include <thread>
 
 // Declaration of the functions
 nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& captureData);
@@ -37,6 +39,24 @@ nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::
     return jsonData;
 }
 
+// Separate function to handle console input
+void consoleHandler(bool &flagInitState, nlohmann::json &config) {
+    std::string input;
+    while (true) {
+        std::cout << "Enter command: ";
+        std::getline(std::cin, input);
+        if (input == "Search Device") {
+            devices.clear();
+            deviceManager.clearDevices();
+            initDevices();
+            if (flagInitState) {
+                set_inital_config(config);
+                flagInitState = false;
+            }
+        }
+    }
+}
+
 int main() {
     
   const std::string configpath = "config/config.json";
@@ -48,22 +68,9 @@ int main() {
 
   WebSocketHandler wsHandler("ws://localhost:8080/");
 
-  // Search for devices in the console
-  fmt::print("Suche nach Omniscopes...\n");
-  initDevices();
-  if (devices.empty()) {
-      fmt::print("Keine Geräte gefunden.\n");
-  } else {
-      fmt::print("Gefundene Geräte:\n");
-      for (const auto& device : devices) {
-          auto id = device->getId().value();
-          fmt::print("Gerät: {}-{}, HW: v{}.{}.{} SW: v{}.{}.{}\n",
-                     id.type, id.serial,
-                     id.hwVersion.major, id.hwVersion.minor, id.hwVersion.patch,
-                     id.swVersion.major, id.swVersion.minor, id.swVersion.patch);
-      }
-  }
-  
+  // Start console handler thread
+  std::thread consoleThread(consoleHandler, std::ref(flagInitState), std::ref(config));
+
   // main loop
   auto render = [&]() {
     if (flagInitState) {
