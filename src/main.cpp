@@ -81,6 +81,9 @@ void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPause
         }
         else if (input == "Reset") {
             if (flagPaused && sampler.has_value()) {
+                sampler.reset();
+                devices.clear();
+                deviceManager.clearDevices();
                 flagPaused = true;
             }
         }
