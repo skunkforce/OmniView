@@ -8,16 +8,24 @@
 #include <fmt/core.h>
 #include <iostream>
 #include <thread>
+#include <optional>
 
 // Declaration of the functions
-nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& captureData);
+nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& captureData, const std::optional<std::string>& filter_serial = std::nullopt);
+
+// Forward declaration of the consoleHandler function
+void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused, std::optional<std::string>& selected_serial);
 
 // Conversion function captureDate to JSON
-nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& data) {
+nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& data, const std::optional<std::string>& filter_serial) {
     nlohmann::json jsonData = nlohmann::json::array();
 
     for (const auto& entry : data) {
         const Omniscope::Id& id = entry.first;
+        if (filter_serial.has_value() && id.serial != filter_serial.value()) {
+            continue;
+        }
+        
         /* Debug
         fmt::print("Id Serial: {}\n", id.serial);
         fmt::print("Id Type: {}\n", id.type);
@@ -30,9 +38,10 @@ nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::
                 static_cast<int>(id.swVersion.patch));
         fmt::print("Id swGitHash; {}\n", id.swGitHash);
         */
+
         const auto& value = entry.second;
         for (const auto& pair : value) {
-            nlohmann::json dataPoint = {{"x", pair.first}, {"y", pair.second}};
+            nlohmann::json dataPoint = {{"ID", id.serial}, {"x", pair.first}, {"y", pair.second}};
             jsonData.push_back(dataPoint);
         }
     }
@@ -40,7 +49,7 @@ nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::
 }
 
 // Separate function to handle console input
-void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused) {
+void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused, std::optional<std::string>& selected_serial) {
     std::string input;
     while (true) {
         std::cout << "Enter command: ";
@@ -50,9 +59,16 @@ void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPause
             deviceManager.clearDevices();
             initDevices();
             if (flagInitState) {
-                // devicesList();
                 set_inital_config(config);
                 flagInitState = false;
+            }
+            if (!devices.empty()) {
+                std::cout << "Enter the serial number of the device to select: ";
+                std::getline(std::cin, input);
+                selected_serial = input;
+            }
+            else {
+                std::cout << "No devices found.\n";
             }
         }
         else if (input == "Start") {
@@ -98,11 +114,12 @@ int main() {
   set_json(config);
   bool flagPaused{true};
   bool flagInitState{true};
+  std::optional<std::string> selected_serial;
 
   WebSocketHandler wsHandler("ws://localhost:8080/");
 
   // Start console handler thread
-  std::thread consoleThread(consoleHandler, std::ref(flagInitState), std::ref(config), std::ref(flagPaused));
+  std::thread consoleThread(consoleHandler, std::ref(flagInitState), std::ref(config), std::ref(flagPaused), std::ref(selected_serial));
 
   // main loop
   auto render = [&]() {
@@ -121,7 +138,7 @@ int main() {
 
     if (sampler.has_value() && !flagPaused) {
       sampler->copyOut(captureData);
-      auto jsonData = captureDataToJson(captureData);
+      auto jsonData = captureDataToJson(captureData, selected_serial);
       wsHandler.send(jsonData);
       //fmt::print("CaptureData: {}\n", jsonData);
     }
