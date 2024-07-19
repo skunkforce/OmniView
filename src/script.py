@@ -1,59 +1,81 @@
 import os
+import shutil
 import pandas as pd
+from datetime import datetime
 
-# Pfad zum Verzeichnis
-directory_path = '../saves'
-
-# Liste aller CSV-Dateien im Verzeichnis
-csv_files = [f for f in os.listdir(directory_path) if f.endswith('.csv')]
-
-i = 0
-
-for file in csv_files:
-    i += 1
-    file_path = os.path.join(directory_path, file)
-    
+def process_csv(input_filename, output_filename, original_sampling_rate, target_sampling_rate):
     # Datei einlesen
-    with open(file_path, 'r') as file:
+    with open(input_filename, 'r') as file:
         lines = file.readlines()
 
-    # Zeilen "Serial" und "SamplyingRate" entfernen
-    filtered_lines = [line for line in lines if not line.startswith('Serial') and not line.startswith('SamplyingRate') and not line.startswith(',,')]
+    # Channel A Werte extrahieren
+    channel_a_values = list(map(float, lines[3].split()))
 
-    # Alle Werte in eine Liste packen
-    values = ' '.join(filtered_lines).split()
+    # Berechne den Downsampling-Faktor
+    downsampling_factor = original_sampling_rate // target_sampling_rate
 
-    # Werte in einen DataFrame umwandeln
-    df = pd.DataFrame(values, columns=['Values'])
+    # Downsampling der Channel A Werte
+    downsampled_channel_a_values = channel_a_values[::downsampling_factor]
 
-    # Werte als float konvertieren
-    df['Values'] = df['Values'].astype(float)
+    # Zeitspalte basierend auf der Ziel-Sampling-Rate berechnen
+    time_values = [(i / target_sampling_rate) * 1000 for i in range(len(downsampled_channel_a_values))]
 
-    # Zeitwerte berechnen
-    df['Time'] = df.index / 100000  # Beispiel: Annahme, dass Zeit in Sekunden berechnet wird
+    # Ein DataFrame erstellen
+    df = pd.DataFrame({
+        'Time (ms)': time_values,
+        'Channel A (V)': downsampled_channel_a_values
+    })
 
-    # Spaltennamen anpassen
-    df.columns = ['Time', 'Channel A']
+    # Multi-Header
+    multi_header = "Time,Channel A\n(ms),(V)\n"
 
-    # Erste Zeile anpassen
-    first_row = pd.DataFrame([['(ms)', '(V)', '(V)', '(V)', '(V)']], columns=['Time', 'Channel A', 'Channel B', 'Channel C', 'Channel D'])
+    # DataFrame in eine CSV-Datei speichern, aber ohne Header
+    df.to_csv(output_filename, index=False, header=False)
 
-    # DataFrame zusammenfügen
-    df = pd.concat([first_row, df], ignore_index=True)
+    # Multi-Header manuell hinzufügen
+    with open(output_filename, 'r') as file:
+        data = file.read()
 
-    # Werte in den Spalten 'Channel A' bis 'Channel D' auf 6 Nachkommastellen runden
-    df[['Channel A', 'Channel B', 'Channel C', 'Channel D']] = df[['Channel A', 'Channel B', 'Channel C', 'Channel D']].round(6)
+    with open(output_filename, 'w') as file:
+        file.write(multi_header + data)
 
-    # Fehlende Werte mit 0.0 auffüllen
-    df = df.fillna(0.0)
+    print(f"CSV-Datei erfolgreich erstellt und gespeichert: {output_filename}")
 
-    # Dateinamen für die neue CSV-Datei
-    new_filename = f"{i}.csv"
+def main():
+    # Verzeichnis für die Eingabedateien
+    base_directory_path = '../saves'
+    originals_directory_path = os.path.join(base_directory_path, 'originals')
 
-    # Pfad für die neue Datei
-    new_file_path = os.path.join(directory_path, new_filename)
+    # Erstelle den Ordner 'originals', falls er nicht existiert
+    if not os.path.exists(originals_directory_path):
+        os.makedirs(originals_directory_path)
 
-    # DataFrame als CSV speichern, ohne Indexspalte und ohne wissenschaftliche Notation
-    df.to_csv(new_file_path, index=False, float_format='%.6f')
+    # Hole das aktuelle Datum und die Uhrzeit
+    now = datetime.now()
+    date_str = now.strftime('%Y-%m-%d_%H-%M')
+    
+    # Erstelle einen Unterordner mit Datum und Minutenangabe innerhalb des 'originals' Ordners
+    date_time_subdirectory_path = os.path.join(originals_directory_path, date_str)
+    
+    if not os.path.exists(date_time_subdirectory_path):
+        os.makedirs(date_time_subdirectory_path)
 
-    print(f"DataFrame wurde erfolgreich als '{new_filename}' gespeichert.")
+    # Liste aller CSV-Dateien im Verzeichnis
+    csv_files = [f for f in os.listdir(base_directory_path) if f.endswith('.csv')]
+
+    # Durchlaufe alle CSV-Dateien und verarbeite sie
+    for file_name in csv_files:
+        input_filename = os.path.join(base_directory_path, file_name)
+        output_filename = os.path.join(base_directory_path, f'processed_{file_name}')
+        
+        # Beispielwerte für Sampling-Raten, ersetze sie durch die tatsächlichen Werte
+        original_sampling_rate = 100000
+        target_sampling_rate = 3000
+
+        process_csv(input_filename, output_filename, original_sampling_rate, target_sampling_rate)
+
+        # Verschiebe die Originaldatei in den Unterordner mit Datum und Minutenangabe
+        shutil.move(input_filename, os.path.join(date_time_subdirectory_path, file_name))
+
+if __name__ == "__main__":
+    main()
