@@ -3,27 +3,6 @@
 #include "jasonhandler.hpp"
 #include "websockethandler.hpp"
 
-// Declaration of the functions
-nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& captureData, const std::set<std::string>& filter_serials = {});
-
-// Conversion function captureDate to JSON
-nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& data, const std::set<std::string>& filter_serials) {
-    nlohmann::json jsonData = nlohmann::json::array();
-
-    for (const auto& entry : data) {
-        const Omniscope::Id& id = entry.first;
-        if (!filter_serials.empty() && filter_serials.find(id.serial) == filter_serials.end()) {
-            continue;
-        }
-        const auto& value = entry.second;
-        for (const auto& pair : value) {
-            nlohmann::json dataPoint = {{"ID", id.serial}, {"x", pair.first}, {"y", pair.second}};
-            jsonData.push_back(dataPoint);
-        }
-    }
-    return jsonData;
-}
-
 // Separate function to handle console input
 void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused, std::set<std::string>& selected_serials) {
     std::string input;
@@ -120,8 +99,7 @@ int main() {
 
     if (sampler.has_value() && !flagPaused) {
       sampler->copyOut(captureData);
-      auto jsonData = captureDataToJson(captureData, selected_serials);
-      wsHandler.send(jsonData);
+      wsHandler.send(captureData, selected_serials);
     }
 
     // ######################################### Toolbar
@@ -151,5 +129,8 @@ int main() {
                                    CMakeGitVersion::Project::Version)};
   while (window.run(render))
     ;
+
+  consoleThread.join();
+
   return 0;
 }
