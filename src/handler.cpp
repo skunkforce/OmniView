@@ -2,6 +2,8 @@
 #include <implot.h>
 #include "get_from_github.hpp"
 #include "../imgui-stdlib/imgui_stdlib.h"
+#include <iostream>
+#include <thread>
 
 void addPlots(const char *name, std::function<void(double)> axesSetup) {
   static std::set<std::string> firstRun;
@@ -154,3 +156,66 @@ void set_inital_config(nlohmann::json &config) {
   appLanguage =
       config["text"]["active_language"] == "German" ? germanLan : englishLan;
 }
+
+void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused, std::set<std::string>& selected_serials) {
+    std::string input;
+    while (true) {
+        std::cout << "Enter command: ";
+        std::getline(std::cin, input);
+        if (input == "Search") {
+            devices.clear();
+            deviceManager.clearDevices();
+            initDevices();
+            if (flagInitState) {
+                set_inital_config(config);
+                flagInitState = false;
+            }
+            if (!devices.empty()) {
+                std::cout << "Enter the device number: ";
+                std::getline(std::cin, input);
+                selected_serials.clear();
+                size_t pos = 0;
+                while ((pos = input.find(',')) != std::string::npos) {
+                    selected_serials.insert(input.substr(0, pos));
+                    input.erase(0, pos + 1);
+                }
+                selected_serials.insert(input);
+            }
+            else {
+                std::cout << "No devices fpound.\n";
+            }
+        }
+        else if (input == "Start") {
+            if (!devices.empty() && flagPaused) {
+                if (!sampler.has_value()) {
+                    sampler.emplace(deviceManager, std::move(devices));
+                    flagPaused = false;
+                }
+            }
+        }
+        else if (input == "Stop") {
+            if (!flagPaused) {
+                flagPaused = true;
+                for (auto &device : sampler->sampleDevices) {
+                    device.first->send(Omniscope::Stop{});
+                }
+            }
+        }
+        else if (input == "Continue") {
+            if (flagPaused && sampler.has_value()) {
+                flagPaused = false;
+                for (auto &device : sampler->sampleDevices) {
+                    device.first->send(Omniscope::Start{});
+                }
+            }
+        }
+        else if (input == "Reset") {
+            if (flagPaused && sampler.has_value()) {
+                sampler.reset();
+                devices.clear();
+                deviceManager.clearDevices();
+                flagPaused = true;
+            }
+        }
+    }
+} 
