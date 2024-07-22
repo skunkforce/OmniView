@@ -3,17 +3,8 @@
 #include "jasonhandler.hpp"
 #include "websockethandler.hpp"
 
-// For DEBUG
-#include <fmt/core.h>
-#include <iostream>
-#include <thread>
-#include <optional>
-
 // Declaration of the functions
 nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& captureData, const std::set<std::string>& filter_serials = {});
-
-// Forward declaration of the consoleHandler function
-//void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused, std::optional<std::string>& selected_serial);
 
 // Conversion function captureDate to JSON
 nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& data, const std::set<std::string>& filter_serials) {
@@ -24,20 +15,6 @@ nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::
         if (!filter_serials.empty() && filter_serials.find(id.serial) == filter_serials.end()) {
             continue;
         }
-        
-        /* Debug
-        fmt::print("Id Serial: {}\n", id.serial);
-        fmt::print("Id Type: {}\n", id.type);
-        fmt::print("Id SampleRate: {}\n", id.sampleRate);
-        fmt::print("Id hwVersion: {}.{}.{}\n", static_cast<int>(id.hwVersion.major),
-                static_cast<int>(id.hwVersion.minor),
-                static_cast<int>(id.hwVersion.patch));
-        fmt::print("Id swVersion: {}.{}.{}\n", static_cast<int>(id.swVersion.major),
-                static_cast<int>(id.swVersion.minor),
-                static_cast<int>(id.swVersion.patch));
-        fmt::print("Id swGitHash; {}\n", id.swGitHash);
-        */
-
         const auto& value = entry.second;
         for (const auto& pair : value) {
             nlohmann::json dataPoint = {{"ID", id.serial}, {"x", pair.first}, {"y", pair.second}};
@@ -145,7 +122,6 @@ int main() {
       sampler->copyOut(captureData);
       auto jsonData = captureDataToJson(captureData, selected_serials);
       wsHandler.send(jsonData);
-      //fmt::print("CaptureData: {}\n", jsonData);
     }
 
     // ######################################### Toolbar
