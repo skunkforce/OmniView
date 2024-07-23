@@ -16,13 +16,11 @@ inline std::set<std::string> savedFileNames; // unique and ordered filenames
 inline std::optional<OmniscopeSampler> sampler{};
 inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
 
-void addPlots(const char *, std::function<void(double)>);
 void initDevices();
 void devicesList();
 void load_files(decltype(captureData) &, std::map<Omniscope::Id, std::string> &, bool &);
 void set_config(const std::string &);
 void set_json(nlohmann::json &);
-void set_inital_config(nlohmann::json &);
 
 void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused, std::set<std::string>& selected_serials);
 

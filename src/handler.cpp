@@ -1,7 +1,5 @@
 #include "handler.hpp"
-#include <implot.h>
 #include "get_from_github.hpp"
-#include "../imgui-stdlib/imgui_stdlib.h"
 #include <iostream>
 #include <thread>
 
@@ -48,13 +46,6 @@ void set_json(nlohmann::json &config) {
                appLanguage[Key::German]);
     update_language_from_github();
   }
-}
-
-void set_inital_config(nlohmann::json &config) {
-  ImGuiIO &io = ImGui::GetIO();
-  io.FontGlobalScale = config["text"]["scale"];
-  appLanguage =
-      config["text"]["active_language"] == "German" ? germanLan : englishLan;
 }
 
 void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused, std::set<std::string>& selected_serials) {
