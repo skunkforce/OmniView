@@ -11,6 +11,7 @@
 #include "languages.hpp"
 #include "../imgui-filebrowser/imfilebrowser.h"
 
+/*
 void set_side_menu(const nlohmann::json &config) {
 
   // Start only if devices are available, otherwise search for devices
@@ -72,3 +73,4 @@ void set_toolbar(const nlohmann::json &config, bool &flagPaused) {
     }
   ImGui::EndChild(); // end child "Buttonstripe"
 }
+*/
