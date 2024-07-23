@@ -1,7 +1,6 @@
 #ifndef WEBSOCKETHANDLER_HPP
 #define WEBSOCKETHANDLER_HPP
 
-#include "jasonhandler.hpp"
 #include "handler.hpp"
 #include <cpprest/ws_client.h>
 #include <nlohmann/json.hpp>
