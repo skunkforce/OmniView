@@ -2,7 +2,7 @@
 #define WEBSOCKETHANDLER_HPP
 
 #include "jasonhandler.hpp"
-#include "style.hpp"
+#include "handler.hpp"
 #include <cpprest/ws_client.h>
 #include <nlohmann/json.hpp>
 #include <map>

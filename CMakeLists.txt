@@ -31,8 +31,7 @@ include(cmake_helpers/FindOrFetch.cmake)
 
 add_executable(OmniView 
                src/main.cpp 
-               src/imgui_stdlib.cpp  
-               src/style.cpp
+               src/imgui_stdlib.cpp
                src/handler.cpp
                src/websockethandler.cpp
                )
