@@ -29,26 +29,7 @@ void initDevices() {
   std::cout << "Device initialization complete.\n";
 }
 
-void set_config(const std::string &configpath) {
-  if (fs::exists(configpath))
-    fmt::print("found config.json\n\r");
-  else {
-    fmt::print("Did not find config.json.\n Download from Github\n\r");
-    update_config_from_github();
-  }
-}
-
-void set_json(nlohmann::json &config) {
-  if (fs::exists(load_json<std::string>(config, ("languagepath"))))
-    fmt::print("Found language: {}\n\r", appLanguage[Key::German]);
-  else {
-    fmt::print("Did not find {}.\n Download from Github\n\r",
-               appLanguage[Key::German]);
-    update_language_from_github();
-  }
-}
-
-void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPaused, std::set<std::string>& selected_serials) {
+void consoleHandler(bool &flagInitState, bool &flagPaused, std::set<std::string>& selected_serials) {
     std::string input;
     while (true) {
         std::cout << "Enter command: ";

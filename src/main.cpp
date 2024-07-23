@@ -4,10 +4,6 @@
 
 int main() {
     
-  const std::string configpath = "config/config.json";
-  set_config(configpath);
-  nlohmann::json config = load_json_file(configpath);
-  set_json(config);
   bool flagPaused{true};
   bool flagInitState{true};
   std::set<std::string> selected_serials;
@@ -15,7 +11,7 @@ int main() {
   WebSocketHandler wsHandler("ws://localhost:8080/");
 
   // Start console handler thread
-  std::thread consoleThread(consoleHandler, std::ref(flagInitState), std::ref(config), std::ref(flagPaused), std::ref(selected_serials));
+  std::thread consoleThread(consoleHandler, std::ref(flagInitState), std::ref(flagPaused), std::ref(selected_serials));
 
   // WebSocket handler thread
   std::thread webSocketThread([&]() {
