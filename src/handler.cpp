@@ -5,6 +5,7 @@
 #include <iostream>
 #include <thread>
 
+/*
 void addPlots(const char *name, std::function<void(double)> axesSetup) {
   static std::set<std::string> firstRun;
   const auto &plots{captureData};
@@ -70,27 +71,35 @@ void addPlots(const char *name, std::function<void(double)> axesSetup) {
     ImPlot::EndPlot();
   }
 }
+*/
 
 void initDevices() {
   constexpr int VID = 0x2e8au;
   constexpr int PID = 0x000au;
 
   devices = deviceManager.getDevices(VID, PID);
+  std::cout << "Found " << devices.size() << " devices.\n";
+
   for (auto &device : devices) {
     auto id = device->getId().value();
+    std::cout << "Device ID: " << id.serial << "\n";
+
     if (!colorMap.contains(id)) {
-      ImPlot::PushColormap(ImPlotColormap_Dark);
-      auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
-      colorMap[id] = std::array<float, 3>{c.x, c.y, c.z};
-      ImPlot::PopColormap();
+      // ImPlot::PushColormap(ImPlotColormap_Dark);
+      // auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
+      colorMap[id] = std::array<float, 3>{1.0f, 1.0f, 0.0f};
+      // ImPlot::PopColormap();
     }
     auto &color = colorMap[id];
+    std::cout << "Setting co.or for device " << id.serial << "\n";
     device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
                                    static_cast<std::uint8_t>(color[1] * 255),
                                    static_cast<std::uint8_t>(color[2] * 255)});
   }
+  std::cout << "Device initialization complete.\n";
 }
 
+/*
 void devicesList() {
   auto doDevice = [&](auto &device, auto msg) {
     auto &color = colorMap[device->getId().value()];
@@ -130,6 +139,7 @@ void devicesList() {
     for (auto &device : devices)
       doDevice(device, appLanguage[Key::Ready]);
 }
+*/
 
 void set_config(const std::string &configpath) {
   if (fs::exists(configpath))
@@ -166,10 +176,12 @@ void consoleHandler(bool &flagInitState, nlohmann::json &config, bool &flagPause
             devices.clear();
             deviceManager.clearDevices();
             initDevices();
+            /*
             if (flagInitState) {
                 set_inital_config(config);
                 flagInitState = false;
             }
+            */
             if (!devices.empty()) {
                 std::cout << "Enter the device number: ";
                 std::getline(std::cin, input);
