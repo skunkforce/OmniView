@@ -29,14 +29,6 @@ int main() {
   }
   });
 
-  /*
-  // main logic without GUI
-  if (flagInitState) {
-  set_inital_config(config);
-  flagInitState = false;
-  }
-  */
-
   consoleThread.join();
   webSocketThread.detach();
 
