@@ -18,6 +18,17 @@ int main() {
   // Start console handler thread
   std::thread consoleThread(consoleHandler, std::ref(flagInitState), std::ref(config), std::ref(flagPaused), std::ref(selected_serials));
 
+  // WebSocket handler thread
+  std::thread webSocketThread([&]() {
+    while (true) {
+        if (sampler.has_value() && !flagPaused) {
+        sampler->copyOut(captureData);
+        wsHandler.send(captureData, selected_serials);
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+  });
+
   // main loop
   auto render = [&]() {
     if (flagInitState) {
@@ -32,11 +43,6 @@ int main() {
                      ImGuiWindowFlags_NoTitleBar);
     // ############################################# Side Menu
     set_side_menu(config);
-
-    if (sampler.has_value() && !flagPaused) {
-      sampler->copyOut(captureData);
-      wsHandler.send(captureData, selected_serials);
-    }
 
     // ######################################### Toolbar
     set_toolbar(config, flagPaused);
@@ -67,6 +73,7 @@ int main() {
     ;
 
   consoleThread.join();
+  webSocketThread.detach();
 
   return 0;
 }
