@@ -31,7 +31,6 @@ include(cmake_helpers/FindOrFetch.cmake)
 
 add_executable(OmniView 
                src/main.cpp 
-               src/imgui_stdlib.cpp
                src/handler.cpp
                src/websockethandler.cpp
                )
@@ -43,9 +42,6 @@ find_or_fetch_package(
   https://github.com/dominicpoeschko/cmake_git_version.git GIT_TAG master)
 
 target_add_version_headers(OmniView ${CMAKE_BUILD_TYPE})
-
-add_subdirectory(ImGuiInstance)
-target_link_libraries(OmniView PUBLIC imgui_instance::imgui_instance)
 
 add_subdirectory(aglio)
 target_link_libraries(OmniView PUBLIC aglio::aglio)

@@ -2,10 +2,10 @@
 
 #include <fmt/format.h>
 #include <fstream>
-#include <imgui.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
+/*
 struct Color : ImVec4 {
   using ImVec4::ImVec4;
 };
@@ -35,7 +35,7 @@ static void from_json(nlohmann::json const &j, Size &s) {
   j.at("sizex").get_to(s.x);
   j.at("sizey").get_to(s.y);
 }
-
+*/
 static nlohmann::json load_json_file(std::string const &path) {
   std::ifstream json_file(path);
   nlohmann::json return_json;
@@ -72,3 +72,4 @@ T load_json(nlohmann::json const &config, std::string const &key,
 
   return returnme;
 }
+
