@@ -43,12 +43,17 @@ jobs:
           packages: libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
           version: 1.0
 
+      - name: Install cpprestsdk
+        if: ${{ !contains(matrix.os, 'windows' ) }}
+        run: sudo apt-get install -y libcpprest-dev
+
+
       - name: setup prerequisites
         if: ${{ !contains(matrix.os, 'windows' ) }}
         shell: bash
         run: |
           sudo apt update
-          sudo apt install autoconf libudev-dev
+          sudo apt install autoconf libudev-dev libcpprest-dev
 
       # On Windows runners, let's ensure to have the Developer Command Prompt environment setup correctly.
       # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
