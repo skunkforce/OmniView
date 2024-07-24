@@ -2,6 +2,15 @@
 #include <iostream>
 #include <thread>
 
+// A list of colors
+const std::array<std::array<float, 3>, 7> predefinedColors = {{
+    {1.0f, 1.0f, 0.0f},
+    {1.0f, 1.0f, 1.0f},
+    {0.0f, 1.0f, 0.0f},
+    {0.0f, 1.0f, 1.0f},
+    {0.0f, 0.0f, 1.0f}
+}};
+
 void initDevices() {
   constexpr int VID = 0x2e8au;
   constexpr int PID = 0x000au;
@@ -11,21 +20,17 @@ void initDevices() {
 
   for (auto &device : devices) {
     auto id = device->getId().value();
-    std::cout << "Device ID: " << id.serial << "\n";
 
     if (!colorMap.contains(id)) {
-      // ImPlot::PushColormap(ImPlotColormap_Dark);
-      // auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
-      colorMap[id] = std::array<float, 3>{1.0f, 1.0f, 0.0f};
-      // ImPlot::PopColormap();
+      size_t colorIndex = colorMap.size() % predefinedColors.size();
+      colorMap[id] = predefinedColors[colorIndex];
     }
     auto &color = colorMap[id];
-    std::cout << "Setting co.or for device " << id.serial << "\n";
     device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
                                    static_cast<std::uint8_t>(color[1] * 255),
                                    static_cast<std::uint8_t>(color[2] * 255)});
   }
-  std::cout << "Device initialization complete.\n";
+  // std::cout << "Device initialization complete.\n";
 }
 
 void consoleHandler(bool &flagInitState, bool &flagPaused, std::set<std::string>& selected_serials) {
