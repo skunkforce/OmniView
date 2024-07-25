@@ -1,6 +1,7 @@
 #include "websockethandler.hpp"
 #include "handler.hpp"
 #include <thread>
+#include <CLI/CLI.hpp>
 
 int main() {
     

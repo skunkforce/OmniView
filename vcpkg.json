@@ -9,6 +9,7 @@
 		"nlohmann-json",
 		"curl",
         "libusb",
-        "cpprestsdk"
+        "cpprestsdk",
+        "cli11"
 	]
 }
