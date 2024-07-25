@@ -1,4 +1,3 @@
-// handler.hpp
 #ifndef HANDLER_HEADER_HPP
 #define HANDLER_HEADER_HPP
 
@@ -15,8 +14,6 @@ inline std::optional<OmniscopeSampler> sampler{};
 inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
 
 void initDevices();
-void devicesList();
-
 void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials);
 
 #endif
