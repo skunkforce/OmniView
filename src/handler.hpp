@@ -11,14 +11,12 @@
 inline OmniscopeDeviceManager deviceManager{};
 inline std::vector<std::shared_ptr<OmniscopeDevice>> devices;
 inline std::map<Omniscope::Id, std::array<float, 3>> colorMap;
-inline std::set<std::string> savedFileNames; // unique and ordered filenames
 inline std::optional<OmniscopeSampler> sampler{};
 inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
 
 void initDevices();
 void devicesList();
-void load_files(decltype(captureData) &, std::map<Omniscope::Id, std::string> &, bool &);
 
-void consoleHandler(bool &flagInitState, bool &flagPaused, std::set<std::string>& selected_serials);
+void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials);
 
 #endif

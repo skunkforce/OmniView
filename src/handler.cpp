@@ -33,7 +33,7 @@ void initDevices() {
   // std::cout << "Device initialization complete.\n";
 }
 
-void consoleHandler(bool &flagInitState, bool &flagPaused, std::set<std::string>& selected_serials) {
+void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
     std::string input;
     while (true) {
         std::cout << "Enter command: ";
