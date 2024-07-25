@@ -3,29 +3,36 @@
 #include <thread>
 #include <CLI/CLI.hpp>
 
-int main() {
+int main(int argc, char** argv) {
     
-  bool flagPaused{true};
-  std::set<std::string> selected_serials;
+    bool flagPaused{true};
+    std::set<std::string> selected_serials;
+    std::string wsURI;
+    
+    CLI::App app{"OmniView"};
 
-  WebSocketHandler wsHandler("ws://localhost:8080/");
+    app.add_option("-w, --wsuri", wsURI, "WebSocket URI")->type_name("");
 
-  // Start console handler thread
-  std::thread consoleThread(consoleHandler, std::ref(flagPaused), std::ref(selected_serials));
+    CLI11_PARSE(app, argc, argv);
 
-  // WebSocket handler thread
-  std::thread webSocketThread([&]() {
-    while (true) {
-        if (sampler.has_value() && !flagPaused) {
-        sampler->copyOut(captureData);
-        wsHandler.send(captureData, selected_serials);
-    }
+    WebSocketHandler wsHandler(wsURI);
+
+    // Start console handler thread
+    std::thread consoleThread(consoleHandler, std::ref(flagPaused), std::ref(selected_serials));
+
+    // WebSocket handler thread
+    std::thread webSocketThread([&]() {
+        while (true) {
+            if (sampler.has_value() && !flagPaused) {
+            sampler->copyOut(captureData);
+            wsHandler.send(captureData, selected_serials);
+        }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
-  });
+    }
+    });
 
-  consoleThread.join();
-  webSocketThread.detach();
+    consoleThread.join();
+    webSocketThread.detach();
 
-  return 0;
+    return 0;
 }
