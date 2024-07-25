@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/vcpkg-cmake-get-vars-x64-linux-2023-03-02-647c599a-e12e-4c3b-88f6-d4a5834acb56",
-  "name": "vcpkg-cmake-get-vars:x64-linux@2023-03-02 be96521420d3298d18ae0b5c3bb2f628fbea1d131b45c9f94789b9f49be07877",
+  "documentNamespace": "https://spdx.org/spdxdocs/vcpkg-cmake-get-vars-x64-linux-2023-12-31-98ee9da1-6445-4e9c-a610-9cbb8125cb50",
+  "name": "vcpkg-cmake-get-vars:x64-linux@2023-12-31 708ec73a8f15e4f948c71310ca8be0212eac630bb65dcc47ebc0a688d50ff35c",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:13:19Z"
+    "created": "2024-07-25T06:40:37Z"
   },
   "relationships": [
     {
@@ -77,7 +77,7 @@
     {
       "name": "vcpkg-cmake-get-vars",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "2023-03-02",
+      "versionInfo": "2023-12-31",
       "downloadLocation": "NOASSERTION",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -87,7 +87,7 @@
     {
       "name": "vcpkg-cmake-get-vars:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "be96521420d3298d18ae0b5c3bb2f628fbea1d131b45c9f94789b9f49be07877",
+      "versionInfo": "708ec73a8f15e4f948c71310ca8be0212eac630bb65dcc47ebc0a688d50ff35c",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -102,7 +102,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f5935752b5b9c584fe8087fb5a69dabc21f44e5eb2069cc256964e98ffeca723"
+          "checksumValue": "75a1291434249775e2f82942e9e04b41efef3e8cded19c30a9940c691ad9148f"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -126,7 +126,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "0e07bef9b6127ff7ae367a2cb4f73eb1931f688a0a1354b77245704ff8bd046a"
+          "checksumValue": "90ff3bf8d338ffa039b69e800a1758c30f939085efcf1dfcee4d975871475a09"
         }
       ],
       "licenseConcluded": "NOASSERTION",

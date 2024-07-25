@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-container-x64-linux-1.83.0-1ae19fcf-6097-4012-96d0-6c801b3cfcf7",
-  "name": "boost-container:x64-linux@1.83.0 2202723cd24b36c96ae648e3dc92630cc0f81d5c8aba46de48585c9d5c2bb0b2",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-container-x64-linux-1.85.0#1-fe73c7b9-d392-4b69-8d58-a2dd59c0dd40",
+  "name": "boost-container:x64-linux@1.85.0#1 51516fe21e1ba9a24a9e6351db6e9379d90b3261fb040880ad750e849969c60f",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:14:16Z"
+    "created": "2024-07-25T06:40:15Z"
   },
   "relationships": [
     {
@@ -28,6 +28,16 @@
       "relatedSpdxElement": "SPDXRef-file-1"
     },
     {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-2"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-3"
+    },
+    {
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "GENERATED_FROM",
       "relatedSpdxElement": "SPDXRef-port"
@@ -41,15 +51,25 @@
       "spdxElementId": "SPDXRef-file-1",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-3",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "boost-container",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.83.0",
+      "versionInfo": "1.85.0#1",
       "downloadLocation": "NOASSERTION",
-      "homepage": "https://github.com/boostorg/container",
+      "homepage": "https://www.boost.org/libs/container",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -59,7 +79,7 @@
     {
       "name": "boost-container:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "2202723cd24b36c96ae648e3dc92630cc0f81d5c8aba46de48585c9d5c2bb0b2",
+      "versionInfo": "51516fe21e1ba9a24a9e6351db6e9379d90b3261fb040880ad750e849969c60f",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -69,14 +89,14 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "boostorg/container",
-      "downloadLocation": "git+https://github.com/boostorg/container@boost-1.83.0",
+      "downloadLocation": "git+https://github.com/boostorg/container@boost-1.85.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "4c5054ba5ab55df8fbb58d6f9661ec32e14a6a0c06ac86b916d98de076565f1bc6d76d85aad90b7a198760360bbcd4acea6d8d298347157866593486a1ae0ba8"
+          "checksumValue": "7b287d5739abdbe08a8a0cb150e513c4feff43731ad923b115aa50d07200586c9b526eb144e7e3f1f191e6ba290032512b216d01cba5178173a3501f6cb37c39"
         }
       ]
     }
@@ -88,7 +108,31 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "43532cb502524391ec6309a9532e90471768851b08bfb355ad16293a7598f17d"
+          "checksumValue": "fca46a427eb1113689694772c5362a12d0d2f9f77961cb3a8712f7fc271cae39"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-container/posix-threads.diff",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "94aff70844c47aed2a5460b63d92527e6557780beea19037ee949f9a8d3a42a5"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-container/no-static-assert.diff",
+      "SPDXID": "SPDXRef-file-2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f62418ab07bfd734dfb03084857fbe61d9ef71f9688dd40d41d593877234a668"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -96,11 +140,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-container/portfile.cmake",
-      "SPDXID": "SPDXRef-file-1",
+      "SPDXID": "SPDXRef-file-3",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3a2f863f51e84e0a8181b14bf5f45f2f9100e5ab9b65b1512322500fd47465ca"
+          "checksumValue": "a2b08be0b083b59ba4e3834891be04a47540354242a05932d0fc98a1445e2b35"
         }
       ],
       "licenseConcluded": "NOASSERTION",

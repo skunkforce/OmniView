@@ -29,7 +29,6 @@
 #else // ^^^ _WIN32 ^^^ // vvv !_WIN32 vvv
 
 #define __declspec(x) __attribute__((x))
-#define dllimport
 #define novtable /* no novtable equivalent */
 #define __assume(x)                                                                                                    \
     do                                                                                                                 \
@@ -71,12 +70,28 @@
 
 #if 1
 #define _ASYNCRTIMP
+#define _ASYNCRTIMP_TYPEINFO
 #else // ^^^ _NO_ASYNCRTIMP ^^^ // vvv !_NO_ASYNCRTIMP vvv
 #ifdef _ASYNCRT_EXPORT
+#ifdef _WIN32
 #define _ASYNCRTIMP __declspec(dllexport)
+#else
+#define _ASYNCRTIMP __attribute__((visibility("default")))
+#endif
 #else // ^^^ _ASYNCRT_EXPORT ^^^ // vvv !_ASYNCRT_EXPORT vvv
+#ifdef _WIN32
 #define _ASYNCRTIMP __declspec(dllimport)
+#else
+#define _ASYNCRTIMP
+#endif
 #endif // _ASYNCRT_EXPORT
+
+#if defined(_WIN32)
+#define _ASYNCRTIMP_TYPEINFO
+#else // ^^^ _WIN32 ^^^ // vvv !_WIN32 vvv
+#define _ASYNCRTIMP_TYPEINFO __attribute__((visibility("default")))
+#endif // _WIN32
+
 #endif // _NO_ASYNCRTIMP
 
 #ifdef CASABLANCA_DEPRECATION_NO_WARNINGS

@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/openssl-x64-linux-3.1.4#1-a99115d0-d8e6-40bd-8c6c-dd159f5c0822",
-  "name": "openssl:x64-linux@3.1.4#1 2b733a3b4052a2a0c788438295f4fc991a6a54a098b4721820bbdb899812ec64",
+  "documentNamespace": "https://spdx.org/spdxdocs/openssl-x64-linux-3.3.1#1-2119a4fb-3461-4c3a-b2e7-8c9bb76f4a2b",
+  "name": "openssl:x64-linux@3.3.1#1 cbcc67f807a093ea634822df3a2d47dfc26faae7250a74e358b111dbe8bfc87d",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:16:13Z"
+    "created": "2024-07-25T06:42:42Z"
   },
   "relationships": [
     {
@@ -113,6 +113,11 @@
       "relatedSpdxElement": "SPDXRef-file-18"
     },
     {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-19"
+    },
+    {
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "GENERATED_FROM",
       "relatedSpdxElement": "SPDXRef-port"
@@ -211,13 +216,18 @@
       "spdxElementId": "SPDXRef-file-18",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-19",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "openssl",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "3.1.4#1",
+      "versionInfo": "3.3.1#1",
       "downloadLocation": "NOASSERTION",
       "homepage": "https://www.openssl.org",
       "licenseConcluded": "Apache-2.0",
@@ -229,7 +239,7 @@
     {
       "name": "openssl:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "2b733a3b4052a2a0c788438295f4fc991a6a54a098b4721820bbdb899812ec64",
+      "versionInfo": "cbcc67f807a093ea634822df3a2d47dfc26faae7250a74e358b111dbe8bfc87d",
       "downloadLocation": "NONE",
       "licenseConcluded": "Apache-2.0",
       "licenseDeclared": "NOASSERTION",
@@ -239,26 +249,38 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "openssl/openssl",
-      "downloadLocation": "git+https://github.com/openssl/openssl@openssl-3.1.4",
+      "downloadLocation": "git+https://github.com/openssl/openssl@openssl-3.3.1",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "04349ba554ddc5a9c26ff44714c1adca3c6431e98d11af5e7b6a5f58ed44e016da68c09cc53415716ab1936c6aaac04887ced470707dbc3f7816c04e06be69c1"
+          "checksumValue": "5282e078eb205ef691647e07d65186d81f9328329a06cca209a138adf10b95f12c16742ac61b4ab86e5098c153645ea413088d8263ff7054fdd40decd85b271f"
         }
       ]
     }
   ],
   "files": [
     {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/disable-apps.patch",
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/asm-armcap.patch",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "6e023fd20a245cb83476c93df00c6a2deee4ae585b0cf7c82e192c8f582ef790"
+          "checksumValue": "aa8c092866283ca97c7b39664cb816c6f4f3e9df51a2b06ede1054187e75ca70"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/cmake-config.patch",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "11c01cd2ebcca46cf1f54abd1edc1e3b4776c35552eed7ee9d4fbab6b7e6159b"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -266,11 +288,23 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/vcpkg.json",
-      "SPDXID": "SPDXRef-file-1",
+      "SPDXID": "SPDXRef-file-2",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "20ebe2edc909bca84c5c9acc4163b16c55df0e40405d3a4da7c8734d9ade93a5"
+          "checksumValue": "3595eb2e778fe1524f4680d2cf4724e97391a0db358fd0ba3b37bbe1240cffaa"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/command-line-length.patch",
+      "SPDXID": "SPDXRef-file-3",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a1935f6eb38f49e424eaf5dd13b31f0ef46a30f531f9d7e149aac344051a1cbb"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -278,11 +312,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/usage",
-      "SPDXID": "SPDXRef-file-2",
+      "SPDXID": "SPDXRef-file-4",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a0bd98264517147f1c61a660a02628e8633b53933c2d35285af49e187081d9d5"
+          "checksumValue": "2f31595ba815f7c986ea9fed0f198f7a2691dc027f9e1a39dd3093753ed8bc79"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -290,7 +324,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/vcpkg-cmake-wrapper.cmake.in",
-      "SPDXID": "SPDXRef-file-3",
+      "SPDXID": "SPDXRef-file-5",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -302,7 +336,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/unix/android-cc.patch",
-      "SPDXID": "SPDXRef-file-4",
+      "SPDXID": "SPDXRef-file-6",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -314,7 +348,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/unix/configure",
-      "SPDXID": "SPDXRef-file-5",
+      "SPDXID": "SPDXRef-file-7",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -326,11 +360,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/unix/portfile.cmake",
-      "SPDXID": "SPDXRef-file-6",
+      "SPDXID": "SPDXRef-file-8",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3ca966fa7e9380cd5b8a428f2ee070654881daa291815cdcd5a700d0c5d73071"
+          "checksumValue": "d0ed522a7c951719b07b56ccbc83e0b1815efe0cbf102f7d40ebc0b6e39b0d29"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -338,7 +372,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/unix/no-empty-dirs.patch",
-      "SPDXID": "SPDXRef-file-7",
+      "SPDXID": "SPDXRef-file-9",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -350,7 +384,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/unix/no-static-libs-for-shared.patch",
-      "SPDXID": "SPDXRef-file-8",
+      "SPDXID": "SPDXRef-file-10",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -362,7 +396,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/unix/remove-deps.cmake",
-      "SPDXID": "SPDXRef-file-9",
+      "SPDXID": "SPDXRef-file-11",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -374,7 +408,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/unix/move-openssldir.patch",
-      "SPDXID": "SPDXRef-file-10",
+      "SPDXID": "SPDXRef-file-12",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -386,7 +420,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/script-prefix.patch",
-      "SPDXID": "SPDXRef-file-11",
+      "SPDXID": "SPDXRef-file-13",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -398,7 +432,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/windows/install-layout.patch",
-      "SPDXID": "SPDXRef-file-12",
+      "SPDXID": "SPDXRef-file-14",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -410,11 +444,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/windows/portfile.cmake",
-      "SPDXID": "SPDXRef-file-13",
+      "SPDXID": "SPDXRef-file-15",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "74dddba90e03cf9b50a567f65bb179b4262ec84ba186ac06f7cef9617a77d5a2"
+          "checksumValue": "7f262ffb0219b3a0e2db7b172bec9ccad299898ac934f8de1e449fb749052582"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -422,23 +456,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/windows/install-pdbs.patch",
-      "SPDXID": "SPDXRef-file-14",
+      "SPDXID": "SPDXRef-file-16",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5ad1f60ee8e967a079ba3d1eed3e6f368f39e5860dd33928594fd0dd58a5ba4d"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/disable-install-docs.patch",
-      "SPDXID": "SPDXRef-file-15",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "d2fc810fa7f3e2b21f2fb667fc701086fa63efcd328df91ceca34841641433b2"
+          "checksumValue": "e913fdc775b5e7be3eb71bfc223d51c3d8fd7e933410493efdbc53c5a1e1f3b7"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -446,11 +468,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/portfile.cmake",
-      "SPDXID": "SPDXRef-file-16",
+      "SPDXID": "SPDXRef-file-17",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "83ba49794a0ad5dc735975677ae2b81f36f40cfc3e3405a026787efdbf775f16"
+          "checksumValue": "303b734c283b5cb5c37214373f6f8192e6c72162fe59cd94b741c9ca985c23f0"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -458,7 +480,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/openssl.pc.in",
-      "SPDXID": "SPDXRef-file-17",
+      "SPDXID": "SPDXRef-file-18",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -470,7 +492,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/openssl/install-pc-files.cmake",
-      "SPDXID": "SPDXRef-file-18",
+      "SPDXID": "SPDXRef-file-19",
       "checksums": [
         {
           "algorithm": "SHA256",

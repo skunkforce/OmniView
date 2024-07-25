@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-thread-x64-linux-1.83.0-7765defd-a340-4901-8ed0-10250de91d98",
-  "name": "boost-thread:x64-linux@1.83.0 963cc995a06495951f506dcf4ef90ad264498b74e7ebe1e7628aad20c6d3ab63",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-thread-x64-linux-1.85.0#1-507938d0-5ee7-4ae7-996f-0ceb19a6a380",
+  "name": "boost-thread:x64-linux@1.85.0#1 b3ddaf81e82a42a4253d46782dfc8cd447e23baae556422238eb7bc7d0e19ec1",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-12T09:38:42Z"
+    "created": "2024-07-25T06:43:02Z"
   },
   "relationships": [
     {
@@ -28,11 +28,6 @@
       "relatedSpdxElement": "SPDXRef-file-1"
     },
     {
-      "spdxElementId": "SPDXRef-port",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-file-2"
-    },
-    {
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "GENERATED_FROM",
       "relatedSpdxElement": "SPDXRef-port"
@@ -46,20 +41,15 @@
       "spdxElementId": "SPDXRef-file-1",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
-    },
-    {
-      "spdxElementId": "SPDXRef-file-2",
-      "relationshipType": "CONTAINED_BY",
-      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "boost-thread",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.83.0",
+      "versionInfo": "1.85.0#1",
       "downloadLocation": "NOASSERTION",
-      "homepage": "https://github.com/boostorg/thread",
+      "homepage": "https://www.boost.org/libs/thread",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -69,7 +59,7 @@
     {
       "name": "boost-thread:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "963cc995a06495951f506dcf4ef90ad264498b74e7ebe1e7628aad20c6d3ab63",
+      "versionInfo": "b3ddaf81e82a42a4253d46782dfc8cd447e23baae556422238eb7bc7d0e19ec1",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -79,38 +69,26 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "boostorg/thread",
-      "downloadLocation": "git+https://github.com/boostorg/thread@boost-1.83.0",
+      "downloadLocation": "git+https://github.com/boostorg/thread@boost-1.85.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "674ead829cd5799121e89b335e5ce73cfb2f934bb2b26c93112c072833fda10e48c56c439d0d40d8150eb7a6606c83900db1a6815d77c57fa4ee840f14413f36"
+          "checksumValue": "3957792b85b19ed145542dbf413cb3a1d1b2396fa6f206e3bbecca7cd0e0dbc5277b15acd48184e12e26efea4abab6d35df812ab0f4afff41f02b91e10e9ecd7"
         }
       ]
     }
   ],
   "files": [
     {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-thread/b2-options.cmake",
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-thread/vcpkg.json",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "6ae0abe671e00b5aac5bb0b8537f601de5ccf9996941e0de68af4fba5cc2bd96"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-thread/vcpkg.json",
-      "SPDXID": "SPDXRef-file-1",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "00ce60b3c47477477d7fceb7d1dd1e75ee162375e7e193353646059e01f26ba8"
+          "checksumValue": "ff5cef9842cf147f2bf85beddd4107c315d1433bfcc7abdefd15e8a4f071e495"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -118,11 +96,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-thread/portfile.cmake",
-      "SPDXID": "SPDXRef-file-2",
+      "SPDXID": "SPDXRef-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "079105299117d0122c88a931e9d05e0ac51d03d97d5af62470dab7b3ca0d44f0"
+          "checksumValue": "27efbd6d86c97656935eeb7da2206e7f3443a2b8f590f91e45c578edda8dcc0f"
         }
       ],
       "licenseConcluded": "NOASSERTION",

@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/curl-x64-linux-8.4.0-03956c5b-60ca-40b2-8461-30dd33ab302e",
-  "name": "curl:x64-linux@8.4.0 599cdc2b1c446a5d731c31c467601fb192b94e7e70bd5abaab4a8fcb86a590b9",
+  "documentNamespace": "https://spdx.org/spdxdocs/curl-x64-linux-8.8.0#4-a943064d-55d8-4a87-b614-3fa06a4a1e35",
+  "name": "curl:x64-linux@8.8.0#4 97c4e4215f1b3305f1c726cd19165e9e72fd4c0ba8ba0efe1e82df7a8d64e841",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:16:40Z"
+    "created": "2024-07-25T06:45:37Z"
   },
   "relationships": [
     {
@@ -78,16 +78,6 @@
       "relatedSpdxElement": "SPDXRef-file-11"
     },
     {
-      "spdxElementId": "SPDXRef-port",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-file-12"
-    },
-    {
-      "spdxElementId": "SPDXRef-port",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-file-13"
-    },
-    {
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "GENERATED_FROM",
       "relatedSpdxElement": "SPDXRef-port"
@@ -151,23 +141,13 @@
       "spdxElementId": "SPDXRef-file-11",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
-    },
-    {
-      "spdxElementId": "SPDXRef-file-12",
-      "relationshipType": "CONTAINED_BY",
-      "relatedSpdxElement": "SPDXRef-port"
-    },
-    {
-      "spdxElementId": "SPDXRef-file-13",
-      "relationshipType": "CONTAINED_BY",
-      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "curl",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "8.4.0",
+      "versionInfo": "8.8.0#4",
       "downloadLocation": "NOASSERTION",
       "homepage": "https://curl.se/",
       "licenseConcluded": "curl AND ISC AND BSD-3-Clause",
@@ -179,7 +159,7 @@
     {
       "name": "curl:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "599cdc2b1c446a5d731c31c467601fb192b94e7e70bd5abaab4a8fcb86a590b9",
+      "versionInfo": "97c4e4215f1b3305f1c726cd19165e9e72fd4c0ba8ba0efe1e82df7a8d64e841",
       "downloadLocation": "NONE",
       "licenseConcluded": "curl AND ISC AND BSD-3-Clause",
       "licenseDeclared": "NOASSERTION",
@@ -196,7 +176,7 @@
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "c8550fef49e2f1571f7392a351e10bbdb23821069db1e988094fe27fe0a881a265ba69a2cd34462e630563d153462a975ef70472ba39adaad1c5e5ab45cf7f4f"
+          "checksumValue": "e66cbf9bd3ae7b9b031475210b80b883b6a133042fbbc7cf2413f399d1b38aa54ab7322626abd3c6f1af56e0d540221f618aa903bd6b463ac8324f2c4e92dfa8"
         }
       ]
     }
@@ -208,7 +188,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "afe6f5e206f1dfa3b4606786d18f53701ec35211910437bd62010743d5dc943b"
+          "checksumValue": "21f4be76a2897ba703307ed380bc719bba456ad529c54306398702ffc929c6cb"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -220,7 +200,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "129a844d2552165ac30a5dfdde6c62257edf50af4e4753e819ae452c4469b0bb"
+          "checksumValue": "38892efe530ee792cb481d3ff23d59a734d96976a23524da9f15786583d54f12"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -232,7 +212,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "fa3cc6a8181588f5e618dab8eb49a32a2ea2e7f1d3e00b0dfd3c04af36977566"
+          "checksumValue": "d62bdc613765024b7aad193bc080123a0d34c063825dfd9eba164ead3d4020c0"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -244,7 +224,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "de33b4b3e44f0fd7aaa7699b34298962f2c952d8b28b68f952ceba014483783d"
+          "checksumValue": "bc5eab56963d59a0b7f029509ffe402bf013f1a4a136774da7c122f45a17af9e"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -263,12 +243,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/dependencies.patch",
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/fix-mbedtls.patch",
       "SPDXID": "SPDXRef-file-5",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5bcf78c137f0151382dcaaf9fd2d507a6d9d45d90eb3fb8e540634ee6aeaa247"
+          "checksumValue": "460439ece02e88b28c5ce6d142983cb6a6520dd50a0bb87181858ed8f7d25ed6"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/dependencies.patch",
+      "SPDXID": "SPDXRef-file-6",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "557e22d53bf4d9d3b51a5629b6a7ccf083649c79aa6f433e1b012b738cc29dd6"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -276,23 +268,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/vcpkg-cmake-wrapper.cmake",
-      "SPDXID": "SPDXRef-file-6",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "583cfe42995ce7f3aafb8cde13d4a97dc1de9ee5eb8bcb53da26859c944a1f92"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/0002_fix_uwp.patch",
       "SPDXID": "SPDXRef-file-7",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "7d57f6dbadbbff907937c57d315bae283336e410033fd6829f174a19f8ec7939"
+          "checksumValue": "583cfe42995ce7f3aafb8cde13d4a97dc1de9ee5eb8bcb53da26859c944a1f92"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -316,31 +296,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d242fd4383bd74498770a885ebb54330b4eea7eaa4bcedb46c88495cbdb0b149"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/mbedtls-ws2_32.patch",
-      "SPDXID": "SPDXRef-file-10",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "07d7c1096ec64dc2f0b9ad893549d4031d606a72da37f566360dd1aa89039f8d"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/0012-fix-dependency-idn2.patch",
-      "SPDXID": "SPDXRef-file-11",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "9d35f8f20b0e0605210310fa1275a974322d6305bdf170a160ecd5893db8cbf9"
+          "checksumValue": "e7094083d3d7e3c40c313cc328cbb51c0fcacd396ee62fd040fd7b5c8d4581a1"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -348,11 +304,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/cmake-project-include.cmake",
-      "SPDXID": "SPDXRef-file-12",
+      "SPDXID": "SPDXRef-file-10",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3dc39481ad26f8886ff4b3861bc2f17599f1ce2f92d512d90d9a961c825f4fca"
+          "checksumValue": "4cc01d56d9307fce6d4fa7b27faafde2442a0878e75b7bdbf98bf4d6039af011"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -360,11 +316,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/curl/export-components.patch",
-      "SPDXID": "SPDXRef-file-13",
+      "SPDXID": "SPDXRef-file-11",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2062379fb7bb18507451dd770561def6a73e94ee7ca93297e9d846c8e5cfe437"
+          "checksumValue": "cc874355994c69abcbb2cdf4ada4b6c32df694680853a857b4aa0775df7ddc2e"
         }
       ],
       "licenseConcluded": "NOASSERTION",

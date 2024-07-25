@@ -30,9 +30,17 @@
 #define _PPLXIMP
 #else
 #ifdef _PPLX_EXPORT
+#ifdef _WIN32
 #define _PPLXIMP __declspec(dllexport)
 #else
+#define _PPLXIMP __attribute__((visibility("default")))
+#endif
+#else
+#ifdef _WIN32
 #define _PPLXIMP __declspec(dllimport)
+#else
+#define _PPLXIMP
+#endif
 #endif
 #endif
 

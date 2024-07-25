@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-mp11-x64-linux-1.83.0-dc90e4b7-6f22-48d9-80e4-4932ae34b4db",
-  "name": "boost-mp11:x64-linux@1.83.0 a56d1abc7f21cf9af8490d9dca59bdf1b25a249a90f0d61acca015b7f4105fdb",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-mp11-x64-linux-1.85.0#1-0b8cdb65-f218-44f3-82b4-59054c1f3a89",
+  "name": "boost-mp11:x64-linux@1.85.0#1 8572538dcf53424e6346de244153eab14bae2aa3a68d30b41d6bd35325322624",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:13:18Z"
+    "created": "2024-07-25T06:39:25Z"
   },
   "relationships": [
     {
@@ -47,9 +47,9 @@
     {
       "name": "boost-mp11",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.83.0",
+      "versionInfo": "1.85.0#1",
       "downloadLocation": "NOASSERTION",
-      "homepage": "https://github.com/boostorg/mp11",
+      "homepage": "https://www.boost.org/libs/mp11",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -59,7 +59,7 @@
     {
       "name": "boost-mp11:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "a56d1abc7f21cf9af8490d9dca59bdf1b25a249a90f0d61acca015b7f4105fdb",
+      "versionInfo": "8572538dcf53424e6346de244153eab14bae2aa3a68d30b41d6bd35325322624",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -69,14 +69,14 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "boostorg/mp11",
-      "downloadLocation": "git+https://github.com/boostorg/mp11@boost-1.83.0",
+      "downloadLocation": "git+https://github.com/boostorg/mp11@boost-1.85.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "d9db5afc318a0e28649d447b6c08fd0ee446bbc3b0d394607cf0430fd55350ea5dd75769bdb461abd39db6207dec5e76c4c468b9b6925d9608a62b7fdfdcfa05"
+          "checksumValue": "5d2be28c00ea2735c6897d2be02bb1f85ac51f3df1f617fd72efa6bd1cac6488bcba9eae6d425432d2540e56e543eaebb57eca468711c9db50499ab65e40f9a6"
         }
       ]
     }
@@ -88,7 +88,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b2807b68dbaa2362b1b6e449d589b357ec51dc0f11d88d9fd73fb79aec85f30e"
+          "checksumValue": "d288e71796377b7ac5734bd4cbd361730100aaa212c0a1e5cc2d9d552eeb84d2"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -100,7 +100,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1246f617b75f1ef678098c263f1129207d64ae3458db0f9ace0df1ba80ed1bb7"
+          "checksumValue": "26a22c592396588774dd868485123da7e8a2dc2009869cc025068a7a5b71ba71"
         }
       ],
       "licenseConcluded": "NOASSERTION",

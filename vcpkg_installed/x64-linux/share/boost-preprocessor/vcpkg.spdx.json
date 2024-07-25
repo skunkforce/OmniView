@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-preprocessor-x64-linux-1.83.0-6a712a50-1fd1-4a5c-b50c-cdf789a72e58",
-  "name": "boost-preprocessor:x64-linux@1.83.0 f1a27562c6f1ff59c5895b27217025832fae255806fcb786243d4ac9053950f1",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-preprocessor-x64-linux-1.85.0#1-f66c7025-8b3f-4f19-bd9a-9eecafd15fe0",
+  "name": "boost-preprocessor:x64-linux@1.85.0#1 1e9894c5c8f10a7dd8a0c7935dfcee167f74044ccc893260f0adf00d47bbe14b",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:13:11Z"
+    "created": "2024-07-25T06:39:31Z"
   },
   "relationships": [
     {
@@ -47,9 +47,9 @@
     {
       "name": "boost-preprocessor",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.83.0",
+      "versionInfo": "1.85.0#1",
       "downloadLocation": "NOASSERTION",
-      "homepage": "https://github.com/boostorg/preprocessor",
+      "homepage": "https://www.boost.org/libs/preprocessor",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -59,7 +59,7 @@
     {
       "name": "boost-preprocessor:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "f1a27562c6f1ff59c5895b27217025832fae255806fcb786243d4ac9053950f1",
+      "versionInfo": "1e9894c5c8f10a7dd8a0c7935dfcee167f74044ccc893260f0adf00d47bbe14b",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -69,14 +69,14 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "boostorg/preprocessor",
-      "downloadLocation": "git+https://github.com/boostorg/preprocessor@boost-1.83.0",
+      "downloadLocation": "git+https://github.com/boostorg/preprocessor@boost-1.85.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "4ed20e49162029e46b59d49099b7b52f43ef09ebefd312b1ebadcbbd80ba2c2fa689f73c94285b47c9e46b4b80c4f21ff908f04e1885607a44d225b65002d694"
+          "checksumValue": "b63af6085ca04a35cfa3e90c4c5780f3236676715827182db67b258cd32a42e9e5d00be4f2a86dd0c967131a82f05f632999121d768a93514b4759ebfd9cab94"
         }
       ]
     }
@@ -88,7 +88,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "448131ae2d55d2aa9037c144492beec2d5942b83784afb4c71235b9664ebdebb"
+          "checksumValue": "ed3f51984610a2ab53b77367cb61d32d679e99452f70a0453ccacc7cdef8f36d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -100,7 +100,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1080a0a83297745fd557681c9f314ec430afd4fade113e3535211205fbabaa7d"
+          "checksumValue": "4ed8b11a38be21774f9ddf7b1c71ea6d7be05541c96dca423a36f494a14d805c"
         }
       ],
       "licenseConcluded": "NOASSERTION",

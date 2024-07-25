@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/cpprestsdk-x64-linux-2.10.18#4-e8f55185-2b7d-46be-876e-364c278b94aa",
-  "name": "cpprestsdk:x64-linux@2.10.18#4 a9733b217818aa03ffa705012b99b03296fb14b88707f8fc519cb5a7fe73b2c7",
+  "documentNamespace": "https://spdx.org/spdxdocs/cpprestsdk-x64-linux-2.10.19#1-b3b7577d-95f4-4ac4-a5c0-56d013accc60",
+  "name": "cpprestsdk:x64-linux@2.10.19#1 b522bf13c4a72f9860842e91e00cabd576b5bfe8704885238907496eacb4702d",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-12T09:40:45Z"
+    "created": "2024-07-25T06:45:09Z"
   },
   "relationships": [
     {
@@ -48,6 +48,11 @@
       "relatedSpdxElement": "SPDXRef-file-5"
     },
     {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-6"
+    },
+    {
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "GENERATED_FROM",
       "relatedSpdxElement": "SPDXRef-port"
@@ -81,13 +86,18 @@
       "spdxElementId": "SPDXRef-file-5",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-6",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "cpprestsdk",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "2.10.18#4",
+      "versionInfo": "2.10.19#1",
       "downloadLocation": "NOASSERTION",
       "homepage": "https://github.com/Microsoft/cpprestsdk",
       "licenseConcluded": "MIT",
@@ -99,7 +109,7 @@
     {
       "name": "cpprestsdk:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "a9733b217818aa03ffa705012b99b03296fb14b88707f8fc519cb5a7fe73b2c7",
+      "versionInfo": "b522bf13c4a72f9860842e91e00cabd576b5bfe8704885238907496eacb4702d",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -109,22 +119,34 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "Microsoft/cpprestsdk",
-      "downloadLocation": "git+https://github.com/Microsoft/cpprestsdk@122d09549201da5383321d870bed45ecb9e168c5",
+      "downloadLocation": "git+https://github.com/Microsoft/cpprestsdk@411a109150b270f23c8c97fa4ec9a0a4a98cdecf",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "c9ded33d3c67880e2471e479a38b40a14a9ff45d241e928b6339eca697b06ad621846260eca47b6b1b8a2bc9ab7bf4fea8d3e8e795cd430d8839beb530e16dd7"
+          "checksumValue": "4f604763f05d53e50dec5deaba283fa4f82d5e7a94c7c8142bf422f4c0bc24bcef00666ddbdd820f64c14e552997d6657b6aca79a29e69db43799961b44b2a1a"
         }
       ]
     }
   ],
   "files": [
     {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/cpprestsdk/fix-uwp.patch",
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/cpprestsdk/fix-clang-dllimport.patch",
       "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "09db07f231f1de91f32b34bda34d251a64473b65b1f7496a1b6f57462c028b28"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/cpprestsdk/fix-uwp.patch",
+      "SPDXID": "SPDXRef-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -136,11 +158,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/cpprestsdk/vcpkg.json",
-      "SPDXID": "SPDXRef-file-1",
+      "SPDXID": "SPDXRef-file-2",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "596bbc9b7b37cd1a86d4796abe813fd3707d8ae9d9290ee4db0a9b508003911e"
+          "checksumValue": "c380fe2dfdd5d1e0a6930d2ebcf0d60ad7c581944ebc2d04d3ac2b91ebc5f130"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -148,7 +170,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/cpprestsdk/fix-find-openssl.patch",
-      "SPDXID": "SPDXRef-file-2",
+      "SPDXID": "SPDXRef-file-3",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -160,7 +182,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/cpprestsdk/test.patch",
-      "SPDXID": "SPDXRef-file-3",
+      "SPDXID": "SPDXRef-file-4",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -172,7 +194,7 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/cpprestsdk/fix_narrowing.patch",
-      "SPDXID": "SPDXRef-file-4",
+      "SPDXID": "SPDXRef-file-5",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -184,11 +206,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/cpprestsdk/portfile.cmake",
-      "SPDXID": "SPDXRef-file-5",
+      "SPDXID": "SPDXRef-file-6",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "050ff40af1124ec9e628003c77b1f6cafa036b9559e10a870a1629984845d2f3"
+          "checksumValue": "547ec158e9ec7584ecf315c4c71a8e4417b8387db52207a5a663c2e9eb7edce6"
         }
       ],
       "licenseConcluded": "NOASSERTION",

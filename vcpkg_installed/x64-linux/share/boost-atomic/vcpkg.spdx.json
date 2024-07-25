@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-atomic-x64-linux-1.83.0-2f76cae2-e4de-4643-8433-0f9904185630",
-  "name": "boost-atomic:x64-linux@1.83.0 e3eba265cd5a620f4d5b8b6ad84bc6ca83ae5c821aa67ee3219f6709be8b21a2",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-atomic-x64-linux-1.85.0#1-335b55a6-4ff1-443c-a87e-196e93522ea5",
+  "name": "boost-atomic:x64-linux@1.85.0#1 cc19e18a55c46b1a159eddcbe4180716534ed399cbd343c5eaad76be6d338657",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-12T09:38:34Z"
+    "created": "2024-07-25T06:42:56Z"
   },
   "relationships": [
     {
@@ -28,6 +28,11 @@
       "relatedSpdxElement": "SPDXRef-file-1"
     },
     {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-2"
+    },
+    {
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "GENERATED_FROM",
       "relatedSpdxElement": "SPDXRef-port"
@@ -41,15 +46,20 @@
       "spdxElementId": "SPDXRef-file-1",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "boost-atomic",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.83.0",
+      "versionInfo": "1.85.0#1",
       "downloadLocation": "NOASSERTION",
-      "homepage": "https://github.com/boostorg/atomic",
+      "homepage": "https://www.boost.org/libs/atomic",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -59,7 +69,7 @@
     {
       "name": "boost-atomic:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "e3eba265cd5a620f4d5b8b6ad84bc6ca83ae5c821aa67ee3219f6709be8b21a2",
+      "versionInfo": "cc19e18a55c46b1a159eddcbe4180716534ed399cbd343c5eaad76be6d338657",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -69,26 +79,38 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "boostorg/atomic",
-      "downloadLocation": "git+https://github.com/boostorg/atomic@boost-1.83.0",
+      "downloadLocation": "git+https://github.com/boostorg/atomic@boost-1.85.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "d6ee15758d9de6c64e9bb307e3b9a5a9aea6d4555be2df78c8ed8089d9da75926f6ec376c2917fbb8c2f985f23b0b926b39fb2d02921c443a83edb77e0455996"
+          "checksumValue": "5a9045093fa51a22edcd61bb96ed2c1e62a5a397f8bfeff1b831a3f5ba19fe4b691ee738d43b2258b4c2d15b997ad9ea23cfb2248aa3e8e4d7189f9be86edc1a"
         }
       ]
     }
   ],
   "files": [
     {
-      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-atomic/vcpkg.json",
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-atomic/fix-include.patch",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "49280b5cb3227edd32e3bb515297d48a4da3488571d8eccd24bf3c21d4eb965e"
+          "checksumValue": "8349c71529f246ef9ba0aa31de7267006ec45a75e5afb91354a598830fd5f0c0"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-atomic/vcpkg.json",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "69e1dbfa3c19b320c3b75de55aeeee84f47517328884a7c2ca5a025d9c653fa1"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -96,11 +118,11 @@
     },
     {
       "fileName": ".//home/arkadiusz/Projects/OmniView/vcpkg/ports/boost-atomic/portfile.cmake",
-      "SPDXID": "SPDXRef-file-1",
+      "SPDXID": "SPDXRef-file-2",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4ca4b7c1b08f1d5aafbd6a0d3494ddda2af82ec47a8966dd52cddbeb51a3d244"
+          "checksumValue": "572cc99d3a478cf0dc24a86cb4a113287d2f9c2b2ffee26fa91f03dbcec8ab0f"
         }
       ],
       "licenseConcluded": "NOASSERTION",

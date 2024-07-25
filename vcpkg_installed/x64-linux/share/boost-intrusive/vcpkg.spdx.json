@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-intrusive-x64-linux-1.83.0-dd26afcc-9966-4936-ba54-84029177988d",
-  "name": "boost-intrusive:x64-linux@1.83.0 611d34a87fd3c8f15030cac8d540f8e997a52bbd3ee68db71e9864535fc3b96f",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-intrusive-x64-linux-1.85.0#2-22dae1c3-b8fc-491d-86d2-a7527bab1e85",
+  "name": "boost-intrusive:x64-linux@1.85.0#2 d929dcf7b495e886d45adcd82dff7b4491978ee80e3d7fc39536c823bdfd390b",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:14:12Z"
+    "created": "2024-07-25T06:40:12Z"
   },
   "relationships": [
     {
@@ -47,9 +47,9 @@
     {
       "name": "boost-intrusive",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.83.0",
+      "versionInfo": "1.85.0#2",
       "downloadLocation": "NOASSERTION",
-      "homepage": "https://github.com/boostorg/intrusive",
+      "homepage": "https://www.boost.org/libs/intrusive",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -59,7 +59,7 @@
     {
       "name": "boost-intrusive:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "611d34a87fd3c8f15030cac8d540f8e997a52bbd3ee68db71e9864535fc3b96f",
+      "versionInfo": "d929dcf7b495e886d45adcd82dff7b4491978ee80e3d7fc39536c823bdfd390b",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -69,14 +69,14 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "boostorg/intrusive",
-      "downloadLocation": "git+https://github.com/boostorg/intrusive@boost-1.83.0",
+      "downloadLocation": "git+https://github.com/boostorg/intrusive@boost-1.85.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "b19c2eeb9f2870bcc024d62ed363a473459a7b8a7db0c5c7687168a114ac279eef1b65855ed82efeaba74658185914cb9cdfd1225f86dcd8c0d19a3c1efc4ec5"
+          "checksumValue": "f7d48b367130ae056a39de141f8c1890832e5dbef98341dd3206e0413e8154a036860a2382e90215819ec06fcff094bfc87da5e966da3109cf9d0de764df961d"
         }
       ]
     }
@@ -88,7 +88,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "96b547bc0773cc370ae8cc5693a661bc27a8b1d91d1ca95a5b3f557ab3c364d5"
+          "checksumValue": "86b3233a25136bcef6bd4241e09b075b72abd45dfea66a9c4c754d9d3af03b6f"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -100,7 +100,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "dd3193086cc8e43fe52596fa19991f479b642d8ca1122b53cf6554264b2e1a2e"
+          "checksumValue": "83ac664607e7ebc95899ef7cf46698e7bba60c5f4094620fb13b4a1b918f9a30"
         }
       ],
       "licenseConcluded": "NOASSERTION",

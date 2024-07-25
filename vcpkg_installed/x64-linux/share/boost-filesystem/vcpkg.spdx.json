@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-filesystem-x64-linux-1.83.0-08c399c9-555b-43c4-9c2a-aa3ed92d4029",
-  "name": "boost-filesystem:x64-linux@1.83.0 b781b5fa6772f530589b2ae1d9f803ab71e9849f0e6d56569589640f5aea7620",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-filesystem-x64-linux-1.85.0#2-7ba76d23-b809-4c3e-a2aa-9b07a38e9186",
+  "name": "boost-filesystem:x64-linux@1.85.0#2 80404c65effd1ad33d496ff05ff46734cf930f0ae4afb4cd65379cfe366b1628",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-12T09:38:53Z"
+    "created": "2024-07-25T06:43:14Z"
   },
   "relationships": [
     {
@@ -47,9 +47,9 @@
     {
       "name": "boost-filesystem",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.83.0",
+      "versionInfo": "1.85.0#2",
       "downloadLocation": "NOASSERTION",
-      "homepage": "https://github.com/boostorg/filesystem",
+      "homepage": "https://www.boost.org/libs/filesystem",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -59,7 +59,7 @@
     {
       "name": "boost-filesystem:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "b781b5fa6772f530589b2ae1d9f803ab71e9849f0e6d56569589640f5aea7620",
+      "versionInfo": "80404c65effd1ad33d496ff05ff46734cf930f0ae4afb4cd65379cfe366b1628",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -69,14 +69,14 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "boostorg/filesystem",
-      "downloadLocation": "git+https://github.com/boostorg/filesystem@boost-1.83.0",
+      "downloadLocation": "git+https://github.com/boostorg/filesystem@boost-1.85.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "7de786c7831971faa9aacbc454dcba3021e41d115a88dbfb05f3cb3f68dcec9bb56521eaba16ee77b16e93670e197964649436b83ceb6a0eef199d29e25ff95e"
+          "checksumValue": "629b6c0d2dd1aab590d3af3c64427b61c3a6dd09f53026439aa508c9c15a2390d6f24cf80a64d6598a7ae85b35cf1584985d3d380556fb854bd394bf600a67d6"
         }
       ]
     }
@@ -88,7 +88,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "aef3d879f3dbea676e9450ed58270aab7a948a066bdebeafb7b5aa8db479db9f"
+          "checksumValue": "89ec9c6ce1db324ab3f4eeee16a2a41e74538d565dfb2db030bf06267845489d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -100,7 +100,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9c1bf97ac6e0f9f9cc089f65884a6358973f90ebe4286371da2534aba6d3e418"
+          "checksumValue": "13057d7d19ca89aa80b4ace9721a54051cef191115350b64e318d1708252d3c1"
         }
       ],
       "licenseConcluded": "NOASSERTION",

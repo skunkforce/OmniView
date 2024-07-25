@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-config-x64-linux-1.83.0-4a32c9f3-743a-461a-8750-135e3f574337",
-  "name": "boost-config:x64-linux@1.83.0 23cb6d66f06d974a0af1b6ccf5479c0f09fc5d431593b5d075f0624d39587b9c",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-config-x64-linux-1.85.0#1-21749680-5b82-4ccf-91cf-6b3ee30ec40f",
+  "name": "boost-config:x64-linux@1.85.0#1 142d05ce7f6651568b185f9b01cbb0001511df5b3317c7f71b4e5e9ecec23d9a",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:13:05Z"
+    "created": "2024-07-25T06:39:20Z"
   },
   "relationships": [
     {
@@ -47,9 +47,9 @@
     {
       "name": "boost-config",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.83.0",
+      "versionInfo": "1.85.0#1",
       "downloadLocation": "NOASSERTION",
-      "homepage": "https://github.com/boostorg/config",
+      "homepage": "https://www.boost.org/libs/config",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -59,7 +59,7 @@
     {
       "name": "boost-config:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "23cb6d66f06d974a0af1b6ccf5479c0f09fc5d431593b5d075f0624d39587b9c",
+      "versionInfo": "142d05ce7f6651568b185f9b01cbb0001511df5b3317c7f71b4e5e9ecec23d9a",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -69,14 +69,14 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "boostorg/config",
-      "downloadLocation": "git+https://github.com/boostorg/config@boost-1.83.0",
+      "downloadLocation": "git+https://github.com/boostorg/config@boost-1.85.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "84ae4e303b9f63e950fc6e01d0318bf223b56518474343a3e0f2d9e5ee631c4ca8ddedb5ec425259806360b30f82b80cd3330ff2ad6cfc8013d7c90d32280516"
+          "checksumValue": "a28258c11997503611dcc25a7f3dae5f707a7a63b3cc73017e5e4df0f8b38f2abad5e49507d724a30b87e31acc6751e742205b6895936b9ea28f94db1c1c78de"
         }
       ]
     }
@@ -88,7 +88,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a1427be786e8b34b86a2bfc33fa55306c0f3203051e43b1024ca6e8000b237c4"
+          "checksumValue": "92d606e2169a6ff2ceeb131176709799f4238b5a16cfb3aebec9816e1cc4f584"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -100,7 +100,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "0c72158296817d72da0dd51a750985e57bdbc2584e3c06d26e5b2b3c43325d77"
+          "checksumValue": "318ad7b2669f8003ac39caee674bba0d942a58f12ac9084468810e37f2fcda1d"
         }
       ],
       "licenseConcluded": "NOASSERTION",

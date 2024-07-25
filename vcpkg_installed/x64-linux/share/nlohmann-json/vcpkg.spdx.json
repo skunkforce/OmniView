@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/nlohmann-json-x64-linux-3.11.2-8da70bca-a7ac-4620-aa08-a4a0b71b4acb",
-  "name": "nlohmann-json:x64-linux@3.11.2 d36e24a9132316f4885ce61f6e037a9e373419fdb18a8c298a4d742d19c56778",
+  "documentNamespace": "https://spdx.org/spdxdocs/nlohmann-json-x64-linux-3.11.3#1-9e08c9f0-5cb8-4ed9-9a50-f4ff01a88493",
+  "name": "nlohmann-json:x64-linux@3.11.3#1 68927a38184b935b219fe6b36d2232a59dbd9c26303b74c24f10224a5647bcee",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-4c1df40a3c5c5e18de299a99e9accb03c2a82e1e"
+      "Tool: vcpkg-2024-07-10-d2dfc73769081bdd9b782d08d27794780b7a99b9"
     ],
-    "created": "2024-07-11T07:36:09Z"
+    "created": "2024-07-25T06:46:13Z"
   },
   "relationships": [
     {
@@ -57,7 +57,7 @@
     {
       "name": "nlohmann-json",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "3.11.2",
+      "versionInfo": "3.11.3#1",
       "downloadLocation": "NOASSERTION",
       "homepage": "https://github.com/nlohmann/json",
       "licenseConcluded": "MIT",
@@ -69,7 +69,7 @@
     {
       "name": "nlohmann-json:x64-linux",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "d36e24a9132316f4885ce61f6e037a9e373419fdb18a8c298a4d742d19c56778",
+      "versionInfo": "68927a38184b935b219fe6b36d2232a59dbd9c26303b74c24f10224a5647bcee",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -79,14 +79,14 @@
     {
       "SPDXID": "SPDXRef-resource-1",
       "name": "nlohmann/json",
-      "downloadLocation": "git+https://github.com/nlohmann/json@v3.11.2",
+      "downloadLocation": "git+https://github.com/nlohmann/json@v3.11.3",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "70097c9bcd7a91254acbd41b8b68a6aaa371fc2dd7011f472917f69f1e2d2986155a0339dad791699d542e4a3be44dc49ae72ff73d0ee0ea4b34183296ce19a0"
+          "checksumValue": "7df19b621de34f08d5d5c0a25e8225975980841ef2e48536abcf22526ed7fb99f88ad954a2cb823115db59ccc88d1dbe74fe6c281b5644b976b33fb78db9d717"
         }
       ]
     }
@@ -98,7 +98,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f94cff0a5dd2cbfe3c131f86f210fa8861ccd3daa303d6b9f7b0514a8a4bc218"
+          "checksumValue": "a0e818e4d0ca516126f28fcf647670ff93b6bc6342767533fbb2201ce48de9cf"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -122,7 +122,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "20e24863e86739ae6c15132133a78948ec819a27fe1acfa09768635e253824b4"
+          "checksumValue": "cb2fc174d9a02003edc788b53286b21e25f29515c77e8f49a3f6df64594d1592"
         }
       ],
       "licenseConcluded": "NOASSERTION",
