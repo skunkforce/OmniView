@@ -1,6 +1,7 @@
 #include "handler.hpp"
 #include <iostream>
 #include <thread>
+#include <csignal>
 
 // A list of colors
 const std::array<std::array<float, 3>, 7> predefinedColors = {{
@@ -35,7 +36,7 @@ void initDevices() {
 
 void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
     std::string input;
-    while (true) {
+    while (running) {
         std::cout << "Enter command: ";
         std::getline(std::cin, input);
         if (input == "Search") {
@@ -90,4 +91,11 @@ void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
             }
         }
     }
-} 
+}
+
+void signalHandler(int signal) {
+    if (signal == SIGINT) {
+        std::cout << "\nSIGINT received, shutting down gracefully...\n";
+        running = false;
+    }
+}
