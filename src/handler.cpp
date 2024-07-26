@@ -34,6 +34,24 @@ void initDevices() {
   // std::cout << "Device initialization complete.\n";
 }
 
+void searchDevices() {
+    initDevices();
+    if (devices.empty()) {
+        std::cout << "No devices found.\n";
+    }
+    stopAllDevices();
+}
+
+void stopAllDevices() {
+    if (sampler.has_value()) {
+        for (auto &device : sampler->sampleDevices) {
+            device.first->send(Omniscope::Stop{});
+        }
+    }
+    devices.clear();
+    deviceManager.clearDevices();
+}
+
 void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
     std::string input;
     while (running) {
@@ -53,9 +71,8 @@ void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
                     input.erase(0, pos + 1);
                 }
                 selected_serials.insert(input);
-            }
-            else {
-                std::cout << "No devices fpound.\n";
+            } else {
+                std::cout << "No devices found.\n";
             }
         }
         else if (input == "Start") {
@@ -97,5 +114,6 @@ void signalHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nSIGINT received, shutting down gracefully...\n";
         running = false;
+        stopAllDevices();
     }
 }

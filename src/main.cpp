@@ -9,12 +9,19 @@ int main(int argc, char** argv) {
     bool flagPaused{true};
     std::set<std::string> selected_serials;
     std::string wsURI;
+    bool search = false;
     
     CLI::App app{"OmniView"};
 
     app.add_option("-w, --wsuri", wsURI, "WebSocket URI")->type_name("");
+    app.add_flag("--search", search, "Search for devices");
 
     CLI11_PARSE(app, argc, argv);
+
+    if (search) {
+        searchDevices();
+        return 0;
+    }
 
     WebSocketHandler wsHandler(wsURI);
 

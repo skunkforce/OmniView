@@ -16,7 +16,10 @@ inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureDa
 inline std::atomic<bool> running{true};
 
 void initDevices();
+void searchDevices(std::set<std::string>& selected_serials);
 void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials);
 void signalHandler(int signal);
+void stopAllDevices();
+void searchDevices();
 
 #endif
