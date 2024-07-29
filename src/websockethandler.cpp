@@ -38,8 +38,6 @@ void WebSocketHandler::close() {
     catch (const web::websockets::client::websocket_exception& e) {
         std::cerr << "Failed to close WebSocket: " << e.what() << std::endl;
     }
-
-    handler.close().wait();
 }
 
 nlohmann::json WebSocketHandler::captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& dataMap, const std::set<std::string>& filter_serials) {
