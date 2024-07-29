@@ -80,7 +80,7 @@ void startDevice(const std::string& deviceId, bool &flagPaused) {
 
 void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
     std::string input;
-    while (true) {
+    while (running) {
         std::cout << "Enter command: ";
         std::getline(std::cin, input);
         if (input == "Search") {
@@ -136,12 +136,11 @@ void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
     }
 }
 
-/*
+
 void signalHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nSIGINT received, shutting down gracefully...\n";
         running = false;
-        stopAllDevices();
+        // stopAllDevices();
     }
 }
-*/

@@ -2,7 +2,7 @@
 #include "handler.hpp"
 #include <thread>
 #include <CLI/CLI.hpp>
-// #include <csignal>
+#include <csignal>
 
 int main(int argc, char** argv) {
     
@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     WebSocketHandler wsHandler(wsURI);
 
     // Signal handler for SIGINT
-    // std::signal(SIGINT, signalHandler);
+    std::signal(SIGINT, signalHandler);
 
     // std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
     // WebSocket handler thread
     std::thread webSocketThread([&]() {
-        while (true) {
+        while (running) {
             if (sampler.has_value() && !flagPaused) {
             sampler->copyOut(captureData);
             wsHandler.send(captureData, selected_serials);
