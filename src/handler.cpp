@@ -34,14 +34,17 @@ void initDevices() {
   // std::cout << "Device initialization complete.\n";
 }
 
+/*
 void searchDevices() {
     initDevices();
     if (devices.empty()) {
         std::cout << "No devices found.\n";
     }
-    stopAllDevices();
+    // stopAllDevices();
 }
+*/
 
+/*
 void stopAllDevices() {
     if (sampler.has_value()) {
         for (auto &device : sampler->sampleDevices) {
@@ -51,7 +54,9 @@ void stopAllDevices() {
     devices.clear();
     deviceManager.clearDevices();
 }
+*/
 
+/*
 void startDevice(const std::string& deviceId, bool &flagPaused) {
     initDevices();
     auto it = std::find_if(devices.begin(), devices.end(), [&deviceId](const std::shared_ptr<OmniscopeDevice>& device) {
@@ -70,11 +75,12 @@ void startDevice(const std::string& deviceId, bool &flagPaused) {
         std::cout << "Device with ID " << deviceId << " not found,\n";
     }
 }
+*/
 
-/*
+
 void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
     std::string input;
-    while (running) {
+    while (true) {
         std::cout << "Enter command: ";
         std::getline(std::cin, input);
         if (input == "Search") {
@@ -129,8 +135,8 @@ void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
         }
     }
 }
-*/
 
+/*
 void signalHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nSIGINT received, shutting down gracefully...\n";
@@ -138,3 +144,4 @@ void signalHandler(int signal) {
         stopAllDevices();
     }
 }
+*/
