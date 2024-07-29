@@ -275,7 +275,7 @@ int main() {
                 
                 OpenURLInBrowser("https://d-ws175.server.est1816.de/ui/");
 
-                const char* script_path = "../src/script.py";
+                const char* script_path = "script.py";
                 
                 // Befehl zum Ausführen des Python-Skripts
                 std::string command = "python3 ";
