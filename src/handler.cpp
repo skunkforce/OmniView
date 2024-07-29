@@ -31,116 +31,12 @@ void initDevices() {
                                    static_cast<std::uint8_t>(color[1] * 255),
                                    static_cast<std::uint8_t>(color[2] * 255)});
   }
-  // std::cout << "Device initialization complete.\n";
+  std::cout << "Device initialization complete.\n";
 }
-
-/*
-void searchDevices() {
-    initDevices();
-    if (devices.empty()) {
-        std::cout << "No devices found.\n";
-    }
-    // stopAllDevices();
-}
-*/
-
-/*
-void stopAllDevices() {
-    if (sampler.has_value()) {
-        for (auto &device : sampler->sampleDevices) {
-            device.first->send(Omniscope::Stop{});
-        }
-    }
-    devices.clear();
-    deviceManager.clearDevices();
-}
-*/
-
-/*
-void startDevice(const std::string& deviceId, bool &flagPaused) {
-    initDevices();
-    auto it = std::find_if(devices.begin(), devices.end(), [&deviceId](const std::shared_ptr<OmniscopeDevice>& device) {
-        return device->getId().value().serial == deviceId;        
-    });
-
-    if (it != devices.end() && flagPaused) {
-        if (!sampler.has_value()) {
-            std::vector<std::shared_ptr<OmniscopeDevice>> selectedDevices = {*it};
-            sampler.emplace(deviceManager, std::move(selectedDevices));
-            flagPaused = false;
-            std::cout << "Started device with ID: " << deviceId << "\n";
-        }
-    }
-    else {
-        std::cout << "Device with ID " << deviceId << " not found,\n";
-    }
-}
-*/
-
-
-void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
-    std::string input;
-    while (running) {
-        std::cout << "Enter command: ";
-        std::getline(std::cin, input);
-        if (input == "Search") {
-            devices.clear();
-            deviceManager.clearDevices();
-            initDevices();
-            if (!devices.empty()) {
-                std::cout << "Enter the device number: ";
-                std::getline(std::cin, input);
-                selected_serials.clear();
-                size_t pos = 0;
-                while ((pos = input.find(',')) != std::string::npos) {
-                    selected_serials.insert(input.substr(0, pos));
-                    input.erase(0, pos + 1);
-                }
-                selected_serials.insert(input);
-            } else {
-                std::cout << "No devices found.\n";
-            }
-        }
-        else if (input == "Start") {
-            if (!devices.empty() && flagPaused) {
-                if (!sampler.has_value()) {
-                    sampler.emplace(deviceManager, std::move(devices));
-                    flagPaused = false;
-                }
-            }
-        }
-        else if (input == "Stop") {
-            if (!flagPaused) {
-                flagPaused = true;
-                for (auto &device : sampler->sampleDevices) {
-                    device.first->send(Omniscope::Stop{});
-                }
-            }
-        }
-        else if (input == "Continue") {
-            if (flagPaused && sampler.has_value()) {
-                flagPaused = false;
-                for (auto &device : sampler->sampleDevices) {
-                    device.first->send(Omniscope::Start{});
-                }
-            }
-        }
-        else if (input == "Reset") {
-            if (flagPaused && sampler.has_value()) {
-                sampler.reset();
-                devices.clear();
-                deviceManager.clearDevices();
-                flagPaused = true;
-            }
-        }
-    }
-}
-
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nSIGINT received, shutting down gracefully...\n";
         running = false;
-        // stopAllDevices();
     }
 }
