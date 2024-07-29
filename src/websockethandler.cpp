@@ -23,6 +23,7 @@ void WebSocketHandler::send(const std::map<Omniscope::Id, std::vector<std::pair<
     auto jsonData = captureDataToJson(dataMap, filter_serials);
     web::websockets::client::websocket_outgoing_message msg;
     msg.set_utf8_message(jsonData.dump());
+    std::cout << "Sending message: " << jsonData.dump() << std::endl;
     try {
         handler.send(msg).wait();
     }
