@@ -52,6 +52,26 @@ void stopAllDevices() {
     deviceManager.clearDevices();
 }
 
+void startDevice(const std::string& deviceId, bool &flagPaused) {
+    initDevices();
+    auto it = std::find_if(devices.begin(), devices.end(), [&deviceId](const std::shared_ptr<OmniscopeDevice>& device) {
+        return device->getId().value().serial == deviceId;        
+    });
+
+    if (it != devices.end() && flagPaused) {
+        if (!sampler.has_value()) {
+            std::vector<std::shared_ptr<OmniscopeDevice>> selectedDevices = {*it};
+            sampler.emplace(deviceManager, std::move(selectedDevices));
+            flagPaused = false;
+            std::cout << "Started device with ID: " << deviceId << "\n";
+        }
+    }
+    else {
+        std::cout << "Device with ID " << deviceId << " not found,\n";
+    }
+}
+
+/*
 void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
     std::string input;
     while (running) {
@@ -109,6 +129,7 @@ void consoleHandler(bool &flagPaused, std::set<std::string>& selected_serials) {
         }
     }
 }
+*/
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
