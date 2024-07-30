@@ -7,6 +7,7 @@
 #include "imgui_stdlib.h"
 #include "languages.hpp"
 #include "style.hpp"
+#include <cstdlib> // Für std::system
 
 namespace fs = std::filesystem;
 
@@ -270,7 +271,23 @@ if (ImGui::Button(appLanguage[Key::Save])) {
             savingInProgress = true; 
         } 
         i++; 
-    } 
+    }
+    const char* script_path = "script.py";
+                
+    // Befehl zum Ausführen des Python-Skripts
+    std::string command = "python3 ";
+    command += script_path;
+
+    // Ausführen des Befehls mit system()
+    int result = system(command.c_str());
+
+    // Überprüfen des Rückgabewerts
+    if (result == 0) {
+      std::cout << "Python script executed successfully." << std::endl;
+    } else {
+      std::cerr << "Error executing Python script." << std::endl;
+    }
+
 } 
  
 if (savingInProgress) { 
