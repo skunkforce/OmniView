@@ -10,14 +10,21 @@ int main(int argc, char** argv) {
     std::set<std::string> selected_serials;
     std::string wsURI;
     std::string deviceId;
+    bool search = false;
     
     CLI::App app{"OmniView"};
 
-    app.add_option("-w, --wsuri", wsURI, "WebSocket URI")->type_name("");
-    app.add_option("-d, --device", deviceId, "Omniscope Device ID")->required();
+    app.add_option("-w, --wsuri", wsURI, "WebSocket URI");
+    app.add_option("-d, --device", deviceId, "Omniscope Device ID");
+    app.add_flag("-s, --search", search, "Search for devices");
 
     CLI11_PARSE(app, argc, argv);
     
+    if (search) {
+        searchDevices();
+        return 0;
+    }
+
     // Signal handler for SIGINT
     std::signal(SIGINT, signalHandler);
 

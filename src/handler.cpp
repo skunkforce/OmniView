@@ -35,6 +35,13 @@ void initDevices() {
   std::cout << "Device initialization complete.\n";
 }
 
+void searchDevices() {
+    initDevices();
+    if (devices.empty()) {
+        std::cout << "No devices found.\n";
+    }
+}
+
 void signalHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nSIGINT received, shutting down gracefully...\n";
