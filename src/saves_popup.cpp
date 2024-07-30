@@ -238,76 +238,86 @@ static size_t y_indx; // used for the progress bar too
 static size_t totalValuesSize; 
 static bool savingInProgress{false}; 
  
-if (ImGui::Button(appLanguage[Key::Save])) { 
-    flagDataNotSaved = false; 
- 
-    if (captureData.empty()) { 
-        fmt::println("captureData is empty"); 
-        ImGui::CloseCurrentPopup(); 
-        return; // Exit early if there's no data to save 
-    } 
- 
-    futures.clear(); // Clear previous futures 
- 
-    size_t i = 0; 
-    for (const auto& [device, values] : captureData) { 
-        if (dvcCheckedArr[i].b) { 
-            auto filename = mkFileName(fmt::format("device{}", i + 1).c_str()); 
-            fs::path path; 
- 
-            if (hasSelectedPathArr[i].b) { 
-                path = mkdir(true, selectedPathArr[i], "", filename); 
-                hasSelectedPathArr[i].b = false; 
-            } else if (!inptTxtFields[i].empty()) { 
-                path = mkdir(false, "", inptTxtFields[i], filename); 
-                inptTxtFields[i].clear(); 
-            } else { 
-                path = mkdir(false, "", "", filename); 
-            } 
- 
-            totalValuesSize += values.size(); 
-            futures.push_back(std::async(std::launch::async, [&, path] { 
-                save(device, values, path, allData, y_indx); 
-            })); 
-            savingInProgress = true; 
+   if (ImGui::Button(appLanguage[Key::Save])) { 
+        flagDataNotSaved = false; 
+
+        if (captureData.empty()) { 
+            fmt::println("captureData is empty"); 
+            ImGui::CloseCurrentPopup(); 
+            return; // Exit early if there's no data to save 
         } 
-        i++; 
+
+        futures.clear(); // Clear previous futures 
+
+        size_t i = 0; 
+        for (const auto& [device, values] : captureData) { 
+            if (dvcCheckedArr[i].b) { 
+                auto filename = mkFileName(fmt::format("device{}", i + 1).c_str()); 
+                fs::path path; 
+
+                if (hasSelectedPathArr[i].b) { 
+                    path = mkdir(true, selectedPathArr[i], "", filename); 
+                    hasSelectedPathArr[i].b = false; 
+                } else if (!inptTxtFields[i].empty()) { 
+                    path = mkdir(false, "", inptTxtFields[i], filename); 
+                    inptTxtFields[i].clear(); 
+                } else { 
+                    path = mkdir(false, "", "", filename); 
+                } 
+
+                totalValuesSize += values.size(); 
+                futures.push_back(std::async(std::launch::async, [&, path] { 
+                    save(device, values, path, allData, y_indx); 
+                })); 
+                savingInProgress = true; 
+            } 
+            i++; 
+        }
+    } 
+
+    if (savingInProgress) { 
+        bool allDone = true; 
+        for (auto& future : futures) { 
+            auto status = future.wait_for(std::chrono::milliseconds{ 1 }); 
+            if (status != std::future_status::ready) { 
+                allDone = false; 
+                break; 
+            } 
+        } 
+
+        if (allDone) { 
+            // Reset related stuff 
+            y_indx = 0; 
+            totalValuesSize = 0; 
+            savingInProgress = false; 
+            for (auto& field : inptTxtFields) { 
+                field.clear(); // Reset storage location after each save 
+            } 
+
+            // Execute the Python script after all data has been saved
+            const char* script_path = "script.py";
+            std::string command = "python3 ";
+            command += script_path;
+
+            int result = system(command.c_str());
+
+            if (result == 0) {
+                std::cout << "Python script executed successfully." << std::endl;
+            } else {
+                std::cerr << "Error executing Python script." << std::endl;
+            }
+
+            ImGui::CloseCurrentPopup();
+        } else { 
+            float progressValue = 0.0f; 
+            for (const auto& future : futures) { 
+                if (future.valid() && future.wait_for(std::chrono::seconds{ 0 }) == std::future_status::ready) { 
+                    progressValue += (float)y_indx / totalValuesSize; 
+                } 
+            } 
+            ImGui::ProgressBar(progressValue, { 0.f, 0.f }); 
+            ImGui::SameLine(); 
+            ImGui::Text(appLanguage[Key::Saving]); 
+        } 
     }
-} 
- 
-if (savingInProgress) { 
-    bool allDone = true; 
-    for (auto& future : futures) { 
-        auto status = future.wait_for(std::chrono::milliseconds{ 1 }); 
-        if (status != std::future_status::ready) { 
-            allDone = false; 
-            break; 
-        } 
-    } 
- 
-    if (allDone) { 
-        // Reset related stuff 
-        y_indx = 0; 
-        totalValuesSize = 0; 
-        savingInProgress = false; 
-        for (auto& field : inptTxtFields) { 
-            field.clear(); // Reset storage location after each save 
-        } 
-        ImGui::CloseCurrentPopup();
-
-    } else { 
-        float progressValue = 0.0f; 
-        for (const auto& future : futures) { 
-            if (future.valid() && future.wait_for(std::chrono::seconds{ 0 }) == std::future_status::ready) { 
-                progressValue += (float)y_indx / totalValuesSize; 
-            } 
-        } 
-        ImGui::ProgressBar(progressValue, { 0.f, 0.f }); 
-        ImGui::SameLine(); 
-        ImGui::Text(appLanguage[Key::Saving]); 
-    } 
-}
-               
-
-
 }
