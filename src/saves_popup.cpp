@@ -8,6 +8,7 @@
 #include "languages.hpp"
 #include "style.hpp"
 #include <cstdlib> // Für std::system
+#include <iostream>
 
 namespace fs = std::filesystem;
 
