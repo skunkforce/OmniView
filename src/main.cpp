@@ -62,13 +62,16 @@ int main(int argc, char** argv) {
     std::thread webSocketThread([&]() {
         while (running) {
             if (sampler.has_value() && !flagPaused) {
-                std::cout << "F00 F00" << std::endl;
                 sampler->copyOut(captureData);
                 wsHandler.send(captureData, selected_serials);
             }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     });
+
+    while (running) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 
     webSocketThread.detach();
 
