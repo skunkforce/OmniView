@@ -293,8 +293,9 @@ static bool savingInProgress{false};
             for (auto& field : inptTxtFields) { 
                 field.clear(); // Reset storage location after each save 
             } 
+            ImGui::CloseCurrentPopup(); // Schließe das Popup-Fenster hier
 
-            // Execute the Python script after all data has been saved
+            // Führe das Python-Skript aus, nachdem das Popup-Fenster geschlossen wurde
             const char* script_path = "script.py";
             std::string command = "python3 ";
             command += script_path;
@@ -307,7 +308,6 @@ static bool savingInProgress{false};
                 std::cerr << "Error executing Python script." << std::endl;
             }
 
-            ImGui::CloseCurrentPopup();
         } else { 
             float progressValue = 0.0f; 
             for (const auto& future : futures) { 
