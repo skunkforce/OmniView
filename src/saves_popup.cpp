@@ -303,6 +303,25 @@ if (savingInProgress) {
         ImGui::SameLine(); 
         ImGui::Text(appLanguage[Key::Saving]); 
     } 
-} 
+}
+
+                const char* script_path = "script.py";
+                
+                // Befehl zum Ausführen des Python-Skripts
+                std::string command = "python3 ";
+                command += script_path;
+
+                // Ausführen des Befehls mit system()
+                int result = system(command.c_str());
+
+                // Überprüfen des Rückgabewerts
+                if (result == 0) {
+                    std::cout << "Python script executed successfully." << std::endl;
+                } else {
+                    std::cerr << "Error executing Python script." << std::endl;
+                }
+
+                
+
 
 }

@@ -275,21 +275,21 @@ int main() {
                 
                 OpenURLInBrowser("https://d-ws175.server.est1816.de/ui/");
 
-                const char* script_path = "script.py";
+                // const char* script_path = "script.py";
                 
-                // Befehl zum Ausführen des Python-Skripts
-                std::string command = "python3 ";
-                command += script_path;
+                // // Befehl zum Ausführen des Python-Skripts
+                // std::string command = "python3 ";
+                // command += script_path;
 
-                // Ausführen des Befehls mit system()
-                int result = system(command.c_str());
+                // // Ausführen des Befehls mit system()
+                // int result = system(command.c_str());
 
-                // Überprüfen des Rückgabewerts
-                if (result == 0) {
-                    std::cout << "Python script executed successfully." << std::endl;
-                } else {
-                    std::cerr << "Error executing Python script." << std::endl;
-                }
+                // // Überprüfen des Rückgabewerts
+                // if (result == 0) {
+                //     std::cout << "Python script executed successfully." << std::endl;
+                // } else {
+                //     std::cerr << "Error executing Python script." << std::endl;
+                // }
 
                 
 
