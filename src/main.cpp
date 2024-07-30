@@ -19,9 +19,10 @@ int main(int argc, char** argv) {
     app.add_flag("-s, --search", search, "Search for devices");
 
     CLI11_PARSE(app, argc, argv);
-    
+
     if (search) {
         searchDevices();
+        stopAllDevices();
         return 0;
     }
 
@@ -62,8 +63,6 @@ int main(int argc, char** argv) {
             flagPaused = false;
         }
     }
-
-    //std::this_thread::sleep_for(std::chrono::seconds(1));
 
     // WebSocket handler thread
     std::thread webSocketThread([&]() {

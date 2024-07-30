@@ -42,6 +42,16 @@ void searchDevices() {
     }
 }
 
+void stopAllDevices() {
+    if (sampler.has_value()) {
+        for (auto &device : sampler->sampleDevices) {
+            device.first->send(Omniscope::Stop{});
+        }
+    }
+    devices.clear();
+    deviceManager.clearDevices();
+}
+
 void signalHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nSIGINT received, shutting down gracefully...\n";

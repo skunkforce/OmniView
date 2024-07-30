@@ -18,5 +18,6 @@ inline std::atomic<bool> running{true};
 void initDevices();
 void signalHandler(int signal);
 void searchDevices();
+void stopAllDevices();
 
 #endif
