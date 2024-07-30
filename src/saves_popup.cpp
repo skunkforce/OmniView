@@ -43,6 +43,21 @@ static void save(const Omniscope::Id &device,
   file.flush();
   file.close();
   fmt::print("Finished saving.\n");
+
+  // HIER MUSS DAS REIN
+
+  // Führe das Python-Skript aus, nachdem das Popup-Fenster geschlossen wurde
+  const char* script_path = "script.py";
+  std::string command = "python3 ";
+  command += script_path;
+
+  int result = system(command.c_str());
+
+  if (result == 0) {
+    std::cout << "Python script executed successfully." << std::endl;
+  } else {
+    std::cerr << "Error executing Python script." << std::endl;
+  }
 }
 void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
                  std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
@@ -294,19 +309,6 @@ static bool savingInProgress{false};
                 field.clear(); // Reset storage location after each save 
             } 
             ImGui::CloseCurrentPopup(); // Schließe das Popup-Fenster hier
-
-            // Führe das Python-Skript aus, nachdem das Popup-Fenster geschlossen wurde
-            const char* script_path = "script.py";
-            std::string command = "python3 ";
-            command += script_path;
-
-            int result = system(command.c_str());
-
-            if (result == 0) {
-                std::cout << "Python script executed successfully." << std::endl;
-            } else {
-                std::cerr << "Error executing Python script." << std::endl;
-            }
 
         } else { 
             float progressValue = 0.0f; 
