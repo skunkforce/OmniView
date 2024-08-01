@@ -1,26 +1,19 @@
 #include "websockethandler.hpp"
 #include "handler.hpp"
+#include "CommandLineParser.hpp"
 #include <thread>
-#include <CLI/CLI.hpp>
 #include <csignal>
 
 int main(int argc, char** argv) {
     
     bool flagPaused{true};
     std::set<std::string> selected_serials;
-    std::string wsURI;
-    std::string deviceId;
-    bool search = false;
-    
-    CLI::App app{"OmniView"};
+    CommandLineOptions options;
 
-    app.add_option("-w, --wsuri", wsURI, "WebSocket URI");
-    app.add_option("-d, --device", deviceId, "Omniscope Device ID");
-    app.add_flag("-s, --search", search, "Search for devices");
+    // Parse command line arguments
+    parseCommandLineArguments(argc, argv, options);
 
-    CLI11_PARSE(app, argc, argv);
-
-    if (search) {
+    if (options.search) {
         searchDevices();
         stopAllDevices();
         return 0;
@@ -29,7 +22,7 @@ int main(int argc, char** argv) {
     // Signal handler for SIGINT
     std::signal(SIGINT, signalHandler);
 
-    WebSocketHandler wsHandler(wsURI);
+    WebSocketHandler wsHandler(options.wsURI);
 
     // Initialize devices;
     devices.clear();
@@ -40,14 +33,14 @@ int main(int argc, char** argv) {
     if (!devices.empty()) {
         bool deviceFound = false;
         for (const auto& device : devices) {
-            if (device->getId()->serial == deviceId) {
-                selected_serials.insert(deviceId);
+            if (device->getId()->serial == options.deviceId) {
+                selected_serials.insert(options.deviceId);
                 deviceFound = true;
                 break;
             }
         }
         if (!deviceFound) {
-            std::cerr << "Device with ID " << deviceId << " not found.\n";
+            std::cerr << "Device with ID " << options.deviceId << " not found.\n";
             return 1;
         }
     }
