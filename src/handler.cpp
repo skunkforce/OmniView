@@ -56,5 +56,6 @@ void signalHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nSIGINT received, shutting down gracefully...\n";
         running = false;
+        stopAllDevices();
     }
 }
