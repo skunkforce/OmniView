@@ -4,7 +4,7 @@ void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& option
     CLI::App app{"OmniView"};
 
     app.add_option("-w, --wsuri", options.wsURI, "WebSocket URI");
-    app.add_option("-d, --device", options.deviceId, "Omniscope Device ID");
+    app.add_option("-d, --device", options.deviceIds, "Omniscope Device ID")->expected(-1);
     app.add_flag("-s, --search", options.search, "Search for devices");
 
     try {

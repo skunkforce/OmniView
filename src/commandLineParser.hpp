@@ -7,7 +7,7 @@
 
 struct CommandLineOptions {
     std::string wsURI;
-    std::string deviceId;
+    std::vector<std::string> deviceIds;
     bool search = false;
 };
 

@@ -31,17 +31,19 @@ int main(int argc, char** argv) {
 
     // Check if the specified device is available
     if (!devices.empty()) {
-        bool deviceFound = false;
-        for (const auto& device : devices) {
-            if (device->getId()->serial == options.deviceId) {
-                selected_serials.insert(options.deviceId);
-                deviceFound = true;
-                break;
+        for (const auto& deviceId : options.deviceIds) {
+            bool deviceFound = false;
+            for (const auto& device : devices) {
+                if (device->getId()->serial == deviceId) {
+                    selected_serials.insert(deviceId);
+                    deviceFound = true;
+                    break;
+                }
             }
-        }
-        if (!deviceFound) {
-            std::cerr << "Device with ID " << options.deviceId << " not found.\n";
-            return 1;
+            if (!deviceFound) {
+                std::cerr << "Device with ID " << deviceId << " not found.\n";
+                return 1;
+            }
         }
     }
     else {
