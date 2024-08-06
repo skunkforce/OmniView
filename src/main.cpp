@@ -1,6 +1,6 @@
 #include "websockethandler.hpp"
 #include "handler.hpp"
-#include "CommandLineParser.hpp"
+#include "commandLineParser.hpp"
 #include <thread>
 #include <csignal>
 

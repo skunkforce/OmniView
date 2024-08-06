@@ -1,4 +1,4 @@
-#include "CommandLineParser.hpp"
+#include "commandLineParser.hpp"
 
 void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& options) {
     CLI::App app{"OmniView"};

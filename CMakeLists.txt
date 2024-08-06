@@ -33,7 +33,7 @@ add_executable(OmniView
                src/main.cpp 
                src/handler.cpp
                src/websockethandler.cpp
-               src/CommandLineParser.cpp
+               src/commandLineParser.cpp
                )
 
 target_add_default_build_options(OmniView PUBLIC)
