@@ -9,6 +9,7 @@ struct CommandLineOptions {
     std::string wsURI;
     std::vector<std::string> deviceIds;
     bool search = false;
+    bool all = false;
 };
 
 void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& options);

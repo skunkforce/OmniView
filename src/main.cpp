@@ -29,8 +29,14 @@ int main(int argc, char** argv) {
     deviceManager.clearDevices();
     initDevices();
 
-    // Check if the specified device is available
-    if (!devices.empty()) {
+    if (options.all) {
+        // If the "-a" flag is set, add all devices
+        for (const auto& device : devices) {
+            selected_serials.insert(device->getId()->serial);
+        }
+    }
+    else if (!options.deviceIds.empty()) {
+        // If specific IDs have been specified
         for (const auto& deviceId : options.deviceIds) {
             bool deviceFound = false;
             for (const auto& device : devices) {
