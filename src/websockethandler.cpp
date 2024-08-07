@@ -1,4 +1,5 @@
 #include "websockethandler.hpp"
+#include "jsonhandler.hpp"
 
 WebSocketHandler::WebSocketHandler(const std::string& uri) {
     try {
@@ -17,6 +18,19 @@ WebSocketHandler::~WebSocketHandler() {
     catch (const web::websockets::client::websocket_exception& e) {
         std::cerr << "Failed to close WebSocket: " << e.what() << std::endl;
     }
+}
+
+void WebSocketHandler::startWebSocketThread(const std::set<std::string>& selected_serials) {
+    std::thread webSocketThread([&]() {
+        while (running) {
+            if (sampler.has_value()) {
+                sampler->copyOut(captureData);
+                send(captureData, selected_serials);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    });
+    webSocketThread.detach();
 }
 
 void WebSocketHandler::send(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& dataMap, const std::set<std::string>& filter_serials) {

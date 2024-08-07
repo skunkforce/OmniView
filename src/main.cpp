@@ -5,8 +5,7 @@
 #include <csignal>
 
 int main(int argc, char** argv) {
-    
-    bool flagPaused{true};
+
     std::set<std::string> selected_serials;
     CommandLineOptions options;
 
@@ -19,14 +18,12 @@ int main(int argc, char** argv) {
     }
 
     // Signal handler for SIGINT
-    std::signal(SIGINT, signalHandler);
+    setupSignalHandlers();
 
     WebSocketHandler wsHandler(options.wsURI);
 
     // Initialize devices;
-    devices.clear();
-    deviceManager.clearDevices();
-    initDevices();
+    initializeDevices();
 
     // Select devices based on command line options
     if (!selectDevices(options, selected_serials)) {
@@ -34,29 +31,19 @@ int main(int argc, char** argv) {
     }
 
     // Automatically start data acquisition
-    if (!devices.empty() && flagPaused) {
+    if (!devices.empty()) {
         if (!sampler.has_value()) {
             sampler.emplace(deviceManager, std::move(devices));
-            flagPaused = false;
         }
     }
 
-    // WebSocket handler thread
-    std::thread webSocketThread([&]() {
-        while (running) {
-            if (sampler.has_value() && !flagPaused) {
-                sampler->copyOut(captureData);
-                wsHandler.send(captureData, selected_serials);
-            }
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    });
+    // Start WebSocket handler thread
+    wsHandler.startWebSocketThread(selected_serials);
 
+    // Main loop
     while (running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
-    webSocketThread.detach();
 
     return 0;
 }

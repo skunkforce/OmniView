@@ -35,6 +35,12 @@ void initDevices() {
   std::cout << "Device initialization complete.\n";
 }
 
+void initializeDevices() {
+    devices.clear();
+    deviceManager.clearDevices();
+    initDevices();
+}
+
 void searchDevices() {
     initDevices();
     if (devices.empty()) {
@@ -51,6 +57,10 @@ void stopAllDevices() {
     }
     devices.clear();
     deviceManager.clearDevices();
+}
+
+void setupSignalHandlers() {
+    std::signal(SIGINT, signalHandler);
 }
 
 void signalHandler(int signal) {
