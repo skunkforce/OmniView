@@ -40,6 +40,7 @@ void searchDevices() {
     if (devices.empty()) {
         std::cout << "No devices found.\n";
     }
+    stopAllDevices();
 }
 
 void stopAllDevices() {

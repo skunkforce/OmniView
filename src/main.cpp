@@ -15,7 +15,6 @@ int main(int argc, char** argv) {
 
     if (options.search) {
         searchDevices();
-        stopAllDevices();
         return 0;
     }
 
