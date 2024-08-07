@@ -28,31 +28,8 @@ int main(int argc, char** argv) {
     deviceManager.clearDevices();
     initDevices();
 
-    if (options.all) {
-        // If the "-a" flag is set, add all devices
-        for (const auto& device : devices) {
-            selected_serials.insert(device->getId()->serial);
-        }
-    }
-    else if (!options.deviceIds.empty()) {
-        // If specific IDs have been specified
-        for (const auto& deviceId : options.deviceIds) {
-            bool deviceFound = false;
-            for (const auto& device : devices) {
-                if (device->getId()->serial == deviceId) {
-                    selected_serials.insert(deviceId);
-                    deviceFound = true;
-                    break;
-                }
-            }
-            if (!deviceFound) {
-                std::cerr << "Device with ID " << deviceId << " not found.\n";
-                return 1;
-            }
-        }
-    }
-    else {
-        std::cerr << "No devices foiund.\n";
+    // Select devices based on command line options
+    if (!selectDevices(options, selected_serials)) {
         return 1;
     }
 

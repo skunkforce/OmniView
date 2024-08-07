@@ -2,6 +2,7 @@
 #define HANDLER_HEADER_HPP
 
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
+#include "commandLineParser.hpp"
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <set>
@@ -19,5 +20,6 @@ void initDevices();
 void signalHandler(int signal);
 void searchDevices();
 void stopAllDevices();
+bool selectDevices(const CommandLineOptions& options, std::set<std::string>& selected_serials);
 
 #endif

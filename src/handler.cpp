@@ -60,3 +60,34 @@ void signalHandler(int signal) {
         stopAllDevices();
     }
 }
+
+bool selectDevices(const CommandLineOptions& options, std::set<std::string>& selected_serials) {
+    if (options.all) {
+        // If zhe "-a" flag is set, add all devices
+        for (const auto& device : devices) {
+            selected_serials.insert(device->getId()->serial);
+        }
+    }
+    else if (!options.deviceIds.empty()) {
+        // If specific IDs have been specified
+        for (const auto& deviceId : options.deviceIds) {
+            bool deviceFound = false;
+            for (const auto& device : devices) {
+                if (device->getId()->serial == deviceId) {
+                    selected_serials.insert(deviceId);
+                    deviceFound = true;
+                    break;
+                }
+            }
+            if (!deviceFound) {
+                std::cerr << "Device with ID " << deviceId << " not found.\n";
+                return false;
+            }
+        }
+    }
+    else {
+        std::cerr << "No devices found.\n";
+        return false;
+    }
+    return true;
+}
