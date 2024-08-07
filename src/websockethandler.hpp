@@ -2,8 +2,8 @@
 #define WEBSOCKETHANDLER_HPP
 
 #include "handler.hpp"
+#include "jsonhandler.hpp"
 #include <cpprest/ws_client.h>
-#include <nlohmann/json.hpp>
 #include <map>
 #include <set>
 
@@ -15,7 +15,6 @@ public:
     void close();
 private:
     web::websockets::client::websocket_client handler;
-    nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& dataMap, const std::set<std::string>& filter_serials);
 };
 
 #endif

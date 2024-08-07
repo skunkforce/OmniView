@@ -32,6 +32,7 @@ include(cmake_helpers/FindOrFetch.cmake)
 add_executable(OmniView 
                src/main.cpp 
                src/handler.cpp
+               src/jsonhandler.cpp
                src/websockethandler.cpp
                src/commandLineParser.cpp
                )
