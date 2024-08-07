@@ -35,8 +35,18 @@ void WebSocketHandler::startWebSocketThread(const std::set<std::string>& selecte
 
 void WebSocketHandler::send(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& dataMap, const std::set<std::string>& filter_serials) {
     auto jsonData = captureDataToJson(dataMap, filter_serials);
+
+    // DEBUG: Add line breaks between JSON objects
+    std::string formattedData;
+    for (const auto& item : jsonData) {
+        formattedData += item.dump() + "\n";
+    }
+
     web::websockets::client::websocket_outgoing_message msg;
-    msg.set_utf8_message(jsonData.dump());
+    // msg.set_utf8_message(jsonData.dump());
+
+    // DEBUG: send formattedData
+    msg.set_utf8_message(formattedData);
     try {
         handler.send(msg).wait();
     }
