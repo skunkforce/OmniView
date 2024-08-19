@@ -1,4 +1,16 @@
-#include "dllHandler.hpp"
+#include "dllhandler.hpp"
+#include <vector>
+#include <nlohmann/json.hpp>
+
+void* sawtoothCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
+    // DEBUG
+    std::vector<int> sawtooth_data{static_cast<int*>(data), static_cast<int*>(data) + size};
+    fmt::print("Sawtooth data: {}\n", nlohmann::json(sawtooth_data).dump());
+
+    deallocator(data);
+
+    return nullptr;
+}
 
 DllHandler::DllHandler(const std::string& path) : dllPath(path) {}
 
@@ -18,7 +30,7 @@ bool DllHandler::load() {
         return false;
     }
 
-    deinitSawtooth = (DeinitSawtiithFunc)dlsym(dllHandle, "deinit_sawtooth");
+    deinitSawtooth = (DeinitSawtoothFunc)dlsym(dllHandle, "deinit_sawtooth");
     if (!deinitSawtooth) {
         std::cerr << "Failed to get deinit_sawtooth function: " << dlerror() << std::endl;
         dlclose(dllHandle);
@@ -49,9 +61,8 @@ DllHandler::~DllHandler() {
     unload();
 }
 
+/*
 void* DllHandler::callFunction(void* data, size_t size, void* dev_handle, size_t timestamp, void (*deallocator)(void*)) {
-    if (initSawtooth) {
-        return initSawtooth(data, size, dev_handle, timestamp, deallocator);
-    }
     return nullptr;
 }
+*/

@@ -35,6 +35,7 @@ add_executable(OmniView
                src/jsonhandler.cpp
                src/websockethandler.cpp
                src/commandLineParser.cpp
+               src/dllhandler.cpp
                )
 
 target_add_default_build_options(OmniView PUBLIC)
