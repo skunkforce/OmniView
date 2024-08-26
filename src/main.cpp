@@ -1,4 +1,7 @@
+#include <algorithm>
 #include <cmake_git_version/version.hpp>
+#include <set>
+
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
@@ -12,16 +15,21 @@ int main() {
       load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
   // local variables
-  bool flagPaused{true}, Development{false}, open_generate_training_data{false},
-      open_settings{false};
+  auto now = std::chrono::system_clock::now();
+  std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+  std::tm now_tm = *std::gmtime(&now_time_t);
+  bool flagPaused{true};
+  bool Development{false}, flagInitState{true},
+      open_generate_training_data{false}, open_settings{false};
   auto loadedFiles = captureData;
-  std::once_flag flag;
   std::map<Omniscope::Id, std::string> loadedFilenames;
 
   // main loop
   auto render = [&]() {
-    std::call_once(flag, set_inital_config,
-                   config); // call the function only once
+    if (flagInitState) {
+      set_inital_config(config);
+      flagInitState = false;
+    }
     SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
@@ -31,7 +39,7 @@ int main() {
                      ImGuiWindowFlags_NoTitleBar);
 
     if (Development && ImGui::Button("Development"))
-      ImGui::OpenPopup("Development Colors");
+        ImGui::OpenPopup("Development Colors");
 
     // Popup-Window content
     if (ImGui::BeginPopup("Development Colors")) {
@@ -83,38 +91,37 @@ int main() {
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
     PushPlotRegionColors();
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize,
+                        windowSize.x * .009f);
     ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
-                      ImGuiChildFlags_Border);
+                     ImGuiChildFlags_Border);
+
     // Axes 1 to 3
     // Check if time base for axes are same
     // check if egu and timescale for plot are same
     // error if third device is added
-    addPlots("Recording the data", [flagPaused](
-                                       double x_max, std::string yLabel,
-                                       ImAxis_ axis, double yMin, double yMax) {
-      ImPlot::SetupLegend(ImPlotLocation_NorthEast);
-      auto auxFlagsMeasuring =
-          ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
-      auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
-      ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+    addPlots("Recording the data", flagPaused, [&flagPaused](double x_max, std::string yLabel, ImAxis_ axis, double yMin, double yMax) {
+        ImPlot::SetupLegend(ImPlotLocation_NorthEast |
+                            ImPlotLegendFlags_Outside);
+        auto auxFlagsMeasuring =
+            ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
+        auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
+        ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
 
-      if (!flagPaused) {
-        ImPlot::SetupAxis(axis, yLabel.c_str(), ImPlotAxisFlags_AutoFit);
-        ImPlot::SetupAxis(ImAxis_X1, appLanguage[Key::Time],
-                          ImPlotAxisFlags_AutoFit);
-        ImPlot::SetupAxisLimits(axis, yMin - 2, yMax + 2, ImGuiCond_Always);
-        ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 9,
-                                ImGuiCond_Always);
+        if(!flagPaused){
+            ImPlot::SetupAxis(axis, yLabel.c_str(), ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxis(ImAxis_X1, "time [s]", ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxisLimits(axis, yMin - 2, yMax + 2, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_X1, x_max - 1, x_max + 9, ImGuiCond_Always);
 
-      } else {
-        ImPlot::SetupAxis(ImAxis_X1, appLanguage[Key::Time]);
-        ImPlot::SetupAxis(axis, yLabel.c_str());
-        ImPlot::SetupAxisLimits(ImAxis_X1, 0, 10);
-        ImPlot::SetupAxisLimits(axis, yMin - 2, yMax + 2);
-      }
+        }else{
+            ImPlot::SetupAxis(ImAxis_X1, "time [s]");
+            ImPlot::SetupAxis(axis, yLabel.c_str());
+            ImPlot::SetupAxisLimits(ImAxis_X1, 0, 10);
+            ImPlot::SetupAxisLimits(axis, yMin - 2, yMax + 2);
+        }
     });
-    ImGui::EndChild(); // end child Record Data
+    ImGui::EndChild();  // end child Record Data
     ImGui::PopStyleVar();
     PopPlotRegionColors();
     // ############################ Devicelist
@@ -125,7 +132,6 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList(flagPaused);
-
     if (!loadedFiles.empty()) { // if devices were successfully loaded from file
       static std::map<Omniscope::Id, BoolWrapper> loadedFilesChkBxs;
       for (auto it = loadedFiles.begin(); it != loadedFiles.end();) {
