@@ -64,7 +64,7 @@ void WebSocketHandler::startWebSocketThread(const std::set<std::string>& selecte
 
                 send(captureData, selected_serials);
             }
-            // std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     });
     webSocketThread.detach();

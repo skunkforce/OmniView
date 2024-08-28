@@ -13,8 +13,12 @@ nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::
             int64_t timestamp = std::get<2>(tuple).time_since_epoch().count();
 
             nlohmann::json dataPoint = {
-                {"Id", id.serial},
-                {"x", std::get<0>(tuple)},
+
+                // DEBUG ID
+                // {"Id", id.serial},
+                // Replaced by a timestamp
+                // {"x", std::get<0>(tuple)},
+
                 {"y", std::get<1>(tuple)},
                 {"timestamp", timestamp}
             };
