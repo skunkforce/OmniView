@@ -12,7 +12,7 @@ public:
     WebSocketHandler(const std::string& uri);
     ~WebSocketHandler();
     void startWebSocketThread(const std::set<std::string>& selected_serials);
-    void send(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>& dataMap, const std::set<std::string>& filter_serials = {});
+    void send(const std::map<Omniscope::Id, std::vector<std::tuple<double, double, std::chrono::time_point<std::chrono::high_resolution_clock>>>>& dataMap, const std::set<std::string>& filter_serials = {});
     void close();
 private:
     web::websockets::client::websocket_client handler;

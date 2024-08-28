@@ -13,7 +13,7 @@ inline OmniscopeDeviceManager deviceManager{};
 inline std::vector<std::shared_ptr<OmniscopeDevice>> devices;
 inline std::map<Omniscope::Id, std::array<float, 3>> colorMap;
 inline std::optional<OmniscopeSampler> sampler{};
-inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>> captureData;
+inline std::map<Omniscope::Id, std::vector<std::tuple<double, double, std::chrono::time_point<std::chrono::high_resolution_clock>>>> captureData;
 inline std::atomic<bool> running{true};
 
 void initDevices();
