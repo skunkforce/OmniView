@@ -274,8 +274,8 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
         fmt::println("Error Loading Png #{}.", i);
     }
 
-  float scaleWidth = windowSize.x * 0.0005f;
-  float scaleHeight = windowSize.y * 0.0008f;
+  float scaleWidth = windowSize.x * 0.00035f;
+  float scaleHeight = windowSize.y * 0.00065f;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
