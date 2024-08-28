@@ -24,8 +24,8 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   auto colors = ImGui::GetStyle().Colors;
   colors[ImGuiCol_Text] = {1.f, 1.f, 1.f, 1.f};
   colors[ImGuiCol_TextDisabled] = {0.972f, 0.976f, 0.98f, 0.98f};
-  colors[ImGuiCol_WindowBg] = {0.145f, 0.157f, 0.169f, 1.f};
-  colors[ImGuiCol_ChildBg] = {0.145f, 0.157f, 0.169f, 1.f};
+  colors[ImGuiCol_WindowBg] = {0.0f, 0.0f, 0.0f, 1.f};
+  colors[ImGuiCol_ChildBg] = {0.0f, 0.0f, 0.0f, 1.f};
   colors[ImGuiCol_PopupBg] = {0.145f, 0.157f, 0.169f, 1.f};
   colors[ImGuiCol_Border] = {0.94f, 0.243f, 0.212f, 1.0f};
   colors[ImGuiCol_BorderShadow] = {0.f, 0.f, 0.f, 1.f};
@@ -44,7 +44,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   colors[ImGuiCol_CheckMark] = {0.92f, 0.24f, 0.211f, 1.f};
   colors[ImGuiCol_SliderGrab] = {0.96f, 0.96f, 0.96f, 1.f};
   colors[ImGuiCol_SliderGrabActive] = {0.941f, 0.941f, 0.941f, 1.f};
-  colors[ImGuiCol_Button] = {0.145f, 0.156f, 0.168f, 1.f};
+  colors[ImGuiCol_Button] = {0.0f, 0.0f, 0.0f, 1.f};
   colors[ImGuiCol_ButtonHovered] = {0.941f, 0.243f, 0.211f, 1.f};
   colors[ImGuiCol_ButtonActive] = {0.921f, 0.24f, 0.211f, 1.f};
   colors[ImGuiCol_Header] = {0.26f, 0.59f, 0.98f, 0.31f};
