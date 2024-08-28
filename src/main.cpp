@@ -8,18 +8,18 @@ int main() {
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
   set_json(config);
+  set_inital_config(config);
   nlohmann::json language =
       load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
   // local variables
   bool flagPaused{true}, development{false}, open_generate_training_data{false},
-      open_settings{false}, std::once_flag flag{false};
+      open_settings{false};
   auto loadedFiles = captureData;
   std::map<Omniscope::Id, std::string> loadedFilenames;
 
   // main loop
   auto render = [&]() {
-    std::call_once(flag, set_inital_config(config));
     SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
