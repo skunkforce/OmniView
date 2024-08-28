@@ -30,7 +30,7 @@ void WebSocketHandler::startWebSocketThread(const std::set<std::string>& selecte
 
                 captureData.clear();
 
-
+                
                 // Alternative 1
                 for (auto& [id, data_vector] : tempData) {
                     std::vector<std::tuple<double, double, std::chrono::time_point<std::chrono::high_resolution_clock>>> extended_data_vector;
@@ -40,13 +40,14 @@ void WebSocketHandler::startWebSocketThread(const std::set<std::string>& selecte
                         extended_data_vector.emplace_back(data_point.first, data_point.second, now);
 
                         // Optional: Simulate a short delay (e.g. 1 microsecond)
-                        // std::this_thread::sleep_for(std::chrono::microseconds(1));
+                        // std::this_thread::sleep_for(std::chrono::microseconds(1000));
                     }
 
                     captureData[id] = std::move(extended_data_vector);
                 }
+                
 
-                /*
+                /* 
                 // Alternative 2
                 for (auto& [id, data_vector] : tempData) {
                     std::vector<std::tuple<double, double, std::chrono::time_point<std::chrono::high_resolution_clock>>> extended_data_vector;
@@ -63,7 +64,7 @@ void WebSocketHandler::startWebSocketThread(const std::set<std::string>& selecte
 
                 send(captureData, selected_serials);
             }
-            // std::this_thread::sleep_for(std::chrono::milliseconds(4));
+            // std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     });
     webSocketThread.detach();

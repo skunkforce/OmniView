@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
     // Main loop
     while (running) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     return 0;
