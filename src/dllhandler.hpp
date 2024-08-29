@@ -9,8 +9,8 @@
 
 // Function pointer for the DLL-Function
 
-typedef int (*InitSawtoothFunc)(void*, void* (*)(void*, size_t, void*, size_t, void (*)(void*)));
-typedef int (*DeinitSawtoothFunc)(void*);
+typedef int (*InitDllCallbackFunc)(void*, void* (*)(void*, size_t, void*, size_t, void (*)(void*)));
+typedef int (*DeinitDllCallbackFunc)(void*);
 
 class DllHandler {
 public:
@@ -24,8 +24,8 @@ public:
 private:
     std::string dllPath;
     void* dllHandle = nullptr;
-    InitSawtoothFunc initSawtooth = nullptr;
-    DeinitSawtoothFunc deinitSawtooth = nullptr;
+    InitDllCallbackFunc initDllCallback = nullptr;
+    DeinitDllCallbackFunc deinitDllCallback = nullptr;
     std::mutex dllMutex;
 };
 

@@ -2,10 +2,10 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-void* sawtoothCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
+void* generalDllCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
     // DEBUG
-    std::vector<int> sawtooth_data{static_cast<int*>(data), static_cast<int*>(data) + size};
-    fmt::print("Sawtooth data: {}\n", nlohmann::json(sawtooth_data).dump());
+    std::vector<int> callback_data{static_cast<int*>(data), static_cast<int*>(data) + size};
+    fmt::print("Callback data: {}\n", nlohmann::json(callback_data).dump());
 
     deallocator(data);
 
@@ -22,24 +22,24 @@ bool DllHandler::load() {
         return false;
     }
 
-    initSawtooth = (InitSawtoothFunc)dlsym(dllHandle, "init_sawtooth");
-    if (!initSawtooth) {
-        std::cerr << "Failed to get init_sawtooth function: " << dlerror() << std::endl;
+    initDllCallback = (InitDllCallbackFunc)dlsym(dllHandle, "init_callback");
+    if (!initDllCallback) {
+        std::cerr << "Failed to get init_callback function: " << dlerror() << std::endl;
         dlclose(dllHandle);
         dllHandle = nullptr;
         return false;
     }
 
-    deinitSawtooth = (DeinitSawtoothFunc)dlsym(dllHandle, "deinit_sawtooth");
-    if (!deinitSawtooth) {
-        std::cerr << "Failed to get deinit_sawtooth function: " << dlerror() << std::endl;
+    deinitDllCallback = (DeinitDllCallbackFunc)dlsym(dllHandle, "deinit_callback");
+    if (!deinitDllCallback) {
+        std::cerr << "Failed to get deinit_callback function: " << dlerror() << std::endl;
         dlclose(dllHandle);
         dllHandle = nullptr;
         return false;
     }
 
     // Init the DLL with a callback function
-    initSawtooth(nullptr, nullptr);
+    initDllCallback(nullptr, nullptr);
     
     fmt::print("Dll loaded and initialized; {}\n", dllPath);
     return true;
@@ -48,8 +48,8 @@ bool DllHandler::load() {
 void DllHandler::unload() {
     std::lock_guard<std::mutex> lock(dllMutex);
     if (dllHandle) {
-        if (deinitSawtooth) {
-            deinitSawtooth(dllHandle);
+        if (deinitDllCallback) {
+            deinitDllCallback(dllHandle);
         }
         dlclose(dllHandle);
         dllHandle = nullptr;
