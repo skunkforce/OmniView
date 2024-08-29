@@ -7,7 +7,7 @@
 #include "style.hpp"
 
 int main() {
-  const std::string configpath = "../config/config.json";
+  const std::string configpath = "config/config.json";
   set_config(configpath);
   nlohmann::json config = load_json_file(configpath);
   set_json(config);
