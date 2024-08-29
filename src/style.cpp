@@ -66,7 +66,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   colors[ImGuiCol_PlotHistogram] = {0.9f, 0.7f, 0.f, 1.f};
   colors[ImGuiCol_PlotHistogramHovered] = {1.f, 0.6f, 0.f, 1.f};
   colors[ImGuiCol_TextSelectedBg] = {0.26f, 0.59f, 0.98f, 0.35f};
-  colors[ImGuiCol_DragDropTarget] = {0.2f, 0.2f, 0.2f, 0.35f};
+  colors[ImGuiCol_DragDropTarget] = {0.2f, 0.2f, 0.2f, 0.35f}; 
 
   if (bStyleDark_) {
     for (int i = 0; i < ImGuiCol_COUNT; i++) {
