@@ -5,8 +5,9 @@ void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& option
 
     app.add_option("-w, --wsuri", options.wsURI, "WebSocket URI");
     app.add_option("-d, --device", options.deviceIds, "Omniscope Device ID")->expected(-1);
-    app.add_flag("-s, --search", options.search, "Search for devices");
+    app.add_flag("-s, --searchdevice", options.searchDevice, "Search for devices");
     app.add_flag("-a, --all", options.all, "Use all connected devices");
+    app.add_flag("-l, --searchdll", options.searchDll, "Search for DLLs");
 
     try {
         app.parse(argc, argv);

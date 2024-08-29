@@ -19,7 +19,7 @@ nlohmann::json captureDataToJson(const std::map<Omniscope::Id, std::vector<std::
                 // Replaced by a timestamp
                 // {"x", std::get<0>(tuple)},
 
-                {"y", std::get<1>(tuple)},
+                {"value", std::get<1>(tuple)},
                 {"timestamp", timestamp}
             };
             jsonData.push_back(dataPoint);

@@ -24,4 +24,6 @@ void searchDevices();
 void stopAllDevices();
 bool selectDevices(const CommandLineOptions& options, std::set<std::string>& selected_serials);
 
+void searchDlls();
+
 #endif

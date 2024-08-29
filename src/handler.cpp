@@ -1,5 +1,6 @@
 #include "handler.hpp"
 #include "websockethandler.hpp"
+#include <filesystem>
 #include <iostream>
 #include <thread>
 #include <csignal>
@@ -101,3 +102,17 @@ bool selectDevices(const CommandLineOptions& options, std::set<std::string>& sel
     }
     return true;
 }
+
+void searchDlls() {
+    std::string searchPath = "/home/arkadiusz/Projects/lib";
+    std::string dllExtension = ".so";
+
+    std::cout << "Searching for DLLs in: " << searchPath << std::endl;
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(searchPath)) {
+        if (entry.path().extension() == dllExtension) {
+            std::cout << " Found DLL: " << entry.path().filename().string() << std::endl;
+        }
+    }
+}
+

@@ -12,8 +12,13 @@ int main(int argc, char** argv) {
     // Parse command line arguments
     parseCommandLineArguments(argc, argv, options);
 
-    if (options.search) {
+    if (options.searchDevice) {
         searchDevices();
+        return 0;
+    }
+
+    if (options.searchDll) {
+        searchDlls();
         return 0;
     }
 
