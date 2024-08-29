@@ -92,7 +92,8 @@ int main() {
     addPlots("Recording the data", [&flagPaused](
                                        double x_max, std::string yLabel,
                                        ImAxis_ axis, double yMin, double yMax) {
-      ImPlot::SetupLegend(ImPlotLocation_NorthEast, ImPlotLegendFlags_Outside);
+      ImPlot::SetupLegend(ImPlotLocation_NorthEast /*,
+                          ImPlotLegendFlags_Outside */);
       // auto auxFlagsMeasuring =
       //    ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
       // auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
