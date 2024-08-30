@@ -61,8 +61,3 @@ DllHandler::~DllHandler() {
     unload();
 }
 
-/*
-void* DllHandler::callFunction(void* data, size_t size, void* dev_handle, size_t timestamp, void (*deallocator)(void*)) {
-    return nullptr;
-}
-*/
