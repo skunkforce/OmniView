@@ -113,14 +113,14 @@
         },
         "font": "comicsans",
         "minscale": 1.0,
-        "scale": 1.5000001192092896
+        "scale": 1.01
     },
     "title": "Omniview 0.5",
     "window": {
         "color": {
-            "blue": 0.7,
-            "green": 0.7,
-            "red": 0.7,
+            "blue": 0.1,
+            "green": 0.1,
+            "red": 0.1,
             "transparency": 1.0
         },
         "sizex": 1920,
