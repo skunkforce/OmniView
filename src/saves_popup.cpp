@@ -17,16 +17,21 @@ static void save(const Omniscope::Id &device,
                          device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
-      // four bytes for each y_value, three for the number
-      // and one new line as a separator between the numbers
-      values.size() * 4, [&values, &y_indx](char *begin, std::size_t) {
-        auto end = begin;
-        for (; y_indx < values.size(); y_indx++) {
-          end = std::to_chars(end, end + 3, values[y_indx].second).ptr;
-          *end++ = '\n';
-        }
-        return end - begin;
-      });
+    // ten bytes for each y_value, nine for the number
+    // and one new line as a separator between the numbers
+    values.size() * 10, // take const ref to values
+    [&values = std::as_const(values), &y_indx](char *begin, std::size_t) {
+      auto end = begin;
+      constexpr unsigned factor{100'000};
+      for (; y_indx < values.size(); y_indx++) {
+        double value = values[y_indx].second * factor;
+        value = std::floor(value);
+        value /= factor;
+        end = std::to_chars(end, end + 9, value).ptr;
+        *end++ = '\n';
+      }
+      return end - begin;
+    });
   // create a .csv file to write to it
   std::ofstream file(outFile, std::ios::app);
   if (!file.is_open()) {
