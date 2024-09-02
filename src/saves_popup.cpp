@@ -17,12 +17,17 @@ static void save(const Omniscope::Id &device,
                          device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
-      // four bytes for each y_value, three for the number
+      // ten bytes for each y_value, nine for the number
       // and one new line as a separator between the numbers
-      values.size() * 4, [&values, &y_indx](char *begin, std::size_t) {
+      values.size() * 10, // take const ref to values
+      [&values = std::as_const(values), &y_indx](char *begin, std::size_t) {
         auto end = begin;
+        constexpr unsigned factor{100'000};
         for (; y_indx < values.size(); y_indx++) {
-          end = std::to_chars(end, end + 3, values[y_indx].second).ptr;
+          double value = values[y_indx].second * factor;
+          value = std::floor(value);
+          value /= factor;
+          end = std::to_chars(end, end + 9, value).ptr;
           *end++ = '\n';
         }
         return end - begin;
@@ -216,7 +221,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   ImGui::Separator();
   ImGui::NewLine();
-  if (ImGui::Button(appLanguage[Key::Back])) 
+  if (ImGui::Button(appLanguage[Key::Back]))
     ImGui::CloseCurrentPopup();
   ImGui::SameLine(ImGui::GetWindowWidth() * 0.75f); // offset from start x
 
@@ -229,7 +234,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (ImGui::Button(appLanguage[Key::Save])) {
     checked_devices_cnt = count_checked_devices();
     flagDataNotSaved = false;
-    future = std::async(       // const reference to the container 
+    future = std::async( // const reference to the container
         std::launch::async, [=, &liveDvcs = std::as_const(liveDvcs)] {
           for (size_t i{}; const auto &[device, values] : liveDvcs) {
             // measurement saving preparation if device is checked
@@ -254,11 +259,11 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
         });
     progress = true;
   }
-  if (progress) {    // check selected devices are saved
+  if (progress) { // check selected devices are saved
     if (saved_files_cnt == checked_devices_cnt) {
       future.get();
       progress = false;
-      inptTxtFields.clear(); // reset storage location(s) 
+      inptTxtFields.clear(); // reset storage location(s)
       dvcCheckedArr.clear(); // rest check boxes
       saved_files_cnt = 0;
       ImGui::CloseCurrentPopup();
