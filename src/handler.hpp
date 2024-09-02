@@ -30,7 +30,7 @@ inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
     captureData;
 
 inline std::vector<AxisInfo> plotAxes;
-void addPlots(const char *, const bool, std::function<void(double, std::string, ImAxis_, double, double)>);
+void addPlots(const char *, std::function<void(double, std::string, ImAxis_, double, double)>);
 void parseDeviceMetaData(Omniscope::MetaData, std::shared_ptr<OmniscopeDevice>&);
 void initDevices();
 void devicesList(bool const& flagPaused);
