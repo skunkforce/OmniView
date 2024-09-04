@@ -245,11 +245,9 @@ void load_files(decltype(captureData) &loadedFiles,
             loadedFile.first.type = substr;
           if (i == 4) // fifth element (serial of scope)
             loadedFile.first.serial = substr;
-          if (i == 5) // sixth element (sampleRate of scope)
-            loadedFile.first.sampleRate = std::stoi(substr);
         }
         // each y-value is recorded at 1/sampleRate time
-        double step{1./loadedFile.first.sampleRate}, base{step};
+        double step{0.00001}, base{step};
         size_t indx{2};           // y_values start from line 2 of the file
         while (!readfile.eof()) { // fill the vector of the values
           double value{};
