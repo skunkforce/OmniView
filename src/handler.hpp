@@ -2,12 +2,12 @@
 #ifndef HANDLER_HEADER_HPP
 #define HANDLER_HEADER_HPP
 
-#include <implot.h>
-#include <set>
-#include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
 #include "languages.hpp"
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+#include <set>
+#include <implot.h>
 
 struct AxisInfo {
   std::pair<Omniscope::Id, std::vector<std::pair<double, double>> &> data;

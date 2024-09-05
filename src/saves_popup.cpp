@@ -3,10 +3,8 @@
 #include <charconv>
 #include "popups.hpp"
 #include "look_up_saves.hpp"
-
 #include "imgui_stdlib.h"
 #include "languages.hpp"
-
 #include "style.hpp"
 
 static void save(const Omniscope::Id &device,
