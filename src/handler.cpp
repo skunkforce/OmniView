@@ -1,16 +1,16 @@
 #include "handler.hpp"
-#include <functional>
-#include <set>
-#include <implot.h>
-#include "popups.hpp"
-#include "get_from_github.hpp"
 #include "../imgui-stdlib/imgui_stdlib.h"
+#include "get_from_github.hpp"
+#include "popups.hpp"
+#include <functional>
+#include <implot.h>
+#include <set>
 
 std::vector<AxisInfo> getDeviceInfos() {
   std::vector<AxisInfo> axisInfos;
   std::vector<Omniscope::Id> samplerDvcs; // store live devices
   std::vector<std::pair<std::string, ImAxis_>> assignedEgus;
-  if (sampler.has_value()) 
+  if (sampler.has_value())
     for (auto const &device : sampler->sampleDevices) {
       // TODO replace ADC counts with language variable
       std::string egu = device.first->getEgu().value_or("ADC counts");
@@ -40,17 +40,17 @@ std::vector<AxisInfo> getDeviceInfos() {
               *eguIterator, timebase};
           axisInfos.push_back(axisInfo);
         }
-      } else 
+      } else
         fmt::println("Error no device id found");
     }
-    // also add loaded files into plotAxes
-    for (auto &[device, values] : captureData)
-      if (std::ranges::find(samplerDvcs, device.serial,
-                            &Omniscope::Id::serial) == samplerDvcs.end()) {
-        axisInfos.push_back({{device, values},
-                             {"y [Volts]", ImAxis_Y1},
-                             std::to_string(device.sampleRate)});
-      }
+  // also add loaded files into plotAxes
+  for (auto &[device, values] : captureData)
+    if (std::ranges::find(samplerDvcs, device.serial, &Omniscope::Id::serial) ==
+        samplerDvcs.end()) {
+      axisInfos.push_back({{device, values},
+                           {"y [Volts]", ImAxis_Y1},
+                           std::to_string(device.sampleRate)});
+    }
   return axisInfos;
 }
 

@@ -4,14 +4,14 @@
 #include <vector>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define STB_IMAGE_IMPLEMENTATION
-#include "style.hpp"
+#include "../imgui-filebrowser/imfilebrowser.h"
 #include "../stb_image/stb_image.h"
 #include "imagesHeader.hpp"
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
-#include "../imgui-filebrowser/imfilebrowser.h"
 #include "popups.hpp"
+#include "style.hpp"
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
@@ -66,7 +66,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   colors[ImGuiCol_PlotHistogram] = {0.9f, 0.7f, 0.f, 1.f};
   colors[ImGuiCol_PlotHistogramHovered] = {1.f, 0.6f, 0.f, 1.f};
   colors[ImGuiCol_TextSelectedBg] = {0.26f, 0.59f, 0.98f, 0.35f};
-  colors[ImGuiCol_DragDropTarget] = {0.2f, 0.2f, 0.2f, 0.35f}; 
+  colors[ImGuiCol_DragDropTarget] = {0.2f, 0.2f, 0.2f, 0.35f};
 
   if (bStyleDark_) {
     for (int i = 0; i < ImGuiCol_COUNT; i++) {
@@ -498,8 +498,8 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                            (void *)(intptr_t)image_texture[PngRenderedCnt],
                            ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                                   image_height[PngRenderedCnt] * iconsSacle))) {
-      liveDvcs.clear(); // get updated live devices for saving 
-      if (!loadedFiles.empty()) { 
+      liveDvcs.clear(); // get updated live devices for saving
+      if (!loadedFiles.empty()) {
         has_loaded_file = true;
         for (const auto &[device, values] : captureData)
           if (!loadedFiles.contains(device))
