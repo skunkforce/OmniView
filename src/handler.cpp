@@ -1,10 +1,14 @@
 #include "handler.hpp"
-#include "../imgui-stdlib/imgui_stdlib.h"
-#include "get_from_github.hpp"
-#include "popups.hpp"
+
 #include <functional>
-#include <implot.h>
 #include <set>
+#include <implot.h>
+
+
+#include "popups.hpp"
+#include "get_from_github.hpp"
+
+#include "../imgui-stdlib/imgui_stdlib.h"
 
 std::vector<AxisInfo> getDeviceInfos() {
   std::vector<AxisInfo> axisInfos;

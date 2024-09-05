@@ -4,14 +4,15 @@
 #include <vector>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define STB_IMAGE_IMPLEMENTATION
-#include "../imgui-filebrowser/imfilebrowser.h"
+#include "style.hpp"
 #include "../stb_image/stb_image.h"
 #include "imagesHeader.hpp"
 #include "imgui_internal.h"
 #include "jasonhandler.hpp"
 #include "languages.hpp"
+#include "../imgui-filebrowser/imfilebrowser.h"
 #include "popups.hpp"
-#include "style.hpp"
+
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
