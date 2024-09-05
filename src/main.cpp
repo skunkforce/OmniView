@@ -1,10 +1,7 @@
-#include <algorithm>
-#include <cmake_git_version/version.hpp>
-#include <set>
-
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
+#include <cmake_git_version/version.hpp>
 
 int main() {
   const std::string configpath = "config/config.json";
