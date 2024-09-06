@@ -12,14 +12,14 @@ jobs:
         include:
           - os: windows-latest
             triplet: x64-windows
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             compiler: gcc
-            gcc: 13.3
+            gcc: 13.1
             triplet: x64-linux
 
     steps:
       - uses: actions/checkout@v3
-
+      - run: echo gcc --version
       - name: add ssh private keys for submodule repositories
         uses: webfactory/ssh-agent@v0.7.0
         with:
