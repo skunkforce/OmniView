@@ -6,6 +6,7 @@
 #include "imgui_stdlib.h"
 #include "languages.hpp"
 #include "style.hpp"
+#include <iostream>
 
 static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,

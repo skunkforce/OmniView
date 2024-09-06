@@ -9,14 +9,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-latest
-            triplet: x64-windows
-          - os: ubuntu-latest
-            compiler: gcc
-            gcc: 13
-            triplet: x64-linux
-
+        os:
+          - windows-latest
+        triplet: 
+          - x64-windows
+          - ubuntu-latest
+        compiler:
+          - gcc-13.3
+          - msvc
     steps:
       - uses: actions/checkout@v3
 
