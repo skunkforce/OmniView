@@ -14,13 +14,13 @@ int main() {
   // local variables
   bool flagPaused{true}, development{false}, open_generate_training_data{false},
       open_settings{false};
-  std::once_flag flag;
+  std::once_flag configFlag;
   auto loadedFiles = captureData;
   std::map<Omniscope::Id, std::string> loadedFilenames;
 
   // main loop
   auto render = [&]() {
-    std::call_once(flag, set_inital_config, std::ref(config));
+    std::call_once(configFlag, set_inital_config, std::ref(config));
     SetupImGuiStyle(false, 0.99f);
     ImGui::SetNextWindowPos({0.f, 0.f});
     auto windowSize{ImGui::GetIO().DisplaySize};
