@@ -58,7 +58,7 @@ std::vector<AxisInfo> getDeviceInfos() {
   return axisInfos;
 }
 
-void addPlots(const char *name, bool const flagPaused,
+void addPlots(const char *name, 
               std::function<void(double, std::string, ImAxis_, double, double)>
                   axesSetup) {
   static std::set<std::string> firstRun;

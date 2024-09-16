@@ -31,7 +31,7 @@ inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
 
 inline std::vector<AxisInfo> plotAxes;
 void addPlots(
-    const char *, const bool,
+    const char *,
     std::function<void(double, std::string, ImAxis_, double, double)>);
 void parseDeviceMetaData(Omniscope::MetaData,
                          std::shared_ptr<OmniscopeDevice> &);
