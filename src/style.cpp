@@ -13,6 +13,7 @@
 #include "../imgui-filebrowser/imfilebrowser.h"
 #include "popups.hpp"
 
+
 void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
   // ImGuiIO &io = ImGui::GetIO();
@@ -24,8 +25,8 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   auto colors = ImGui::GetStyle().Colors;
   colors[ImGuiCol_Text] = {1.f, 1.f, 1.f, 1.f};
   colors[ImGuiCol_TextDisabled] = {0.972f, 0.976f, 0.98f, 0.98f};
-  colors[ImGuiCol_WindowBg] = {0.145f, 0.157f, 0.169f, 1.f};
-  colors[ImGuiCol_ChildBg] = {0.145f, 0.157f, 0.169f, 1.f};
+  colors[ImGuiCol_WindowBg] = {0.0f, 0.0f, 0.0f, 1.f};
+  colors[ImGuiCol_ChildBg] = {0.0f, 0.0f, 0.0f, 1.f};
   colors[ImGuiCol_PopupBg] = {0.145f, 0.157f, 0.169f, 1.f};
   colors[ImGuiCol_Border] = {0.94f, 0.243f, 0.212f, 1.0f};
   colors[ImGuiCol_BorderShadow] = {0.f, 0.f, 0.f, 1.f};
@@ -44,7 +45,7 @@ void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   colors[ImGuiCol_CheckMark] = {0.92f, 0.24f, 0.211f, 1.f};
   colors[ImGuiCol_SliderGrab] = {0.96f, 0.96f, 0.96f, 1.f};
   colors[ImGuiCol_SliderGrabActive] = {0.941f, 0.941f, 0.941f, 1.f};
-  colors[ImGuiCol_Button] = {0.145f, 0.156f, 0.168f, 1.f};
+  colors[ImGuiCol_Button] = {0.0f, 0.0f, 0.0f, 1.f};
   colors[ImGuiCol_ButtonHovered] = {0.941f, 0.243f, 0.211f, 1.f};
   colors[ImGuiCol_ButtonActive] = {0.921f, 0.24f, 0.211f, 1.f};
   colors[ImGuiCol_Header] = {0.26f, 0.59f, 0.98f, 0.31f};
@@ -274,8 +275,8 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
         fmt::println("Error Loading Png #{}.", i);
     }
 
-  float scaleWidth = windowSize.x * 0.0005f;
-  float scaleHeight = windowSize.y * 0.0008f;
+  float scaleWidth = windowSize.x * 0.00035f;
+  float scaleHeight = windowSize.y * 0.00065f;
   // Begin the SideBarMenu
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -360,6 +361,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
   auto windowSize{ImGui::GetIO().DisplaySize};
   static bool flagDataNotSaved = true;
   static decltype(captureData) liveDvcs;
+  static bool has_loaded_file;
 
   // begin Toolbar ############################################
   ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
@@ -369,7 +371,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
     saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved,
-                liveDvcs);
+                has_loaded_file ? liveDvcs : captureData);
     ImGui::EndPopup();
   }
   // ############################ Popup Reset
@@ -497,9 +499,15 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
                            (void *)(intptr_t)image_texture[PngRenderedCnt],
                            ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                                   image_height[PngRenderedCnt] * iconsSacle))) {
-      for (const auto &[device, values] : captureData)
-        if (!loadedFiles.contains(device))
-          liveDvcs.emplace(device, values); // extract live devices (the little overhead)
+      liveDvcs.clear(); // get updated live devices for saving
+      if (!loadedFiles.empty()) {
+        has_loaded_file = true;
+        for (const auto &[device, values] : captureData)
+          if (!loadedFiles.contains(device))
+            liveDvcs.emplace(
+                device, values); // extract live devices (the little overhead)
+      } else
+        has_loaded_file = false;
 
       if (sampler.has_value())
         ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);

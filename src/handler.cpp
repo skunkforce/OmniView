@@ -1,24 +1,90 @@
 #include "handler.hpp"
+
+#include <functional>
+#include <set>
 #include <implot.h>
+
+
 #include "popups.hpp"
 #include "get_from_github.hpp"
+
 #include "../imgui-stdlib/imgui_stdlib.h"
 
-void addPlots(const char *name, std::function<void(double)> axesSetup) {
+std::vector<AxisInfo> getDeviceInfos() {
+  std::vector<AxisInfo> axisInfos;
+  std::vector<Omniscope::Id> samplerDvcs; // store live devices
+  std::vector<std::pair<std::string, ImAxis_>> assignedEgus;
+  if (sampler.has_value())
+    for (auto const &device : sampler->sampleDevices) {
+      // TODO replace ADC counts with language variable
+      std::string egu = device.first->getEgu().value_or("ADC counts");
+      auto id = device.first->getId();
+      if (id.has_value()) {
+        auto deviceId = id.value();
+        samplerDvcs.push_back(deviceId);
+        std::string timebase{std::to_string(deviceId.sampleRate)};
+        if (captureData.find(deviceId) != captureData.end()) {
+          auto eguIterator = std::ranges::find(
+              assignedEgus, egu, &std::pair<std::string, ImAxis_>::first);
+          if (eguIterator == assignedEgus.end()) {
+            if (assignedEgus.size() <= 3) {
+              ImAxis_ nextYAxis =
+                  static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
+              assignedEgus.push_back(std::make_pair(egu, nextYAxis));
+              eguIterator = (assignedEgus.end() - 1);
+            } else {
+              fmt::print("too many Axes added, egu not added: "
+                         "{}\nDevice id: {}",
+                         egu, id.value());
+              break;
+            }
+          }
+          AxisInfo axisInfo{
+              std::make_pair(deviceId, std::ref(captureData[deviceId])),
+              *eguIterator, timebase};
+          axisInfos.push_back(axisInfo);
+        }
+      } else
+        fmt::println("Error no device id found");
+    }
+  // also add loaded files into plotAxes
+  for (auto &[device, values] : captureData)
+    if (std::ranges::find(samplerDvcs, device.serial, &Omniscope::Id::serial) ==
+        samplerDvcs.end()) {
+      axisInfos.push_back({{device, values},
+                           {"y [Volts]", ImAxis_Y1},
+                           std::to_string(device.sampleRate)});
+    }
+  return axisInfos;
+}
+
+void addPlots(const char *name, bool const flagPaused,
+              std::function<void(double, std::string, ImAxis_, double, double)>
+                  axesSetup) {
   static std::set<std::string> firstRun;
-  const auto &plots{captureData};
   auto const plotRegion = ImGui::GetContentRegionAvail();
+  // TODO search devices must work aswell
+  plotAxes = getDeviceInfos();
 
   if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
     double x_min = std::numeric_limits<double>::max();
     double x_max = std::numeric_limits<double>::min();
-    for (auto const &plot : plots)
-      if (!plot.second.empty()) {
-        x_min = std::min(x_min, plot.second.front().first);
-        x_max = std::max(x_max, plot.second.back().first);
-      }
 
-    axesSetup(x_max);
+    for (auto const &axes : plotAxes) {
+      // fmt::print("data size:{}, egu: {}\n", axes.data.second.size(),
+      //           axes.egu.first);
+      if (!axes.data.second.empty()) {
+        x_max = std::max(x_max, axes.data.second.back().first);
+        // TODO save max and min value over same axis
+        auto [min, max] = std::minmax_element(axes.data.second.begin(),
+                                              axes.data.second.end());
+        double yMin = min->first + (min->first * 0.15);
+        double yMax = max->second + (max->second * 0.15);
+        // fmt::print("yMin {}, yMax{}\n", yMin, yMax);
+        axesSetup(x_max, axes.egu.first, axes.egu.second, yMin, yMax);
+      }
+    }
+
     auto const limits = [&]() {
       if (!firstRun.contains(name)) {
         firstRun.insert(name);
@@ -26,7 +92,8 @@ void addPlots(const char *name, std::function<void(double)> axesSetup) {
       }
       return ImPlot::GetPlotLimits();
     }();
-    auto addPlot = [&](auto const &plot) {
+
+    auto addPlot = [&](auto const &plot, ImAxis_ yAxis) {
       if (!plot.second.empty()) {
         auto const start = [&]() {
           auto p = std::lower_bound(plot.second.begin(), plot.second.end(),
@@ -51,6 +118,8 @@ void addPlots(const char *name, std::function<void(double)> axesSetup) {
           return static_cast<std::size_t>(s);
         }();
 
+        // determine which axes is the right one to choose
+        ImPlot::SetAxes(ImAxis_X1, yAxis);
         ImPlot::PlotLine(
             fmt::format("{}-{}", plot.first.type, plot.first.serial).c_str(),
             std::addressof(start->first), std::addressof(start->second),
@@ -58,15 +127,27 @@ void addPlots(const char *name, std::function<void(double)> axesSetup) {
             2 * sizeof(double) * stride);
       }
     };
-
-    for (auto const &plot : plots) {
-      ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.first][0],
-                                      colorMap[plot.first][1],
-                                      colorMap[plot.first][2], 1.0f});
-      addPlot(plot);
+    for (int count = 0; auto const &plot : plotAxes) {
+      ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.data.first][0],
+                                      colorMap[plot.data.first][1],
+                                      colorMap[plot.data.first][2], 1.0f});
+      addPlot(plot.data, plot.egu.second);
     }
 
     ImPlot::EndPlot();
+  }
+}
+
+void parseDeviceMetaData(Omniscope::MetaData metaData,
+                         std::shared_ptr<OmniscopeDevice> &device) {
+  try {
+    nlohmann::json metaJson = nlohmann::json::parse(metaData.data);
+    fmt::print("{}\n", metaJson.dump());
+    device->setScale(std::stod(metaJson["scale"].dump()));
+    device->setOffset(std::stod(metaJson["offset"].dump()));
+    device->setEgu(metaJson["egu"]);
+  } catch (...) {
+    fmt::print("parsing Meta Data error: {}", metaData.data);
   }
 }
 
@@ -76,7 +157,14 @@ void initDevices() {
 
   devices = deviceManager.getDevices(VID, PID);
   for (auto &device : devices) {
+    auto metaDataCb = [&](auto const &msg) {
+      if (std::holds_alternative<Omniscope::MetaData>(msg)) {
+        parseDeviceMetaData(std::get<Omniscope::MetaData>(msg), device);
+      }
+    };
     auto id = device->getId().value();
+    auto sampleRate = static_cast<double>(id.sampleRate);
+    device->setTimeScale(static_cast<double>(1 / sampleRate));
     if (!colorMap.contains(id)) {
       ImPlot::PushColormap(ImPlotColormap_Dark);
       auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
@@ -87,10 +175,13 @@ void initDevices() {
     device->send(Omniscope::SetRgb{static_cast<std::uint8_t>(color[0] * 255),
                                    static_cast<std::uint8_t>(color[1] * 255),
                                    static_cast<std::uint8_t>(color[2] * 255)});
+    // set Callback for MetaData
+    device->setMessageCallback(metaDataCb);
+    device->send(Omniscope::GetMetaData{});
   }
 }
 
-void devicesList() {
+void devicesList(bool const &flagPaused) {
   auto doDevice = [&](auto &device, auto msg) {
     auto &color = colorMap[device->getId().value()];
     if (ImGui::ColorEdit3(
@@ -123,8 +214,13 @@ void devicesList() {
   };
 
   if (sampler.has_value())
-    for (auto &device : sampler->sampleDevices)
-      doDevice(device.first, appLanguage[Key::Measurement]);
+    for (auto &device : sampler->sampleDevices) {
+      if (!flagPaused) {
+        doDevice(device.first, appLanguage[Key::Measurement]);
+      } else {
+        doDevice(device.first, appLanguage[Key::Stop]);
+      }
+    }
   else
     for (auto &device : devices)
       doDevice(device, appLanguage[Key::Ready]);
@@ -154,14 +250,17 @@ void load_files(decltype(captureData) &loadedFiles,
           if (i == 4) // fifth element (serial of scope)
             loadedFile.first.serial = substr;
         }
+        // each y-value is recorded at 1/sampleRate time
+        double step{0.00001}, base{step};
         size_t indx{2};           // y_values start from line 2 of the file
         while (!readfile.eof()) { // fill the vector of the values
           double value{};
           readfile >> value;
-          loadedFile.second.emplace_back(indx++, value);
+          loadedFile.second.emplace_back(base, value);
           static constexpr size_t bigNumber{10'000'000};
           readfile.ignore(bigNumber,
                           '\n'); // new line separator between elements
+          base += step;
         }
         readfile.close();
         loadedFile.second.pop_back(); // pop the extra last element
@@ -253,6 +352,7 @@ void rstSettings(const decltype(captureData) &loadedFiles) {
   devices.clear();
   savedFileNames.clear();
   deviceManager.clearDevices();
+  plotAxes.clear();
   // erase all elements excpet loadedFiles
   for (auto it = captureData.begin(); it != captureData.end();) {
     if (!loadedFiles.contains(it->first))

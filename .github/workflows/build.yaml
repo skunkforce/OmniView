@@ -12,9 +12,9 @@ jobs:
         include:
           - os: windows-latest
             triplet: x64-windows
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             compiler: gcc
-            gcc: 13
+            gcc: 13.1
             triplet: x64-linux
 
     steps:

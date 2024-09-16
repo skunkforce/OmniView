@@ -1,5 +1,4 @@
 #include <fstream>
-#include <sstream>
 #include <future>
 #include <charconv>
 #include "popups.hpp"
@@ -10,19 +9,25 @@
 
 static void save(const Omniscope::Id &device,
                  const std::vector<std::pair<double, double>> &values,
-                 const fs::path &outFile, std::string allData, size_t &y_indx,
-                 std::string filename) {
+                 const fs::path &outFile, std::string allData,
+                 std::atomic_uint64_t &y_indx, std::string filename,
+                 std::atomic_uint16_t &saved_files_cnt) {
   std::string serialFilename = device.serial + " " + filename;
   allData += fmt::format(",{},{},{}\n", device.type, serialFilename,
                          device.sampleRate);
   std::string fileContent;
   fileContent.resize_and_overwrite(
-      // four bytes for each y_value, three for the number
+      // ten bytes for each y_value, nine for the number
       // and one new line as a separator between the numbers
-      values.size() * 4, [&values, &y_indx](char *begin, std::size_t) {
+      values.size() * 10, // take const ref to values
+      [&values = std::as_const(values), &y_indx](char *begin, std::size_t) {
         auto end = begin;
+        constexpr unsigned factor{100'000};
         for (; y_indx < values.size(); y_indx++) {
-          end = std::to_chars(end, end + 3, values[y_indx].second).ptr;
+          double value = values[y_indx].second * factor;
+          value = std::floor(value);
+          value /= factor;
+          end = std::to_chars(end, end + 9, value).ptr;
           *end++ = '\n';
         }
         return end - begin;
@@ -31,20 +36,21 @@ static void save(const Omniscope::Id &device,
   std::ofstream file(outFile, std::ios::app);
   if (!file.is_open()) {
     file.clear();
-    fmt::print("Could not create {} for writing!\n", outFile.string());
+    fmt::println("Could not create {} for writing!", outFile.string());
     return;
   }
-  fmt::print("Start saving {}.\n", outFile.string());
+  fmt::println("Start saving {}.", outFile.string());
   file << allData << fileContent;
   file.flush();
   file.close();
-  fmt::print("Finished saving.\n");
+  fmt::println("Finished saving.");
+  y_indx = 0; // reset index after each save
+  ++saved_files_cnt;
 }
 void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
                  std::chrono::system_clock::time_point &now,
                  std::time_t &now_time_t, std::tm &now_tm,
-                 bool &flagDataNotSaved,
-                 decltype(captureData) &liveDvcs) {
+                 bool &flagDataNotSaved, decltype(captureData) &liveDvcs) {
   ImGui::SetItemDefaultFocus();
   const size_t devicesSz{liveDvcs.size()};
   // input text fields
@@ -106,7 +112,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   allData += mileage;
 
   auto count_checked_devices = [&]() {
-    size_t deviceCnt{0};
+    unsigned deviceCnt{0};
     for (size_t i = 0; i < devicesSz; ++i)
       if (dvcCheckedArr[i].b)
         deviceCnt++;
@@ -121,7 +127,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   if (ImGui::BeginPopupModal("StoragePathInputFields", nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
-    for (size_t i = 1; i < count_checked_devices(); ++i) {
+    for (unsigned i = 1; i < count_checked_devices(); ++i) {
       // each iteration to get a unique ID
       ImGui::PushID(i);
       ImGui::InputTextWithHint("##Lable2", "\".../OmniView/saves/\"",
@@ -186,15 +192,12 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
     if (hasSelectedPath)
       complete_path = selectedPath;
-
     else if (!second_folder.empty()) {
       fs::path tempPath = second_folder;
       tempPath = tempPath.lexically_normal();
       tempPath = tempPath.relative_path();
       complete_path = dest / first_folder / tempPath;
-    }
-
-    else
+    } else
       complete_path = dest / first_folder;
 
     if (!fs::exists(complete_path))
@@ -203,7 +206,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     return complete_path / outFile;
   };
 
-  if (const size_t checkedDvc_cnt = count_checked_devices())
+  if (const unsigned checkedDvc_cnt = count_checked_devices())
     if (checkedDvc_cnt > 1) {
       ImGui::SameLine();
       ImGui::Dummy({200, 0});
@@ -218,51 +221,52 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
 
   ImGui::Separator();
   ImGui::NewLine();
-  if (ImGui::Button(appLanguage[Key::Back])) {
-      liveDvcs.clear();
+  if (ImGui::Button(appLanguage[Key::Back]))
     ImGui::CloseCurrentPopup();
-  }
   ImGui::SameLine(ImGui::GetWindowWidth() * 0.75f); // offset from start x
 
   static std::future<void> future;
-  static size_t y_indx; // used for the progress bar too
-  static size_t valuesSize;
-  static bool progress{false};
+  static std::atomic_uint64_t y_indx, valuesSize;
+  static std::atomic_uint16_t saved_files_cnt;
+  static unsigned checked_devices_cnt;
+  static bool progress;
 
   if (ImGui::Button(appLanguage[Key::Save])) {
+    checked_devices_cnt = count_checked_devices();
     flagDataNotSaved = false;
-    fs::path path;
-    for (size_t i{}; const auto &[device, values] : liveDvcs) {
-      if (dvcCheckedArr[i].b) {
-        auto filename = mkFileName(fmt::format("device{}", i + 1).c_str());
-        if (hasSelectedPathArr[i].b) {
-          path = mkdir(true, selectedPathArr[i], "", filename);
-          hasSelectedPathArr[i].b = false;
-        } else if (!inptTxtFields[i].empty()) {
-          path = mkdir(false, "", inptTxtFields[i], filename);
-          inptTxtFields[i].clear();
-        } else
-          path = mkdir(false, "", "", filename);
-        valuesSize = values.size();
-        future = std::async(std::launch::async, [&, path, filename] {
-          save(device, values, path, allData, y_indx, filename);
+    future = std::async( // const reference to the container
+        std::launch::async, [=, &liveDvcs = std::as_const(liveDvcs)] {
+          for (size_t i{}; const auto &[device, values] : liveDvcs) {
+            // measurement saving preparation if device is checked
+            if (dvcCheckedArr[i].b) {
+              fs::path path;
+              auto filename = mkFileName(fmt::format("device{}", i + 1));
+              if (hasSelectedPathArr[i].b) {
+                path = mkdir(true, selectedPathArr[i], "", filename);
+                hasSelectedPathArr[i].b = false;
+              } else if (!inptTxtFields[i].empty()) {
+                path = mkdir(false, "", inptTxtFields[i], filename);
+                inptTxtFields[i].clear();
+              } else
+                path = mkdir(false, "", "", filename);
+              valuesSize = values.size();
+              // save measurement of each device in a separate file
+              save(device, values, path, allData, y_indx, filename,
+                   saved_files_cnt);
+            }
+            i++;
+          }
         });
-        progress = true;
-      }
-      i++;
-    }
+    progress = true;
   }
-  if (progress) {
-    auto status = future.wait_for(std::chrono::milliseconds{1});
-    if (status == std::future_status::ready && future.valid()) {
+  if (progress) { // check selected devices are saved
+    if (saved_files_cnt == checked_devices_cnt) {
       future.get();
-      // reset related stuff
-      y_indx = 0;
-      valuesSize = 0;
       progress = false;
-      inptTxtFields[0].clear(); // reset storage location after each save
+      inptTxtFields.clear(); // reset storage location(s)
+      dvcCheckedArr.clear(); // rest check boxes
+      saved_files_cnt = 0;
       ImGui::CloseCurrentPopup();
-      liveDvcs.clear();
     } else {
       ImGui::ProgressBar((float)y_indx / valuesSize, {0.f, 0.f});
       ImGui::SameLine();

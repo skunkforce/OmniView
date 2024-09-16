@@ -5,6 +5,7 @@
 #include "../ImGuiInstance/src/ImGuiInstance/ImGuiInstance.hpp"
 #include "handler.hpp"
 
+
 struct StyleElement {
   const char *name;
   ImVec4 *color;
@@ -22,8 +23,8 @@ void set_side_menu(const nlohmann::json &, bool &, bool &,
 void set_toolbar(const nlohmann::json &, const nlohmann::json &, bool &,
                  const decltype(captureData) &);
 void PopupStyleEditor();
-void PushPlotRegionColors(); 
-void PopPlotRegionColors(); 
+void PushPlotRegionColors();
+void PopPlotRegionColors();
 void SetDeviceMenuStyle();
 
 namespace ImGui {
