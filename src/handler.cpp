@@ -1,64 +1,69 @@
 #include "handler.hpp"
-
-#include <functional>
-#include <set>
-#include <implot.h>
-
-
-#include "popups.hpp"
-#include "get_from_github.hpp"
-
 #include "../imgui-stdlib/imgui_stdlib.h"
+#include "get_from_github.hpp"
+#include "popups.hpp"
+#include <functional>
+#include <implot.h>
+#include <set>
 
-std::vector<AxisInfo> getDeviceInfos() {
+struct AxisInfo {
+  const std::pair<Omniscope::Id, std::vector<std::pair<double, double>> &> data;
+  std::pair<std::string, ImAxis_> egu;
+  std::string timebase;
+
+  AxisInfo(
+      const std::pair<Omniscope::Id, std::vector<std::pair<double, double>> &>
+          data_,
+      std::pair<std::string, ImAxis_> egu_, std::string timebase_)
+      : data{data_}, egu{egu_}, timebase{timebase_} {}
+};
+
+static std::vector<AxisInfo> plotAxes;
+
+static std::vector<AxisInfo> getDeviceInfos() {
   std::vector<AxisInfo> axisInfos;
   std::vector<Omniscope::Id> samplerDvcs; // store live devices
   std::vector<std::pair<std::string, ImAxis_>> assignedEgus;
   if (sampler.has_value())
     for (auto const &device : sampler->sampleDevices) {
-      // TODO replace ADC counts with language variable
-      std::string egu = device.first->getEgu().value_or("ADC counts");
-      auto id = device.first->getId();
-      if (id.has_value()) {
+      std::string egu =
+          device.first->getEgu().value_or(appLanguage[Key::ADC_counts]);
+      if (auto id = device.first->getId(); id.has_value()) {
         auto deviceId = id.value();
         samplerDvcs.push_back(deviceId);
-        std::string timebase{std::to_string(deviceId.sampleRate)};
-        if (captureData.find(deviceId) != captureData.end()) {
-          auto eguIterator = std::ranges::find(
-              assignedEgus, egu, &std::pair<std::string, ImAxis_>::first);
-          if (eguIterator == assignedEgus.end()) {
+        if (captureData.contains(deviceId)) {
+          if (!std::ranges::contains(assignedEgus, egu,
+                                     &std::pair<std::string, ImAxis_>::first))
             if (assignedEgus.size() <= 3) {
+              // make sure ImAxis_ values haven't changed
+              static_assert((ImAxis_Y1 + 1) == ImAxis_Y2);
               ImAxis_ nextYAxis =
                   static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
               assignedEgus.push_back(std::make_pair(egu, nextYAxis));
-              eguIterator = (assignedEgus.end() - 1);
             } else {
               fmt::print("too many Axes added, egu not added: "
                          "{}\nDevice id: {}",
                          egu, id.value());
               break;
             }
-          }
-          AxisInfo axisInfo{
-              std::make_pair(deviceId, std::ref(captureData[deviceId])),
-              *eguIterator, timebase};
-          axisInfos.push_back(axisInfo);
+          axisInfos.push_back({{deviceId, std::ref(captureData[deviceId])},
+                               assignedEgus.back(),
+                               std::to_string(deviceId.sampleRate)});
         }
       } else
         fmt::println("Error no device id found");
     }
-  // also add loaded files into plotAxes
+  // also get loaded files info
   for (auto &[device, values] : captureData)
     if (std::ranges::find(samplerDvcs, device.serial, &Omniscope::Id::serial) ==
-        samplerDvcs.end()) {
+        samplerDvcs.end())
       axisInfos.push_back({{device, values},
                            {"y [Volts]", ImAxis_Y1},
                            std::to_string(device.sampleRate)});
-    }
   return axisInfos;
 }
 
-void addPlots(const char *name, 
+void addPlots(const char *name,
               std::function<void(double, std::string, ImAxis_, double, double)>
                   axesSetup) {
   static std::set<std::string> firstRun;
@@ -70,9 +75,7 @@ void addPlots(const char *name,
     double x_min = std::numeric_limits<double>::max();
     double x_max = std::numeric_limits<double>::min();
 
-    for (auto const &axes : plotAxes) {
-      // fmt::print("data size:{}, egu: {}\n", axes.data.second.size(),
-      //           axes.egu.first);
+    for (auto const &axes : plotAxes)
       if (!axes.data.second.empty()) {
         x_max = std::max(x_max, axes.data.second.back().first);
         // TODO save max and min value over same axis
@@ -83,7 +86,6 @@ void addPlots(const char *name,
         // fmt::print("yMin {}, yMax{}\n", yMin, yMax);
         axesSetup(x_max, axes.egu.first, axes.egu.second, yMin, yMax);
       }
-    }
 
     auto const limits = [&]() {
       if (!firstRun.contains(name)) {
@@ -98,24 +100,18 @@ void addPlots(const char *name,
         auto const start = [&]() {
           auto p = std::lower_bound(plot.second.begin(), plot.second.end(),
                                     std::pair<double, double>{limits.X.Min, 0});
-          if (p != plot.second.begin())
-            return p - 1;
-          return p;
+          return p != plot.second.begin() ? p - 1 : p;
         }();
 
         auto const end = [&]() {
           auto p = std::upper_bound(start, plot.second.end(),
                                     std::pair<double, double>{limits.X.Max, 0});
-          if (p != plot.second.end())
-            return p + 1;
-          return p;
+          return p != plot.second.end() ? p + 1 : p;
         }();
 
         std::size_t const stride = [&]() -> std::size_t {
           auto const s = std::distance(start, end) / (plotRegion.x * 2.0);
-          if (1 >= s)
-            return 1;
-          return static_cast<std::size_t>(s);
+          return s <= 1 ? 1 : static_cast<std::size_t>(s);
         }();
 
         // determine which axes is the right one to choose
@@ -127,7 +123,7 @@ void addPlots(const char *name,
             2 * sizeof(double) * stride);
       }
     };
-    for (int count = 0; auto const &plot : plotAxes) {
+    for (auto const &plot : plotAxes) {
       ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.data.first][0],
                                       colorMap[plot.data.first][1],
                                       colorMap[plot.data.first][2], 1.0f});
@@ -142,7 +138,7 @@ void parseDeviceMetaData(Omniscope::MetaData metaData,
                          std::shared_ptr<OmniscopeDevice> &device) {
   try {
     nlohmann::json metaJson = nlohmann::json::parse(metaData.data);
-    fmt::print("{}\n", metaJson.dump());
+    fmt::println("{}", metaJson.dump());
     device->setScale(std::stod(metaJson["scale"].dump()));
     device->setOffset(std::stod(metaJson["offset"].dump()));
     device->setEgu(metaJson["egu"]);
