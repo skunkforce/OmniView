@@ -94,9 +94,9 @@ int main() {
         [flagPaused](double x_max, std::string yLabel, ImAxis_ axis,
                      double yMin, double yMax) {
           ImPlot::SetupLegend(ImPlotLocation_NorthEast);
-          //  auto auxFlagsMeasuring =
-          //      ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
-          //  auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
+          // auto auxFlagsMeasuring =
+          //     ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
+          // auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
           ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
 
           if (!flagPaused) {

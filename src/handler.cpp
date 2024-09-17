@@ -1,15 +1,15 @@
 #include "handler.hpp"
-#include <functional>
-#include <set>
-#include <implot.h>
-#include "popups.hpp"
-#include "get_from_github.hpp"
 #include "../imgui-stdlib/imgui_stdlib.h"
+#include "get_from_github.hpp"
+#include "popups.hpp"
+#include <functional>
+#include <implot.h>
+#include <set>
 
 struct AxisInfo {
   const std::pair<Omniscope::Id, std::vector<std::pair<double, double>> &> data;
   std::pair<std::string, ImAxis_> egu;
-  std::string timebase; // store sampleRate
+  std::string timebase;
 
   AxisInfo(
       const std::pair<Omniscope::Id, std::vector<std::pair<double, double>> &>
@@ -39,14 +39,14 @@ static std::vector<AxisInfo> getDeviceInfos() {
               static_assert((ImAxis_Y1 + 1) == ImAxis_Y2);
               ImAxis_ nextYAxis =
                   static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
-              assignedEgus.push_back({egu, nextYAxis});
+              assignedEgus.push_back(std::make_pair(egu, nextYAxis));
             } else {
-              fmt::println("too many Axes added, egu not added: "
-                           "{}\nDevice id: {}",
-                           egu, id.value());
+              fmt::print("too many Axes added, egu not added: "
+                         "{}\nDevice id: {}",
+                         egu, id.value());
               break;
             }
-          axisInfos.push_back({{deviceId, captureData[deviceId]},
+          axisInfos.push_back({{deviceId, std::ref(captureData[deviceId])},
                                assignedEgus.back(),
                                std::to_string(deviceId.sampleRate)});
         }
@@ -55,7 +55,8 @@ static std::vector<AxisInfo> getDeviceInfos() {
     }
   // also get loaded files info
   for (auto &[device, values] : captureData)
-    if (!std::ranges::contains(samplerDvcs, device))
+    if (std::ranges::find(samplerDvcs, device.serial, &Omniscope::Id::serial) ==
+        samplerDvcs.end())
       axisInfos.push_back({{device, values},
                            {"y [Volts]", ImAxis_Y1},
                            std::to_string(device.sampleRate)});
@@ -74,16 +75,17 @@ void addPlots(const char *name,
     double x_min = std::numeric_limits<double>::max();
     double x_max = std::numeric_limits<double>::min();
 
-    for (auto const &axes : plotAxes) {
-      x_max = std::max(x_max, axes.data.second.back().first);
-      // TODO save max and min value over same axis
-      // find first and last pairs of values
-      auto [min, max] =
-          std::minmax_element(axes.data.second.begin(), axes.data.second.end());
-      double yMin = min->first + (min->first * 0.15);
-      double yMax = max->second + (max->second * 0.15);
-      axesSetup(x_max, axes.egu.first, axes.egu.second, yMin, yMax);
-    }
+    for (auto const &axes : plotAxes)
+      if (!axes.data.second.empty()) {
+        x_max = std::max(x_max, axes.data.second.back().first);
+        // TODO save max and min value over same axis
+        auto [min, max] = std::minmax_element(axes.data.second.begin(),
+                                              axes.data.second.end());
+        double yMin = min->first + (min->first * 0.15);
+        double yMax = max->second + (max->second * 0.15);
+        // fmt::print("yMin {}, yMax{}\n", yMin, yMax);
+        axesSetup(x_max, axes.egu.first, axes.egu.second, yMin, yMax);
+      }
 
     auto const limits = [&]() {
       if (!firstRun.contains(name)) {
@@ -132,16 +134,16 @@ void addPlots(const char *name,
   }
 }
 
-static void parseDeviceMetaData(Omniscope::MetaData metaData,
-                                std::shared_ptr<OmniscopeDevice> &device) {
+void parseDeviceMetaData(Omniscope::MetaData metaData,
+                         std::shared_ptr<OmniscopeDevice> &device) {
   try {
-    nlohmann::json metaJson = metaData.data;
-    fmt::println("metaJson content is: {}", metaJson.dump());
-    device->setScale(metaJson["scale"]);
-    device->setOffset(metaJson["offset"]);
+    nlohmann::json metaJson = nlohmann::json::parse(metaData.data);
+    fmt::println("{}", metaJson.dump());
+    device->setScale(std::stod(metaJson["scale"].dump()));
+    device->setOffset(std::stod(metaJson["offset"].dump()));
     device->setEgu(metaJson["egu"]);
   } catch (...) {
-    fmt::println("Parsing Meta Data error: {}", metaData.data);
+    fmt::print("parsing Meta Data error: {}", metaData.data);
   }
 }
 
@@ -158,7 +160,7 @@ void initDevices() {
     };
     auto id = device->getId().value();
     auto sampleRate = static_cast<double>(id.sampleRate);
-    device->setTimeScale(1 / sampleRate);
+    device->setTimeScale(static_cast<double>(1 / sampleRate));
     if (!colorMap.contains(id)) {
       ImPlot::PushColormap(ImPlotColormap_Dark);
       auto c = ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
@@ -209,10 +211,11 @@ void devicesList(bool const &flagPaused) {
 
   if (sampler.has_value())
     for (auto &device : sampler->sampleDevices) {
-      if (!flagPaused)
+      if (!flagPaused) {
         doDevice(device.first, appLanguage[Key::Measurement]);
-      else
+      } else {
         doDevice(device.first, appLanguage[Key::Stop]);
+      }
     }
   else
     for (auto &device : devices)
@@ -245,6 +248,7 @@ void load_files(decltype(captureData) &loadedFiles,
         }
         // each y-value is recorded at 1/sampleRate time
         double step{0.00001}, base{step};
+        size_t indx{2};           // y_values start from line 2 of the file
         while (!readfile.eof()) { // fill the vector of the values
           double value{};
           readfile >> value;
@@ -313,21 +317,21 @@ void load_files(decltype(captureData) &loadedFiles,
   }
 }
 
-void set_config(std::string_view configpath) {
+void set_config(const std::string &configpath) {
   if (fs::exists(configpath))
-    fmt::println("Found config.json\r");
+    fmt::print("found config.json\n\r");
   else {
-    fmt::println("Did not find config.json.\nDownload from Github\r");
+    fmt::print("Did not find config.json.\n Download from Github\n\r");
     update_config_from_github();
   }
 }
 
-void set_json(const nlohmann::json &config) {
-  if (fs::exists(load_json<std::string>(config, "languagepath")))
-    fmt::println("Found language: {}\r", appLanguage[Key::German]);
+void set_json(nlohmann::json &config) {
+  if (fs::exists(load_json<std::string>(config, ("languagepath"))))
+    fmt::print("Found language: {}\n\r", appLanguage[Key::German]);
   else {
-    fmt::println("Did not find {}.\nDownload from Github\n",
-                 appLanguage[Key::German]);
+    fmt::print("Did not find {}.\n Download from Github\n\r",
+               appLanguage[Key::German]);
     update_language_from_github();
   }
 }

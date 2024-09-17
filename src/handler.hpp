@@ -17,15 +17,18 @@ inline std::set<std::string> savedFileNames; // unique and ordered filenames
 inline std::optional<OmniscopeSampler> sampler{};
 inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
     captureData;
+
 void addPlots(
     const char *,
     std::function<void(double, std::string, ImAxis_, double, double)>);
+void parseDeviceMetaData(Omniscope::MetaData,
+                         std::shared_ptr<OmniscopeDevice> &);
 void initDevices();
 void devicesList(bool const &flagPaused);
 void load_files(decltype(captureData) &, std::map<Omniscope::Id, std::string> &,
                 bool &);
-void set_config(std::string_view);
-void set_json(const nlohmann::json &);
+void set_config(const std::string &);
+void set_json(nlohmann::json &);
 void set_inital_config(nlohmann::json &);
 void rstSettings(const decltype(captureData) &);
 
