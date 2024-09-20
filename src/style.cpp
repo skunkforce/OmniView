@@ -134,7 +134,9 @@ void SetDeviceMenuStyle() {
 
   ImGuiStyle &style = ImGui::GetStyle();
   style.Colors[ImGuiCol_Border] = {0.14f, 0.15f, 0.17f, 1.0f};
-  style.Colors[ImGuiCol_CheckMark ] = {0.9f, 0.9f, 0.9f, 1.0f};
+  style.Colors[ImGuiCol_FrameBg] = {0.9f, 0.9f, 0.9f, 1.0f};
+   style.Colors[ImGuiCol_FrameBgHovered] = {1.0f, 1.0f, 1.0f, 1.0f};
+    style.Colors[ImGuiCol_FrameBgActive] = {0.8f, 0.8f, 0.8f, 0.8f};
 }
 
 namespace ImGui {
