@@ -169,7 +169,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
     now = std::chrono::system_clock::now();
     now_time_t = std::chrono::system_clock::to_time_t(now);
     now_tm = *std::gmtime(&now_time_t);
-    std::string filename{fmt::format("{}-{}-{:%Y-%m-%dT%H-%M}.csv", name, now)};
+    std::string filename{fmt::format("{}-{:%Y-%m-%dT%H-%M}.csv", name, now)};
     return filename;
   };
 
