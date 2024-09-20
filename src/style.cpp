@@ -134,6 +134,9 @@ void SetDeviceMenuStyle() {
 
   ImGuiStyle &style = ImGui::GetStyle();
   style.Colors[ImGuiCol_Border] = {0.14f, 0.15f, 0.17f, 1.0f};
+  style.Colors[ImGuiCol_FrameBg] = {0.9f, 0.9f, 0.9f, 1.0f};
+  style.Colors[ImGuiCol_FrameBgHovered] = {1.0f, 1.0f, 1.0f, 1.0f};
+  style.Colors[ImGuiCol_FrameBgActive] = {0.8f, 0.8f, 0.8f, 0.8f};
 }
 
 namespace ImGui {
@@ -309,13 +312,20 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
 
   static bool showDiag = false;
   const bool showDiagPrev = showDiag;
+  
+  ImGui::PushStyleColor(ImGuiCol_Text, {0.8f, 0.8f, 0.8f, 0.7f}); 
+  ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0.8f, 0.8f, 0.8f, 0.0f}); 
+  ImGui::PushStyleColor(ImGuiCol_ButtonActive, {0.8f, 0.8f, 0.8f, 0.0f});
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Diagnostics])) {
-    showDiag = !showDiag;
+    //showDiag = !showDiag;
   }
-  if (showDiag && !showDiagPrev)
+  ImGui::PopStyleColor(3); 
+  
+
+  /*if (showDiag && !showDiagPrev)
     ImGui::SetNextItemOpen(false);
   if (showDiag && ImGui::TreeNode(appLanguage[Key::Battery_measure])) {
     ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
@@ -327,7 +337,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
       showDiag = false;
     }
     ImGui::TreePop();
-  }
+  }*/
 
   static bool showSettings = false;
   if (loaded_png[++PngRenderedCnt] && // render Settings
@@ -347,7 +357,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
   }
   ImGui::SetCursorPosY(windowSize.y * 0.9f);
   ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
-                          CMakeGitVersion::VersionWithGit)
+                          "1.0.1")
                   .c_str());
 }
 

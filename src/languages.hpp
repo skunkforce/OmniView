@@ -12,6 +12,8 @@ enum class Key {
   Devices_Menu,
   Select_Devices,
   Save_Recorded_Data,
+  Recording_Data,
+  ADC_counts,
   Select_Storage_Location,
   Browse,
   Menu,
@@ -81,6 +83,7 @@ enum class Key {
   y_label,
   Voltage,
   Time,
+  Time_sec,
   FontSize,
   SettingsText,
   Saving,
@@ -93,10 +96,11 @@ enum class Key {
 inline const std::map<Key, const char *> englishLan{
     {Key::Known_Car, "Known Cars"},
     {Key::New_Car, "New_Car"},
-    {Key::Additional_Information, "Additional_Information"},
+    {Key::Additional_Information, "Additional_Information for car analysis"},
     {Key::Devices_Menu, "Devices Menu"},
     {Key::Select_Devices, "Select Devices"},
     {Key::Save_Recorded_Data, "Save recorded Data"},
+    {Key::Recording_Data, "Recording the data"},
     {Key::Select_Storage_Location, "Select the storage location"},
     {Key::Browse, "Browse"},
     {Key::Menu, "Menu"},
@@ -167,22 +171,24 @@ inline const std::map<Key, const char *> englishLan{
     {Key::y_label, "x [data points]"},
     {Key::Voltage, "Voltage"},
     {Key::Time, "Time"},
+    {Key::Time_sec, "time [s]"},
     {Key::FontSize, "Fontsize"},
     {Key::SettingsText, "Set your personal settings for the software"},
     {Key::Saving, "saving ..."},
     {Key::Load_file, "Load file"},
     {Key::Load_file_data, "Load file data"},
     {Key::Load_another_file, "Load another file"},
-    {Key::Path, "Path"}};
-
+    {Key::Path, "Path"},
+    {Key::ADC_counts, "ADC counts"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
     {Key::New_Car, "Neues Fahrzeug"},
-    {Key::Additional_Information, "Weiterführende Information"},
+    {Key::Additional_Information, "Optionale Angaben für KFZ-Analysen"},
     {Key::Devices_Menu, "Geräteliste"},
     {Key::Select_Devices, "Geräteauswahl"},
     {Key::Save_Recorded_Data, "Speichern der aufgenommenen Daten"},
+    {Key::Recording_Data, "Aufzeichnen der Daten"},
     {Key::Select_Storage_Location, "Wählen Sie den Speicherort"},
     {Key::Browse, "Durchsuchen"},
     {Key::Menu, "Menü"},
@@ -254,13 +260,15 @@ inline const std::map<Key, const char *> germanLan{
     {Key::y_label, "x [Datenpunkte]"},
     {Key::Voltage, "Spannung"},
     {Key::Time, "Zeit"},
+    {Key::Time_sec, "Zeit [s]"},
     {Key::FontSize, "Schriftgröße"},
     {Key::SettingsText, "Legen sie hier ihre persönlichen Einstellungen fest"},
     {Key::Saving, "speichern ..."},
     {Key::Load_file, "Datei laden"},
     {Key::Load_file_data, "Alte Daten laden"},
     {Key::Load_another_file, "Eine weitere Datei laden"},
-    {Key::Path, "Pfad"}};
+    {Key::Path, "Pfad"},
+    {Key::ADC_counts, "ADC Zählungen"}};
 
 inline auto appLanguage = englishLan;
 namespace fs = std::filesystem;
