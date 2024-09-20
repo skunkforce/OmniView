@@ -357,7 +357,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
   }
   ImGui::SetCursorPosY(windowSize.y * 0.9f);
   ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
-                          CMakeGitVersion::VersionWithGit)
+                          "1.0.1")
                   .c_str());
 }
 
