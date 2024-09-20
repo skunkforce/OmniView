@@ -96,7 +96,7 @@ enum class Key {
 inline const std::map<Key, const char *> englishLan{
     {Key::Known_Car, "Known Cars"},
     {Key::New_Car, "New_Car"},
-    {Key::Additional_Information, "Additional_Information"},
+    {Key::Additional_Information, "Additional_Information for car analysis"},
     {Key::Devices_Menu, "Devices Menu"},
     {Key::Select_Devices, "Select Devices"},
     {Key::Save_Recorded_Data, "Save recorded Data"},
@@ -184,7 +184,7 @@ inline const std::map<Key, const char *> englishLan{
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
     {Key::New_Car, "Neues Fahrzeug"},
-    {Key::Additional_Information, "Weiterführende Information"},
+    {Key::Additional_Information, "Optionale Angaben für KFZ-Analysen"},
     {Key::Devices_Menu, "Geräteliste"},
     {Key::Select_Devices, "Geräteauswahl"},
     {Key::Save_Recorded_Data, "Speichern der aufgenommenen Daten"},

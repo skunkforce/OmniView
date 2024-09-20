@@ -34,6 +34,7 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
       vins[i] = strdup(subdirectories[i].c_str());
 
     if (isTxtInptFieldsEmpty) {
+      ImGui::InputText(appLanguage[Key::Measurement], scantype, 255);
       const std::string newcar = appLanguage[Key::New_Car];
       ImGui::Separator();
       ImGui::NewLine();
@@ -56,6 +57,10 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
 
       // Using vins (char* array) with ImGui
       }else {
+      ImGui::InputText(appLanguage[Key::Measurement], scantype, 255);
+      ImGui::Separator();
+      ImGui::Text(appLanguage[Key::Additional_Information]);
+      ImGui::NewLine();
       ImGui::Combo(appLanguage[Key::Known_Car], &selectedOption, vins,
                    static_cast<int>(subdirectories.size()));
 
@@ -66,10 +71,6 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
       static char VIN[18];
       const std::string newcar = appLanguage[Key::New_Car];
 
-      ImGui::Separator();
-      ImGui::Text(appLanguage[Key::Additional_Information]);
-      ImGui::NewLine();
-      ImGui::InputText(appLanguage[Key::Measurement], scantype, 255);
       ImGui::InputText(appLanguage[Key::Mileage], mileage, 10);
     }
   }
