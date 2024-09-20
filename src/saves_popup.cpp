@@ -165,11 +165,11 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
   // ############# End popup
 
   // make a .csv file name
-  auto mkFileName = [&](const std::string &name) {
+  auto mkFileName = [&](const std::string &name, const std::string &measurement) {
     now = std::chrono::system_clock::now();
     now_time_t = std::chrono::system_clock::to_time_t(now);
     now_tm = *std::gmtime(&now_time_t);
-    std::string filename{fmt::format("{}-{:%Y-%m-%dT%H-%M}.csv", name, now)};
+    std::string filename{fmt::format("{}-{}-{:%Y-%m-%dT%H-%M}.csv", name, measurement, now)};
     return filename;
   };
 
@@ -240,7 +240,7 @@ void saves_popup(nlohmann::json const &config, nlohmann::json const &language,
             // measurement saving preparation if device is checked
             if (dvcCheckedArr[i].b) {
               fs::path path;
-              auto filename = mkFileName(fmt::format("device{}", i + 1));
+              auto filename = mkFileName(fmt::format("device{}", i + 1), scantype);
               if (hasSelectedPathArr[i].b) {
                 path = mkdir(true, selectedPathArr[i], "", filename);
                 hasSelectedPathArr[i].b = false;
