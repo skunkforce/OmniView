@@ -44,7 +44,6 @@ inline std::string getSubdirectoriesInFolder(nlohmann::json language,
       ImGui::Combo(appLanguage[Key::Known_Car], &selectedOption, vins,
                    static_cast<int>(subdirectories.size()));
 
-      ImGui::InputText(appLanguage[Key::Measurement], scantype, 255);
       if (selectedOption == 0) {
         ImGui::InputText("Fin/Vin", inputvin, 19,
                          ImGuiInputTextFlags_CharsUppercase |
