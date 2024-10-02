@@ -13,7 +13,7 @@
 #include "../imgui-stdlib/imgui_stdlib.h"
 #include "jasonhandler.hpp"
 
-void generate_analyze_menu(); 
+void generate_analyze_menu(bool &); 
 
 enum class State {
     NoDataSelected, 
@@ -25,9 +25,35 @@ enum class State {
     Reset
 }; 
 
-class StateManager{
+class AnalyzeStateManager{
 public: 
-    StateManager(); 
+    AnalyzeStateManager(State state = State::NoDataSelected){
+        
+    }
+    ~AnalyzeStateManager() = default; 
 
-    
-}
+    void SetState(State state = State::NoDataSelected); 
+    State getState();  
+
+    void selectData(); 
+    void loadData(); 
+
+    void reset(); 
+
+    void setMetaData(); 
+    void clearMetaData(); 
+
+    // extra functions: 
+
+    void selectCurrentDevice(); 
+    void selectFileData(); 
+    void checkFileFormat(); 
+
+    void writeAnalysisAnswerIntoFile(); 
+
+
+private: 
+
+    State currentState; 
+    const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> data; 
+};

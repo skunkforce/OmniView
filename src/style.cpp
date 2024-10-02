@@ -12,6 +12,7 @@
 #include "languages.hpp"
 #include "../imgui-filebrowser/imfilebrowser.h"
 #include "popups.hpp"
+#include "analyze_data.hpp"
 
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
@@ -248,7 +249,7 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
 }
 
 void set_side_menu(const nlohmann::json &config, bool &open_settings,
-                   bool &open_generate_training_data,
+                   bool &open_generate_training_data, bool &open_analyze_menu, 
                    decltype(captureData) &loadedFiles,
                    std::map<Omniscope::Id, std::string> &loadedFilenames) {
 
@@ -330,7 +331,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
   if (showDiag && ImGui::TreeNode(appLanguage[Key::FFT_Analyze])) {
     ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
     if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform])){
-      open_generate_training_data = true;
+      open_analyze_menu = true;
       showDiag = false; 
     }
     ImGui::PopStyleColor();

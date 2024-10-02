@@ -37,6 +37,7 @@ add_executable(OmniView
                src/saves_popup.cpp     
                src/style.cpp
                src/handler.cpp
+               src/analyze_data.cpp
                )
 
 target_add_default_build_options(OmniView PUBLIC)

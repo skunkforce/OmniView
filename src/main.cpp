@@ -2,6 +2,7 @@
 #include "settingspopup.hpp"
 #include "style.hpp"
 #include <cmake_git_version/version.hpp>
+#include "analyze_data.hpp"
 
 int main() {
   const std::string configpath = "config/config.json";
@@ -12,7 +13,7 @@ int main() {
       load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
   // local variables
-  bool flagPaused{true}, development{false}, open_generate_training_data{false},
+  bool flagPaused{true}, development{false}, open_generate_training_data{false},open_analyze_menu{false},
       open_settings{false};
   std::once_flag configFlag;
   auto loadedFiles = captureData;
@@ -40,7 +41,7 @@ int main() {
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     // ############################################# Side Menu
-    set_side_menu(config, open_settings, open_generate_training_data,
+    set_side_menu(config, open_settings, open_generate_training_data,open_analyze_menu,
                   loadedFiles, loadedFilenames);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
@@ -78,6 +79,10 @@ int main() {
     if (open_generate_training_data)
       generateTrainingData(open_generate_training_data, captureData,
                            savedFileNames);
+
+    // Generate analyze data popup
+    if (open_analyze_menu)
+      generate_analyze_menu(open_analyze_menu);
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
