@@ -13,8 +13,18 @@
 #include "../imgui-stdlib/imgui_stdlib.h"
 #include "jasonhandler.hpp"
 
+
+ // extra boolean references for the RadioButtons 
+
+ static bool radioButtonCurrentData{false}, radioButtonFileData{false};
+
+
+// declare functions and classes 
+
 void generate_analyze_menu(bool &); 
 
+
+// Menustates 
 enum class State {
     NoDataSelected, 
     FileDataSelected, 
@@ -27,12 +37,12 @@ enum class State {
 
 class AnalyzeStateManager{
 public: 
-    AnalyzeStateManager(State state = State::NoDataSelected){
-        
+    AnalyzeStateManager(){
+        currentState = State::NoDataSelected;    
     }
     ~AnalyzeStateManager() = default; 
 
-    void SetState(State state = State::NoDataSelected); 
+    void setState(State state = State::NoDataSelected); 
     State getState();  
 
     void selectData(); 

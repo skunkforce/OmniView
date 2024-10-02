@@ -4,7 +4,7 @@ void generate_analyze_menu(bool &open_analyze_menu){
 
     // Initialize AnalyzeStateManager 
 
-    static AnalyzeStateManager stateManager(State::NoDataSelected); 
+    static AnalyzeStateManager stateManager; 
     
     // generate the PopUpMenu 
 
@@ -13,6 +13,11 @@ void generate_analyze_menu(bool &open_analyze_menu){
     if(ImGui::BeginPopupModal(appLanguage[Key::AnalyzeData], nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
 
         ImGui::Text(appLanguage[Key::AnalyzeData]);  
+
+        if(ImGui::RadioButton(appLanguage[Key::Usr_curnt_wave], radioButtonCurrentData)){
+            radioButtonCurrentData = !radioButtonCurrentData; 
+            stateManager.setState(State::CurrentDataSelected); 
+        }
 
     }
 
@@ -29,11 +34,13 @@ void generate_analyze_menu(bool &open_analyze_menu){
 }
 
 
-    void AnalyzeStateManager::SetState(State state){
-        std::cout << "Not used" << std::endl; 
+    void AnalyzeStateManager::setState(State state){
+
+        this->currentState= state ; 
+        std::cout << "Changed state" << std::endl; 
     }
     State AnalyzeStateManager::getState(){
-           std::cout << "Not used" << std::endl; 
+           return this->currentState; 
     }  
 
     void AnalyzeStateManager::selectData(){
