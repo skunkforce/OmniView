@@ -82,7 +82,7 @@ int main() {
 
     // Generate analyze data popup
     if (open_analyze_menu)
-      generate_analyze_menu(open_analyze_menu);
+      generate_analyze_menu(open_analyze_menu, captureData);
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
