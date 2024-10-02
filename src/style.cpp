@@ -313,21 +313,30 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
   static bool showDiag = false;
   const bool showDiagPrev = showDiag;
   
-  ImGui::PushStyleColor(ImGuiCol_Text, {0.8f, 0.8f, 0.8f, 0.7f}); 
+  /*ImGui::PushStyleColor(ImGuiCol_Text, {0.8f, 0.8f, 0.8f, 0.7f}); 
   ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0.8f, 0.8f, 0.8f, 0.0f}); 
-  ImGui::PushStyleColor(ImGuiCol_ButtonActive, {0.8f, 0.8f, 0.8f, 0.0f});
+  ImGui::PushStyleColor(ImGuiCol_ButtonActive, {0.8f, 0.8f, 0.8f, 0.0f});*/
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Diagnostics])) {
-    //showDiag = !showDiag;
+    showDiag = !showDiag;
   }
-  ImGui::PopStyleColor(3); 
+  //ImGui::PopStyleColor(3); 
   
 
-  /*if (showDiag && !showDiagPrev)
+  if (showDiag && !showDiagPrev)
     ImGui::SetNextItemOpen(false);
-  if (showDiag && ImGui::TreeNode(appLanguage[Key::Battery_measure])) {
+  if (showDiag && ImGui::TreeNode(appLanguage[Key::FFT_Analyze])) {
+    ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+    if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform])){
+      open_generate_training_data = true;
+      showDiag = false; 
+    }
+    ImGui::PopStyleColor();
+    ImGui::TreePop();
+  }
+  /*if (showDiag && ImGui::TreeNode(appLanguage[Key::Battery_measure])) {
     ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
     if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform]))
       showDiag = false;

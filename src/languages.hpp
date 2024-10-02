@@ -90,7 +90,8 @@ enum class Key {
   Load_file_data,
   Load_file,
   Load_another_file,
-  Path
+  Path,
+  FFT_Analyze
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -179,7 +180,8 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Load_file_data, "Load file data"},
     {Key::Load_another_file, "Load another file"},
     {Key::Path, "Path"},
-    {Key::ADC_counts, "ADC counts"}};
+    {Key::ADC_counts, "ADC counts"},
+    {Key::FFT_Analyze, "FFT Analysis"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
@@ -268,7 +270,8 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Load_file_data, "Alte Daten laden"},
     {Key::Load_another_file, "Eine weitere Datei laden"},
     {Key::Path, "Pfad"},
-    {Key::ADC_counts, "ADC Zählungen"}};
+    {Key::ADC_counts, "ADC Zählungen"},
+    {Key::FFT_Analyze, "FFT Analyse"}};
 
 inline auto appLanguage = englishLan;
 namespace fs = std::filesystem;
