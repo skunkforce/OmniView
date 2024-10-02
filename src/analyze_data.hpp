@@ -16,6 +16,8 @@
 
 static bool radioButtonCurrentData{false}, radioButtonFileData{false}, DeviceChecked{false};
 static Omniscope::Id selectedDevice{}; 
+static ImGui::FileBrowser AnalyzeFileBrowser; 
+static std::string fileNameBuf;
 
 // declare functions and classes
 
@@ -42,10 +44,11 @@ public:
   void setState(State state = State::NoDataSelected);
   State getState();
 
-  void selectData(
+  void selectDataType(
       AnalyzeStateManager &, bool &,
       const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
-  void loadData();
+  void selectData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
+  void loadData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
   void reset();
 
