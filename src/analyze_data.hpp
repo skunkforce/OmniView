@@ -50,7 +50,7 @@ public:
   void selectData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
   void loadData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
-  void reset();
+  void reset(AnalyzeStateManager &);
 
   void setMetaData();
   void clearMetaData();

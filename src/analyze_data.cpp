@@ -14,9 +14,13 @@ void generate_analyze_menu( // generate the whole menu: Startpoint
                              ImGuiWindowFlags_AlwaysAutoResize)) {
 
     // Frame
+    if(stateManager.getState() == State::Reset){
+      stateManager.reset(stateManager); 
+    }
     ImGui::Text(appLanguage[Key::AnalyzeData]);
     stateManager.selectDataType(stateManager, open_analyze_menu, captureData);   // select if Data should be loaded from File or from a current measurement
     stateManager.selectData(stateManager, captureData); //select which device or which file the data should be loaded from 
+    stateManager.loadData(stateManager, captureData); 
 
   }
 
@@ -81,12 +85,33 @@ void AnalyzeStateManager::selectData(AnalyzeStateManager &stateManager, const st
        // Display FileBrowser each Frame, closes automatically when a file is selected 
        AnalyzeFileBrowser.SetTitle("Searching for .csv files");
        AnalyzeFileBrowser.Display();
+
+       if(AnalyzeFileBrowser.HasSelected()){
+        if(fs::path(AnalyzeFileBrowser.GetSelected().string()).extension() == ".csv"){
+          fileNameBuf = AnalyzeFileBrowser.GetSelected().string(); 
+          AnalyzeFileBrowser.ClearSelected();
+        }
+        else {
+          ImGui::OpenPopup(appLanguage[Key::Wrong_file_warning],
+                         ImGuiPopupFlags_NoOpenOverExistingPopup);
+          AnalyzeFileBrowser.ClearSelected();
+          stateManager.setState(State::Reset); 
+        }
+       }
     }
+    // possible error popup 
+       info_popup(appLanguage[Key::Wrong_file_warning],
+               appLanguage[Key::Wrong_file_type]);
 }
 
 void AnalyzeStateManager::loadData(AnalyzeStateManager &stateManager, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &captureData){};
 
-void AnalyzeStateManager::reset() { std::cout << "Not used" << std::endl; }
+void AnalyzeStateManager::reset(AnalyzeStateManager &stateManager) { 
+  radioButtonCurrentData = false; 
+  radioButtonFileData = false; 
+  stateManager.setState(State::NoDataSelected); 
+
+}
 
 void AnalyzeStateManager::setMetaData() {
   std::cout << "Not used" << std::endl;
