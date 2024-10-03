@@ -15,9 +15,9 @@
 // extra boolean references for the RadioButtons
 
 static bool radioButtonCurrentData{false}, radioButtonFileData{false}, DeviceChecked{false};
-static Omniscope::Id selectedDevice{}; 
+static Omniscope::Id selectedDeviceId{}; 
 static ImGui::FileBrowser AnalyzeFileBrowser; 
-static std::string fileNameBuf;
+static std::string fileNameBuf; // path for a chosen file to load data from 
 
 // declare functions and classes
 
@@ -27,21 +27,23 @@ void generate_analyze_menu(
 
 // Menustates
 enum class State {
-  NoDataSelected,
-  FileDataSelected,
-  FileDataLoaded,
-  CurrentDataSelected,
-  CurrentDataLoaded,
-  DataWasSend,
-  Reset
+  NODATA,
+  FILEDATAWANTED,
+  FILEDATASELECTED,
+  FILEDATALOADED,
+  CURRENTDATAWANTED,
+  CURRENTDATASELECTED,
+  CURRENTDATALOADED,
+  DATAWASSEND,
+  RESET
 };
 
 class AnalyzeStateManager {
 public:
-  AnalyzeStateManager() { currentState = State::NoDataSelected; }
+  AnalyzeStateManager() { currentState = State::NODATA; }
   ~AnalyzeStateManager() = default;
 
-  void setState(State state = State::NoDataSelected);
+  void setState(State state = State::NODATA);
   State getState();
 
   void selectDataType(
@@ -50,6 +52,8 @@ public:
   void selectData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
   void loadData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
+  void loadAndSendData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &); 
+
   void reset(AnalyzeStateManager &);
 
   void setMetaData();
@@ -57,9 +61,7 @@ public:
 
   // extra functions:
 
-  void selectCurrentDevice(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
-  void selectFileData();
-  void checkFileFormat();
+  void selectCurrentDevice(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
   void writeAnalysisAnswerIntoFile();
 
