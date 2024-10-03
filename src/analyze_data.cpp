@@ -33,6 +33,12 @@ void generate_analyze_menu( // generate the whole menu: Startpoint
   if(ImGui::Button(appLanguage[Key::Send])){
     stateManager.loadAndSendData(captureData); // One function because of the loading bar 
   }
+  if(stateManager.getState() == State::DATAISSENDING){ // waiting for API response
+    stateManager.whileSendingProcess(); 
+  } 
+  // PopUp With API Message: temporary 
+  info_popup(appLanguage[Key::Data_upload],
+              appLanguage[Key::Upload_failure]);
   }
   ImGui::EndPopup();
 }
@@ -122,32 +128,13 @@ void AnalyzeStateManager::loadAndSendData( const std::map<Omniscope::Id, std::ve
   if(currentState != State::DATAISSENDING){ // start asynch task to load data 
     loadedDataJSON["meta"] = {}; 
     loadedDataJSON["data"] = {{"sampling_rate", 100000}, {"y_values", loadedData}}; 
-    std::cout << "File was transformed to JSON" << std::endl; 
     future = std::async(std::launch::async, [&] {
           // take temp object returned from dump() and send it to sendData
           std::string result = sendData(loadedDataJSON.dump());
           return result;
         });
-    std::cout << "This works" << std::endl;
     currentState = State::DATAISSENDING; 
   }
-  if(currentState == State::DATAISSENDING){ // waiting for API response
-    auto status = future.wait_for(std::chrono::milliseconds(10));
-    if(status == std::future_status::ready){
-      std::cout << "message was send" << std::endl;
-      ImGui::OpenPopup(appLanguage[Key::Data_upload],
-                         ImGuiPopupFlags_NoOpenOverExistingPopup);
-      loadedDataJSON.clear(); 
-      currentState = State::DATAWASSEND;  
-    }
-    else {
-      ImGui::SameLine();
-        ImGui::Text(" sending ... %c",
-                    "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-    }
-  } 
-  info_popup(appLanguage[Key::Data_upload],
-              appLanguage[Key::Upload_failure]);
   //sendData() from sendData.hpp on the Json.dump() output needs enableAllOtherFields(); after api_message is received is finished
 }
 
@@ -187,7 +174,6 @@ std::vector<double> AnalyzeStateManager::loadData(const std::map<Omniscope::Id, 
         }
     y_values.pop_back(); // pop last element
     currentState = State::FILEDATALOADED; 
-    std::cout << "File was loaded" << std::endl; 
    }
  }
  return y_values; 
@@ -216,15 +202,28 @@ void AnalyzeStateManager::selectCurrentDevice(const std::map<Omniscope::Id, std:
       if(DeviceChecked){
       selectedDeviceId = deviceId; 
       currentState = State::CURRENTDATASELECTED;
-      std::cout << "Device selected:" << deviceId.serial.c_str() << std::endl;
       }
       else {
       selectedDeviceId = {}; 
       currentState = State::CURRENTDATAWANTED;
-      std::cout << "Device Changed:" << deviceId.serial.c_str() << std::endl; 
       }
     }
   }
+}
+
+void AnalyzeStateManager::whileSendingProcess(){
+  auto status = future.wait_for(std::chrono::milliseconds(10));
+    if(status == std::future_status::ready){
+      ImGui::OpenPopup(appLanguage[Key::Data_upload],
+                         ImGuiPopupFlags_NoOpenOverExistingPopup);
+      loadedDataJSON.clear(); 
+      currentState = State::DATAWASSEND;  
+    }
+    else {
+      ImGui::SameLine();
+        ImGui::Text(" sending ... %c",
+                    "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+    }
 }
 
 void AnalyzeStateManager::writeAnalysisAnswerIntoFile() {

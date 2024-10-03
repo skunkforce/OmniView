@@ -62,6 +62,7 @@ public:
   // extra functions:
 
   void selectCurrentDevice(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
+  void whileSendingProcess(); 
 
   void writeAnalysisAnswerIntoFile();
 
