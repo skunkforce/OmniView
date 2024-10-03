@@ -27,6 +27,7 @@ enum class State {
   CURRENTDATAWANTED,
   CURRENTDATASELECTED,
   CURRENTDATALOADED,
+  DATAISSENDING, 
   DATAWASSEND,
   RESET
 };
@@ -49,7 +50,7 @@ public:
       bool &,
       const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
   void selectData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
-  void loadData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
+  std::vector<double> loadData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
   void loadAndSendData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &); 
 
@@ -73,4 +74,6 @@ private:
   Omniscope::Id selectedDeviceId; 
   ImGui::FileBrowser AnalyzeFileBrowser; 
   std::string fileNameBuf; // path for a chosen file to load data from 
+  std::future<std::string> future;
+  nlohmann::ordered_json loadedDataJSON; 
 };
