@@ -12,13 +12,6 @@
 #include "sendData.hpp"
 #include "../imgui-stdlib/imgui_stdlib.h"
 #include "jasonhandler.hpp"
-// extra boolean references for the RadioButtons
-
-static bool radioButtonCurrentData{false}, radioButtonFileData{false}, DeviceChecked{false};
-static Omniscope::Id selectedDeviceId{}; 
-static ImGui::FileBrowser AnalyzeFileBrowser; 
-static std::string fileNameBuf; // path for a chosen file to load data from 
-
 // declare functions and classes
 
 void generate_analyze_menu(
@@ -40,32 +33,44 @@ enum class State {
 
 class AnalyzeStateManager {
 public:
-  AnalyzeStateManager() { currentState = State::NODATA; }
+  AnalyzeStateManager() { 
+    currentState = State::NODATA; 
+    radioButtonCurrentData = false; 
+    radioButtonFileData = false; 
+    DeviceChecked = false;
+    selectedDeviceId = {}; 
+    }
   ~AnalyzeStateManager() = default;
 
   void setState(State state = State::NODATA);
   State getState();
 
   void selectDataType(
-      AnalyzeStateManager &, bool &,
+      bool &,
       const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
-  void selectData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
-  void loadData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
+  void selectData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
+  void loadData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
-  void loadAndSendData(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &); 
+  void loadAndSendData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &); 
 
-  void reset(AnalyzeStateManager &);
+  void reset();
 
   void setMetaData();
   void clearMetaData();
 
   // extra functions:
 
-  void selectCurrentDevice(AnalyzeStateManager &, const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
+  void selectCurrentDevice(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
   void writeAnalysisAnswerIntoFile();
 
 private:
   State currentState;
   const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> data;
+
+  // extra variables for functions
+  bool radioButtonCurrentData, radioButtonFileData, DeviceChecked;
+  Omniscope::Id selectedDeviceId; 
+  ImGui::FileBrowser AnalyzeFileBrowser; 
+  std::string fileNameBuf; // path for a chosen file to load data from 
 };
