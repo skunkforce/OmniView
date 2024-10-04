@@ -41,9 +41,6 @@ void generate_analyze_menu( // generate the whole menu: Startpoint
                          ImGuiPopupFlags_NoOpenOverExistingPopup);
      stateManager.generateAnalyzeAnswerPopUp(); 
   }
-  // PopUp With API Message: temporary 
-  info_popup(appLanguage[Key::Data_upload],
-              appLanguage[Key::Upload_failure]);
   }
   ImGui::EndPopup();
 }
@@ -153,6 +150,7 @@ std::vector<double> AnalyzeStateManager::loadData(const std::map<Omniscope::Id, 
     if(selectedDevice != captureData.end()){
       y_values.resize(selectedDevice->second.size()); 
       for(size_t i; i < selectedDevice->second.size(); ++i){
+        std::cout << "Data before: " << selectedDevice->second[i].second << std::endl; 
         y_values[i] = selectedDevice->second[i].second; 
       }
     }
@@ -238,7 +236,7 @@ void AnalyzeStateManager::whileSendingProcess(){
 void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
   if(ImGui::BeginPopupModal(appLanguage[Key::Data_upload])){
     ImGui::Text(appLanguage[Key::Analyse_Answer_Text]); 
-    ImGui::Text(apiResponse == "empty" ? appLanguage[Key::Upload_failure]
+    ImGui::(apiResponse == "empty" ? appLanguage[Key::Upload_failure]
                                       : appLanguage[Key::Upload_success]);
     this->writeAnalysisAnswerIntoFile(); 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
