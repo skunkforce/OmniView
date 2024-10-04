@@ -237,7 +237,7 @@ void AnalyzeStateManager::whileSendingProcess(){
 void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
   if(ImGui::BeginPopupModal(appLanguage[Key::Data_upload])){
     ImGui::Text(appLanguage[Key::Analyse_Answer_Text]); 
-    ImGui::(apiResponse == "empty" ? appLanguage[Key::Upload_failure]
+    ImGui::Text(apiResponse == "empty" ? appLanguage[Key::Upload_failure]
                                       : appLanguage[Key::Upload_success]);
     this->writeAnalysisAnswerIntoFile(); 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
@@ -245,7 +245,7 @@ void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine(); 
-    if (ImGui::Button("Schließen") {
+    if(ImGui::Button("close")) {
     ImGui::CloseCurrentPopup();
   }
   }
