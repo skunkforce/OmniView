@@ -150,7 +150,7 @@ std::vector<double> AnalyzeStateManager::loadData(const std::map<Omniscope::Id, 
     auto selectedDevice(captureData.find(selectedDeviceId)); 
     if(selectedDevice != captureData.end()){
       y_values.resize(selectedDevice->second.size()); 
-      for(size_t i; i < selectedDevice->second.size(); ++i){
+      for(size_t i = 0; i < selectedDevice->second.size(); ++i){
         std::cout << "Data before: " << selectedDevice->second[i].second << std::endl; 
         y_values[i] = selectedDevice->second[i].second; 
       }
