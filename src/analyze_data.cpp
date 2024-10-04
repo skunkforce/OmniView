@@ -36,6 +36,11 @@ void generate_analyze_menu( // generate the whole menu: Startpoint
   if(stateManager.getState() == State::DATAISSENDING){ // waiting for API response
     stateManager.whileSendingProcess(); 
   } 
+  if(stateManager.getState() == State::DATAWASSEND){
+     ImGui::OpenPopup(appLanguage[Key::Data_upload],
+                         ImGuiPopupFlags_NoOpenOverExistingPopup);
+     stateManager.generateAnalyzeAnswerPopUp(); 
+  }
   // PopUp With API Message: temporary 
   info_popup(appLanguage[Key::Data_upload],
               appLanguage[Key::Upload_failure]);
@@ -214,8 +219,9 @@ void AnalyzeStateManager::selectCurrentDevice(const std::map<Omniscope::Id, std:
 void AnalyzeStateManager::whileSendingProcess(){
   auto status = future.wait_for(std::chrono::milliseconds(10));
     if(status == std::future_status::ready){
-      ImGui::OpenPopup(appLanguage[Key::Data_upload],
-                         ImGuiPopupFlags_NoOpenOverExistingPopup);
+      if(future.valid()){
+        apiResponse = future.get(); 
+      }
       loadedDataJSON.clear(); 
       currentState = State::DATAWASSEND;  
     }
@@ -226,6 +232,36 @@ void AnalyzeStateManager::whileSendingProcess(){
     }
 }
 
+void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
+  if(ImGui::BeginPopupModal(appLanguage[Key::Data_upload])){
+    ImGui::Text(appLanguage[Key::Analyse_Answer_Text]); 
+    ImGui::Text(apiResponse == "empty" ? appLanguage[Key::Upload_failure]
+                                      : appLanguage[Key::Upload_success]);
+    this->writeAnalysisAnswerIntoFile(); 
+    if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
+      std::cout << "See results" << std::endl; 
+    }
+  }
+}
+
 void AnalyzeStateManager::writeAnalysisAnswerIntoFile() {
-  std::cout << "Not used" << std::endl;
+   if (apiResponse != "empty") {
+      fs::path complete_path = fs::current_path() / "analyze";
+      if (!fs::exists(complete_path))
+        fs::create_directories(complete_path);
+
+      fs::path outFile = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string());
+
+      std::ofstream writefile(outFile, std::ios::trunc);
+      if (!writefile.is_open()) {
+        writefile.clear();
+        fmt::println("Could not create {} for writing!", outFile.string());
+      } else {
+        fmt::println("Start saving {}.", outFile.string());
+        writefile << apiResponse;
+        writefile.flush();
+        writefile.close();
+        fmt::println("Finished saving CSV file.");
+      }
+    }
 }

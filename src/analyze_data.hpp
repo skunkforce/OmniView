@@ -52,7 +52,9 @@ public:
   void selectData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
   std::vector<double> loadData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
-  void loadAndSendData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &); 
+  void loadAndSendData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
+
+  void generateAnalyzeAnswerPopUp();  
 
   void reset();
 
@@ -77,4 +79,5 @@ private:
   std::string fileNameBuf; // path for a chosen file to load data from 
   std::future<std::string> future;
   nlohmann::ordered_json loadedDataJSON; 
+  std::string apiResponse;
 };
