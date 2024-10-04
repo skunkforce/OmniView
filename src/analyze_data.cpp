@@ -128,13 +128,16 @@ void AnalyzeStateManager::selectData(const std::map<Omniscope::Id, std::vector<s
 void AnalyzeStateManager::loadAndSendData( const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &captureData){
   // disableAllOtherFields(); 
 
-  std::vector<double> loadedData = this->loadData(captureData); // loading the data  
+  std::vector<double> loadedData = this->loadData(captureData); // loading the data 
+  std::cout << "Loaded data size: " << loadedData.size() << std::endl; 
 
   if(currentState != State::DATAISSENDING){ // start asynch task to load data 
-    loadedDataJSON["meta"] = {}; 
+    loadedDataJSON["meta"] = {"metadaten"}; 
     loadedDataJSON["data"] = {{"sampling_rate", 100000}, {"y_values", loadedData}}; 
+
     future = std::async(std::launch::async, [&] {
           // take temp object returned from dump() and send it to sendData
+          std::cout << loadedDataJSON.dump(4) << std::endl; 
           std::string result = sendData(loadedDataJSON.dump());
           return result;
         });
