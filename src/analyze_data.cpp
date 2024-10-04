@@ -96,6 +96,7 @@ void AnalyzeStateManager::selectData(const std::map<Omniscope::Id, std::vector<s
     else if((currentState == State::FILEDATAWANTED) || (currentState == State::FILEDATASELECTED)){
       ImGui::InputTextWithHint("##inputLabel", appLanguage[Key::Csv_file],
                                &fileNameBuf, ImGuiInputTextFlags_ReadOnly);
+      ImGui::SameLine(); 
       if(ImGui::Button(appLanguage[Key::Browse])) {
         AnalyzeFileBrowser.Open(); 
       }
@@ -241,7 +242,12 @@ void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
     this->writeAnalysisAnswerIntoFile(); 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
       std::cout << "See results" << std::endl; 
+      ImGui::CloseCurrentPopup();
     }
+    ImGui::SameLine(); 
+    if (ImGui::Button("Schließen") {
+    ImGui::CloseCurrentPopup();
+  }
   }
 }
 
