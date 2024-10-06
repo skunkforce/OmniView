@@ -87,7 +87,7 @@ void AnalyzeStateManager::selectDataType(
 
 void AnalyzeStateManager::selectData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &captureData) { 
       // Select Device from which to get the data, else select a file from which data can be loaded
-    if(currentState == State::CURRENTDATAWANTED){
+    if(currentState == State::CURRENTDATAWANTED || currentState == State::CURRENTDATASELECTED){
       if(ImGui::BeginCombo("##ComboDevice", "Devices & Waveforms Menu")){
         this->selectCurrentDevice(captureData);
         ImGui::EndCombo();  
@@ -146,13 +146,17 @@ void AnalyzeStateManager::loadAndSendData( const std::map<Omniscope::Id, std::ve
 
 std::vector<double> AnalyzeStateManager::loadData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &captureData){
  std::vector<double> y_values; 
- if(currentState== State::CURRENTDATASELECTED){
+ if(currentState == State::CURRENTDATASELECTED){
     auto selectedDevice(captureData.find(selectedDeviceId)); 
     if(selectedDevice != captureData.end()){
       y_values.resize(selectedDevice->second.size()); 
-      for(size_t i = 0; i < selectedDevice->second.size(); ++i){
+      std::cout << "Size:" << selectedDevice->second.size() << std::endl; 
+      for(int i = 0; i < selectedDevice->second.size(); ++i){
         std::cout << "Data before: " << selectedDevice->second[i].second << std::endl; 
         y_values[i] = selectedDevice->second[i].second; 
+        if(i > 200000){
+          i = selectedDevice->second.size(); 
+        }
       }
     }
     currentState = State::CURRENTDATALOADED; 
