@@ -39,6 +39,7 @@ public:
     radioButtonCurrentData = false; 
     radioButtonFileData = false; 
     DeviceChecked = false;
+    analyzeSaved = false; 
     selectedDeviceId = {}; 
     }
   ~AnalyzeStateManager() = default;
@@ -73,7 +74,7 @@ private:
   const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> data;
 
   // extra variables for functions
-  bool radioButtonCurrentData, radioButtonFileData, DeviceChecked;
+  bool radioButtonCurrentData, radioButtonFileData, DeviceChecked, analyzeSaved;
   Omniscope::Id selectedDeviceId; 
   ImGui::FileBrowser AnalyzeFileBrowser; 
   std::string fileNameBuf; // path for a chosen file to load data from 

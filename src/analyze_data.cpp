@@ -14,7 +14,7 @@ void generate_analyze_menu( // generate the whole menu: Startpoint
                              ImGuiWindowFlags_AlwaysAutoResize)) {
 
     // Frame
-    if(stateManager.getState() == State::RESET || stateManager.getState() == State::DATAWASSEND){
+    if(stateManager.getState() == State::RESET){
       stateManager.reset(); 
     }
     ImGui::Text(appLanguage[Key::AnalyzeData]);
@@ -127,7 +127,6 @@ void AnalyzeStateManager::loadAndSendData( const std::map<Omniscope::Id, std::ve
   // disableAllOtherFields(); 
 
   std::vector<double> loadedData = this->loadData(captureData); // loading the data 
-  std::cout << "Loaded data size: " << loadedData.size() << std::endl; 
 
   if(currentState != State::DATAISSENDING){ // start asynch task to load data 
     loadedDataJSON["meta"] = {"metadaten"}; 
@@ -135,7 +134,6 @@ void AnalyzeStateManager::loadAndSendData( const std::map<Omniscope::Id, std::ve
 
     future = std::async(std::launch::async, [&] {
           // take temp object returned from dump() and send it to sendData
-          std::cout << loadedDataJSON.dump(4) << std::endl; 
           std::string result = sendData(loadedDataJSON.dump());
           return result;
         });
@@ -150,13 +148,8 @@ std::vector<double> AnalyzeStateManager::loadData(const std::map<Omniscope::Id, 
     auto selectedDevice(captureData.find(selectedDeviceId)); 
     if(selectedDevice != captureData.end()){
       y_values.resize(selectedDevice->second.size()); 
-      std::cout << "Size:" << selectedDevice->second.size() << std::endl; 
       for(int i = 0; i < selectedDevice->second.size(); ++i){
-        std::cout << "Data before: " << selectedDevice->second[i].second << std::endl; 
         y_values[i] = selectedDevice->second[i].second; 
-        if(i > 200000){
-          i = selectedDevice->second.size(); 
-        }
       }
     }
     currentState = State::CURRENTDATALOADED; 
@@ -239,19 +232,25 @@ void AnalyzeStateManager::whileSendingProcess(){
 }
 
 void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
-  if(ImGui::BeginPopupModal(appLanguage[Key::Data_upload])){
+  if(ImGui::BeginPopupModal(appLanguage[Key::Data_upload]), nullptr,
+                             ImGuiWindowFlags_AlwaysAutoResize){
     ImGui::Text(appLanguage[Key::Analyse_Answer_Text]); 
     ImGui::Text(apiResponse == "empty" ? appLanguage[Key::Upload_failure]
                                       : appLanguage[Key::Upload_success]);
-    this->writeAnalysisAnswerIntoFile(); 
+    if(!analyzeSaved){
+      this->writeAnalysisAnswerIntoFile();
+    } 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
       std::cout << "See results" << std::endl; 
+      reset(); 
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine(); 
-    if(ImGui::Button("close")) {
+    if(ImGui::Button(appLanguage[Key::Back])) {
+    reset(); 
     ImGui::CloseCurrentPopup();
-  }
+    }
+  ImGui::EndPopup(); 
   }
 }
 
@@ -274,5 +273,6 @@ void AnalyzeStateManager::writeAnalysisAnswerIntoFile() {
         writefile.close();
         fmt::println("Finished saving CSV file.");
       }
+      analyzeSaved = true; 
     }
 }
