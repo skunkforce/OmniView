@@ -73,6 +73,8 @@ void AnalyzeStateManager::selectDataType(
     else currentState = State::NODATA; 
   }
 
+  ImGui::SeparatorText(" ");
+
   // OR select a File from Browser
   if (ImGui::RadioButton(appLanguage[Key::Wv_from_file], radioButtonFileData)){
     radioButtonFileData = !radioButtonFileData; 
@@ -81,6 +83,7 @@ void AnalyzeStateManager::selectDataType(
     currentState = State::FILEDATAWANTED;}
     else currentState = State::NODATA; 
   }
+  ImGui::SeparatorText(" "); 
 
   info_popup(appLanguage[Key::WvForms_warning], appLanguage[Key::No_wave_made]);
 }
@@ -234,14 +237,18 @@ void AnalyzeStateManager::whileSendingProcess(){
 void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
   if(ImGui::BeginPopupModal(appLanguage[Key::Data_upload]), nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize){
+    fs::path outFile; 
     ImGui::Text(appLanguage[Key::Analyse_Answer_Text]); 
+    ImGui::SeparatorText(" ");
     ImGui::Text(apiResponse == "empty" ? appLanguage[Key::Upload_failure]
                                       : appLanguage[Key::Upload_success]);
+                                      ImGui::SeparatorText(" ");
     if(!analyzeSaved){
-      this->writeAnalysisAnswerIntoFile();
+      this->writeAnalysisAnswerIntoFile(outFile);
     } 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
       std::cout << "See results" << std::endl; 
+      AddPlotFromFile(outFile); 
       reset(); 
       ImGui::CloseCurrentPopup();
     }
@@ -254,13 +261,13 @@ void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
   }
 }
 
-void AnalyzeStateManager::writeAnalysisAnswerIntoFile() {
+void AnalyzeStateManager::writeAnalysisAnswerIntoFile(fs::path &outFile) {
    if (apiResponse != "empty") {
       fs::path complete_path = fs::current_path() / "analyze";
       if (!fs::exists(complete_path))
         fs::create_directories(complete_path);
 
-      fs::path outFile = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string());
+      outFile = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string());
 
       std::ofstream writefile(outFile, std::ios::trunc);
       if (!writefile.is_open()) {
@@ -274,5 +281,5 @@ void AnalyzeStateManager::writeAnalysisAnswerIntoFile() {
         fmt::println("Finished saving CSV file.");
       }
       analyzeSaved = true; 
-    }
+    } 
 }

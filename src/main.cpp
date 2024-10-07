@@ -103,6 +103,8 @@ int main() {
           //     ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
           // auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
           ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
+          
+          //TODO: AddPlotFromFile(); 
 
           if (!flagPaused) {
             ImPlot::SetupAxis(axis, yLabel.c_str(), ImPlotAxisFlags_AutoFit);

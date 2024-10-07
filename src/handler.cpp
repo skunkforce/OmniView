@@ -357,3 +357,82 @@ void rstSettings(const decltype(captureData) &loadedFiles) {
       ++it;
   }
 }
+
+// TODO : AddPlotFromFile wird dann in BeginImPlot ausgeführt 
+// TODO AddPlotFromFile(fs::path &path) : erstelle objekt LoadedFile loadedFile, setzte Axen korrekt, füge Plot in Plotregion hinzu
+// TODO if(State::LOADDATAFROMFILE || State::LOADANALYSISDATA) { axesSetup(x_max, unit.first, ImAxis xaxis, unit.second, ImAxis y_axis, yMin, yMax);}
+// TODO addPlot(); 
+
+void AddPlotFromFile(fs::path &filePath){
+  LoadedFiles loadedFile; 
+  loadedFile.LoadFromFile(filePath); 
+  loadedFile.printData(); 
+
+}
+
+void LoadedFiles::LoadFromFile(fs::path &filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Fehler: Datei konnte nicht geöffnet werden." << std::endl;
+    }
+    else {
+
+    std::string line;
+    int lineNumber = 0;
+
+    while (std::getline(file, line)) {
+        lineNumber++;
+
+        // Erste Zeile: Metadaten
+        if (lineNumber == 1) {
+      
+        }
+        // Zweite Zeile: Einheiten
+        else if (lineNumber == 2) {
+            parseUnits(line);
+        }
+        // Ab der dritten Zeile: Datenpaare
+        else {
+            parseData(line);
+        }
+    }
+
+    file.close();
+    }
+}
+
+void LoadedFiles::printData(){
+
+    std::cout << "Einheiten: ";
+    for (const auto& unit : units) {
+        std::cout << unit << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Daten: " << std::endl;
+    for (const auto& pair : data) {
+        std::cout << pair.first << ", " << pair.second << std::endl;
+    }
+}
+
+// Private Methoden zur Verarbeitung der CSV-Daten
+void LoadedFiles::parseUnits(const std::string& line) {
+    std::stringstream ss(line);
+    std::string unit;
+
+    // Einheiten durch Kommas getrennt
+    while (std::getline(ss, unit, ',')) {
+        units.push_back(unit);
+    }
+}
+
+void LoadedFiles::parseData(const std::string& line) {
+    std::stringstream ss(line);
+    double value1, value2;
+
+    // Entfernt Kommas oder Leerzeichen als Trennzeichen
+    ss >> value1 >> value2;
+
+    data.emplace_back(value1, value2);
+}
+

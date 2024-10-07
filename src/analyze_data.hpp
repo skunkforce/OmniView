@@ -12,6 +12,7 @@
 #include "sendData.hpp"
 #include "../imgui-stdlib/imgui_stdlib.h"
 #include "jasonhandler.hpp"
+#include "handler.hpp"
 // declare functions and classes
 
 void generate_analyze_menu(
@@ -67,7 +68,7 @@ public:
   void selectCurrentDevice(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
   void whileSendingProcess(); 
 
-  void writeAnalysisAnswerIntoFile();
+  void writeAnalysisAnswerIntoFile(fs::path &);
 
 private:
   State currentState;
