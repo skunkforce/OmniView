@@ -70,6 +70,9 @@ public:
 
   void writeAnalysisAnswerIntoFile(fs::path &);
 
+  bool saveAsCSV(const std::string&, const fs::path&);
+
+
 private:
   State currentState;
   const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> data;

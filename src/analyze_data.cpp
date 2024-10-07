@@ -275,11 +275,50 @@ void AnalyzeStateManager::writeAnalysisAnswerIntoFile(fs::path &outFile) {
         fmt::println("Could not create {} for writing!", outFile.string());
       } else {
         fmt::println("Start saving {}.", outFile.string());
-        writefile << apiResponse;
+        bool test = saveAsCSV(apiResponse, outFile); 
+        std::cout << "test:" << test << std::endl; 
+        /*writefile << apiResponse;
         writefile.flush();
-        writefile.close();
+        writefile.close();*/
         fmt::println("Finished saving CSV file.");
       }
       analyzeSaved = true; 
     } 
+}
+
+bool AnalyzeStateManager::saveAsCSV(const std::string& apiResponse, const fs::path& outputFilePath) {
+    try {
+        // Parse den API-Response-String in ein JSON-Objekt
+        nlohmann::json jsonData = nlohmann::json::parse(apiResponse);
+
+        // Öffne die Ausgabedatei im Schreibmodus
+        std::ofstream outFile(outputFilePath);
+        if (!outFile.is_open()) {
+            std::cerr << "Fehler beim Öffnen der Datei zum Schreiben." << std::endl;
+            return false;
+        }
+
+        // Schreibe die Metadatenzeile
+        outFile << "FFT\n";  // Erste Zeile mit dem Inhalt "FFT"
+
+        // Schreibe die Einheitenzeile
+        outFile << "frq,amp\n";  // Zweite Zeile mit den Einheiten "frq" und "amp"
+
+        // Schleife über die "fft"-Daten im JSON-Array und schreibe sie in die Datei
+        for (const auto& item : jsonData["fft"]) {
+            double frequency = item["frequency"];
+            double amplitude = item["amplitude"];
+
+            // Schreibe die Frequenz und Amplitude, getrennt durch ein Komma
+            outFile << frequency << "," << amplitude << "\n";
+        }
+
+        // Schließe die Datei
+        outFile.close();
+        return true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Fehler beim Verarbeiten der JSON-Daten: " << e.what() << std::endl;
+        return false;
+    }
 }
