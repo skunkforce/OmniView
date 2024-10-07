@@ -237,18 +237,17 @@ void AnalyzeStateManager::whileSendingProcess(){
 void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
   if(ImGui::BeginPopupModal(appLanguage[Key::Data_upload]), nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize){
-    fs::path outFile; 
     ImGui::Text(appLanguage[Key::Analyse_Answer_Text]); 
     ImGui::SeparatorText(" ");
     ImGui::Text(apiResponse == "empty" ? appLanguage[Key::Upload_failure]
                                       : appLanguage[Key::Upload_success]);
                                       ImGui::SeparatorText(" ");
     if(!analyzeSaved){
-      this->writeAnalysisAnswerIntoFile(outFile);
+      this->writeAnalysisAnswerIntoFile();
     } 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
       std::cout << "See results" << std::endl; 
-      AddPlotFromFile(outFile); 
+      AddPlotFromFile(this->outputFilePath); 
       reset(); 
       ImGui::CloseCurrentPopup();
     }
@@ -261,21 +260,21 @@ void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
   }
 }
 
-void AnalyzeStateManager::writeAnalysisAnswerIntoFile(fs::path &outFile) {
+void AnalyzeStateManager::writeAnalysisAnswerIntoFile() {
    if (apiResponse != "empty") {
       fs::path complete_path = fs::current_path() / "analyze";
       if (!fs::exists(complete_path))
         fs::create_directories(complete_path);
 
-      outFile = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string());
+      outputFilePath = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string());
 
-      std::ofstream writefile(outFile, std::ios::trunc);
+      std::ofstream writefile(outputFilePath, std::ios::trunc);
       if (!writefile.is_open()) {
         writefile.clear();
-        fmt::println("Could not create {} for writing!", outFile.string());
+        fmt::println("Could not create {} for writing!", outputFilePath.string());
       } else {
-        fmt::println("Start saving {}.", outFile.string());
-        bool test = saveAsCSV(apiResponse, outFile); 
+        fmt::println("Start saving {}.", outputFilePath.string());
+        bool test = saveAsCSV(apiResponse); 
         std::cout << "test:" << test << std::endl; 
         /*writefile << apiResponse;
         writefile.flush();
@@ -286,7 +285,7 @@ void AnalyzeStateManager::writeAnalysisAnswerIntoFile(fs::path &outFile) {
     } 
 }
 
-bool AnalyzeStateManager::saveAsCSV(const std::string& apiResponse, const fs::path& outputFilePath) {
+bool AnalyzeStateManager::saveAsCSV(const std::string& apiResponse) {
     try {
         // Parse den API-Response-String in ein JSON-Objekt
         nlohmann::json jsonData = nlohmann::json::parse(apiResponse);

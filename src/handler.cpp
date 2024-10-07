@@ -72,6 +72,8 @@ void addPlots(const char *name,
   plotAxes = getDeviceInfos();
 
   if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
+
+    // TODO: if bool areFilesLoading = false this , else AddPlotFromFile
     double x_min = std::numeric_limits<double>::max();
     double x_max = std::numeric_limits<double>::min();
 
@@ -363,15 +365,18 @@ void rstSettings(const decltype(captureData) &loadedFiles) {
 // TODO if(State::LOADDATAFROMFILE || State::LOADANALYSISDATA) { axesSetup(x_max, unit.first, ImAxis xaxis, unit.second, ImAxis y_axis, yMin, yMax);}
 // TODO addPlot(); 
 
+//TODO : Set this also up for saved OmniScope files 
+
 void AddPlotFromFile(fs::path &filePath){
   LoadedFiles loadedFile; 
   loadedFile.LoadFromFile(filePath); 
+  // ImPlot::SetAxis(loadedFile.units.first, loadedFile.units.second); 
+  // ImPlot::PlotLine(outputFile.c_str(), loadedFile.data.first(), loadedFile.data.second, static_cast<int>(x_values.size())) 
   loadedFile.printData(); 
-
 }
 
 void LoadedFiles::LoadFromFile(fs::path &filePath) {
-    std::ifstream file(filePath);
+    std::ifstream file(filePath, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "Fehler: Datei konnte nicht geöffnet werden." << std::endl;
     }

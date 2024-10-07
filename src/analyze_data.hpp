@@ -68,9 +68,9 @@ public:
   void selectCurrentDevice(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
   void whileSendingProcess(); 
 
-  void writeAnalysisAnswerIntoFile(fs::path &);
+  void writeAnalysisAnswerIntoFile();
 
-  bool saveAsCSV(const std::string&, const fs::path&);
+  bool saveAsCSV(const std::string&);
 
 
 private:
@@ -85,4 +85,5 @@ private:
   std::future<std::string> future;
   nlohmann::ordered_json loadedDataJSON; 
   std::string apiResponse;
+  fs::path outputFilePath; 
 };
