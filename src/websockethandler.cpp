@@ -37,7 +37,7 @@ void WebSocketHandler::startWebSocketThread(const std::set<std::string>& selecte
                         // Optional: Simulate a short delay (e.g. 1 microsecond)
                         // std::this_thread::sleep_for(std::chrono::microseconds(1));
                     }
-                    captureData[id] = std::move(extended_data_vector);
+                    captureData[id] = std::move(extended_data_vector); 
                 }
                 send(captureData, selected_serials);
             }

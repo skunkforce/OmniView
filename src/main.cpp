@@ -1,5 +1,6 @@
 #include "websockethandler.hpp"
 #include "handler.hpp"
+#include "dllhandler.hpp"
 #include "commandLineParser.hpp"
 #include <thread>
 #include <csignal>
@@ -19,6 +20,12 @@ int main(int argc, char** argv) {
 
     if (options.searchDll) {
         searchDlls();
+        return 0;
+    }
+
+    if (options.dllPath.empty()) {
+        // std::string dllPath = "/home/arkadiusz/Projects/lib/libsawtooth_one.so";
+        startDllDataTransfer(options.dllPath);
         return 0;
     }
 

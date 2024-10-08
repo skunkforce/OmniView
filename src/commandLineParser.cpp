@@ -8,6 +8,7 @@ void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& option
     app.add_flag("-s, --searchdevice", options.searchDevice, "Search for devices");
     app.add_flag("-a, --all", options.all, "Use all connected devices");
     app.add_flag("-l, --searchdll", options.searchDll, "Search for DLLs");
+    app.add_option("-t, --dllTransfer", options.dllPath, "Start data transfer from DLL");
 
     try {
         app.parse(argc, argv);

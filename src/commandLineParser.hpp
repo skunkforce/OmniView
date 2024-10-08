@@ -11,6 +11,7 @@ struct CommandLineOptions {
     bool searchDevice = false;
     bool all = false;
     bool searchDll = false;
+    std::string dllPath;
 };
 
 void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& options);
