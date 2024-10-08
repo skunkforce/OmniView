@@ -45,7 +45,9 @@ jobs:
 
       - name: Install cpprestsdk
         if: ${{ !contains(matrix.os, 'windows' ) }}
-        run: sudo apt-get install -y libcpprest-dev
+        shell: bash
+        run: |
+          sudo apt-get install -y libcpprest-dev
 
 
       - name: setup prerequisites
