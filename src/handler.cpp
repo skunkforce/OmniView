@@ -433,11 +433,22 @@ void LoadedFiles::parseUnits(const std::string& line) {
 
 void LoadedFiles::parseData(const std::string& line) {
     std::stringstream ss(line);
-    double value1, value2;
+    std::string value1_str, value2_str;
 
-    // Entfernt Kommas oder Leerzeichen als Trennzeichen
-    ss >> value1 >> value2;
+    // Lese die beiden Werte als Strings, getrennt durch Komma oder Leerzeichen
+    std::getline(ss, value1_str, ',');  // Lese den ersten Wert bis zum Komma
+    std::getline(ss, value2_str);       // Lese den zweiten Wert (der Rest der Zeile)
 
+    // Entferne eventuelle zusätzliche Leerzeichen
+    value1_str.erase(remove_if(value1_str.begin(), value1_str.end(), isspace), value1_str.end());
+    value2_str.erase(remove_if(value2_str.begin(), value2_str.end(), isspace), value2_str.end());
+
+    // Konvertiere die Strings in double-Werte
+    double value1 = std::stod(value1_str);
+    double value2 = std::stod(value2_str);
+
+    // Speichere das Paar in der Datenstruktur
     data.emplace_back(value1, value2);
 }
+
 
