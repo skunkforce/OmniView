@@ -45,7 +45,11 @@ int main(int argc, char** argv) {
 
         // If DLL path and DLL name have been specified
         if (!options.dllSearchPath.empty() && !options.dllName.empty()) {
-            std::string dllFullPath = options.dllSearchPath + "/" + options.dllName;
+            std::string dllFullPath = options.dllSearchPath;
+            if (dllFullPath.back() != '/') {
+                dllFullPath += "/";
+            }
+            dllFullPath += options.dllName;
             DllHandler::startDllDataTransfer(dllFullPath);
             return 0;
         }
