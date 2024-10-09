@@ -34,8 +34,14 @@ int main(int argc, char** argv) {
     // WebSocket case: initialize WebSocket if the URI is provided
     if (!options.wsURI.empty()) {
 
-        // Starts only the WebSocket connection without loading the DLL
+        // Test WebSocket connection
         WebSocketHandler wsHandler(options.wsURI);
+        std::cout << "WebSocket connection established successfully at " << options.wsURI << std::endl;
+
+        // If no other options such as device selection (-a, -d) are set, exit
+        if (!options.all && options.deviceIds.empty()) {
+            return 0;
+        }
 
         // Initialize devices
         initializeDevices();
@@ -65,8 +71,10 @@ int main(int argc, char** argv) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
-
-    std::cerr << "No WebSocket URI or DLL path provided, exiting.\n";
+    else {
+        std::cerr << "No WebSocket URI or DLL path provided, exiting.\n";
+        return 1;
+    }
     return 1;
 }
 

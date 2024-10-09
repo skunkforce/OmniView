@@ -2,6 +2,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
+/*
 void* generalDllCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
     // DEBUG
     std::vector<int> callback_data{static_cast<int*>(data), static_cast<int*>(data) + size};
@@ -11,6 +12,7 @@ void* generalDllCallback(void* data, size_t size, void*, size_t timestamp, void 
 
     return nullptr;
 }
+*/
 
 // Callback function that is used when the DLL sends back data
 void* sawtoothCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
