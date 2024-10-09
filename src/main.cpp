@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     }
 
     // Search for DLLs
-    if (!options.dllSearchPath.empty()) {
+    if (!options.dllSearchPath.empty() && options.dllName.empty()) {
         DllHandler::searchDlls(options.dllSearchPath);
         return 0;
     }
@@ -39,7 +39,14 @@ int main(int argc, char** argv) {
         std::cout << "WebSocket connection established successfully at " << options.wsURI << std::endl;
 
         // If no other options such as device selection (-a, -d) are set, exit
-        if (!options.all && options.deviceIds.empty()) {
+        if (!options.all && options.deviceIds.empty() && options.dllSearchPath.empty()) {
+            return 0;
+        }
+
+        // If DLL path and DLL name have been specified
+        if (!options.dllSearchPath.empty() && !options.dllName.empty()) {
+            std::string dllFullPath = options.dllSearchPath + "/" + options.dllName;
+            DllHandler::startDllDataTransfer(dllFullPath);
             return 0;
         }
 

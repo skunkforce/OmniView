@@ -11,6 +11,7 @@ struct CommandLineOptions {
     bool searchDevice = false;
     bool all = false;
     std::string dllSearchPath;
+    std::string dllName;
     std::string dllPath;
 };
 
