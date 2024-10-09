@@ -21,6 +21,9 @@ public:
     void unload();
     void* callFunction(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*));
 
+    static void searchDlls(const std::string& searchPath);
+    static void startDllDataTransfer(const std::string& dllPath);
+
 private:
     std::string dllPath;
     void* dllHandle = nullptr;

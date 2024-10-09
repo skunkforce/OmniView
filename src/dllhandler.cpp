@@ -12,11 +12,11 @@ void* generalDllCallback(void* data, size_t size, void*, size_t timestamp, void 
     return nullptr;
 }
 
-// Callback-Funktion, die verwendet wird, wenn die DLL Daten zurücksendet
+// Callback function that is used when the DLL sends back data
 void* sawtoothCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
     std::vector<int> sawtooth_data{static_cast<int*>(data), static_cast<int*>(data) + size};
 
-    // Ausgabe der erhaltenen Daten zur Überprüfung
+    // Output of the data received for verification
     fmt::print("In the memory address: {} , data: {}\n", static_cast<void*>(sawtooth_data.data()), nlohmann::json(sawtooth_data).dump());
 
     deallocator(data);  // Speicher freigeben
@@ -60,13 +60,13 @@ bool DllHandler::load() {
 void* DllHandler::callFunction(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
     std::lock_guard<std::mutex> lock(dllMutex);
 
-    // Sicherstellen, dass die DLL geladen ist
+    // Ensure that the DLL is loaded
     if (!dllHandle || !initDllCallback) {
         std::cerr << "DLL not loaded or initDllCallback not available!" << std::endl;
         return nullptr;
     }
 
-    // Rufe die DLL-Funktion auf
+    // Call the DLL function
     int result = initDllCallback(data, sawtoothCallback);
 
     if (result != 0) {
@@ -74,7 +74,7 @@ void* DllHandler::callFunction(void* data, size_t size, void*, size_t timestamp,
         return nullptr;
     }
 
-    // Rückgabe, falls benötigt
+    // Return, if required
     return nullptr;
 }
 
@@ -93,5 +93,32 @@ void DllHandler::unload() {
 
 DllHandler::~DllHandler() {
     unload();
+}
+
+void DllHandler::searchDlls(const std::string& searchPath) {
+    std::string dllExtension = ".so";
+
+    std::cout << "Searching for DLLs in: " << searchPath << std::endl;
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(searchPath)) {
+        if (entry.path().extension() == dllExtension) {
+            std::cout << " Found DLL: " << entry.path().filename().string() << std::endl;
+        }
+    }
+}
+
+void DllHandler::startDllDataTransfer(const std::string& dllPath) {
+    DllHandler dllHandler(dllPath);
+
+    if (!dllHandler.load()) {
+        std::cerr << "Failed to load DLL: " << dllPath << std::endl;
+        return;
+    }
+    std::cout << "Starting data transfer from DLL: " << dllPath << std::endl;
+
+    // dllHandler.callFunction(...);
+
+    dllHandler.unload();
+    std::cout << "Data transfer from DLL completed." << std::endl;
 }
 

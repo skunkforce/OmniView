@@ -104,39 +104,3 @@ bool selectDevices(const CommandLineOptions& options, std::set<std::string>& sel
     return true;
 }
 
-void searchDlls() {
-    std::string searchPath = "/home/arkadiusz/Projects/lib";
-    std::string dllExtension = ".so";
-
-    std::cout << "Searching for DLLs in: " << searchPath << std::endl;
-
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(searchPath)) {
-        if (entry.path().extension() == dllExtension) {
-            std::cout << " Found DLL: " << entry.path().filename().string() << std::endl;
-        }
-    }
-}
-
-void startDllDataTransfer(const std::string& dllPath) {
-    DllHandler dllHandler(dllPath);
-
-    if (!dllHandler.load()) {
-        std::cerr << "Failed to load DLL: " << dllPath << std::endl;
-        return;
-    }
-    std::cout << "Starting data transfer from DLL: " << dllPath << std::endl;
-
-    // Continuous data stream until SIGINT is received
-    while (running) {
-
-        dllHandler.callFunction(nullptr, 0, nullptr, 0, nullptr);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    } 
-
-    // dllHandler.callFunction(...);
-
-    // dllHandler.startTransfer();
-
-    dllHandler.unload();
-    std::cout << "Data transfer from DLL completed." << std::endl;
-}

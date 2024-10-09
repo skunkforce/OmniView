@@ -10,7 +10,7 @@ struct CommandLineOptions {
     std::vector<std::string> deviceIds;
     bool searchDevice = false;
     bool all = false;
-    bool searchDll = false;
+    std::string dllSearchPath;
     std::string dllPath;
 };
 

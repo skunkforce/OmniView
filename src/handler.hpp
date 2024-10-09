@@ -24,8 +24,4 @@ void searchDevices();
 void stopAllDevices();
 bool selectDevices(const CommandLineOptions& options, std::set<std::string>& selected_serials);
 
-void startDllDataTransfer(const std::string& dllPath);
-
-void searchDlls();
-
 #endif
