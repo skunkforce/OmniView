@@ -2,33 +2,25 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-/*
-void* generalDllCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
-    // DEBUG
-    std::vector<int> callback_data{static_cast<int*>(data), static_cast<int*>(data) + size};
-    fmt::print("Callback data: {}\n", nlohmann::json(callback_data).dump());
-
-    deallocator(data);
-
-    return nullptr;
-}
-*/
-
-// Callback function that is used when the DLL sends back data
-void* DllHandler::sawtoothCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
-    std::vector<int> sawtooth_data{static_cast<int*>(data), static_cast<int*>(data) + size};
-
-    // Output of the data received for verification
-    fmt::print("In the memory address: {} , data: {}\n", static_cast<void*>(sawtooth_data.data()), nlohmann::json(sawtooth_data).dump());
-
-    deallocator(data);  // Speicher freigeben
-    return nullptr;
-}
-
-
 DllHandler::DllHandler(const std::string& path) : dllPath(path) {}
 
+DllHandler::~DllHandler() {
+    unload();
+}
+
+// Callback function that is used when the DLL sends back data
+void* DllHandler::dllCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
+    std::vector<int> sawtooth_data{static_cast<int*>(data), static_cast<int*>(data) + size};
+
+    // DEBUG
+    fmt::print("In the memory address: {} , data: {}\n", static_cast<void*>(sawtooth_data.data()), nlohmann::json(sawtooth_data).dump());
+
+    deallocator(data);
+    return nullptr;
+}
+
 bool DllHandler::load() {
+
     std::lock_guard<std::mutex> lock(dllMutex);
     dllHandle = dlopen(dllPath.c_str(), RTLD_LAZY);
     if (!dllHandle) {
@@ -44,6 +36,11 @@ bool DllHandler::load() {
         return false;
     }
 
+    // Init the DLL with a callback function
+    initDllCallback(nullptr, dllCallback);
+    // DEBUG
+    fmt::print("Dll loaded and initialized; {}\n", dllPath);
+
     deinitDllCallback = (DeinitDllCallbackFunc)dlsym(dllHandle, "deinit_sawtooth");
     if (!deinitDllCallback) {
         std::cerr << "Failed to get deinit_sawtooth function: " << dlerror() << std::endl;
@@ -52,34 +49,8 @@ bool DllHandler::load() {
         return false;
     }
 
-    // Init the DLL with a callback function
-    initDllCallback(nullptr, nullptr);
-    
-    fmt::print("Dll loaded and initialized; {}\n", dllPath);
     return true;
 }
-
-void* DllHandler::callFunction(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
-    std::lock_guard<std::mutex> lock(dllMutex);
-
-    // Ensure that the DLL is loaded
-    if (!dllHandle || !initDllCallback) {
-        std::cerr << "DLL not loaded or initDllCallback not available!" << std::endl;
-        return nullptr;
-    }
-
-    // Call the DLL function
-    int result = initDllCallback(data, sawtoothCallback);
-
-    if (result != 0) {
-        std::cerr << "Error calling DLL function!" << std::endl;
-        return nullptr;
-    }
-
-    // Return, if required
-    return nullptr;
-}
-
 
 void DllHandler::unload() {
     std::lock_guard<std::mutex> lock(dllMutex);
@@ -89,12 +60,9 @@ void DllHandler::unload() {
         }
         dlclose(dllHandle);
         dllHandle = nullptr;
+        // DEBUG
         fmt::print("DLL unloaded: {}\n", dllPath);
     }
-}
-
-DllHandler::~DllHandler() {
-    unload();
 }
 
 void DllHandler::searchDlls(const std::string& searchPath) {
@@ -116,11 +84,11 @@ void DllHandler::startDllDataTransfer(const std::string& dllPath) {
         std::cerr << "Failed to load DLL: " << dllPath << std::endl;
         return;
     }
-    std::cout << "Starting data transfer from DLL: " << dllPath << std::endl;
-
-    // dllHandler.callFunction(...);
+    // DEBUG
+    std::cout << "Starting data transfer to WebSocket" << std::endl;
 
     dllHandler.unload();
+    // DEBUG
     std::cout << "Data transfer from DLL completed." << std::endl;
 }
 
