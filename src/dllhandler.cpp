@@ -10,10 +10,10 @@ DllHandler::~DllHandler() {
 
 // Callback function that is used when the DLL sends back data
 void* DllHandler::dllCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
-    std::vector<int> sawtooth_data{static_cast<int*>(data), static_cast<int*>(data) + size};
+    std::vector<int> callback_data{static_cast<int*>(data), static_cast<int*>(data) + size};
 
     // DEBUG
-    fmt::print("In the memory address: {} , data: {}\n", static_cast<void*>(sawtooth_data.data()), nlohmann::json(sawtooth_data).dump());
+    fmt::print("In the memory address: {} , data: {}\n", static_cast<void*>(callback_data.data()), nlohmann::json(callback_data).dump());
 
     deallocator(data);
     return nullptr;

@@ -10,8 +10,6 @@ void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& option
     app.add_option("-p, --path", options.dllSearchPath, "Path to search for DLLs");
     app.add_option("-n, --dllName", options.dllName, "Name of the DLL to load");
 
-    app.add_option("-t, --dllTransfer", options.dllPath, "Start data transfer from DLL");
-
     try {
         app.parse(argc, argv);
     }
