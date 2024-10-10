@@ -251,7 +251,7 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
 void set_side_menu(const nlohmann::json &config, bool &open_settings,
                    bool &open_generate_training_data, bool &open_analyze_menu, 
                    decltype(captureData) &loadedFiles,
-                   std::map<Omniscope::Id, std::string> &loadedFilenames) {
+                   std::map<Omniscope::Id, std::string> &loadedFilenames, bool &LOADANALYSISDATA) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -295,6 +295,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Dvc_search])) {
+    LOADANALYSISDATA= false;  
     devices.clear();
     deviceManager.clearDevices();
     initDevices();

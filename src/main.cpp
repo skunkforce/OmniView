@@ -46,7 +46,7 @@ int main() {
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     // ############################################# Side Menu
     set_side_menu(config, open_settings, open_generate_training_data,open_analyze_menu,
-                  loadedFiles, loadedFilenames);
+                  loadedFiles, loadedFilenames, LOADANALYSISDATA);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
@@ -162,7 +162,6 @@ int main() {
           loadedFilesChkBxs[it->first].b = false;
           it = loadedFiles.erase(it);
           AnalyzedFilePath = ""; 
-          LOADANALYSISDATA = false; 
         } else
           it++;
         ImGui::PopID();
