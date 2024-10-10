@@ -194,6 +194,7 @@ void AnalyzeStateManager::reset() {
   radioButtonFileData = false; 
   selectedDeviceId = {}; 
   currentState = State::NODATA; 
+  analyzeSaved = false; 
 }
 
 void AnalyzeStateManager::setMetaData() { 

@@ -395,9 +395,8 @@ void AddPlotFromFile(fs::path &filePath) {
                                       0.0f, 1.0f});
 
    //ImPlot::PlotLine(filePath.string().c_str(), x_values.data(), y_values.data(), x_values.size(), static_cast<int>(x_values.size()));
-   std::cout << "Size: " << x_values.size() << std::endl; 
    ImPlot::PlotBars(filePath.string().c_str(), x_values.data(), y_values.data(), x_values.size(), 0.001, static_cast<int>(x_values.size()));
-   
+
 }
 
 

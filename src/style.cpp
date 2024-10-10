@@ -373,7 +373,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
 }
 
 void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
-                 bool &flagPaused, const decltype(captureData) &loadedFiles) {
+                 bool &flagPaused, const decltype(captureData) &loadedFiles,bool &LOADANALYSISDATA) {
 
   // variable declaration
   static auto now = std::chrono::system_clock::now();
@@ -501,6 +501,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
         if (flagDataNotSaved) {
           ImGui::OpenPopup(appLanguage[Key::Reset_q]);
         } else {
+          LOADANALYSISDATA = false; 
           rstSettings(loadedFiles);
           flagPaused = true;
         }

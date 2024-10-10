@@ -21,7 +21,7 @@ void set_side_menu(const nlohmann::json &, bool &, bool &, bool &,
                    decltype(captureData) &,
                    std::map<Omniscope::Id, std::string> &, bool &);
 void set_toolbar(const nlohmann::json &, const nlohmann::json &, bool &,
-                 const decltype(captureData) &);
+                 const decltype(captureData) &, bool&);
 void PopupStyleEditor();
 void PushPlotRegionColors();
 void PopPlotRegionColors();

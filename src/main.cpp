@@ -57,7 +57,7 @@ int main() {
       sampler->copyOut(captureData);
 
     // ######################################### Toolbar
-    set_toolbar(config, language, flagPaused, loadedFiles);
+    set_toolbar(config, language, flagPaused, loadedFiles, LOADANALYSISDATA);
 
     // ############################ Settings Menu
     static int title = 0;
