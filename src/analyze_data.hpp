@@ -15,8 +15,8 @@
 #include "handler.hpp"
 // declare functions and classes
 
-void generate_analyze_menu(
-    bool &,
+fs::path generate_analyze_menu(
+    bool &,bool &,
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
 // Menustates
@@ -56,7 +56,7 @@ public:
 
   void loadAndSendData(const std::map<Omniscope::Id, std::vector<std::pair<double, double>>> &);
 
-  void generateAnalyzeAnswerPopUp();  
+  void generateAnalyzeAnswerPopUp(bool &);  
 
   void reset();
 
@@ -72,6 +72,8 @@ public:
 
   bool saveAsCSV(const std::string&);
 
+  fs::path GetFilePath(); 
+
 
 private:
   State currentState;
@@ -85,5 +87,5 @@ private:
   std::future<std::string> future;
   nlohmann::ordered_json loadedDataJSON; 
   std::string apiResponse;
-  fs::path outputFilePath; 
+    fs::path outputFilePath; 
 };

@@ -19,6 +19,10 @@ int main() {
   auto loadedFiles = captureData;
   std::map<Omniscope::Id, std::string> loadedFilenames;
 
+  // temporary solution 
+  bool LOADANALYSISDATA{false}; 
+  fs::path AnalyzedFilePath(""); 
+
   // main loop
   auto render = [&]() {
     std::call_once(configFlag, set_inital_config, std::ref(config));
@@ -82,7 +86,7 @@ int main() {
 
     // Generate analyze data popup
     if (open_analyze_menu)
-      generate_analyze_menu(open_analyze_menu, captureData);
+      AnalyzedFilePath = generate_analyze_menu(open_analyze_menu, LOADANALYSISDATA, captureData);
 
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
@@ -95,7 +99,7 @@ int main() {
     // check if egu and timescale for plot are same
     // error if third device is added
     addPlots(
-        appLanguage[Key::Recording_Data],
+        appLanguage[Key::Recording_Data],AnalyzedFilePath,LOADANALYSISDATA,
         [flagPaused](double x_max, std::string yLabel, ImAxis_ axis,
                      double yMin, double yMax) {
           ImPlot::SetupLegend(ImPlotLocation_NorthEast);
@@ -103,8 +107,6 @@ int main() {
           //     ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
           // auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
           ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-          
-          //TODO: AddPlotFromFile(); 
 
           if (!flagPaused) {
             ImPlot::SetupAxis(axis, yLabel.c_str(), ImPlotAxisFlags_AutoFit);
@@ -159,6 +161,8 @@ int main() {
           loadedFilenames.erase(it->first);
           loadedFilesChkBxs[it->first].b = false;
           it = loadedFiles.erase(it);
+          AnalyzedFilePath = ""; 
+          LOADANALYSISDATA = false; 
         } else
           it++;
         ImGui::PopID();

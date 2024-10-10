@@ -63,7 +63,7 @@ static std::vector<AxisInfo> getDeviceInfos() {
   return axisInfos;
 }
 
-void addPlots(const char *name,
+void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDATA, 
               std::function<void(double, std::string, ImAxis_, double, double)>
                   axesSetup) {
   static std::set<std::string> firstRun;
@@ -72,6 +72,11 @@ void addPlots(const char *name,
   plotAxes = getDeviceInfos();
 
   if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
+  
+   if(!AnalyzedFilePath.empty() && LOADANALYSISDATA){
+    AddPlotFromFile(AnalyzedFilePath); 
+   }
+   else {
 
     // TODO: if bool areFilesLoading = false this , else AddPlotFromFile
     double x_min = std::numeric_limits<double>::max();
@@ -131,6 +136,7 @@ void addPlots(const char *name,
                                       colorMap[plot.data.first][2], 1.0f});
       addPlot(plot.data, plot.egu.second);
     }
+   }
 
     ImPlot::EndPlot();
   }
@@ -360,20 +366,35 @@ void rstSettings(const decltype(captureData) &loadedFiles) {
   }
 }
 
-// TODO : AddPlotFromFile wird dann in BeginImPlot ausgeführt 
-// TODO AddPlotFromFile(fs::path &path) : erstelle objekt LoadedFile loadedFile, setzte Axen korrekt, füge Plot in Plotregion hinzu
-// TODO if(State::LOADDATAFROMFILE || State::LOADANALYSISDATA) { axesSetup(x_max, unit.first, ImAxis xaxis, unit.second, ImAxis y_axis, yMin, yMax);}
-// TODO addPlot(); 
-
 //TODO : Set this also up for saved OmniScope files 
 
-void AddPlotFromFile(fs::path &filePath){
-  LoadedFiles loadedFile; 
-  loadedFile.LoadFromFile(filePath); 
-  // ImPlot::SetAxis(loadedFile.units.first, loadedFile.units.second); 
-  // ImPlot::PlotLine(outputFile.c_str(), loadedFile.data.first(), loadedFile.data.second, static_cast<int>(x_values.size())) 
-  loadedFile.printData(); 
+void AddPlotFromFile(fs::path &filePath) {
+    LoadedFiles loadedFile; 
+    loadedFile.LoadFromFile(filePath); 
+    
+    // Should be able to write this directly here because the axis doesn't depend on an object 
+       if (loadedFile.units.size() >= 2) {
+        ImPlot::SetupAxis(ImAxis_Y1, loadedFile.units[1].c_str(), ImPlotAxisFlags_AutoFit);
+        ImPlot::SetupAxis(ImAxis_X1, loadedFile.units[0].c_str());
+    } else {
+        // If the user used a wrong file or the analysis went wrong 
+        std::cerr << "Error: Not enough units provided for axis labels." << std::endl;
+        return;
+    }
+  
+    std::vector<double> x_values;
+    std::vector<double> y_values;
+    
+    for (const auto& pair : loadedFile.data) {
+        x_values.push_back(pair.first);
+        y_values.push_back(pair.second);
+    }
+
+    ImPlot::PlotLine(filePath.c_str(), x_values.data(), y_values.data(), static_cast<int>(x_values.size())); 
+    
+    loadedFile.printData(); 
 }
+
 
 void LoadedFiles::LoadFromFile(fs::path &filePath) {
     std::ifstream file(filePath, std::ios::binary);

@@ -1,7 +1,7 @@
 #include "analyze_data.hpp"
 
-void generate_analyze_menu( // generate the whole menu: Startpoint
-    bool &open_analyze_menu,
+fs::path generate_analyze_menu( // generate the whole menu: Startpoint
+    bool &open_analyze_menu,bool &LOADANALYSISDATA,
     const std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
         &captureData) {
 
@@ -39,10 +39,12 @@ void generate_analyze_menu( // generate the whole menu: Startpoint
   if(stateManager.getState() == State::DATAWASSEND){
      ImGui::OpenPopup(appLanguage[Key::Data_upload],
                          ImGuiPopupFlags_NoOpenOverExistingPopup);
-     stateManager.generateAnalyzeAnswerPopUp(); 
+     stateManager.generateAnalyzeAnswerPopUp(LOADANALYSISDATA); 
   }
   }
   ImGui::EndPopup();
+  fs::path FilePath = stateManager.GetFilePath(); 
+  return FilePath; 
 }
 
 void AnalyzeStateManager::setState(State state) {
@@ -234,7 +236,7 @@ void AnalyzeStateManager::whileSendingProcess(){
     }
 }
 
-void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
+void AnalyzeStateManager::generateAnalyzeAnswerPopUp(bool &LOADANALYSISDATA){
   if(ImGui::BeginPopupModal(appLanguage[Key::Data_upload]), nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize){
     ImGui::Text(appLanguage[Key::Analyse_Answer_Text]); 
@@ -247,7 +249,7 @@ void AnalyzeStateManager::generateAnalyzeAnswerPopUp(){
     } 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
       std::cout << "See results" << std::endl; 
-      AddPlotFromFile(this->outputFilePath); 
+      LOADANALYSISDATA = true; 
       reset(); 
       ImGui::CloseCurrentPopup();
     }
@@ -320,4 +322,8 @@ bool AnalyzeStateManager::saveAsCSV(const std::string& apiResponse) {
         std::cerr << "Fehler beim Verarbeiten der JSON-Daten: " << e.what() << std::endl;
         return false;
     }
+}
+
+fs::path AnalyzeStateManager::GetFilePath(){
+  return this->outputFilePath; 
 }
