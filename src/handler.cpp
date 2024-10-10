@@ -75,6 +75,7 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
   
    if(!AnalyzedFilePath.empty() && LOADANALYSISDATA){
     AddPlotFromFile(AnalyzedFilePath); 
+    ImPlot::EndPlot();
    }
    else {
 
@@ -390,7 +391,7 @@ void AddPlotFromFile(fs::path &filePath) {
         y_values.push_back(pair.second);
     }
 
-    ImPlot::PlotLine(filePath.c_str(), x_values.data(), y_values.data(), static_cast<int>(x_values.size())); 
+   //ImPlot::PlotLine(filePath.string().c_str(), x_values.data(), y_values.data(), static_cast<int>(x_values.size()));
     
     loadedFile.printData(); 
 }
