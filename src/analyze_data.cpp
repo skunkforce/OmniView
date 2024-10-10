@@ -185,6 +185,8 @@ std::vector<double> AnalyzeStateManager::loadData(const std::map<Omniscope::Id, 
     currentState = State::FILEDATALOADED; 
    }
  }
+ std::cout << "Size of loaded data: " << y_values.size() << std::endl;
+
  return y_values; 
 };
 
@@ -248,9 +250,9 @@ void AnalyzeStateManager::generateAnalyzeAnswerPopUp(bool &LOADANALYSISDATA){
     } 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
       std::cout << "See results" << std::endl; 
-      reset(); 
-      ImGui::CloseCurrentPopup();
+      reset();
       LOADANALYSISDATA = true; 
+      ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine(); 
     if(ImGui::Button(appLanguage[Key::Back])) {

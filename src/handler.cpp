@@ -75,7 +75,6 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
   
    if(!AnalyzedFilePath.empty() && LOADANALYSISDATA){
     AddPlotFromFile(AnalyzedFilePath); 
-    ImPlot::EndPlot();
    }
    else {
 
@@ -370,12 +369,12 @@ void rstSettings(const decltype(captureData) &loadedFiles) {
 //TODO : Set this also up for saved OmniScope files 
 
 void AddPlotFromFile(fs::path &filePath) {
-    LoadedFiles loadedFile; 
+    LoadedFiles loadedFile;  
     loadedFile.LoadFromFile(filePath); 
     
     // Should be able to write this directly here because the axis doesn't depend on an object 
        if (loadedFile.units.size() >= 2) {
-        ImPlot::SetupAxis(ImAxis_Y1, loadedFile.units[1].c_str(), ImPlotAxisFlags_AutoFit);
+        ImPlot::SetupAxis(ImAxis_Y1, loadedFile.units[1].c_str());
         ImPlot::SetupAxis(ImAxis_X1, loadedFile.units[0].c_str());
     } else {
         // If the user used a wrong file or the analysis went wrong 
@@ -391,7 +390,12 @@ void AddPlotFromFile(fs::path &filePath) {
         y_values.push_back(pair.second);
     }
 
-   ImPlot::PlotLine(filePath.string().c_str(), x_values.data(), y_values.data(), static_cast<int>(x_values.size()));
+    ImPlot::SetNextLineStyle(ImVec4{0.0f,
+                                      1.0f,
+                                      0.0f, 1.0f});
+
+   ImPlot::PlotLine(filePath.string().c_str(), x_values.data(), y_values.data(), x_values.size(), static_cast<int>(x_values.size()));
+
 }
 
 
