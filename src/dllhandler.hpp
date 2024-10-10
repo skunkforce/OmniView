@@ -1,6 +1,8 @@
 #ifndef DLLHANDLER_HPP
 #define DLLHANDLER_HPP
 
+#include "websockethandler.hpp"
+
 #include <string>
 #include <dlfcn.h>
 #include <iostream>
@@ -24,12 +26,15 @@ public:
     static void searchDlls(const std::string& searchPath);
     static void startDllDataTransfer(const std::string& dllPath);
 
+    static void* sawtoothCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*));
+
 private:
     std::string dllPath;
     void* dllHandle = nullptr;
     InitDllCallbackFunc initDllCallback = nullptr;
     DeinitDllCallbackFunc deinitDllCallback = nullptr;
     std::mutex dllMutex;
+
 };
 
 #endif

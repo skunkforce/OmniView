@@ -25,11 +25,13 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+/*    
     // Start DLL data transfer if the DLL path is provided
     if (!options.dllPath.empty()) {
         DllHandler::startDllDataTransfer(options.dllPath);
         return 0;
     }
+*/
     
     // WebSocket case: initialize WebSocket if the URI is provided
     if (!options.wsURI.empty()) {

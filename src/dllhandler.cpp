@@ -15,7 +15,7 @@ void* generalDllCallback(void* data, size_t size, void*, size_t timestamp, void 
 */
 
 // Callback function that is used when the DLL sends back data
-void* sawtoothCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
+void* DllHandler::sawtoothCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
     std::vector<int> sawtooth_data{static_cast<int*>(data), static_cast<int*>(data) + size};
 
     // Output of the data received for verification
