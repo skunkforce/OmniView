@@ -193,7 +193,6 @@ void AnalyzeStateManager::reset() {
   radioButtonFileData = false; 
   selectedDeviceId = {}; 
   currentState = State::NODATA; 
-
 }
 
 void AnalyzeStateManager::setMetaData() { 
@@ -249,9 +248,9 @@ void AnalyzeStateManager::generateAnalyzeAnswerPopUp(bool &LOADANALYSISDATA){
     } 
     if(ImGui::Button(appLanguage[Key::SeeAnalyzeResults])){
       std::cout << "See results" << std::endl; 
-      LOADANALYSISDATA = true; 
       reset(); 
       ImGui::CloseCurrentPopup();
+      LOADANALYSISDATA = true; 
     }
     ImGui::SameLine(); 
     if(ImGui::Button(appLanguage[Key::Back])) {

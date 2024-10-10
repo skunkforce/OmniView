@@ -392,8 +392,6 @@ void AddPlotFromFile(fs::path &filePath) {
     }
 
    ImPlot::PlotLine(filePath.string().c_str(), x_values.data(), y_values.data(), static_cast<int>(x_values.size()));
-    
-    loadedFile.printData(); 
 }
 
 
