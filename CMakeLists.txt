@@ -13,6 +13,8 @@ FetchContent_Populate(
 list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
 
+set(CMAKE_TOOLCHAIN_FILE "mytoolchain/my_toolchain.cmake")
+
 set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 
 project("OmniscopeGui" VERSION 0.9.0)
@@ -69,3 +71,4 @@ target_link_libraries(OmniView PUBLIC ${LIBUSB_LIBRARIES})
 
 target_compile_definitions(OmniView PUBLIC BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
 target_compile_features(OmniView PUBLIC cxx_std_23)
+

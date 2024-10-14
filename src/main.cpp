@@ -1,5 +1,5 @@
-#ifndef MYIMDRAWDEF
-using ImDrawIdx = unsigned int;
+#ifndef ImDrawIdx
+using ImDrawIdx = unsigned int; 
 #endif
 #include "popups.hpp"
 #include "settingspopup.hpp"
