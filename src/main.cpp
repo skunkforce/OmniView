@@ -1,4 +1,6 @@
-#define ImDrawIdx unsigned int
+#ifndef MYIMDRAWDEF
+using ImDrawIdx = unsigned int;
+#endif
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
