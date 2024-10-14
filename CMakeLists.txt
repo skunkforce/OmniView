@@ -21,7 +21,7 @@ if(MSVC)
     add_compile_options(
         $<$<CONFIG:>:/MT> #---------|
         $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
-        $<$<CONFIG:Release>:/P> #--|
+        $<$<CONFIG:Release>:/MT> #--|
     )
 endif()
 
