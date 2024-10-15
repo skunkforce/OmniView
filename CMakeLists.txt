@@ -13,7 +13,7 @@ FetchContent_Populate(
 list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
 
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/mytoolchain/mytoolchain.cmake")
+set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 
 project("OmniscopeGui" VERSION 0.9.0)
 
@@ -29,6 +29,17 @@ endif()
 include(cmake_helpers/BuildOptions.cmake)
 include(cmake_helpers/FindOrFetch.cmake)
 
+add_subdirectory(imgui)
+
+set(IMGUI_SOURCES
+    external/imgui/imgui.cpp
+    external/imgui/imgui_demo.cpp
+    external/imgui/imgui_draw.cpp
+    external/imgui/imgui_widgets.cpp
+    external/imgui/backends/imgui_impl_glfw.cpp
+    external/imgui/backends/imgui_impl_opengl3.cpp
+)
+
 add_executable(OmniView 
                src/main.cpp 
                src/generateTrainingData.cpp 
@@ -38,6 +49,7 @@ add_executable(OmniView
                src/style.cpp
                src/handler.cpp
                src/analyze_data.cpp
+               ${IMGUI_SOURCES}
                )
 
 target_add_default_build_options(OmniView PUBLIC)
