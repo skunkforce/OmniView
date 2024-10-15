@@ -8,7 +8,7 @@
 //   https://github.com/ocornut/imgui/wiki/Useful-Extensions#cness
 
 #include "imgui.h"
-#include "imgui_stdlib.h"
+#include "../imgui-stdlib/imgui_stdlib.h"
 
 // Clang warnings with -Weverything
 #if defined(__clang__)

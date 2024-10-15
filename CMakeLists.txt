@@ -23,6 +23,11 @@ if(MSVC)
     )
 endif()
 
+include(cmake_helpers/BuildOptions.cmake)
+include(cmake_helpers/FindOrFetch.cmake)
+
+set(GLFW_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/build/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/include")
+
 set(IMGUI_SOURCES
     imgui/imgui.cpp
     imgui/imgui_demo.cpp
@@ -36,6 +41,9 @@ set(IMPLOT_SOURCES
     implot/implot.cpp
     implot/implot_items.cpp
 )
+
+find_package(glfw3 CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
 
 add_executable(OmniView 
     src/main.cpp 
@@ -65,13 +73,18 @@ add_library(my_implot STATIC ${IMPLOT_SOURCES})
 target_include_directories(my_imgui PUBLIC 
     imgui
     imgui/backends
+    ${GLFW_INCLUDE_DIR}
 )
 
 target_include_directories(my_implot PUBLIC 
    implot
+   imgui
+   ${GLFW_INCLUDE_DIR}
 )
 
-target_link_libraries(OmniView PUBLIC my_imgui my_implot)
+target_link_libraries(my_imgui PUBLIC glfw3)
+
+target_link_libraries(OmniView PUBLIC my_imgui my_implot glfw3 OpenGL::GL)
 
 add_subdirectory(ImGuiInstance)
 target_link_libraries(OmniView PUBLIC imgui_instance::imgui_instance)
