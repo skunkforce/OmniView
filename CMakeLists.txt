@@ -29,8 +29,6 @@ endif()
 include(cmake_helpers/BuildOptions.cmake)
 include(cmake_helpers/FindOrFetch.cmake)
 
-add_subdirectory(imgui)
-
 set(IMGUI_SOURCES
     external/imgui/imgui.cpp
     external/imgui/imgui_demo.cpp
