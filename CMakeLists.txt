@@ -30,12 +30,12 @@ include(cmake_helpers/BuildOptions.cmake)
 include(cmake_helpers/FindOrFetch.cmake)
 
 set(IMGUI_SOURCES
-    external/imgui/imgui.cpp
-    external/imgui/imgui_demo.cpp
-    external/imgui/imgui_draw.cpp
-    external/imgui/imgui_widgets.cpp
-    external/imgui/backends/imgui_impl_glfw.cpp
-    external/imgui/backends/imgui_impl_opengl3.cpp
+    imgui/imgui.cpp
+    imgui/imgui_demo.cpp
+    imgui/imgui_draw.cpp
+    imgui/imgui_widgets.cpp
+    imgui/backends/imgui_impl_glfw.cpp
+    imgui/backends/imgui_impl_opengl3.cpp
 )
 
 add_executable(OmniView 
