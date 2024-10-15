@@ -1,6 +1,5 @@
 #include "websockethandler.hpp"
 #include "handler.hpp"
-#include "dllhandler.hpp"
 #include "commandLineParser.hpp"
 #include <thread>
 #include <csignal>
@@ -20,8 +19,8 @@ int main(int argc, char** argv) {
     }
 
     // Search for DLLs
-    if (!options.dllSearchPath.empty() && options.dllName.empty()) {
-        DllHandler::searchDlls(options.dllSearchPath);
+    if (!options.dllSearchPath.empty()) {
+        searchDlls(options.dllSearchPath);
         return 0;
     }
 
@@ -36,17 +35,6 @@ int main(int argc, char** argv) {
 
     // WebSocket case: initialize WebSocket if the URI is provided
     if (!options.wsURI.empty()) {
-
-        // If DLL path and DLL name have been specified
-        if (!options.dllSearchPath.empty() && !options.dllName.empty()) {
-            std::string dllFullPath = options.dllSearchPath;
-            if (dllFullPath.back() != '/') {
-                dllFullPath += "/";
-            }
-            dllFullPath += options.dllName;
-            DllHandler::startDllDataTransfer(dllFullPath, &wsHandler);
-            return 0;
-        }
 
         // Initialize devices
         initializeDevices();

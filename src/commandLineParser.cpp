@@ -8,7 +8,6 @@ void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& option
     app.add_flag("-s, --searchdevice", options.searchDevice, "Search for devices");
     app.add_flag("-a, --all", options.all, "Use all connected devices");
     app.add_option("-p, --path", options.dllSearchPath, "Path to search for DLLs");
-    app.add_option("-n, --dllName", options.dllName, "Name of the DLL to load");
 
     try {
         app.parse(argc, argv);
