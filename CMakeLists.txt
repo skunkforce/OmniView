@@ -13,9 +13,7 @@ FetchContent_Populate(
 list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
 
-set(CMAKE_TOOLCHAIN_FILE "mytoolchain/my_toolchain.cmake")
-
-set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/mytoolchain/mytoolchain.cmake")
 
 project("OmniscopeGui" VERSION 0.9.0)
 
