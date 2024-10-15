@@ -2,21 +2,32 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-DllHandler::DllHandler(const std::string& path) : dllPath(path) {}
-
-DllHandler::~DllHandler() {
-    unload();
-}
-
 // Callback function that is used when the DLL sends back data
-void* DllHandler::dllCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
+void* dllCallback(void* data, size_t size, void*, size_t timestamp, void (*deallocator)(void*)) {
     std::vector<int> callback_data{static_cast<int*>(data), static_cast<int*>(data) + size};
 
     // DEBUG
     fmt::print("In the memory address: {} , data: {}\n", static_cast<void*>(callback_data.data()), nlohmann::json(callback_data).dump());
 
-    deallocator(data);
+    // Send the DLL data to the WebSocket
+    DllContext* context = static_cast<DllContext*>(data);
+    if (context && context->wsHandler) {
+        context->wsHandler->sendDllData(callback_data, timestamp);
+    }
+
+    // Release memory - check whether the deallocator is secure
+    if (deallocator) {
+        deallocator(data);
+    } else {
+        fmt::print("WARNING: No deallocator found, memory has not been released!\n");
+    }
     return nullptr;
+}
+
+DllHandler::DllHandler(const std::string& path, WebSocketHandler* wsHandlerParam) : dllPath(path), wsHandler(wsHandlerParam),  context{wsHandlerParam} {}
+
+DllHandler::~DllHandler() {
+    unload();
 }
 
 bool DllHandler::load() {
@@ -36,8 +47,11 @@ bool DllHandler::load() {
         return false;
     }
 
+    // Create DllContext and assign WebSocketHandler
+    // DllContext context {wsHandler};
+
     // Init the DLL with a callback function
-    initDllCallback(nullptr, dllCallback);
+    initDllCallback(static_cast<void*>(&context), dllCallback);
     // DEBUG
     fmt::print("Dll loaded and initialized; {}\n", dllPath);
 
@@ -77,8 +91,11 @@ void DllHandler::searchDlls(const std::string& searchPath) {
     }
 }
 
-void DllHandler::startDllDataTransfer(const std::string& dllPath) {
-    DllHandler dllHandler(dllPath);
+void DllHandler::startDllDataTransfer(const std::string& dllPath, WebSocketHandler* wsHandler) {
+    DllHandler dllHandler(dllPath, wsHandler);
+
+    // Assign the WebSocket handler to the instance
+    // dllHandler.wsHandler = wsHandler;
 
     if (!dllHandler.load()) {
         std::cerr << "Failed to load DLL: " << dllPath << std::endl;
@@ -86,6 +103,13 @@ void DllHandler::startDllDataTransfer(const std::string& dllPath) {
     }
     // DEBUG
     std::cout << "Starting data transfer to WebSocket" << std::endl;
+
+    // Start des WebSocket-Threads für die DLL-Daten
+    wsHandler->startWebSocketThreadForDll(dllHandler.context.dllData);
+
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 
     dllHandler.unload();
     // DEBUG

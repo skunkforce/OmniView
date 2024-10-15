@@ -25,17 +25,17 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    // Test WebSocket connection
+    WebSocketHandler wsHandler(options.wsURI);
+    std::cout << "WebSocket connection established successfully at " << options.wsURI << std::endl;
+
+    // If no other options such as device selection (-a, -d) are set, exit
+    if (!options.all && options.deviceIds.empty() && options.dllSearchPath.empty()) {
+            return 0;
+    }
+
     // WebSocket case: initialize WebSocket if the URI is provided
     if (!options.wsURI.empty()) {
-
-        // Test WebSocket connection
-        WebSocketHandler wsHandler(options.wsURI);
-        std::cout << "WebSocket connection established successfully at " << options.wsURI << std::endl;
-
-        // If no other options such as device selection (-a, -d) are set, exit
-        if (!options.all && options.deviceIds.empty() && options.dllSearchPath.empty()) {
-            return 0;
-        }
 
         // If DLL path and DLL name have been specified
         if (!options.dllSearchPath.empty() && !options.dllName.empty()) {
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
                 dllFullPath += "/";
             }
             dllFullPath += options.dllName;
-            DllHandler::startDllDataTransfer(dllFullPath);
+            DllHandler::startDllDataTransfer(dllFullPath, &wsHandler);
             return 0;
         }
 
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
         }
 
         // Start the WebSocket handler thread to send device data
-        wsHandler.startWebSocketThread(selected_serials);
+        wsHandler.startWebSocketThreadForDevices(selected_serials);
 
         // Main loop for WebSocket communication
         while (running) {
