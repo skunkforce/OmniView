@@ -16,3 +16,6 @@
 [submodule "stb_Image"]
 	path = stb_Image
 	url = https://github.com/nothings/stb.git
+[submodule "imgui"]
+	path = imgui
+	url = https://github.com/skunkforce/imgui
