@@ -1,6 +1,5 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
-# Searching for VCPKG-installation and download if needed
 include(FetchContent)
 FetchContent_Populate(
   vcpkg
@@ -9,7 +8,6 @@ FetchContent_Populate(
   SOURCE_DIR     "${CMAKE_SOURCE_DIR}/vcpkg"
 )
 
-# saves vcpkg build artifacts in vcpkg directory
 list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
 
@@ -24,10 +22,6 @@ if(MSVC)
         $<$<CONFIG:Release>:/MT> #--|
     )
 endif()
-
-
-include(cmake_helpers/BuildOptions.cmake)
-include(cmake_helpers/FindOrFetch.cmake)
 
 set(IMGUI_SOURCES
     imgui/imgui.cpp
@@ -44,31 +38,40 @@ set(IMPLOT_SOURCES
 )
 
 add_executable(OmniView 
-               src/main.cpp 
-               src/generateTrainingData.cpp 
-               src/info_popup.cpp
-               src/imgui_stdlib.cpp
-               src/saves_popup.cpp     
-               src/style.cpp
-               src/handler.cpp
-               src/analyze_data.cpp
-               ${IMGUI_SOURCES}
-               ${IMPLOT_SOURCES}
-               )
+    src/main.cpp 
+    src/generateTrainingData.cpp 
+    src/info_popup.cpp
+    src/imgui_stdlib.cpp
+    src/saves_popup.cpp     
+    src/style.cpp
+    src/handler.cpp
+    src/analyze_data.cpp
+    ${IMGUI_SOURCES}
+    ${IMPLOT_SOURCES}
+)
 
 target_add_default_build_options(OmniView PUBLIC)
 
 find_or_fetch_package(
   cmake_git_version 0.1 GIT_REPOSITORY
-  https://github.com/dominicpoeschko/cmake_git_version.git GIT_TAG master)
+  https://github.com/dominicpoeschko/cmake_git_version.git GIT_TAG master
+)
 
 target_add_version_headers(OmniView ${CMAKE_BUILD_TYPE})
 
-target_include_directories(OmniView PUBLIC 
-    imgui             
-    imgui/backends  
-    implot  
+add_library(my_imgui STATIC ${IMGUI_SOURCES})
+add_library(my_implot STATIC ${IMPLOT_SOURCES})
+
+target_include_directories(my_imgui PUBLIC 
+    imgui
+    imgui/backends
 )
+
+target_include_directories(my_implot PUBLIC 
+   implot
+)
+
+target_link_libraries(OmniView PUBLIC my_imgui my_implot)
 
 add_subdirectory(ImGuiInstance)
 target_link_libraries(OmniView PUBLIC imgui_instance::imgui_instance)
@@ -91,4 +94,3 @@ target_link_libraries(OmniView PUBLIC ${LIBUSB_LIBRARIES})
 
 target_compile_definitions(OmniView PUBLIC BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
 target_compile_features(OmniView PUBLIC cxx_std_23)
-
