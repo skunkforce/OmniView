@@ -38,6 +38,11 @@ set(IMGUI_SOURCES
     imgui/backends/imgui_impl_opengl3.cpp
 )
 
+set(IMPLOT_SOURCES
+    implot/implot.cpp
+    implot/implot_items.cpp
+)
+
 add_executable(OmniView 
                src/main.cpp 
                src/generateTrainingData.cpp 
@@ -48,6 +53,7 @@ add_executable(OmniView
                src/handler.cpp
                src/analyze_data.cpp
                ${IMGUI_SOURCES}
+               ${IMPLOT_SOURCES}
                )
 
 target_add_default_build_options(OmniView PUBLIC)
@@ -57,6 +63,12 @@ find_or_fetch_package(
   https://github.com/dominicpoeschko/cmake_git_version.git GIT_TAG master)
 
 target_add_version_headers(OmniView ${CMAKE_BUILD_TYPE})
+
+target_include_directories(OmniView PUBLIC 
+    imgui             
+    imgui/backends  
+    implot  
+)
 
 add_subdirectory(ImGuiInstance)
 target_link_libraries(OmniView PUBLIC imgui_instance::imgui_instance)

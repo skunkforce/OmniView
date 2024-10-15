@@ -19,3 +19,5 @@
 [submodule "imgui"]
 	path = imgui
 	url = https://github.com/skunkforce/imgui
+[submodule "implot"]
+	path = implot

@@ -4,7 +4,6 @@
 	"dependencies": [
 		"glfw3",
 		"glad",
-        "implot",
         "fmt",
         "boost-crc",
         "boost-asio",
