@@ -373,13 +373,16 @@ void AddPlotFromFile(fs::path &filePath) {
     loadedFile.LoadFromFile(filePath); 
     
        if (loadedFile.units.size() >= 2) {
-        ImPlot::SetupAxis(ImAxis_Y1, loadedFile.units[1].c_str());
         ImPlot::SetupAxis(ImAxis_X1, loadedFile.units[0].c_str());
+        ImPlot::SetupAxis(ImAxis_Y1, loadedFile.units[1].c_str());
     } else {
         // If the user used a wrong file or the analysis went wrong 
         std::cerr << "Error: Not enough units provided for axis labels." << std::endl;
         return;
     }
+
+    std::unordered_map<int, double> aggregated_data;
+
   
     std::vector<double> x_values;
     std::vector<double> y_values;
@@ -392,23 +395,33 @@ void AddPlotFromFile(fs::path &filePath) {
         y_values.push_back(pair.second);
     }
 
-   for (size_t i = 0; i < x_values.size(); ++i) {
-      if (x_values[i] >= 1 && x_values[i] <= 12500) {
-        filtered_x_values.push_back(x_values[i]);
-        filtered_y_values.push_back(y_values[i]);
-      }
+    for (size_t i = 0; i < x_values.size(); ++i) {
+        if (x_values[i] >= 1 && x_values[i] <= 12500) { // only fre between 1 and 12500 hz as well as rounded freq 
+            int rounded_x = static_cast<int>(std::round(x_values[i]));
+
+            if (aggregated_data.find(rounded_x) != aggregated_data.end()) {
+                aggregated_data[rounded_x] += y_values[i]; 
+            } else {
+                aggregated_data[rounded_x] = y_values[i];
+            }
+        }
     }
 
-if (!filtered_x_values.empty() && !filtered_y_values.empty()) {
-    ImPlot::SetNextLineStyle(ImVec4{0.0f, 0.686f, 0.0f, 0.007f});
+    for (const auto& pair : aggregated_data) {
+        filtered_x_values.push_back(pair.first);  
+        filtered_y_values.push_back(pair.second); 
+    }
 
-    ImPlot::PlotBars(filePath.string().c_str(),
-                     filtered_x_values.data(),
-                     filtered_y_values.data(),
-                     static_cast<int>(filtered_x_values.size()),
-                     0.001,
-                     static_cast<int>(filtered_x_values.size()));
-} 
+    if (!filtered_x_values.empty() && !filtered_y_values.empty()) {
+        ImPlot::SetNextLineStyle(ImVec4{0.0f, 0.686f, 0.0f, 0.007f});
+
+        ImPlot::PlotBars(filePath.string().c_str(),
+                        filtered_x_values.data(),
+                        filtered_y_values.data(),
+                        static_cast<int>(filtered_x_values.size()),
+                        0.001,0,0,
+                        static_cast<int>(filtered_x_values.size()));
+    } 
 }
 
 
