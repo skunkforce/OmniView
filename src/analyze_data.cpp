@@ -302,7 +302,7 @@ bool AnalyzeStateManager::saveAsCSV(const std::string& apiResponse) {
         outFile << "FFT Analyse\n";  // Erste Zeile mit dem Inhalt "FFT"
 
         // Schreibe die Einheitenzeile
-        outFile << "Hz,log(V)\n";  // Zweite Zeile mit den Einheiten "frq" und "amp"
+        outFile << "Hz,V\n";  // Zweite Zeile mit den Einheiten "frq" und "amp"
 
         // Schleife über die "fft"-Daten im JSON-Array und schreibe sie in die Datei
         for (const auto& item : jsonData["fft"]) {
