@@ -33,6 +33,8 @@ void set_inital_config(nlohmann::json &);
 void rstSettings(const decltype(captureData) &);
 void AddPlotFromFile(fs::path &); 
 
+std::string trim(const std::string &); 
+
 // Struct for loading data from a file :
 
 struct LoadedFiles{

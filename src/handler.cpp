@@ -477,8 +477,14 @@ void LoadedFiles::parseUnits(const std::string& line) {
 
     // Einheiten durch Kommas getrennt
     while (std::getline(ss, unit, ',')) {
-        units.push_back(unit);
+        units.push_back(trim(unit)); // to not load space or \n 
     }
+}
+
+std::string trim(const std::string& str) {
+    std::string trimmed = str;
+    trimmed.erase(std::remove_if(trimmed.begin(), trimmed.end(), ::isspace), trimmed.end());
+    return trimmed;
 }
 
 void LoadedFiles::parseData(const std::string& line) {
