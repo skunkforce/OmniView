@@ -206,7 +206,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Measure_not_saved,
      "Die Messung wurde nicht gespeichert!\n"
      "Möchten Sie es speichern, bevor Sie es löschen?\n"},
-    {Key::Version, "Ausführung"},
+    {Key::Version, "Version"},
     {Key::Diagnostics, "Diagnose"},
     {Key::Compression, "Kompression"},
     {Key::Anlyz_crnt_waveform, "Aktuelle Wellenform analysieren"},

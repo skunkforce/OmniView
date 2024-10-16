@@ -268,7 +268,7 @@ void AnalyzeStateManager::writeAnalysisAnswerIntoFile() {
       if (!fs::exists(complete_path))
         fs::create_directories(complete_path);
 
-      outputFilePath = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string());
+      outputFilePath = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string() + "FFT");
 
       std::ofstream writefile(outputFilePath, std::ios::trunc);
       if (!writefile.is_open()) {
@@ -299,10 +299,10 @@ bool AnalyzeStateManager::saveAsCSV(const std::string& apiResponse) {
         }
 
         // Schreibe die Metadatenzeile
-        outFile << "FFT\n";  // Erste Zeile mit dem Inhalt "FFT"
+        outFile << "FFT Analyse\n";  // Erste Zeile mit dem Inhalt "FFT"
 
         // Schreibe die Einheitenzeile
-        outFile << "frq,amp\n";  // Zweite Zeile mit den Einheiten "frq" und "amp"
+        outFile << "Hz,V \n";  // Zweite Zeile mit den Einheiten "frq" und "amp"
 
         // Schleife über die "fft"-Daten im JSON-Array und schreibe sie in die Datei
         for (const auto& item : jsonData["fft"]) {

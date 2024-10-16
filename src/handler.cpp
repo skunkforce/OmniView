@@ -413,7 +413,7 @@ void AddPlotFromFile(fs::path &filePath) {
     }
 
     if (!filtered_x_values.empty() && !filtered_y_values.empty()) {
-        ImPlot::SetNextLineStyle(ImVec4{0.0f, 0.686f, 0.0f, 0.007f});
+        ImPlot::SetNextLineStyle(ImVec4{0.686f, 0.0f, 0.007f, 1.000f});
 
         ImPlot::PlotBars(filePath.string().c_str(),
                         filtered_x_values.data(),
