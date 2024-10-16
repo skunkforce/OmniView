@@ -398,9 +398,9 @@ void AddPlotFromFile(fs::path &filePath) {
             double rounded_x = std::round(x_values[i]);
 
             if (aggregated_data.find(rounded_x) != aggregated_data.end()) {
-                aggregated_data[rounded_x] += y_values[i]; 
+                aggregated_data[rounded_x] += std::log10(y_values[i]); 
             } else {
-                aggregated_data[rounded_x] = y_values[i];
+                aggregated_data[rounded_x] = std::log10(y_values[i]);
             }
         }
     }
@@ -411,7 +411,7 @@ void AddPlotFromFile(fs::path &filePath) {
     }
 
     if (!filtered_x_values.empty() && !filtered_y_values.empty()) {
-        ImPlot::SetNextLineStyle(ImVec4{0.686f, 0.0f, 0.007f, 1.000f});
+      ImPlot::PushStyleColor(ImPlotCol_Fill, ImVec4{0.686f, 0.0f, 0.007f, 1.000f});
 
         ImPlot::PlotBars(filePath.string().c_str(),
                         filtered_x_values.data(),
@@ -419,6 +419,8 @@ void AddPlotFromFile(fs::path &filePath) {
                         static_cast<int>(filtered_x_values.size()),
                         0.001,0,0,
                         sizeof(double));
+
+      ImPlot::PopStyleColor();
     } 
 }
 
