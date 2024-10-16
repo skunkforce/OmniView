@@ -91,8 +91,8 @@ int main() {
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
     PushPlotRegionColors();
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .007f);
-    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .005f);
+    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.64f},
                       ImGuiChildFlags_Border);
     // Axes 1 to 3
     // Check if time base for axes are same

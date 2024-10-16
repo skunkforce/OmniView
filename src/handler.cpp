@@ -77,8 +77,6 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
     AddPlotFromFile(AnalyzedFilePath); 
    }
    else {
-
-    // TODO: if bool areFilesLoading = false this , else AddPlotFromFile
     double x_min = std::numeric_limits<double>::max();
     double x_max = std::numeric_limits<double>::min();
 

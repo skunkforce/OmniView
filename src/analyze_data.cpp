@@ -268,7 +268,7 @@ void AnalyzeStateManager::writeAnalysisAnswerIntoFile() {
       if (!fs::exists(complete_path))
         fs::create_directories(complete_path);
 
-      outputFilePath = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string() + "FFT");
+      outputFilePath = complete_path / ("Analysis_" + fs::path(fileNameBuf).filename().string());
 
       std::ofstream writefile(outputFilePath, std::ios::trunc);
       if (!writefile.is_open()) {
