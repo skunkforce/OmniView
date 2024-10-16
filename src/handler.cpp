@@ -398,9 +398,9 @@ void AddPlotFromFile(fs::path &filePath) {
             double rounded_x = std::round(x_values[i]);
 
             if (aggregated_data.find(rounded_x) != aggregated_data.end()) {
-                aggregated_data[rounded_x] += std::log10(y_values[i]); 
+                aggregated_data[rounded_x] += y_values[i]; 
             } else {
-                aggregated_data[rounded_x] = std::log10(y_values[i]);
+                aggregated_data[rounded_x] = y_values[i];
             }
         }
     }
