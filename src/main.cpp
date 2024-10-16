@@ -1,4 +1,3 @@
-#define ImDrawIdx unsigned int
 #include "popups.hpp"
 #include "settingspopup.hpp"
 #include "style.hpp"
