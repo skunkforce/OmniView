@@ -381,7 +381,7 @@ void AddPlotFromFile(fs::path &filePath) {
         return;
     }
 
-    std::unordered_map<int, double> aggregated_data;
+    std::map<double, double> aggregated_data;
 
   
     std::vector<double> x_values;
@@ -397,7 +397,7 @@ void AddPlotFromFile(fs::path &filePath) {
 
     for (size_t i = 0; i < x_values.size(); ++i) {
         if (x_values[i] >= 1 && x_values[i] <= 12500) { // only fre between 1 and 12500 hz as well as rounded freq 
-            int rounded_x = static_cast<int>(std::round(x_values[i]));
+            double rounded_x = std::round(x_values[i]);
 
             if (aggregated_data.find(rounded_x) != aggregated_data.end()) {
                 aggregated_data[rounded_x] += y_values[i]; 
