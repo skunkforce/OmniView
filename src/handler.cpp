@@ -114,3 +114,13 @@ void searchDlls(const std::string& searchPath) {
         }
     }
 }
+
+std::string createFullDllPath(const std::string& dllPath, const std::string& dllName) {
+    std::string fullDllPath = dllPath;
+    if (fullDllPath.back() != '/') {
+        fullDllPath += "/";
+    }
+    fullDllPath += dllName;
+    return fullDllPath;
+}
+

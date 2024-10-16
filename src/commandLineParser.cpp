@@ -7,7 +7,8 @@ void parseCommandLineArguments(int argc, char** argv, CommandLineOptions& option
     app.add_option("-d, --device", options.deviceIds, "Omniscope Device ID")->expected(-1);
     app.add_flag("-s, --searchdevice", options.searchDevice, "Search for devices");
     app.add_flag("-a, --all", options.all, "Use all connected devices");
-    app.add_option("-p, --path", options.dllSearchPath, "Path to search for DLLs");
+    app.add_option("-p, --path", options.dllPath, "Path to search for DLLs");
+    app.add_option("-n, --name", options.dllName, "Name of DLL to be sent via WebSocket");
 
     try {
         app.parse(argc, argv);

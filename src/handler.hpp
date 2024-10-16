@@ -25,4 +25,6 @@ void stopAllDevices();
 bool selectDevices(const CommandLineOptions& options, std::set<std::string>& selected_serials);
 void searchDlls(const std::string& searchPath);
 
+std::string createFullDllPath(const std::string& dllPath, const std::string& dllName);
+
 #endif

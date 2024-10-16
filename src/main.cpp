@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
     }
 
     // Search for DLLs
-    if (!options.dllSearchPath.empty()) {
-        searchDlls(options.dllSearchPath);
+    if (!options.dllPath.empty() && options.dllName.empty()) {
+        searchDlls(options.dllPath);
         return 0;
     }
 
@@ -29,9 +29,17 @@ int main(int argc, char** argv) {
     std::cout << "WebSocket connection established successfully at " << options.wsURI << std::endl;
 
     // If no other options such as device selection (-a, -d) are set, exit
-    if (!options.all && options.deviceIds.empty() && options.dllSearchPath.empty()) {
+    if (!options.all && options.deviceIds.empty() && options.dllPath.empty()) {
             return 0;
     }
+
+    // Combine and send path of the DLL via the WebSocket
+    if (!options.dllPath.empty() && !options.dllName.empty()) {
+        std::string fullDllPath = createFullDllPath(options.dllPath, options.dllName);
+        wsHandler.sendDllPath(fullDllPath);
+        return 0;
+    }
+
 
     // WebSocket case: initialize WebSocket if the URI is provided
     if (!options.wsURI.empty()) {
