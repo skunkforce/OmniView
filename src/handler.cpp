@@ -372,7 +372,6 @@ void AddPlotFromFile(fs::path &filePath) {
     LoadedFiles loadedFile;  
     loadedFile.LoadFromFile(filePath); 
     
-    // Should be able to write this directly here because the axis doesn't depend on an object 
        if (loadedFile.units.size() >= 2) {
         ImPlot::SetupAxis(ImAxis_Y1, loadedFile.units[1].c_str());
         ImPlot::SetupAxis(ImAxis_X1, loadedFile.units[0].c_str());
@@ -385,18 +384,31 @@ void AddPlotFromFile(fs::path &filePath) {
     std::vector<double> x_values;
     std::vector<double> y_values;
     
+    std::vector<double> filtered_x_values;
+    std::vector<double> filtered_y_values;
+
     for (const auto& pair : loadedFile.data) {
         x_values.push_back(pair.first);
         y_values.push_back(pair.second);
     }
 
-    ImPlot::SetNextLineStyle(ImVec4{0.0f,
-                                      1.0f,
-                                      0.0f, 1.0f});
+   for (size_t i = 0; i < x_values.size(); ++i) {
+      if (x_values[i] >= 1 && x_values[i] <= 12500) {
+        filtered_x_values.push_back(x_values[i]);
+        filtered_y_values.push_back(y_values[i]);
+      }
+    }
 
-   //ImPlot::PlotLine(filePath.string().c_str(), x_values.data(), y_values.data(), x_values.size(), static_cast<int>(x_values.size()));
-   ImPlot::PlotBars(filePath.string().c_str(), x_values.data(), y_values.data(), x_values.size(), 0.001, static_cast<int>(x_values.size()));
+if (!filtered_x_values.empty() && !filtered_y_values.empty()) {
+    ImPlot::SetNextLineStyle(ImVec4{0.0f, 0.686f, 0.0f, 0.007f});
 
+    ImPlot::PlotBars(filePath.string().c_str(),
+                     filtered_x_values.data(),
+                     filtered_y_values.data(),
+                     static_cast<int>(filtered_x_values.size()),
+                     0.001,
+                     static_cast<int>(filtered_x_values.size()));
+} 
 }
 
 
