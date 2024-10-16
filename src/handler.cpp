@@ -420,7 +420,7 @@ void AddPlotFromFile(fs::path &filePath) {
                         filtered_y_values.data(),
                         static_cast<int>(filtered_x_values.size()),
                         0.001,0,0,
-                        static_cast<int>(filtered_x_values.size()));
+                        sizeof(double));
     } 
 }
 
