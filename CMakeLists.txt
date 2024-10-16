@@ -13,6 +13,9 @@ list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDE
 
 set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 
+
+set(GLFW_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/build/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/include")
+
 project("OmniscopeGui" VERSION 0.9.0)
 
 if(MSVC)
@@ -26,12 +29,16 @@ endif()
 include(cmake_helpers/BuildOptions.cmake)
 include(cmake_helpers/FindOrFetch.cmake)
 
-set(GLFW_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/build/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/include")
+find_package(glfw3 CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
+
+link_directories("${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/lib")
 
 set(IMGUI_SOURCES
     imgui/imgui.cpp
     imgui/imgui_demo.cpp
     imgui/imgui_draw.cpp
+    imgui/imgui_tables.cpp
     imgui/imgui_widgets.cpp
     imgui/backends/imgui_impl_glfw.cpp
     imgui/backends/imgui_impl_opengl3.cpp
@@ -41,9 +48,6 @@ set(IMPLOT_SOURCES
     implot/implot.cpp
     implot/implot_items.cpp
 )
-
-find_package(glfw3 CONFIG REQUIRED)
-find_package(OpenGL REQUIRED)
 
 add_executable(OmniView 
     src/main.cpp 
@@ -74,6 +78,7 @@ target_include_directories(my_imgui PUBLIC
     imgui
     imgui/backends
     ${GLFW_INCLUDE_DIR}
+    imgui/misc/cpp
 )
 
 target_include_directories(my_implot PUBLIC 
