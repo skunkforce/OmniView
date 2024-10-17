@@ -75,6 +75,8 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
   
    if(!AnalyzedFilePath.empty() && LOADANALYSISDATA){
     AddPlotFromFile(AnalyzedFilePath); 
+     ImPlot::EndPlot();
+     ImPlot::PopStyleColor(); 
    }
    else {
     double x_min = std::numeric_limits<double>::max();
@@ -134,9 +136,8 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
                                       colorMap[plot.data.first][2], 1.0f});
       addPlot(plot.data, plot.egu.second);
     }
+     ImPlot::EndPlot();
    }
-
-    ImPlot::EndPlot();
   }
 }
 
@@ -412,6 +413,7 @@ void AddPlotFromFile(fs::path &filePath) {
 
     if (!filtered_x_values.empty() && !filtered_y_values.empty()) {
       ImPlot::PushStyleColor(ImPlotCol_Fill, ImVec4{0.686f, 0.0f, 0.007f, 1.000f});
+      ImPlot::SetNextLineStyle(ImVec4{0.686f, 0.0f, 0.007f, 1.000f}); 
 
         ImPlot::PlotBars(filePath.string().c_str(),
                         filtered_x_values.data(),
@@ -420,7 +422,6 @@ void AddPlotFromFile(fs::path &filePath) {
                         0.001,0,0,
                         sizeof(double));
 
-      ImPlot::PopStyleColor();
     } 
 }
 
