@@ -15,7 +15,7 @@ list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES CMAKE_PROJECT_TOP_LEVEL_INCLUDE
 
 set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 
-project("OmniscopeGui" VERSION 0.9.0)
+project("OmniscopeGui" VERSION 1.0.2)
 
 if(MSVC)
     add_compile_options(
