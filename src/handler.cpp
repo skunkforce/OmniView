@@ -32,7 +32,7 @@ static std::vector<AxisInfo> getDeviceInfos() {
         auto deviceId = id.value();
         samplerDvcs.push_back(deviceId);
         if (captureData.contains(deviceId)) {
-          const int maxAxes = 3; // Maximale Anzahl der Achsen (hier 3)
+          const int maxAxes = 3; // max count of axis
 
         auto deviceIdExists = std::find_if(assignedEgus.begin(), assignedEgus.end(),
                                                        [&deviceId](const auto& pair) {
@@ -44,15 +44,14 @@ static std::vector<AxisInfo> getDeviceInfos() {
 
                   ImAxis_ nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
 
-                  // Zuweisen einer neuen Achse, wenn noch weniger als maxAxes vorhanden sind
+                  // New Axis if less than 3 axis are used
                   if (assignedEgus.size() < maxAxes) {
                       assignedEgus.emplace_back(std::make_pair(deviceId, nextYAxis));
-                      fmt::print("Achse hinzugefügt. Neue EGU-Achse für: {}\nDevice id: {}", egu, deviceId.serial);
                   } else {
                       fmt::print("Zu viele Achsen hinzugefügt. Keine weitere EGU-Achse für: {}\nDevice id: {}", egu, deviceId.serial);
                   }
               } else {
-                  // Fehlermeldung, wenn zu viele Achsen verwendet werden oder das Gerät schon eine Achse hat
+                  // Error if to many axis would be used  
                   fmt::print("Maximale Anzahl an Achsen (3) erreicht oder Achse bereits vorhanden. "
                               "Keine weitere Achse hinzugefügt für: {}\nDevice id: {}", egu, deviceId.serial);
               }
