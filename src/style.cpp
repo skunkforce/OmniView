@@ -12,6 +12,7 @@
 #include "languages.hpp"
 #include "../imgui-filebrowser/imfilebrowser.h"
 #include "popups.hpp"
+#include "analyze_data.hpp"
 
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
@@ -248,9 +249,9 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
 }
 
 void set_side_menu(const nlohmann::json &config, bool &open_settings,
-                   bool &open_generate_training_data,
+                   bool &open_generate_training_data, bool &open_analyze_menu, 
                    decltype(captureData) &loadedFiles,
-                   std::map<Omniscope::Id, std::string> &loadedFilenames) {
+                   std::map<Omniscope::Id, std::string> &loadedFilenames, bool &LOADANALYSISDATA) {
 
   auto windowSize{ImGui::GetIO().DisplaySize};
   // Initializing all variables for images
@@ -294,6 +295,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Dvc_search])) {
+    LOADANALYSISDATA= false;  
     devices.clear();
     deviceManager.clearDevices();
     initDevices();
@@ -313,21 +315,30 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
   static bool showDiag = false;
   const bool showDiagPrev = showDiag;
   
-  ImGui::PushStyleColor(ImGuiCol_Text, {0.8f, 0.8f, 0.8f, 0.7f}); 
+  /*ImGui::PushStyleColor(ImGuiCol_Text, {0.8f, 0.8f, 0.8f, 0.7f}); 
   ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0.8f, 0.8f, 0.8f, 0.0f}); 
-  ImGui::PushStyleColor(ImGuiCol_ButtonActive, {0.8f, 0.8f, 0.8f, 0.0f});
+  ImGui::PushStyleColor(ImGuiCol_ButtonActive, {0.8f, 0.8f, 0.8f, 0.0f});*/
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Diagnostics])) {
-    //showDiag = !showDiag;
+    showDiag = !showDiag;
   }
-  ImGui::PopStyleColor(3); 
+  //ImGui::PopStyleColor(3); 
   
 
-  /*if (showDiag && !showDiagPrev)
+  if (showDiag && !showDiagPrev)
     ImGui::SetNextItemOpen(false);
-  if (showDiag && ImGui::TreeNode(appLanguage[Key::Battery_measure])) {
+  if (showDiag && ImGui::TreeNode(appLanguage[Key::FFT_Analyze])) {
+    ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
+    if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform])){
+      open_analyze_menu = true;
+      showDiag = false; 
+    }
+    ImGui::PopStyleColor();
+    ImGui::TreePop();
+  }
+  /*if (showDiag && ImGui::TreeNode(appLanguage[Key::Battery_measure])) {
     ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
     if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform]))
       showDiag = false;
@@ -362,7 +373,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
 }
 
 void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
-                 bool &flagPaused, const decltype(captureData) &loadedFiles) {
+                 bool &flagPaused, const decltype(captureData) &loadedFiles,bool &LOADANALYSISDATA) {
 
   // variable declaration
   static auto now = std::chrono::system_clock::now();
@@ -490,6 +501,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
         if (flagDataNotSaved) {
           ImGui::OpenPopup(appLanguage[Key::Reset_q]);
         } else {
+          LOADANALYSISDATA = false; 
           rstSettings(loadedFiles);
           flagPaused = true;
         }
