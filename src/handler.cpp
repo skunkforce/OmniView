@@ -36,35 +36,18 @@ static std::vector<AxisInfo> getDeviceInfos() {
                                      &std::pair<std::string, ImAxis_>::first)){
             const int maxAxes = 3; // Maximale Anzahl der Achsen (hier 3)
             if (assignedEgus.size() < maxAxes) {
-                // Make sure ImAxis_ values haven't changed
-                static_assert((ImAxis_Y1 + 1) == ImAxis_Y2);
+                static_assert((ImAxis_Y1 + 1) == ImAxis_Y2, "Achsenwerte haben sich geändert");
 
-                // Check for axis
-                ImAxis_ nextYAxis;
-                bool axisAlreadyAssigned = false;
+                ImAxis_ nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
 
-                // check if egu already has an axis
-                for (const auto& [assignedEgu, axis] : assignedEgus) {
-                    if (assignedEgu == egu) {
-                        nextYAxis = axis;
-                        axisAlreadyAssigned = true;
-                        break;
-                    }
+                if (assignedEgus.size() < maxAxes) {
+                    assignedEgus.emplace_back(egu, nextYAxis);
+                    fmt::print("Achse hinzugefügt. Neue EGU-Achse für: {}\nDevice id: {}", egu, id.value());
+                } else {
+                    fmt::print("Zu viele Achsen hinzugefügt. Keine weitere EGU-Achse für: {}\nDevice id: {}", egu, id.value());
                 }
-
-                // If there are less than 3 egus it is possible to have an axis for each device
-                if (!axisAlreadyAssigned || assignedEgus.size() < maxAxes) {
-                    nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
-
-                    // check if it is possible to have a new axis
-                    if (assignedEgus.size() < maxAxes) {
-                        assignedEgus.push_back(std::make_pair(egu, nextYAxis));
-                    } else {
-                        fmt::print("Zu viele Achsen hinzugefügt. Keine weitere EGU-Achse hinzugefügt für: "
-                                  "{}\nDevice id: {}", egu, id.value());
-                    }
-                }
-            } else {
+            }
+            else {
                 //Error print if more than 3 axis are used
                 fmt::print("Maximale Anzahl an Achsen (3) erreicht. Keine weitere Achse hinzugefügt für: "
                           "{}\nDevice id: {}", egu, id.value());
