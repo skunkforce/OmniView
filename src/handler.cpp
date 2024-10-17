@@ -23,7 +23,7 @@ static std::vector<AxisInfo> plotAxes;
 static std::vector<AxisInfo> getDeviceInfos() {
   std::vector<AxisInfo> axisInfos;
   std::vector<Omniscope::Id> samplerDvcs; // store live devices
-  std::vector<std::pair<std::string, ImAxis_>> assignedEgus;
+  std::vector<std::pair<Omniscope::Id, ImAxis_>> assignedEgus;
   if (sampler.has_value())
     for (auto const &device : sampler->sampleDevices) {
       std::string egu =
@@ -32,27 +32,38 @@ static std::vector<AxisInfo> getDeviceInfos() {
         auto deviceId = id.value();
         samplerDvcs.push_back(deviceId);
         if (captureData.contains(deviceId)) {
-          if (!std::ranges::contains(assignedEgus, egu,
-                                     &std::pair<std::string, ImAxis_>::first))
-            if (assignedEgus.size() <= 3) {
-              // make sure ImAxis_ values haven't changed
-              static_assert((ImAxis_Y1 + 1) == ImAxis_Y2);
-              ImAxis_ nextYAxis =
-                  static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
-              assignedEgus.push_back(std::make_pair(egu, nextYAxis));
-            } else {
-              fmt::print("too many Axes added, egu not added: "
-                         "{}\nDevice id: {}",
-                         egu, id.value());
-              break;
-            }
-          axisInfos.push_back({{deviceId, std::ref(captureData[deviceId])},
-                               assignedEgus.back(),
-                               std::to_string(deviceId.sampleRate)});
-        }
+          const int maxAxes = 3; // max count of axis
+
+        auto deviceIdExists = std::find_if(assignedEgus.begin(), assignedEgus.end(),
+                                                       [&deviceId](const auto& pair) {
+                                                           return pair.first == deviceId;
+                                                       }) != assignedEgus.end();
+
+              if (!deviceIdExists && assignedEgus.size() < maxAxes) {
+                  static_assert((ImAxis_Y1 + 1) == ImAxis_Y2, "Achsenwerte haben sich geändert");
+
+                  ImAxis_ nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
+
+                  // New Axis if less than 3 axis are used
+                  if (assignedEgus.size() < maxAxes) {
+                      assignedEgus.emplace_back(std::make_pair(deviceId, nextYAxis));
+                  } else {
+                      fmt::print("Zu viele Achsen hinzugefügt. Keine weitere EGU-Achse für: {}\nDevice id: {}", egu, deviceId.serial);
+                  }
+              } else {
+                  // Error if to many axis would be used  
+                  fmt::print("Maximale Anzahl an Achsen (3) erreicht oder Achse bereits vorhanden. "
+                              "Keine weitere Achse hinzugefügt für: {}\nDevice id: {}", egu, deviceId.serial);
+              }
+
+        // Speichern der Achse in axisInfos
+        axisInfos.push_back({{deviceId, std::ref(captureData[deviceId])},
+                              {egu, assignedEgus.back().second},
+                              std::to_string(deviceId.sampleRate)});
       } else
         fmt::println("Error no device id found");
     }
+  }
   // also get loaded files info
   for (auto &[device, values] : captureData)
     if (std::ranges::find(samplerDvcs, device.serial, &Omniscope::Id::serial) ==
@@ -71,14 +82,18 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
   // TODO search devices must work aswell
   plotAxes = getDeviceInfos();
 
-  if (ImPlot::BeginPlot(name, plotRegion, ImPlotFlags_NoFrame)) {
+  if (ImPlot::BeginPlot(name, plotRegion)) {
+    ImPlot::SetupAxis(ImAxis_X1, "[x]");    
+    ImPlot::SetupAxis(ImAxis_Y1, "[y]");
   
    if(!AnalyzedFilePath.empty() && LOADANALYSISDATA){
     AddPlotFromFile(AnalyzedFilePath); 
-     ImPlot::EndPlot();
-     ImPlot::PopStyleColor(); 
+    ImPlot::EndPlot();
+    ImPlot::PopStyleColor(); 
    }
    else {
+
+    // TODO: if bool areFilesLoading = false this , else AddPlotFromFile
     double x_min = std::numeric_limits<double>::max();
     double x_max = std::numeric_limits<double>::min();
 
@@ -136,7 +151,7 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
                                       colorMap[plot.data.first][2], 1.0f});
       addPlot(plot.data, plot.egu.second);
     }
-     ImPlot::EndPlot();
+    ImPlot::EndPlot();
    }
   }
 }
@@ -507,5 +522,3 @@ void LoadedFiles::parseData(const std::string& line) {
     // Speichere das Paar in der Datenstruktur
     data.emplace_back(value1, value2);
 }
-
-
