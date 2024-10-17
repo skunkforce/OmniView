@@ -2,6 +2,7 @@
 #include "settingspopup.hpp"
 #include "style.hpp"
 #include <cmake_git_version/version.hpp>
+#include "analyze_data.hpp"
 
 int main() {
   const std::string configpath = "config/config.json";
@@ -12,11 +13,15 @@ int main() {
       load_json_file(load_json<std::string>(config, "languagepath") +
                      load_json<std::string>(config, "language") + ".json");
   // local variables
-  bool flagPaused{true}, development{false}, open_generate_training_data{false},
+  bool flagPaused{true}, development{false}, open_generate_training_data{false},open_analyze_menu{false},
       open_settings{false};
   std::once_flag configFlag;
   auto loadedFiles = captureData;
   std::map<Omniscope::Id, std::string> loadedFilenames;
+
+  // temporary solution 
+  bool LOADANALYSISDATA{false}; 
+  fs::path AnalyzedFilePath(""); 
 
   // main loop
   auto render = [&]() {
@@ -40,8 +45,8 @@ int main() {
 
     ImGui::BeginChild("Left Side", {windowSize.x * .18f, 0.f});
     // ############################################# Side Menu
-    set_side_menu(config, open_settings, open_generate_training_data,
-                  loadedFiles, loadedFilenames);
+    set_side_menu(config, open_settings, open_generate_training_data,open_analyze_menu,
+                  loadedFiles, loadedFilenames, LOADANALYSISDATA);
     // there're four "BeginChild"s, one as the left side
     // and three on the right side
     ImGui::EndChild(); // end child "Left Side"
@@ -51,7 +56,7 @@ int main() {
       sampler->copyOut(captureData);
 
     // ######################################### Toolbar
-    set_toolbar(config, language, flagPaused, loadedFiles);
+    set_toolbar(config, language, flagPaused, loadedFiles, LOADANALYSISDATA);
 
     // ############################ Settings Menu
     static int title = 0;
@@ -79,26 +84,29 @@ int main() {
       generateTrainingData(open_generate_training_data, captureData,
                            savedFileNames);
 
+    // Generate analyze data popup
+    if (open_analyze_menu)
+      AnalyzedFilePath = generate_analyze_menu(open_analyze_menu, LOADANALYSISDATA, captureData);
+
     // ############################ addPlots("Recording the data", ...)
     ImGui::Dummy({0.f, windowSize.y * .01f});
     PushPlotRegionColors();
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .009f);
-    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.62f},
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, windowSize.x * .005f);
+    ImGui::BeginChild("Record Data", {0.f, windowSize.y * 0.64f},
                       ImGuiChildFlags_Border);
     // Axes 1 to 3
     // Check if time base for axes are same
     // check if egu and timescale for plot are same
     // error if third device is added
     addPlots(
-        appLanguage[Key::Recording_Data],
+        appLanguage[Key::Recording_Data],AnalyzedFilePath,LOADANALYSISDATA,
         [flagPaused](double x_max, std::string yLabel, ImAxis_ axis,
                      double yMin, double yMax) {
-          ImPlot::SetupLegend(ImPlotLocation_NorthEast);
+          ImPlot::SetupLegend(ImPlotLocation_NorthWest);
           // auto auxFlagsMeasuring =
           //     ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
           // auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
-          ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-
+          //ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
           if (!flagPaused) {
             ImPlot::SetupAxis(axis, yLabel.c_str(), ImPlotAxisFlags_AutoFit);
             ImPlot::SetupAxis(ImAxis_X1, appLanguage[Key::Time_sec],
@@ -152,6 +160,7 @@ int main() {
           loadedFilenames.erase(it->first);
           loadedFilesChkBxs[it->first].b = false;
           it = loadedFiles.erase(it);
+          AnalyzedFilePath = ""; 
         } else
           it++;
         ImGui::PopID();

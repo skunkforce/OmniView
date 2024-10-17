@@ -90,7 +90,11 @@ enum class Key {
   Load_file_data,
   Load_file,
   Load_another_file,
-  Path
+  Path,
+  FFT_Analyze,
+  Analyse_Answer_Text, 
+  SeeAnalyzeResults,
+  MathematicalAnalysis
 };
 
 inline const std::map<Key, const char *> englishLan{
@@ -125,7 +129,7 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Save, "Save"},
     {Key::Save_warning, "Save warning! "},
     {Key::No_dvc_available, "No devices are available ..."},
-    {Key::AnalyzeData, "Analyze\nData"},
+    {Key::AnalyzeData, "Analyze data"},
     {Key::Crt_trng_data, "Create\nTraining\nData"},
     {Key::Back, "Back"},
     {Key::Start, "Start"},
@@ -179,7 +183,11 @@ inline const std::map<Key, const char *> englishLan{
     {Key::Load_file_data, "Load file data"},
     {Key::Load_another_file, "Load another file"},
     {Key::Path, "Path"},
-    {Key::ADC_counts, "ADC counts"}};
+    {Key::ADC_counts, "ADC counts"},
+    {Key::FFT_Analyze, "FFT Analysis"},
+    {Key::Analyse_Answer_Text, "Your analysis results are ready! \n They are saved in the /analyze folder."},
+    {Key::SeeAnalyzeResults, "Load results"},
+    {Key::MathematicalAnalysis, "Mathematical Analysis"}};
 
 inline const std::map<Key, const char *> germanLan{
     {Key::Known_Car, "Fahrzeugauswahl"},
@@ -200,7 +208,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Measure_not_saved,
      "Die Messung wurde nicht gespeichert!\n"
      "Möchten Sie es speichern, bevor Sie es löschen?\n"},
-    {Key::Version, "Ausführung"},
+    {Key::Version, "Version"},
     {Key::Diagnostics, "Diagnose"},
     {Key::Compression, "Kompression"},
     {Key::Anlyz_crnt_waveform, "Aktuelle Wellenform analysieren"},
@@ -214,7 +222,7 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Save, "Speichern"},
     {Key::Save_warning, "Speicherwarnung!"},
     {Key::No_dvc_available, "Es sind keine Geräte verfügbar ..."},
-    {Key::AnalyzeData, "Daten\nAnalysieren"},
+    {Key::AnalyzeData, "Daten analysieren"},
     {Key::Crt_trng_data, "Erstellen\nSie\nTrainingsdaten"},
     {Key::Back, "Zurück"},
     {Key::Start, "Start"},
@@ -268,7 +276,11 @@ inline const std::map<Key, const char *> germanLan{
     {Key::Load_file_data, "Alte Daten laden"},
     {Key::Load_another_file, "Eine weitere Datei laden"},
     {Key::Path, "Pfad"},
-    {Key::ADC_counts, "ADC Zählungen"}};
+    {Key::ADC_counts, "ADC Zählungen"},
+    {Key::FFT_Analyze, "FFT Analyse"},
+    {Key::Analyse_Answer_Text, "Deine Analyseergebnisse sind da ! \n Sie befinden sich im /analyze Ordner"},
+    {Key::SeeAnalyzeResults, "Lade Ergebnisse"},
+    {Key::MathematicalAnalysis, "Mathematische Analysen"}};
 
 inline auto appLanguage = englishLan;
 namespace fs = std::filesystem;

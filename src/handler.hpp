@@ -19,7 +19,7 @@ inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
     captureData;
 
 void addPlots(
-    const char *,
+    const char *,fs::path &,bool &, 
     std::function<void(double, std::string, ImAxis_, double, double)>);
 void parseDeviceMetaData(Omniscope::MetaData,
                          std::shared_ptr<OmniscopeDevice> &);
@@ -31,5 +31,27 @@ void set_config(const std::string &);
 void set_json(nlohmann::json &);
 void set_inital_config(nlohmann::json &);
 void rstSettings(const decltype(captureData) &);
+void AddPlotFromFile(fs::path &); 
+
+std::string trim(const std::string &); 
+
+// Struct for loading data from a file :
+
+struct LoadedFiles{
+    public: 
+        void LoadFromFile(fs::path &); 
+        void printData(); // for debugging 
+        void addToPlot(); 
+        bool isScopeData;
+        std::vector<std::string> units;
+        std::vector<std::pair<double, double>> data;
+
+    private:
+        void parseData(const std::string &); 
+        void parseUnits(const std::string &);
+        
+};
+
+
 
 #endif

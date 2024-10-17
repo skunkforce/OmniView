@@ -103,6 +103,8 @@ void generateTrainingData(
     static auto vinGrayFlag = ImGuiInputTextFlags_None;
     static auto milGrayFlag = ImGuiInputTextFlags_None;
 
+    //set Input Fields: Sets Input Fields as metadata from file if file exists
+
     auto setInptFields = [&](const fs::path &filename) {
       constexpr size_t fieldsSize{3}; // Measurement, Vin and Mileage
       std::vector<std::string> FieldsData(fieldsSize);
@@ -154,6 +156,7 @@ void generateTrainingData(
 
     static std::string fileNameBuf;
     static std::string analyzedWavefile;
+    // Checks if a file has the .csv format 
     auto isWrongFile = [&](const fs::path &path) {
       if (path.extension() == ".csv") {
         fileNameBuf = path.string();
