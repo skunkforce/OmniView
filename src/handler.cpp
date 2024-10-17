@@ -86,6 +86,8 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
   
    if(!AnalyzedFilePath.empty() && LOADANALYSISDATA){
     AddPlotFromFile(AnalyzedFilePath); 
+    ImPlot::EndPlot();
+    ImPlot::PopStyleColor();
    }
    else {
 
@@ -147,9 +149,8 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
                                       colorMap[plot.data.first][2], 1.0f});
       addPlot(plot.data, plot.egu.second);
     }
-   }
-
     ImPlot::EndPlot();
+   }
   }
 }
 
@@ -383,48 +384,58 @@ void AddPlotFromFile(fs::path &filePath) {
     LoadedFiles loadedFile;  
     loadedFile.LoadFromFile(filePath); 
     
-    // Should be able to write this directly here because the axis doesn't depend on an object 
        if (loadedFile.units.size() >= 2) {
-        ImPlot::SetupAxis(ImAxis_Y1, loadedFile.units[1].c_str());
         ImPlot::SetupAxis(ImAxis_X1, loadedFile.units[0].c_str());
+        ImPlot::SetupAxis(ImAxis_Y1, loadedFile.units[1].c_str());
     } else {
         // If the user used a wrong file or the analysis went wrong 
         std::cerr << "Error: Not enough units provided for axis labels." << std::endl;
         return;
     }
+
+    std::map<double, double> aggregated_data;
+
   
     std::vector<double> x_values;
     std::vector<double> y_values;
     
+    std::vector<double> filtered_x_values;
+    std::vector<double> filtered_y_values;
+
     for (const auto& pair : loadedFile.data) {
         x_values.push_back(pair.first);
         y_values.push_back(pair.second);
     }
 
-    std::vector<double> filtered_x_values;
-    std::vector<double> filtered_y_values;
+    for (size_t i = 0; i < x_values.size(); ++i) {
+        if (x_values[i] >= 1 && x_values[i] <= 12500) { // only fre between 1 and 12500 hz as well as rounded freq 
+            double rounded_x = std::round(x_values[i]);
 
-    // Filtern der x-Werte
-    for (const auto& value : x_values) {
-        if (value >= 1 && value <= 12500) {
-            filtered_x_values.push_back(value);
+            if (aggregated_data.find(rounded_x) != aggregated_data.end()) {
+                aggregated_data[rounded_x] += y_values[i]; 
+            } else {
+                aggregated_data[rounded_x] = y_values[i];
+            }
         }
     }
 
-    // Filtern der y-Werte
-    for (const auto& value : y_values) {
-        if (value >= 1 && value <= 12500) {
-            filtered_y_values.push_back(value);
-        }
+    for (const auto& pair : aggregated_data) {
+        filtered_x_values.push_back(pair.first);  
+        filtered_y_values.push_back(pair.second); 
     }
 
-    ImPlot::SetNextLineStyle(ImVec4{0.0f,
-                                      1.0f,
-                                      0.0f, 1.0f});
+    if (!filtered_x_values.empty() && !filtered_y_values.empty()) {
+      ImPlot::PushStyleColor(ImPlotCol_Fill, ImVec4{0.686f, 0.0f, 0.007f, 1.000f});
+      ImPlot::SetNextLineStyle(ImVec4{0.686f, 0.0f, 0.007f, 1.000f}); 
 
-   //ImPlot::PlotLine(filePath.string().c_str(), x_values.data(), y_values.data(), x_values.size(), static_cast<int>(x_values.size()));
-   ImPlot::PlotBars(filePath.string().c_str(), filtered_x_values.data(), filtered_y_values.data(), filtered_x_values.size(), 0.001, static_cast<int>(filtered_x_values.size()));
+        ImPlot::PlotBars(filePath.string().c_str(),
+                        filtered_x_values.data(),
+                        filtered_y_values.data(),
+                        static_cast<int>(filtered_x_values.size()),
+                        0.001,0,0,
+                        sizeof(double));
 
+    } 
 }
 
 
@@ -480,8 +491,14 @@ void LoadedFiles::parseUnits(const std::string& line) {
 
     // Einheiten durch Kommas getrennt
     while (std::getline(ss, unit, ',')) {
-        units.push_back(unit);
+        units.push_back(trim(unit)); // to not load space or \n 
     }
+}
+
+std::string trim(const std::string& str) {
+    std::string trimmed = str;
+    trimmed.erase(std::remove_if(trimmed.begin(), trimmed.end(), ::isspace), trimmed.end());
+    return trimmed;
 }
 
 void LoadedFiles::parseData(const std::string& line) {
@@ -503,5 +520,3 @@ void LoadedFiles::parseData(const std::string& line) {
     // Speichere das Paar in der Datenstruktur
     data.emplace_back(value1, value2);
 }
-
-
