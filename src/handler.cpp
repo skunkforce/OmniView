@@ -79,16 +79,17 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
                   axesSetup) {
   static std::set<std::string> firstRun;
   auto const plotRegion = ImGui::GetContentRegionAvail();
-  ImVec2 adjustedPlotRegion(plotRegion.x - 100, plotRegion.y);
   // TODO search devices must work aswell
   plotAxes = getDeviceInfos();
 
-  if (ImPlot::BeginPlot(name, adjustedPlotRegion, ImPlotFlags_NoFrame)) {
+  if (ImPlot::BeginPlot(name, plotRegion)) {
+    ImPlot::SetupAxis(ImAxis_X1, "[x]");    
+    ImPlot::SetupAxis(ImAxis_Y1, "[y]");
   
    if(!AnalyzedFilePath.empty() && LOADANALYSISDATA){
     AddPlotFromFile(AnalyzedFilePath); 
     ImPlot::EndPlot();
-    ImPlot::PopStyleColor();
+    ImPlot::PopStyleColor(); 
    }
    else {
 

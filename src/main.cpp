@@ -102,12 +102,11 @@ int main() {
         appLanguage[Key::Recording_Data],AnalyzedFilePath,LOADANALYSISDATA,
         [flagPaused](double x_max, std::string yLabel, ImAxis_ axis,
                      double yMin, double yMax) {
-          ImPlot::SetupLegend(ImPlotLocation_NorthEast);
+          ImPlot::SetupLegend(ImPlotLocation_NorthWest);
           // auto auxFlagsMeasuring =
           //     ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoGridLines;
           // auto auxFlagsPaused = ImPlotAxisFlags_NoGridLines;
-          ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
-
+          //ImPlot::SetupAxisTicks(ImAxis_Y1, -10, 200, 22, nullptr, true);
           if (!flagPaused) {
             ImPlot::SetupAxis(axis, yLabel.c_str(), ImPlotAxisFlags_AutoFit);
             ImPlot::SetupAxis(ImAxis_X1, appLanguage[Key::Time_sec],
