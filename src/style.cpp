@@ -329,9 +329,9 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
 
   if (showDiag && !showDiagPrev)
     ImGui::SetNextItemOpen(false);
-  if (showDiag && ImGui::TreeNode(appLanguage[Key::FFT_Analyze])) {
+  if (showDiag && ImGui::TreeNode(appLanguage[Key::MathematicalAnalysis])) {
     ImGui::PushStyleColor(ImGuiCol_Text, inctColStyle);
-    if (ImGui::Button(appLanguage[Key::Anlyz_crnt_waveform])){
+    if (ImGui::Button(appLanguage[Key::FFT_Analyze])){
       open_analyze_menu = true;
       showDiag = false; 
     }

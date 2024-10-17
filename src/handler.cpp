@@ -23,7 +23,7 @@ static std::vector<AxisInfo> plotAxes;
 static std::vector<AxisInfo> getDeviceInfos() {
   std::vector<AxisInfo> axisInfos;
   std::vector<Omniscope::Id> samplerDvcs; // store live devices
-  std::vector<std::pair<std::string, ImAxis_>> assignedEgus;
+  std::vector<std::pair<Omniscope::Id, ImAxis_>> assignedEgus;
   if (sampler.has_value())
     for (auto const &device : sampler->sampleDevices) {
       std::string egu =
@@ -32,34 +32,39 @@ static std::vector<AxisInfo> getDeviceInfos() {
         auto deviceId = id.value();
         samplerDvcs.push_back(deviceId);
         if (captureData.contains(deviceId)) {
-          if (!std::ranges::contains(assignedEgus, egu,
-                                     &std::pair<std::string, ImAxis_>::first)){
-            const int maxAxes = 3; // Maximale Anzahl der Achsen (hier 3)
-            if (assignedEgus.size() < maxAxes) {
-                static_assert((ImAxis_Y1 + 1) == ImAxis_Y2, "Achsenwerte haben sich geändert");
+          const int maxAxes = 3; // Maximale Anzahl der Achsen (hier 3)
 
-                ImAxis_ nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
+        auto deviceIdExists = std::find_if(assignedEgus.begin(), assignedEgus.end(),
+                                                       [&deviceId](const auto& pair) {
+                                                           return pair.first == deviceId;
+                                                       }) != assignedEgus.end();
 
-                if (assignedEgus.size() < maxAxes) {
-                    assignedEgus.emplace_back(egu, nextYAxis);
-                    fmt::print("Achse hinzugefügt. Neue EGU-Achse für: {}\nDevice id: {}", egu, id.value());
-                } else {
-                    fmt::print("Zu viele Achsen hinzugefügt. Keine weitere EGU-Achse für: {}\nDevice id: {}", egu, id.value());
-                }
-            }
-            else {
-                //Error print if more than 3 axis are used
-                fmt::print("Maximale Anzahl an Achsen (3) erreicht. Keine weitere Achse hinzugefügt für: "
-                          "{}\nDevice id: {}", egu, id.value());
-            }
-            }
-          axisInfos.push_back({{deviceId, std::ref(captureData[deviceId])},
-                               assignedEgus.back(),
-                               std::to_string(deviceId.sampleRate)});
-        }
+              if (!deviceIdExists && assignedEgus.size() < maxAxes) {
+                  static_assert((ImAxis_Y1 + 1) == ImAxis_Y2, "Achsenwerte haben sich geändert");
+
+                  ImAxis_ nextYAxis = static_cast<ImAxis_>(ImAxis_Y1 + assignedEgus.size());
+
+                  // Zuweisen einer neuen Achse, wenn noch weniger als maxAxes vorhanden sind
+                  if (assignedEgus.size() < maxAxes) {
+                      assignedEgus.emplace_back(std::make_pair(deviceId, nextYAxis));
+                      fmt::print("Achse hinzugefügt. Neue EGU-Achse für: {}\nDevice id: {}", egu, deviceId.serial);
+                  } else {
+                      fmt::print("Zu viele Achsen hinzugefügt. Keine weitere EGU-Achse für: {}\nDevice id: {}", egu, deviceId.serial);
+                  }
+              } else {
+                  // Fehlermeldung, wenn zu viele Achsen verwendet werden oder das Gerät schon eine Achse hat
+                  fmt::print("Maximale Anzahl an Achsen (3) erreicht oder Achse bereits vorhanden. "
+                              "Keine weitere Achse hinzugefügt für: {}\nDevice id: {}", egu, deviceId.serial);
+              }
+
+        // Speichern der Achse in axisInfos
+        axisInfos.push_back({{deviceId, std::ref(captureData[deviceId])},
+                              {egu, assignedEgus.back().second},
+                              std::to_string(deviceId.sampleRate)});
       } else
         fmt::println("Error no device id found");
     }
+  }
   // also get loaded files info
   for (auto &[device, values] : captureData)
     if (std::ranges::find(samplerDvcs, device.serial, &Omniscope::Id::serial) ==
