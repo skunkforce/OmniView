@@ -12,6 +12,8 @@ int main() {
 
   // temporary solution
   // TODO:: Change loadedFiles from datatype Scope to a concrete Filetype 
+
+  // TODO:: Create Array std::vector<externData> externDatas
         auto loadedFiles = captureData;
         std::map<Omniscope::Id, std::string> loadedFilenames;
 
@@ -91,6 +93,10 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList(mWindow.flagPaused);
+
+    // TODO:: Load File names
+    // function:: filesCheckboxList(std::vector<externData>)
+    // instead of captureData.emplace() --> externData[i].loadChecked = true; 
     if (!loadedFiles.empty()) { // if devices were successfully loaded from file
       static std::map<Omniscope::Id, BoolWrapper> loadedFilesChkBxs;
       for (auto it = loadedFiles.begin(); it != loadedFiles.end();) {

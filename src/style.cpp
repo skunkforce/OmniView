@@ -305,31 +305,23 @@ void set_side_menu(mainWindow &mWindow,
   }
 
   static bool loadFile;
-  if (loaded_png[++PngRenderedCnt] && // load old files data
+  if (loaded_png[++PngRenderedCnt] && // load old files data, popup and data loading
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Load_file_data])) {
-    loadFile = true;
-    ImGui::OpenPopup(appLanguage[Key::Load_file_data]);
+    mWindow.open_load_files_menu = true; 
   }
-  if (loadFile)
-    load_files(loadedFiles, loadedFilenames, loadFile);
 
   static bool showDiag = false;
   const bool showDiagPrev = showDiag;
   
-  /*ImGui::PushStyleColor(ImGuiCol_Text, {0.8f, 0.8f, 0.8f, 0.7f}); 
-  ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0.8f, 0.8f, 0.8f, 0.0f}); 
-  ImGui::PushStyleColor(ImGuiCol_ButtonActive, {0.8f, 0.8f, 0.8f, 0.0f});*/
   if (loaded_png[++PngRenderedCnt] && // render Diagnostics
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Diagnostics])) {
     showDiag = !showDiag;
   }
-  //ImGui::PopStyleColor(3); 
   
-
   if (showDiag && !showDiagPrev)
     ImGui::SetNextItemOpen(false);
   if (showDiag && ImGui::TreeNode(appLanguage[Key::MathematicalAnalysis])) {
@@ -620,4 +612,7 @@ void generatePopUpMenus(mainWindow &mWindow){
     // Generate analyze data popup
     if (mWindow.open_analyze_menu)
       mWindow.setAnalyzePath(generate_analyze_menu(mWindow.open_analyze_menu, mWindow.LOADANALYSISDATA, captureData));
+
+    if(mWindow.open_load_files_menu)
+      generateLoadFilesMenu(mWindow.externDataFilePaths, mWindow.externDatas, mWindow.open_load_files_menu); // loadFiles.cpp
 };
