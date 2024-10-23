@@ -74,7 +74,7 @@ static std::vector<AxisInfo> getDeviceInfos() {
   return axisInfos;
 }
 
-void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDATA, 
+void addPlots(const char *name, mainWindow &mWindow, 
               std::function<void(double, std::string, ImAxis_, double, double)>
                   axesSetup) {
   static std::set<std::string> firstRun;
@@ -86,8 +86,8 @@ void addPlots(const char *name, fs::path &AnalyzedFilePath, bool &LOADANALYSISDA
     ImPlot::SetupAxis(ImAxis_X1, "[x]");    
     ImPlot::SetupAxis(ImAxis_Y1, "[y]");
   
-   if(!AnalyzedFilePath.empty() && LOADANALYSISDATA){
-    AddPlotFromFile(AnalyzedFilePath); 
+   if(!mWindow.AnalyzedFilePath.empty() && mWindow.LOADANALYSISDATA){
+    AddPlotFromFile(mWindow.AnalyzedFilePath); 
     ImPlot::EndPlot();
     ImPlot::PopStyleColor(); 
    }
@@ -339,8 +339,8 @@ void load_files(decltype(captureData) &loadedFiles,
   }
 }
 
-void set_config(const std::string &configpath) {
-  if (fs::exists(configpath))
+void set_config(mainWindow &mWindow) {
+  if (fs::exists(mWindow.configpath))
     fmt::print("found config.json\n\r");
   else {
     fmt::print("Did not find config.json.\n Download from Github\n\r");
@@ -348,8 +348,8 @@ void set_config(const std::string &configpath) {
   }
 }
 
-void set_json(nlohmann::json &config) {
-  if (fs::exists(load_json<std::string>(config, ("languagepath"))))
+void set_json(mainWindow &mWindow) {
+  if (fs::exists(load_json<std::string>(mWindow.config, ("languagepath"))))
     fmt::print("Found language: {}\n\r", appLanguage[Key::German]);
   else {
     fmt::print("Did not find {}.\n Download from Github\n\r",
@@ -378,6 +378,15 @@ void rstSettings(const decltype(captureData) &loadedFiles) {
     else
       ++it;
   }
+}
+
+void setupSW(mainWindow &mWindow){
+  set_config(mWindow);
+  mWindow.config = load_json_file(mWindow.configpath);
+  set_json(mWindow);
+  mWindow.language =
+      load_json_file(load_json<std::string>(mWindow.config, "languagepath") +
+                     load_json<std::string>(mWindow.config, "language") + ".json");
 }
 
 //TODO : Set this also up for saved OmniScope files 
