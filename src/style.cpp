@@ -13,7 +13,7 @@
 #include "../imgui-filebrowser/imfilebrowser.h"
 #include "popups.hpp"
 #include "analyze_data.hpp"
-
+#include "settingspopup.hpp"
 
 void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
 
@@ -248,40 +248,43 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
   return true;
 }
 
-void set_side_menu(const nlohmann::json &config, bool &open_settings,
-                   bool &open_generate_training_data, bool &open_analyze_menu, 
+void set_side_menu(mainWindow &mWindow,
                    decltype(captureData) &loadedFiles,
-                   std::map<Omniscope::Id, std::string> &loadedFilenames, bool &LOADANALYSISDATA) {
+                   std::map<Omniscope::Id, std::string> &loadedFilenames) {
 
-  auto windowSize{ImGui::GetIO().DisplaySize};
-  // Initializing all variables for images
-  static constexpr size_t size{6}; // number of pictures
-  size_t PngRenderedCnt{};
-  static bool loaded_png[size];
-  static int image_height[size];
-  static int image_width[size];
-  static GLuint image_texture[size];
+  // Variables 
+    auto windowSize{ImGui::GetIO().DisplaySize};
+    // Initializing all variables for images
+    static constexpr size_t size{6}; // number of pictures
+    size_t PngRenderedCnt{};
+    static bool loaded_png[size];
+    static int image_height[size];
+    static int image_width[size];
+    static GLuint image_texture[size];
 
-  // The order matters because of the counter for the images !!!
-  static const unsigned char *imagesNames[] = {
-      AutoInternLogo_png, RefreshIcon_png, Load_file_png,
-      DiagnosticIcon_png, SettingIcon_png, HelpIcon_png};
-  static const unsigned int imagesLen[] = {
-      AutoInternLogo_png_len, RefreshIcon_png_len, Load_file_png_len,
-      DiagnosticIcon_png_len, SettingIcon_png_len, HelpIcon_png_len};
+    // The order matters because of the counter for the images !!!
+    static const unsigned char *imagesNames[] = {
+        AutoInternLogo_png, RefreshIcon_png, Load_file_png,
+        DiagnosticIcon_png, SettingIcon_png, HelpIcon_png};
+    static const unsigned int imagesLen[] = {
+        AutoInternLogo_png_len, RefreshIcon_png_len, Load_file_png_len,
+        DiagnosticIcon_png_len, SettingIcon_png_len, HelpIcon_png_len};
   // Load the images for the SideBarMenu
-  for (size_t i = 0; i < size; i++)
-    if (!loaded_png[i]) {
-      if (LoadTextureFromHeader(imagesNames[i], imagesLen[i], &image_texture[i],
-                                &image_width[i], &image_height[i]))
-        loaded_png[i] = true;
-      else
-        fmt::println("Error Loading Png #{}.", i);
-    }
+    for (size_t i = 0; i < size; i++)
+      if (!loaded_png[i]) {
+        if (LoadTextureFromHeader(imagesNames[i], imagesLen[i], &image_texture[i],
+                                  &image_width[i], &image_height[i]))
+          loaded_png[i] = true;
+        else
+          fmt::println("Error Loading Png #{}.", i);
+      }
 
-  float scaleWidth = windowSize.x * 0.00035f;
-  float scaleHeight = windowSize.y * 0.00065f;
+    float scaleWidth = windowSize.x * 0.00035f;
+    float scaleHeight = windowSize.y * 0.00065f;
   // Begin the SideBarMenu
+
+  ImGui::BeginChild("Side Menu", {windowSize.x * .18f, 0.f});
+
   if (loaded_png[PngRenderedCnt]) { // render AIGroupLogo
     ImGui::Image((void *)(intptr_t)image_texture[PngRenderedCnt],
                  ImVec2(image_width[PngRenderedCnt] * scaleWidth,
@@ -295,7 +298,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Dvc_search])) {
-    LOADANALYSISDATA= false;  
+    mWindow.LOADANALYSISDATA= false;  
     devices.clear();
     deviceManager.clearDevices();
     initDevices();
@@ -331,7 +334,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
     ImGui::SetNextItemOpen(false);
   if (showDiag && ImGui::TreeNode(appLanguage[Key::MathematicalAnalysis])) {
     if (ImGui::Button(appLanguage[Key::FFT_Analyze])){
-      open_analyze_menu = true;
+      mWindow.open_analyze_menu = true;
       showDiag = false; 
     }
     ImGui::TreePop();
@@ -353,7 +356,7 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Attitude])) {
-    open_settings = true;
+    mWindow.open_settings = true;
     showSettings = false;
   }
 
@@ -361,17 +364,18 @@ void set_side_menu(const nlohmann::json &config, bool &open_settings,
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
           appLanguage[Key::Help])) {
-    system(("start " + load_json<std::string>(config, "helplink")).c_str());
+    system(("start " + load_json<std::string>(mWindow.config, "helplink")).c_str());
     showSettings = false;
   }
   ImGui::SetCursorPosY(windowSize.y * 0.9f);
   ImGui::Text(fmt::format("{}: {}", appLanguage[Key::Version],
                           "1.0.2")
                   .c_str());
+
+  ImGui::EndChild(); 
 }
 
-void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
-                 bool &flagPaused, const decltype(captureData) &loadedFiles,bool &LOADANALYSISDATA) {
+void set_toolbar(mainWindow &mWindow, const decltype(captureData) &loadedFiles) {
 
   // variable declaration
   static auto now = std::chrono::system_clock::now();
@@ -389,7 +393,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
   if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
-    saves_popup(config, language, now, now_time_t, now_tm, flagDataNotSaved,
+    saves_popup(mWindow.config, mWindow.language, now, now_time_t, now_tm, flagDataNotSaved,
                 has_loaded_file ? liveDvcs : captureData);
     ImGui::EndPopup();
   }
@@ -435,19 +439,19 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
 
   // ImGui::SetCursorPosY(windowSize.y * 0.05f);
 
-  if (flagPaused) {
+  if (mWindow.flagPaused) {
     // ######################## Buttonstripe
     if (!devices.empty())
       if (!sampler.has_value()) {
         PngRenderedCnt = 0;
-        set_button_style_to(config, "start"); // Start Button
+        set_button_style_to(mWindow.config, "start"); // Start Button
         if (ImGui::ImageButton(
                 appLanguage[Key::Start],
                 (void *)(intptr_t)image_texture[PngRenderedCnt],
                 ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                        image_height[PngRenderedCnt] * iconsSacle))) {
           sampler.emplace(deviceManager, std::move(devices));
-          flagPaused = false;
+          mWindow.flagPaused = false;
           flagDataNotSaved = true;
         }
         ImGui::PopStyleColor(3);
@@ -456,31 +460,31 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
   } else {
     // ############################ Stop Button
     PngRenderedCnt = 1;
-    set_button_style_to(config, "stop");
+    set_button_style_to(mWindow.config, "stop");
     if (ImGui::ImageButton(appLanguage[Key::Stop],
                            (void *)(intptr_t)image_texture[PngRenderedCnt],
                            ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                                   image_height[PngRenderedCnt] * iconsSacle))) {
-      flagPaused = true;
+      mWindow.flagPaused = true;
       for (auto &device : sampler->sampleDevices) {
         device.first->send(Omniscope::Stop{});
       }
     }
     ImGui::PopStyleColor(3);
   }
-  if (flagPaused) {
+  if (mWindow.flagPaused) {
     // Start/reset the measurement when the measurement is paused,
     // followed by a query as to whether the old data should be saved
     if (sampler.has_value()) {
       ImGui::SameLine();
       PngRenderedCnt = 0;
-      set_button_style_to(config, "start");
+      set_button_style_to(mWindow.config, "start");
       if (ImGui::ImageButton(
               appLanguage[Key::Continue],
               (void *)(intptr_t)image_texture[PngRenderedCnt],
               ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                      image_height[PngRenderedCnt] * iconsSacle))) {
-        flagPaused = false;
+        mWindow.flagPaused = false;
         flagDataNotSaved = true;
         for (auto &device : sampler->sampleDevices) {
           device.first->send(Omniscope::Start{});
@@ -490,7 +494,7 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
       ImGui::SameLine();
       PngRenderedCnt = 3;
 
-      set_button_style_to(config, "stop");
+      set_button_style_to(mWindow.config, "stop");
       if (ImGui::ImageButton(
               appLanguage[Key::Reset],
               (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -499,9 +503,9 @@ void set_toolbar(const nlohmann::json &config, const nlohmann::json &language,
         if (flagDataNotSaved) {
           ImGui::OpenPopup(appLanguage[Key::Reset_q]);
         } else {
-          LOADANALYSISDATA = false; 
+          mWindow.LOADANALYSISDATA = false; 
           rstSettings(loadedFiles);
-          flagPaused = true;
+          mWindow.flagPaused = true;
         }
       }
       ImGui::PopStyleColor(3);
@@ -586,3 +590,34 @@ void SetHorizontalSepeareatorColours() {
   ImGuiStyle &style = ImGui::GetStyle();
   style.Colors[ImGuiCol_Separator] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 }
+
+void generatePopUpMenus(mainWindow &mWindow){
+  static int title = 0;
+    static std::vector<std::string> titles(2); // two languages
+    if (mWindow.open_settings) {
+      const auto EngItr = englishLan.find(Key::Settings);
+      const auto GrmItr = germanLan.find(Key::Settings);
+      // check returned value from find() and set titles
+      if (EngItr != englishLan.end() && GrmItr != germanLan.end()) {
+        titles[0] = (std::string)EngItr->second + "###ID";
+        titles[1] = (std::string)GrmItr->second + "###ID";
+        ImGui::OpenPopup(titles[title].c_str());
+      } else
+        fmt::println("Settings values not found.");
+      mWindow.open_settings = false;
+    }
+    if (ImGui::BeginPopupModal(titles[title].c_str(), nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+      ImGui::SetItemDefaultFocus();
+      popup_settings(mWindow.config, mWindow.configpath, title);
+      ImGui::EndPopup();
+    }
+    // Generate training data popup
+    if (mWindow.open_generate_training_data)
+      generateTrainingData(mWindow.open_generate_training_data, captureData,
+                           savedFileNames);
+
+    // Generate analyze data popup
+    if (mWindow.open_analyze_menu)
+      mWindow.setAnalyzePath(generate_analyze_menu(mWindow.open_analyze_menu, mWindow.LOADANALYSISDATA, captureData));
+};

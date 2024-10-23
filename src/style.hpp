@@ -17,15 +17,13 @@ inline constexpr ImVec4 normColStyle{0.1f, 0.1f, 0.1f, 1.f};
 void SetupImGuiStyle(bool, float);
 void set_button_style_to(const nlohmann::json &, const std::string &);
 bool LoadTextureFromHeader(unsigned char const *, int, GLuint *, int *, int *);
-void set_side_menu(const nlohmann::json &, bool &, bool &, bool &, 
-                   decltype(captureData) &,
-                   std::map<Omniscope::Id, std::string> &, bool &);
-void set_toolbar(const nlohmann::json &, const nlohmann::json &, bool &,
-                 const decltype(captureData) &, bool&);
+void set_side_menu(mainWindow &, decltype(captureData) &, std::map<Omniscope::Id, std::string> &);
+void set_toolbar(mainWindow &, const decltype(captureData) &);
 void PopupStyleEditor();
 void PushPlotRegionColors();
 void PopPlotRegionColors();
 void SetDeviceMenuStyle();
+void generatePopUpMenus(mainWindow &);
 
 namespace ImGui {
 IMGUI_API bool ImageButtonWithText(ImTextureID texId, const char *label,

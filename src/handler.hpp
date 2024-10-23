@@ -2,6 +2,7 @@
 #ifndef HANDLER_HEADER_HPP
 #define HANDLER_HEADER_HPP
 
+#include "mainWindow.hpp"
 #include "../ai_omniscope-v2-communication_sw/src/OmniscopeSampler.hpp"
 #include "languages.hpp"
 #include <implot.h>
@@ -19,7 +20,7 @@ inline std::map<Omniscope::Id, std::vector<std::pair<double, double>>>
     captureData;
 
 void addPlots(
-    const char *,fs::path &,bool &, 
+    const char *, mainWindow &, 
     std::function<void(double, std::string, ImAxis_, double, double)>);
 void parseDeviceMetaData(Omniscope::MetaData,
                          std::shared_ptr<OmniscopeDevice> &);
@@ -27,9 +28,10 @@ void initDevices();
 void devicesList(bool const &flagPaused);
 void load_files(decltype(captureData) &, std::map<Omniscope::Id, std::string> &,
                 bool &);
-void set_config(const std::string &);
-void set_json(nlohmann::json &);
+void set_config(mainWindow &);
+void set_json(mainWindow &);
 void set_inital_config(nlohmann::json &);
+void setupSW(mainWindow &); 
 void rstSettings(const decltype(captureData) &);
 void AddPlotFromFile(fs::path &); 
 

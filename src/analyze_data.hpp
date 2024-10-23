@@ -1,3 +1,5 @@
+#pragma once
+
 #include <fstream>
 #include <regex>
 #include <imgui.h>
