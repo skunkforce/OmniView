@@ -40,9 +40,6 @@ void generateLoadFilesMenu(std::vector<std::filesystem::path> &, std::vector<ext
 
 void loadMultipleExternFiles(std::vector<std::filesystem::path> &, std::vector<externData> &);
 
-void filesList(std::vector<externData> &);  // generates, shows and functionality of the filesList in the DeviceRegion
-
-void addPlotFromFile(externData &); 
-void addPlotFromFFTFile(externData &);  
+void filesList(std::vector<std::filesystem::path> &, std::vector<externData> &);  // generates, shows and functionality of the filesList in the DeviceRegion 
 
 #endif

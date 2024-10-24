@@ -93,11 +93,7 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList(mWindow.flagPaused);
-    filesList(mWindow.externDatas); 
-
-    // TODO:: Load File names
-    // function:: filesCheckboxList(std::vector<externData>)
-    // instead of captureData.emplace() --> externData[i].loadChecked = true; 
+    filesList(mWindow.externDataFilePaths, mWindow.externDatas); 
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();

@@ -111,11 +111,28 @@ void externData::loadDataFromFile() {
     if (std::getline(file, line)) {
         std::istringstream iss(line);
         double potential_x, potential_y;
+        std::string unit;
         if (line.find("Omniscope") != std::string::npos) {
             isOmnAIScope = true;
             std::cout << "Old OmnAIScope file detected\n";
             sampling_rate = 100000;  // Set the sampling rate for the OmniScope format
-        } else if (iss >> potential_x >> potential_y) {
+        } 
+       else if (std::getline(iss, unit, ',') && !std::isdigit(unit[0])) {
+            // Speichere den ersten Teil der Zeile
+            std::string unit1 = unit;
+
+            // Versuche, den zweiten Teil der Zeile zu lesen
+            std::string unit2;
+            if (std::getline(iss, unit2) && !std::isdigit(unit2[0])) {
+                // Wenn beide Einheiten weniger als oder genau 5 Zeichen haben
+                if (unit1.length() <= 5 && unit2.length() <= 5) {
+                    units.push_back(unit1);
+                    units.push_back(unit2);
+                }
+            }
+            else units.clear(); 
+        }
+        else if (iss >> potential_x >> potential_y) {
             // If the first line contains two doubles, it is treated as data
             firstLineIsData = true;
             xValues.push_back(potential_x);
@@ -188,14 +205,18 @@ void externData::loadDataFromFile() {
 }
 
 
-void filesList(std::vector<externData> &dataObjects) { // Show list of files in Devices Region
+void filesList(std::vector<std::filesystem::path> &externDataFilePaths, std::vector<externData> &dataObjects) { // Show list of files in Devices Region
     ImGui::BeginGroup();
+    int index = 0;  
     
     if (!dataObjects.empty()) {
         for (auto it = dataObjects.begin(); it != dataObjects.end(); ) {
             externData& obj = *it; 
 
-            if (ImGui::Checkbox("##", &obj.loadChecked)) {
+            std::string checkboxId = "##Checkbox" + std::to_string(index); // every checkbox needs its own ID
+            std::string resetButtonId = std::string(appLanguage[Key::Reset]) + "##" + std::to_string(index); 
+
+            if (ImGui::Checkbox(checkboxId.c_str(), &obj.loadChecked)) {
                 if (obj.loadChecked) {
                     obj.showData = true; 
                     //TODO:: Filter if FFT and Plot a Histogram
@@ -210,11 +231,16 @@ void filesList(std::vector<externData> &dataObjects) { // Show list of files in 
             ImGui::SameLine();
 
             //Deleting Loaded Data
-            if (ImGui::Button(appLanguage[Key::Reset])) {
+            if (ImGui::Button(resetButtonId.c_str())) {
                 it = dataObjects.erase(it);  
+                if (index < externDataFilePaths.size()) {
+                    externDataFilePaths.erase(externDataFilePaths.begin() + index);
+                }
+
             } else {
                 ++it; 
             }
+            index++;
         }
     }
     
