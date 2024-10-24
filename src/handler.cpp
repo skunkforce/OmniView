@@ -481,5 +481,4 @@ void addPlotFromFile(externData &dataObj) {
                      dataObj.xValues.data(),
                      dataObj.yValues.data(),
                      static_cast<int>(dataObj.xValues.size()), 0, 0, sizeof(double));
-                       std::cout << "falsche funktion" << std::endl;
 }
