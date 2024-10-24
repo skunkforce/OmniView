@@ -10,13 +10,6 @@ int main() {
   
   setupSW(mWindow);  // Set up config and old language file 
 
-  // temporary solution
-  // TODO:: Change loadedFiles from datatype Scope to a concrete Filetype 
-
-  // TODO:: Create Array std::vector<externData> externDatas
-        auto loadedFiles = captureData;
-        std::map<Omniscope::Id, std::string> loadedFilenames;
-
   // main loop
   auto render = [&]() {
     std::call_once(mWindow.configFlag, set_inital_config, std::ref(mWindow.config));
@@ -40,7 +33,7 @@ int main() {
         ImGui::EndPopup();
       }
 
-    set_side_menu(mWindow, loadedFiles, loadedFilenames); // style.cpp
+    set_side_menu(mWindow); // style.cpp
 
     ImGui::SameLine();
     ImGui::BeginChild("Right Side", {0.f, 0.f});
@@ -48,7 +41,7 @@ int main() {
     if (sampler.has_value() && !mWindow.flagPaused)
       sampler->copyOut(captureData);
 
-    set_toolbar(mWindow, loadedFiles); // style.cpp
+    set_toolbar(mWindow); // style.cpp
 
     generatePopUpMenus(mWindow); // style.cpp
 
@@ -85,18 +78,10 @@ int main() {
     ImGui::EndChild(); // end child Record Data
     ImGui::PopStyleVar();
     PopPlotRegionColors();
-    // ############################ Devicelist
-    SetDeviceMenuStyle();
-    ImGui::Dummy({0.f, windowSize.y * .01f});
-    ImGui::BeginChild("Devicelist");
-    ImGui::Dummy({windowSize.x * .36f, 0.f});
-    ImGui::SameLine();
-    ImGui::Text(appLanguage[Key::Devices_found]);
-    devicesList(mWindow.flagPaused);
-    filesList(mWindow.externDataFilePaths, mWindow.externDatas); 
-    ImGui::EndChild(); // end child "Devicelist"
+    set_devices_menu(mWindow); //Devicelist -> current data as well as loaded Files are presented here
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();
+    
   };
   ImGuiInstance window{1500, 800,
                        fmt::format("{} {}", CMakeGitVersion::Target::Name,

@@ -32,7 +32,7 @@ void set_config(mainWindow &);
 void set_json(mainWindow &);
 void set_inital_config(nlohmann::json &);
 void setupSW(mainWindow &); 
-void rstSettings(const decltype(captureData) &);
+void rstSettings();
 void AddPlotFromFile(fs::path &); 
 void addPlotFromFile(externData &); 
 

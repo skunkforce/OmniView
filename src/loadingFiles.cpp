@@ -12,7 +12,7 @@ void generateLoadFilesMenu(std::vector<std::filesystem::path> &externDataFilePat
                                 ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::SetItemDefaultFocus();
         static ImGui::FileBrowser fileBrowser;
-        static std::vector<std::string> pathArr;
+        static std::vector<std::string> pathArr; // paths for the fileBrowser
 
         if (pathArr.empty())
             pathArr.emplace_back("");
@@ -33,24 +33,22 @@ void generateLoadFilesMenu(std::vector<std::filesystem::path> &externDataFilePat
                 fileBrowser.ClearSelected();
             }
 
-            // Validierung des Dateipfads
+            // Validade path
             if (!path.empty()) {
                 if (fs::path(path).extension() != ".csv") {  // only accept .csv data
                     ImGui::OpenPopup("Wrong File Type");
                     path.clear();
                 } else {
                     if (std::find(externDataFilePaths.begin(), externDataFilePaths.end(), path) == externDataFilePaths.end()) {
-                    // Füge den Pfad nur hinzu, wenn er nicht bereits vorhanden ist
                     externDataFilePaths.emplace_back(path);
                     } else {
-                    std::cout << "Path " << path << " was already chosen.\n";
                     }
                 }
             }
             ImGui::PopID();
         }
         
-        if (ImGui::Button(" + ")) {
+        if (ImGui::Button(" + ")) { // for extra file
             pathArr.emplace_back("");
         }
 
@@ -65,7 +63,7 @@ void generateLoadFilesMenu(std::vector<std::filesystem::path> &externDataFilePat
 
         // Load Files 
         if (ImGui::Button("Load Files")) {
-            loadMultipleExternFiles(externDataFilePaths, externDatas);
+            loadMultipleExternFiles(externDataFilePaths, externDatas); // Show files is implemented in filesList()
             pathArr.clear(); 
             close = false; 
             ImGui::CloseCurrentPopup();
@@ -103,8 +101,9 @@ void externData::loadDataFromFile() {
 
    std::string line;
 
-    bool firstLineIsData = false;  // Flag, um zu überprüfen, ob die erste Zeile Werte enthält
-    bool secondLineIsData = false; // Flag, ob die zweite Zeile Werte enthält
+    // check for multiple data formats
+    bool firstLineIsData = false;  
+    bool secondLineIsData = false; 
     units.clear();
 
     // Check for OmniScope in the first line or if it's data
@@ -117,14 +116,10 @@ void externData::loadDataFromFile() {
             std::cout << "Old OmnAIScope file detected\n";
             sampling_rate = 100000;  // Set the sampling rate for the OmniScope format
         } 
-       else if (std::getline(iss, unit, ',') && !std::isdigit(unit[0])) {
-            // Speichere den ersten Teil der Zeile
+       else if (std::getline(iss, unit, ',') && !std::isdigit(unit[0])) { // check if units are in first line
             std::string unit1 = unit;
-
-            // Versuche, den zweiten Teil der Zeile zu lesen
             std::string unit2;
             if (std::getline(iss, unit2) && !std::isdigit(unit2[0])) {
-                // Wenn beide Einheiten weniger als oder genau 5 Zeichen haben
                 if (unit1.length() <= 5 && unit2.length() <= 5) {
                     units.push_back(unit1);
                     units.push_back(unit2);
@@ -197,16 +192,13 @@ void externData::loadDataFromFile() {
         index++;
     }
 
-    // Schließe die Datei
     file.close();
 
-    // Bestätige, dass die Daten erfolgreich geladen wurden
     std::cout << "Data from file " << filepath.string() << " was loaded sucessfully\n";
 }
 
 
 void filesList(std::vector<std::filesystem::path> &externDataFilePaths, std::vector<externData> &dataObjects) { // Show list of files in Devices Region
-    ImGui::BeginGroup();
     int index = 0;  
     
     if (!dataObjects.empty()) {
@@ -243,8 +235,6 @@ void filesList(std::vector<std::filesystem::path> &externDataFilePaths, std::vec
             index++;
         }
     }
-    
-    ImGui::EndGroup();
 }
 
 

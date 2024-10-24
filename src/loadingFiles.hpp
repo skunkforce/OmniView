@@ -31,9 +31,6 @@ class externData{
         ~externData(); 
 
         void loadDataFromFile();
-
-        //void ShowPlot(); // alternative to AddPlotsFromFile for various .csv formats 
-
 };
 
 void generateLoadFilesMenu(std::vector<std::filesystem::path> &, std::vector<externData> &, bool &); 

@@ -249,9 +249,7 @@ bool LoadTextureFromHeader(unsigned char const *png_data, int png_data_len,
   return true;
 }
 
-void set_side_menu(mainWindow &mWindow,
-                   decltype(captureData) &loadedFiles,
-                   std::map<Omniscope::Id, std::string> &loadedFilenames) {
+void set_side_menu(mainWindow &mWindow) {
 
   // Variables 
     auto windowSize{ImGui::GetIO().DisplaySize};
@@ -304,8 +302,7 @@ void set_side_menu(mainWindow &mWindow,
     deviceManager.clearDevices();
     initDevices();
   }
-
-  static bool loadFile;
+  
   if (loaded_png[++PngRenderedCnt] && // load old files data, popup and data loading
       ImGui::ImageButtonWithText(
           (void *)(intptr_t)image_texture[PngRenderedCnt],
@@ -368,7 +365,7 @@ void set_side_menu(mainWindow &mWindow,
   ImGui::EndChild(); 
 }
 
-void set_toolbar(mainWindow &mWindow, const decltype(captureData) &loadedFiles) {
+void set_toolbar(mainWindow &mWindow) {
 
   // variable declaration
   static auto now = std::chrono::system_clock::now();
@@ -377,7 +374,6 @@ void set_toolbar(mainWindow &mWindow, const decltype(captureData) &loadedFiles) 
   auto windowSize{ImGui::GetIO().DisplaySize};
   static bool flagDataNotSaved = true;
   static decltype(captureData) liveDvcs;
-  static bool has_loaded_file;
 
   // begin Toolbar ############################################
   ImGui::BeginChild("Buttonstripe", {-1.f, windowSize.y * .1f}, false,
@@ -386,8 +382,7 @@ void set_toolbar(mainWindow &mWindow, const decltype(captureData) &loadedFiles) 
   if (ImGui::BeginPopupModal(appLanguage[Key::Save_Recorded_Data], nullptr,
                              ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::SetItemDefaultFocus();
-    saves_popup(mWindow.config, mWindow.language, now, now_time_t, now_tm, flagDataNotSaved,
-                has_loaded_file ? liveDvcs : captureData);
+    saves_popup(mWindow.config, mWindow.language, now, now_time_t, now_tm, flagDataNotSaved, liveDvcs);
     ImGui::EndPopup();
   }
   // ############################ Popup Reset
@@ -396,7 +391,7 @@ void set_toolbar(mainWindow &mWindow, const decltype(captureData) &loadedFiles) 
     ImGui::SetItemDefaultFocus();
     ImGui::Text(appLanguage[Key::Measure_not_saved]);
     if (ImGui::Button(appLanguage[Key::Continue_del])) {
-      rstSettings(loadedFiles);
+      rstSettings();
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
@@ -497,7 +492,7 @@ void set_toolbar(mainWindow &mWindow, const decltype(captureData) &loadedFiles) 
           ImGui::OpenPopup(appLanguage[Key::Reset_q]);
         } else {
           mWindow.LOADANALYSISDATA = false; 
-          rstSettings(loadedFiles);
+          rstSettings();
           mWindow.flagPaused = true;
         }
       }
@@ -517,15 +512,9 @@ void set_toolbar(mainWindow &mWindow, const decltype(captureData) &loadedFiles) 
                            ImVec2(image_width[PngRenderedCnt] * iconsSacle,
                                   image_height[PngRenderedCnt] * iconsSacle))) {
       liveDvcs.clear(); // get updated live devices for saving
-      if (!loadedFiles.empty()) {
-        has_loaded_file = true;
         for (const auto &[device, values] : captureData)
-          if (!loadedFiles.contains(device))
             liveDvcs.emplace(
                 device, values); // extract live devices (the little overhead)
-      } else
-        has_loaded_file = false;
-
       if (sampler.has_value())
         ImGui::OpenPopup(appLanguage[Key::Save_Recorded_Data]);
       else
@@ -548,6 +537,24 @@ void set_toolbar(mainWindow &mWindow, const decltype(captureData) &loadedFiles) 
     ImGui::PopStyleColor();
   }
   ImGui::EndChild(); // end child "Buttonstripe"
+}
+
+void set_devices_menu(mainWindow &mWindow){
+    auto windowSize{ImGui::GetIO().DisplaySize};
+    SetDeviceMenuStyle();
+    ImGui::Dummy({0.f, windowSize.y * .01f});
+    ImGui::BeginChild("Devicelist");
+    ImGui::Dummy({windowSize.x * .36f, 0.f});
+    ImGui::SameLine();
+    ImGui::Text(appLanguage[Key::Devices_found]);
+    ImGui::BeginGroup();
+    devicesList(mWindow.flagPaused);
+    ImGui::EndGroup(); 
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+    filesList(mWindow.externDataFilePaths, mWindow.externDatas); 
+    ImGui::EndGroup(); 
+    ImGui::EndChild(); // end child "Devicelist"
 }
 
 void PopupStyleEditor() { // For Development

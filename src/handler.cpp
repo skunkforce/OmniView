@@ -277,19 +277,13 @@ void set_inital_config(nlohmann::json &config) {
       config["text"]["active_language"] == "German" ? germanLan : englishLan;
 }
 
-void rstSettings(const decltype(captureData) &loadedFiles) {
+void rstSettings() {
   sampler.reset();
   devices.clear();
   savedFileNames.clear();
   deviceManager.clearDevices();
   plotAxes.clear();
-  // erase all elements excpet loadedFiles
-  for (auto it = captureData.begin(); it != captureData.end();) {
-    if (!loadedFiles.contains(it->first))
-      it = captureData.erase(it);
-    else
-      ++it;
-  }
+  captureData.clear(); 
 }
 
 void setupSW(mainWindow &mWindow){
@@ -300,8 +294,6 @@ void setupSW(mainWindow &mWindow){
       load_json_file(load_json<std::string>(mWindow.config, "languagepath") +
                      load_json<std::string>(mWindow.config, "language") + ".json");
 }
-
-//TODO : Set this also up for saved OmniScope files 
 
 void AddPlotFromFile(fs::path &filePath) {
 
