@@ -93,43 +93,11 @@ int main() {
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
     devicesList(mWindow.flagPaused);
+    filesList(mWindow.externDatas); 
 
     // TODO:: Load File names
     // function:: filesCheckboxList(std::vector<externData>)
     // instead of captureData.emplace() --> externData[i].loadChecked = true; 
-    if (!loadedFiles.empty()) { // if devices were successfully loaded from file
-      static std::map<Omniscope::Id, BoolWrapper> loadedFilesChkBxs;
-      for (auto it = loadedFiles.begin(); it != loadedFiles.end();) {
-        ImGui::PushID(&it->first); // make unique IDs
-        if (ImGui::Checkbox("##", &loadedFilesChkBxs[it->first].b))
-          if (loadedFilesChkBxs[it->first].b) { // if checked
-            if (!captureData.contains(it->first)) {
-              captureData.emplace(it->first, it->second);
-              // set different colors for files data
-              if (!colorMap.contains(it->first)) {
-                ImPlot::PushColormap(ImPlotColormap_Dark);
-                auto color =
-                    ImPlot::GetColormapColor((colorMap.size() % 7) + 1);
-                colorMap[it->first] = {color.x, color.y, color.z};
-                ImPlot::PopColormap();
-              }
-            }
-          } else
-            captureData.erase(it->first);
-        ImGui::SameLine();
-        ImGui::TextUnformatted(loadedFilenames[it->first].c_str());
-        ImGui::SameLine();
-        if (ImGui::Button(appLanguage[Key::Reset])) {
-          captureData.erase(it->first);
-          loadedFilenames.erase(it->first);
-          loadedFilesChkBxs[it->first].b = false;
-          it = loadedFiles.erase(it);
-          mWindow.setAnalyzePath(""); 
-        } else
-          it++;
-        ImGui::PopID();
-      } // end of for-loop
-    }
     ImGui::EndChild(); // end child "Devicelist"
     ImGui::EndChild(); // end child "Right Side"
     ImGui::End();

@@ -34,6 +34,7 @@ void set_inital_config(nlohmann::json &);
 void setupSW(mainWindow &); 
 void rstSettings(const decltype(captureData) &);
 void AddPlotFromFile(fs::path &); 
+void addPlotFromFile(externData &); 
 
 std::string trim(const std::string &); 
 

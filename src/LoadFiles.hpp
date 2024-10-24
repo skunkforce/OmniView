@@ -10,6 +10,7 @@
 #include <map>
 #include <filesystem>
 #include <imgui.h>
+#include <implot.h>
 #include "languages.hpp"
 #include "../imgui-stdlib/imgui_stdlib.h"
 #include "../imgui-filebrowser/imfilebrowser.h"
@@ -23,7 +24,7 @@ class externData{
         std::vector<double> xValues; 
         std::vector<double> yValues; 
         std::filesystem::path filepath; 
-        bool isOmnAIScope, loadChecked, isLoaded{false}; 
+        bool isOmnAIScope, loadChecked{false}, isLoaded{false}, showData{false}; 
         double sampling_rate = 0.0; 
 
         externData(const std::filesystem::path&);
@@ -31,15 +32,17 @@ class externData{
 
         void loadDataFromFile();
 
-
-        //void filesList(std::vector<externData> &); // generates, shows and functionality of the filesList in the DeviceRegion
-
         //void ShowPlot(); // alternative to AddPlotsFromFile for various .csv formats 
 
 };
 
 void generateLoadFilesMenu(std::vector<std::filesystem::path> &, std::vector<externData> &, bool &); 
 
-void loadMultipleExternFiles(std::vector<std::filesystem::path> &, std::vector<externData> &); 
+void loadMultipleExternFiles(std::vector<std::filesystem::path> &, std::vector<externData> &);
+
+void filesList(std::vector<externData> &);  // generates, shows and functionality of the filesList in the DeviceRegion
+
+void addPlotFromFile(externData &); 
+void addPlotFromFFTFile(externData &);  
 
 #endif

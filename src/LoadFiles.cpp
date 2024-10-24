@@ -96,7 +96,6 @@ void externData::loadDataFromFile() {
         return; 
     }
 
-    // Öffne die Datei
     std::ifstream file(filepath);
     if (!file.is_open()) {
         throw std::runtime_error("Error: File cant be opened " + filepath.string());
@@ -124,12 +123,11 @@ void externData::loadDataFromFile() {
         }
         if (units.size() < 2) {
             std::cout << "No units provided, standard units (V) and (s) are set" << std::endl;
-            units = {"s", "V"};  // Standardwerte setzen (s für Zeit, V für Spannung)
+            units = {"s", "V"};  // set standard units
         }
     } else {
-        // Falls die Zeile mit den Einheiten fehlt, setze Standardwerte
         std::cout << "No Units provided. Standard Units (V) and (s) are set" << std::endl;
-        units = {"s", "V"};  // Standardwerte setzen
+        units = {"s", "V"};
     }
 
     double x = 0.0, y = 0.0;
@@ -139,23 +137,20 @@ void externData::loadDataFromFile() {
         std::istringstream iss(line);
 
         if (isOmnAIScope) {
-            // OmniScope-Modus: Nur Y-Werte vorhanden, X-Werte basierend auf Sampling-Rate berechnen
+            // if old omniscope data
             x = index / sampling_rate;  // X-Wert berechnen
             if (!(iss >> y)) {
                 throw std::runtime_error("Error: Y-Values could not be read correctly");
             }
         } else {
-            // Normaler Modus: X- und Y-Werte aus der Datei lesen
             if (!(iss >> x >> y)) {
                 throw std::runtime_error("Error: Y and X-Values could not be read correctly");
             }
         }
 
-        // Speichere die gelesenen Werte
         xValues.push_back(x);
         yValues.push_back(y);
 
-        // Erhöhe den Index für die nächste Berechnung (Sampling-Rate) bei OmniScope
         index++;
     }
 
@@ -164,5 +159,44 @@ void externData::loadDataFromFile() {
 
     // Bestätige, dass die Daten erfolgreich geladen wurden
     std::cout << "Data from file " << filepath.string() << " was loaded sucessfully\n";
+}
+
+
+void filesList(std::vector<externData> &dataObjects) { // Show list of files in Devices Region
+    ImGui::BeginGroup();
+    
+    if (!dataObjects.empty()) {
+        for (auto it = dataObjects.begin(); it != dataObjects.end(); ) {
+            externData& obj = *it; 
+
+            if (ImGui::Checkbox("##", &obj.loadChecked)) {
+                if (obj.loadChecked) {
+                    obj.showData = true; 
+                    //TODO:: Filter if FFT and Plot a Histogram
+                    
+                } else {
+                    obj.showData = false; 
+                }
+            }
+            
+            ImGui::SameLine();
+            ImGui::TextUnformatted(obj.filepath.c_str());
+            ImGui::SameLine();
+
+            //Deleting Loaded Data
+            if (ImGui::Button(appLanguage[Key::Reset])) {
+                it = dataObjects.erase(it);  
+            } else {
+                ++it; 
+            }
+        }
+    }
+    
+    ImGui::EndGroup();
+}
+
+
+void addPlotFromFFTFile(externData &dataObj) {
+   
 }
 

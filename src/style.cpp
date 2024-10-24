@@ -138,6 +138,7 @@ void SetDeviceMenuStyle() {
   style.Colors[ImGuiCol_FrameBg] = {0.9f, 0.9f, 0.9f, 1.0f};
   style.Colors[ImGuiCol_FrameBgHovered] = {1.0f, 1.0f, 1.0f, 1.0f};
   style.Colors[ImGuiCol_FrameBgActive] = {0.8f, 0.8f, 0.8f, 0.8f};
+  style.Colors[ImGuiCol_Button] = {0.7f, 0.7f, 0.7f, 1.0f}; 
 }
 
 namespace ImGui {

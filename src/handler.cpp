@@ -92,6 +92,13 @@ void addPlots(const char *name, mainWindow &mWindow,
     ImPlot::PopStyleColor(); 
    }
    else {
+    if(!mWindow.externDatas.empty()){
+      for(externData& objData : mWindow.externDatas){
+         if(objData.showData){
+            addPlotFromFile(objData); 
+      }
+    }
+   }
 
     // TODO: if bool areFilesLoading = false this , else AddPlotFromFile
     double x_min = std::numeric_limits<double>::max();
@@ -438,4 +445,43 @@ void LoadedFiles::parseData(const std::string& line) {
 
     // Speichere das Paar in der Datenstruktur
     data.emplace_back(value1, value2);
+}
+
+void addPlotFromFile(externData &dataObj) {
+
+    //check and set axis
+    if (dataObj.units.size() < 2) {
+        std::cerr << "Error: Not enough units provided for axis labels." << std::endl;
+        return;
+    }
+    if (dataObj.units.size() > 2) {
+        std::cerr << "Error: To much units provided for axis labels." << std::endl;
+        return;
+    }
+    std::cout << dataObj.units[0].c_str() << std::endl;
+    std::cout << dataObj.units[1].c_str() << std::endl; 
+
+    ImPlot::SetupAxis(ImAxis_X1, dataObj.units[0].c_str());
+    ImPlot::SetupAxis(ImAxis_Y1, dataObj.units[1].c_str());
+
+    // check data
+    if (dataObj.xValues.empty() || dataObj.yValues.empty()) {
+        std::cerr << "Error: xValues or yValues are empty." << std::endl;
+        return;
+    }
+
+    if (dataObj.xValues.size() != dataObj.yValues.size()) {
+        std::cerr << "Error: Mismatched sizes of xValues and yValues." << std::endl;
+        return;
+    }
+
+    // draw data 
+    ImPlot::PushStyleColor(ImPlotCol_Fill, ImVec4{0.686f, 0.0f, 0.007f, 1.000f});
+    ImPlot::SetNextLineStyle(ImVec4{0.686f, 0.0f, 0.007f, 1.000f});
+
+    ImPlot::PlotLine(dataObj.filepath.string().c_str(),
+                     dataObj.xValues.data(),
+                     dataObj.yValues.data(),
+                     static_cast<int>(dataObj.xValues.size()), 0, 0, sizeof(double));
+                       std::cout << "falsche funktion" << std::endl;
 }
