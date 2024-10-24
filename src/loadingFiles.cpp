@@ -1,4 +1,4 @@
-#include "loadFiles.hpp"
+#include "loadingFiles.hpp"
 
 namespace fs = std::filesystem;
 
@@ -180,7 +180,7 @@ void filesList(std::vector<externData> &dataObjects) { // Show list of files in 
             }
             
             ImGui::SameLine();
-            ImGui::TextUnformatted(obj.filepath.c_str());
+            ImGui::TextUnformatted(obj.filepath.string().c_str());
             ImGui::SameLine();
 
             //Deleting Loaded Data

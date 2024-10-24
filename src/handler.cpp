@@ -458,8 +458,6 @@ void addPlotFromFile(externData &dataObj) {
         std::cerr << "Error: To much units provided for axis labels." << std::endl;
         return;
     }
-    std::cout << dataObj.units[0].c_str() << std::endl;
-    std::cout << dataObj.units[1].c_str() << std::endl; 
 
     ImPlot::SetupAxis(ImAxis_X1, dataObj.units[0].c_str());
     ImPlot::SetupAxis(ImAxis_Y1, dataObj.units[1].c_str());

@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <mutex>
-#include "loadFiles.hpp"
+#include "loadingFiles.hpp"
 
 class mainWindow{
     public: 
