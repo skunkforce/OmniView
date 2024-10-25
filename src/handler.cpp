@@ -92,20 +92,28 @@ void addPlots(const char *name, mainWindow &mWindow,
     ImPlot::PopStyleColor(); 
    }
    else {
-    if(!mWindow.externDatas.empty()){
-      for(externData& objData : mWindow.externDatas){
-         if(objData.showData){
-            addPlotFromFile(objData); 
-      }
-    }
-   }
+   double x_min = std::numeric_limits<double>::max();
+    double x_max = std::numeric_limits<double>::lowest();
+    double y_min = std::numeric_limits<double>::max();
+    double y_max = std::numeric_limits<double>::lowest();
+    bool hasLiveData = false;
 
-    // TODO: if bool areFilesLoading = false this , else AddPlotFromFile
-    double x_min = std::numeric_limits<double>::max();
-    double x_max = std::numeric_limits<double>::min();
+    for (auto& objData : mWindow.externDatas) {
+        if (objData.showData && !objData.xValues.empty() && !objData.yValues.empty()) {
+            addPlotFromFile(objData);  
+
+            x_min = std::min(x_min, objData.xValues.front());
+            x_max = std::max(x_max, objData.xValues.back());
+
+            auto [yMinIt, yMaxIt] = std::minmax_element(objData.yValues.begin(), objData.yValues.end());
+            y_min = std::min(y_min, *yMinIt);
+            y_max = std::max(y_max, *yMaxIt);
+        }
+    }
 
     for (auto const &axes : plotAxes)
       if (!axes.data.second.empty()) {
+        hasLiveData = true; 
         x_max = std::max(x_max, axes.data.second.back().first);
         // TODO save max and min value over same axis
         auto [min, max] = std::minmax_element(axes.data.second.begin(),
@@ -152,6 +160,9 @@ void addPlots(const char *name, mainWindow &mWindow,
             2 * sizeof(double) * stride);
       }
     };
+    if (!hasLiveData && x_min != std::numeric_limits<double>::max() && y_min != std::numeric_limits<double>::max()) {
+        axesSetup(x_max, mWindow.externDatas.front().units[1], ImAxis_Y1, y_min, y_max);
+    }
     for (auto const &plot : plotAxes) {
       ImPlot::SetNextLineStyle(ImVec4{colorMap[plot.data.first][0],
                                       colorMap[plot.data.first][1],
