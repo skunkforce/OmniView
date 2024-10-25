@@ -76,7 +76,18 @@ void generateLoadFilesMenu(std::vector<std::filesystem::path> &externDataFilePat
 void loadMultipleExternFiles(std::vector<std::filesystem::path> &paths, std::vector<externData> &dataObjects){
 
      for (const auto& path : paths) {
-        // new data object for new path
+        // check if this path was already loaded 
+        bool pathExists = std::find_if(dataObjects.begin(), dataObjects.end(),
+                                       [&path](const externData& obj) {
+                                           return obj.filepath == path;
+                                       }) != dataObjects.end();
+        
+        if (pathExists) {
+            std::cout << "File " << path.string() << " is already loaded. Skipping.\n";
+            continue; // skip if file from path was already loaded 
+        }
+
+         // new data object for new path
         externData data(path);
     
         data.loadDataFromFile();

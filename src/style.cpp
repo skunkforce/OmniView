@@ -547,13 +547,10 @@ void set_devices_menu(mainWindow &mWindow){
     ImGui::Dummy({windowSize.x * .36f, 0.f});
     ImGui::SameLine();
     ImGui::Text(appLanguage[Key::Devices_found]);
-    ImGui::BeginGroup();
+    ImGui::Separator();
     devicesList(mWindow.flagPaused);
-    ImGui::EndGroup(); 
-    ImGui::SameLine();
-    ImGui::BeginGroup();
+    ImGui::Separator(); 
     filesList(mWindow.externDataFilePaths, mWindow.externDatas); 
-    ImGui::EndGroup(); 
     ImGui::EndChild(); // end child "Devicelist"
 }
 
