@@ -13,17 +13,20 @@ class ApiServer {
 public:
     explicit ApiServer(const std::string& address);
 
-    // Startet den Server
+    // Start the Server
     void start();
 
-    // Stoppt den Server
+    // Stop the Server
     void stop();
 
 private:
     http_listener listener_;
 
-    // Handler für GET-Anfragen
+    // Handler for GET-Request
     void handleGet(http_request request);
+
+    // Function for testing the WebSocket connection
+    void checkWebSocket(const http_request& request);
 };
 
 #endif // API_SERVER_HPP
