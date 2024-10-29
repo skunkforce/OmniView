@@ -29,6 +29,7 @@
 #include <boost/intrusive/link_mode.hpp>
 
 #include <boost/move/utility_core.hpp>
+#include <boost/static_assert.hpp>
 
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
@@ -535,48 +536,48 @@ class rbtree
    typedef typename Base::const_reverse_iterator     const_reverse_iterator;
 
    //Assert if passed value traits are compatible with the type
-   BOOST_INTRUSIVE_STATIC_ASSERT((detail::is_same<typename value_traits::value_type, T>::value));
+   BOOST_STATIC_ASSERT((detail::is_same<typename value_traits::value_type, T>::value));
 
-   inline rbtree()
+   BOOST_INTRUSIVE_FORCEINLINE rbtree()
       :  Base()
    {}
 
-   inline explicit rbtree( const key_compare &cmp, const value_traits &v_traits = value_traits())
+   BOOST_INTRUSIVE_FORCEINLINE explicit rbtree( const key_compare &cmp, const value_traits &v_traits = value_traits())
       :  Base(cmp, v_traits)
    {}
 
    template<class Iterator>
-   inline rbtree( bool unique, Iterator b, Iterator e
+   BOOST_INTRUSIVE_FORCEINLINE rbtree( bool unique, Iterator b, Iterator e
          , const key_compare &cmp = key_compare()
          , const value_traits &v_traits = value_traits())
       :  Base(unique, b, e, cmp, v_traits)
    {}
 
-   inline rbtree(BOOST_RV_REF(rbtree) x)
+   BOOST_INTRUSIVE_FORCEINLINE rbtree(BOOST_RV_REF(rbtree) x)
       :  Base(BOOST_MOVE_BASE(Base, x))
    {}
 
-   inline rbtree& operator=(BOOST_RV_REF(rbtree) x)
+   BOOST_INTRUSIVE_FORCEINLINE rbtree& operator=(BOOST_RV_REF(rbtree) x)
    {  return static_cast<rbtree &>(this->Base::operator=(BOOST_MOVE_BASE(Base, x)));  }
 
    template <class Cloner, class Disposer>
-   inline void clone_from(const rbtree &src, Cloner cloner, Disposer disposer)
+   BOOST_INTRUSIVE_FORCEINLINE void clone_from(const rbtree &src, Cloner cloner, Disposer disposer)
    {  Base::clone_from(src, cloner, disposer);  }
 
    template <class Cloner, class Disposer>
-   inline void clone_from(BOOST_RV_REF(rbtree) src, Cloner cloner, Disposer disposer)
+   BOOST_INTRUSIVE_FORCEINLINE void clone_from(BOOST_RV_REF(rbtree) src, Cloner cloner, Disposer disposer)
    {  Base::clone_from(BOOST_MOVE_BASE(Base, src), cloner, disposer);  }
 
-   inline static rbtree &container_from_end_iterator(iterator end_iterator) BOOST_NOEXCEPT
+   BOOST_INTRUSIVE_FORCEINLINE static rbtree &container_from_end_iterator(iterator end_iterator) BOOST_NOEXCEPT
    {  return static_cast<rbtree &>(Base::container_from_end_iterator(end_iterator));   }
 
-   inline static const rbtree &container_from_end_iterator(const_iterator end_iterator) BOOST_NOEXCEPT
+   BOOST_INTRUSIVE_FORCEINLINE static const rbtree &container_from_end_iterator(const_iterator end_iterator) BOOST_NOEXCEPT
    {  return static_cast<const rbtree &>(Base::container_from_end_iterator(end_iterator));   }
 
-   inline static rbtree &container_from_iterator(iterator it) BOOST_NOEXCEPT
+   BOOST_INTRUSIVE_FORCEINLINE static rbtree &container_from_iterator(iterator it) BOOST_NOEXCEPT
    {  return static_cast<rbtree &>(Base::container_from_iterator(it));   }
 
-   inline static const rbtree &container_from_iterator(const_iterator it) BOOST_NOEXCEPT
+   BOOST_INTRUSIVE_FORCEINLINE static const rbtree &container_from_iterator(const_iterator it) BOOST_NOEXCEPT
    {  return static_cast<const rbtree &>(Base::container_from_iterator(it));   }
 };
 

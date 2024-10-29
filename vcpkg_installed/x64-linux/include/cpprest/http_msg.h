@@ -187,7 +187,7 @@ public:
 /// <summary>
 /// Represents an HTTP error. This class holds an error message and an optional error code.
 /// </summary>
-class _ASYNCRTIMP_TYPEINFO http_exception : public std::exception
+class http_exception : public std::exception
 {
 public:
     /// <summary>

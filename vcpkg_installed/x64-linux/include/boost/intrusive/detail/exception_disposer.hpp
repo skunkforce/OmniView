@@ -41,7 +41,7 @@ class exception_disposer
       :  cont_(&cont), disp_(disp)
    {}
 
-   inline void release()
+   BOOST_INTRUSIVE_FORCEINLINE void release()
    {  cont_ = 0;  }
 
    ~exception_disposer()

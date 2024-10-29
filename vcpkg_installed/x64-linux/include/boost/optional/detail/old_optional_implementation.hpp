@@ -17,7 +17,6 @@
 #include <boost/type_traits/is_reference.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/conditional.hpp>
-#include <boost/core/invoke_swap.hpp>
 
 namespace boost {
 
@@ -895,7 +894,7 @@ class optional : public optional_detail::optional_base<T>
       BOOST_NOEXCEPT_IF(::boost::is_nothrow_move_constructible<T>::value && ::boost::is_nothrow_move_assignable<T>::value)
       {
         // allow for Koenig lookup
-        boost::core::invoke_swap(*this, arg);
+        boost::swap(*this, arg);
       }
 
 

@@ -1,9 +1,4 @@
-The package boost-align is compatible with built-in CMake targets of FindBoost.cmake:
+The package boost is compatible with built-in CMake targets:
 
-    find_package(Boost REQUIRED COMPONENTS align)
-    target_link_libraries(main PRIVATE Boost::align)
-
-or the generated cmake configs via:
-
-    find_package(boost_align REQUIRED CONFIG)
-    target_link_libraries(main PRIVATE Boost::align)
+    find_package(Boost REQUIRED [COMPONENTS <libs>...])
+    target_link_libraries(main PRIVATE Boost::boost Boost::<lib1> Boost::<lib2> ...)

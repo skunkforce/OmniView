@@ -49,18 +49,38 @@
 #ifndef BOOST_POLYMORPHIC_CAST_HPP
 #define BOOST_POLYMORPHIC_CAST_HPP
 
-#include <boost/config.hpp>
+# include <boost/config.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #   pragma once
 #endif
 
-# include <boost/assert.hpp>
-# include <boost/throw_exception.hpp>
+#include <boost/config/pragma_message.hpp>
+#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || \
+    defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) || \
+    defined(BOOST_NO_CXX11_CONSTEXPR) || \
+    defined(BOOST_NO_CXX11_NULLPTR) || \
+    defined(BOOST_NO_CXX11_NOEXCEPT) || \
+    defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS) || \
+    defined(BOOST_NO_CXX11_FINAL) || \
+    defined(BOOST_NO_CXX11_ALIGNOF) || \
+    defined(BOOST_NO_CXX11_STATIC_ASSERT) || \
+    defined(BOOST_NO_CXX11_SMART_PTR) || \
+    defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST) || \
+    defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
 
-# include <memory>  // std::addressof
+BOOST_PRAGMA_MESSAGE("C++03 support is deprecated in Boost.Conversion 1.82 and will be removed in Boost.Conversion 1.84.")
+
+#endif
+
+# include <boost/assert.hpp>
+# include <boost/core/addressof.hpp>
+# include <boost/core/enable_if.hpp>
+# include <boost/throw_exception.hpp>
+# include <boost/type_traits/is_reference.hpp> 
+# include <boost/type_traits/remove_reference.hpp>
+
 # include <typeinfo>
-# include <type_traits>
 
 namespace boost
 {
@@ -109,13 +129,13 @@ namespace boost
     //  Contributed by Julien Delacroix
 
     template <class Target, class Source>
-    inline typename std::enable_if<
-        std::is_reference<Target>::value, Target
+    inline typename boost::enable_if_c<
+        boost::is_reference<Target>::value, Target
     >::type polymorphic_downcast(Source& x)
     {
-        typedef typename std::remove_reference<Target>::type* target_pointer_type;
+        typedef typename boost::remove_reference<Target>::type* target_pointer_type;
         return *boost::polymorphic_downcast<target_pointer_type>(
-            std::addressof(x)
+            boost::addressof(x)
         );
     }
 

@@ -31,19 +31,19 @@ namespace errc
 {
 
 // explicit conversion:
-BOOST_SYSTEM_CONSTEXPR inline error_code make_error_code( errc_t e ) noexcept
+BOOST_SYSTEM_CONSTEXPR inline error_code make_error_code( errc_t e ) BOOST_NOEXCEPT
 {
     return error_code( e, generic_category() );
 }
 
 // explicit conversion:
-inline error_code make_error_code( errc_t e, boost::source_location const * loc ) noexcept
+inline error_code make_error_code( errc_t e, boost::source_location const * loc ) BOOST_NOEXCEPT
 {
     return error_code( e, generic_category(), loc );
 }
 
 // implicit conversion:
-BOOST_SYSTEM_CONSTEXPR inline error_condition make_error_condition( errc_t e ) noexcept
+BOOST_SYSTEM_CONSTEXPR inline error_condition make_error_condition( errc_t e ) BOOST_NOEXCEPT
 {
     return error_condition( e, generic_category() );
 }

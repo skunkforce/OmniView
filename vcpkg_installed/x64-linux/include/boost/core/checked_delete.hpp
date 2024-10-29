@@ -60,10 +60,6 @@ template<class T> inline void checked_array_delete(T * x) BOOST_NOEXCEPT
     delete [] x;
 }
 
-// Block unintended ADL
-namespace checked_deleters
-{
-
 template<class T> struct checked_deleter
 {
     typedef void result_type;
@@ -86,11 +82,6 @@ template<class T> struct checked_array_deleter
         boost::checked_array_delete(x);
     }
 };
-
-} // namespace checked_deleters
-
-using checked_deleters::checked_deleter;
-using checked_deleters::checked_array_deleter;
 
 } // namespace boost
 

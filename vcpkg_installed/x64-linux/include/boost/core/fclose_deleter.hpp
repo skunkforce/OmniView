@@ -26,9 +26,6 @@
 
 namespace boost {
 
-// Block unintended ADL
-namespace fclose_deleter_ns {
-
 //! A function object that closes a file
 struct fclose_deleter
 {
@@ -43,10 +40,6 @@ struct fclose_deleter
             std::fclose(p);
     }
 };
-
-} // namespace fclose_deleter_ns
-
-using fclose_deleter_ns::fclose_deleter;
 
 } // namespace boost
 

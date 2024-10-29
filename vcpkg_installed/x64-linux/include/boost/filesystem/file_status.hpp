@@ -33,6 +33,9 @@ namespace filesystem {
 enum file_type
 {
     status_error,
+#ifndef BOOST_FILESYSTEM_NO_DEPRECATED
+    status_unknown = status_error,
+#endif
     file_not_found,
     regular_file,
     directory_file,
@@ -116,60 +119,66 @@ BOOST_BITMASK(perms)
 class file_status
 {
 public:
-    BOOST_CONSTEXPR file_status() noexcept :
+    BOOST_CONSTEXPR file_status() BOOST_NOEXCEPT :
         m_value(status_error),
         m_perms(perms_not_known)
     {
     }
-    explicit BOOST_CONSTEXPR file_status(file_type v) noexcept :
+    explicit BOOST_CONSTEXPR file_status(file_type v) BOOST_NOEXCEPT :
         m_value(v),
         m_perms(perms_not_known)
     {
     }
-    BOOST_CONSTEXPR file_status(file_type v, perms prms) noexcept :
+    BOOST_CONSTEXPR file_status(file_type v, perms prms) BOOST_NOEXCEPT :
         m_value(v),
         m_perms(prms)
     {
     }
 
-    BOOST_CONSTEXPR file_status(file_status const& rhs) noexcept :
+    //  As of October 2015 the interaction between noexcept and =default is so troublesome
+    //  for VC++, GCC, and probably other compilers, that =default is not used with noexcept
+    //  functions. GCC is not even consistent for the same release on different platforms.
+
+    BOOST_CONSTEXPR file_status(file_status const& rhs) BOOST_NOEXCEPT :
         m_value(rhs.m_value),
         m_perms(rhs.m_perms)
     {
     }
-    BOOST_CXX14_CONSTEXPR file_status& operator=(file_status const& rhs) noexcept
+    BOOST_CXX14_CONSTEXPR file_status& operator=(file_status const& rhs) BOOST_NOEXCEPT
     {
         m_value = rhs.m_value;
         m_perms = rhs.m_perms;
         return *this;
     }
 
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
     // Note: std::move is not constexpr in C++11, that's why we're not using it here
-    BOOST_CONSTEXPR file_status(file_status&& rhs) noexcept :
+    BOOST_CONSTEXPR file_status(file_status&& rhs) BOOST_NOEXCEPT :
         m_value(static_cast< file_type&& >(rhs.m_value)),
         m_perms(static_cast< perms&& >(rhs.m_perms))
     {
     }
-    BOOST_CXX14_CONSTEXPR file_status& operator=(file_status&& rhs) noexcept
+    BOOST_CXX14_CONSTEXPR file_status& operator=(file_status&& rhs) BOOST_NOEXCEPT
     {
         m_value = static_cast< file_type&& >(rhs.m_value);
         m_perms = static_cast< perms&& >(rhs.m_perms);
         return *this;
     }
+#endif
 
     // observers
-    BOOST_CONSTEXPR file_type type() const noexcept { return m_value; }
-    BOOST_CONSTEXPR perms permissions() const noexcept { return m_perms; }
+    BOOST_CONSTEXPR file_type type() const BOOST_NOEXCEPT { return m_value; }
+    BOOST_CONSTEXPR perms permissions() const BOOST_NOEXCEPT { return m_perms; }
 
     // modifiers
-    BOOST_CXX14_CONSTEXPR void type(file_type v) noexcept { m_value = v; }
-    BOOST_CXX14_CONSTEXPR void permissions(perms prms) noexcept { m_perms = prms; }
+    BOOST_CXX14_CONSTEXPR void type(file_type v) BOOST_NOEXCEPT { m_value = v; }
+    BOOST_CXX14_CONSTEXPR void permissions(perms prms) BOOST_NOEXCEPT { m_perms = prms; }
 
-    BOOST_CONSTEXPR bool operator==(file_status const& rhs) const noexcept
+    BOOST_CONSTEXPR bool operator==(file_status const& rhs) const BOOST_NOEXCEPT
     {
         return type() == rhs.type() && permissions() == rhs.permissions();
     }
-    BOOST_CONSTEXPR bool operator!=(file_status const& rhs) const noexcept
+    BOOST_CONSTEXPR bool operator!=(file_status const& rhs) const BOOST_NOEXCEPT
     {
         return !(*this == rhs);
     }
@@ -179,70 +188,78 @@ private:
     perms m_perms;
 };
 
-inline BOOST_CONSTEXPR bool type_present(file_status f) noexcept
+inline BOOST_CONSTEXPR bool type_present(file_status f) BOOST_NOEXCEPT
 {
     return f.type() != filesystem::status_error;
 }
 
-inline BOOST_CONSTEXPR bool permissions_present(file_status f) noexcept
+inline BOOST_CONSTEXPR bool permissions_present(file_status f) BOOST_NOEXCEPT
 {
     return f.permissions() != filesystem::perms_not_known;
 }
 
-inline BOOST_CONSTEXPR bool status_known(file_status f) noexcept
+inline BOOST_CONSTEXPR bool status_known(file_status f) BOOST_NOEXCEPT
 {
     return filesystem::type_present(f) && filesystem::permissions_present(f);
 }
 
-inline BOOST_CONSTEXPR bool exists(file_status f) noexcept
+inline BOOST_CONSTEXPR bool exists(file_status f) BOOST_NOEXCEPT
 {
     return f.type() != filesystem::status_error && f.type() != filesystem::file_not_found;
 }
 
-inline BOOST_CONSTEXPR bool is_regular_file(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_regular_file(file_status f) BOOST_NOEXCEPT
 {
     return f.type() == filesystem::regular_file;
 }
 
-inline BOOST_CONSTEXPR bool is_directory(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_directory(file_status f) BOOST_NOEXCEPT
 {
     return f.type() == filesystem::directory_file;
 }
 
-inline BOOST_CONSTEXPR bool is_symlink(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_symlink(file_status f) BOOST_NOEXCEPT
 {
     return f.type() == filesystem::symlink_file;
 }
 
-inline BOOST_CONSTEXPR bool is_block_file(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_block_file(file_status f) BOOST_NOEXCEPT
 {
     return f.type() == filesystem::block_file;
 }
 
-inline BOOST_CONSTEXPR bool is_character_file(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_character_file(file_status f) BOOST_NOEXCEPT
 {
     return f.type() == filesystem::character_file;
 }
 
-inline BOOST_CONSTEXPR bool is_fifo(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_fifo(file_status f) BOOST_NOEXCEPT
 {
     return f.type() == filesystem::fifo_file;
 }
 
-inline BOOST_CONSTEXPR bool is_socket(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_socket(file_status f) BOOST_NOEXCEPT
 {
     return f.type() == filesystem::socket_file;
 }
 
-inline BOOST_CONSTEXPR bool is_reparse_file(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_reparse_file(file_status f) BOOST_NOEXCEPT
 {
     return f.type() == filesystem::reparse_file;
 }
 
-inline BOOST_CONSTEXPR bool is_other(file_status f) noexcept
+inline BOOST_CONSTEXPR bool is_other(file_status f) BOOST_NOEXCEPT
 {
     return filesystem::exists(f) && !filesystem::is_regular_file(f) && !filesystem::is_directory(f) && !filesystem::is_symlink(f);
 }
+
+#ifndef BOOST_FILESYSTEM_NO_DEPRECATED
+BOOST_FILESYSTEM_DETAIL_DEPRECATED("Use is_regular_file() instead")
+inline bool is_regular(file_status f) BOOST_NOEXCEPT
+{
+    return filesystem::is_regular_file(f);
+}
+#endif
 
 } // namespace filesystem
 } // namespace boost

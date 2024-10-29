@@ -43,11 +43,11 @@ class adaptive_xbuf
    typedef RandRawIt iterator;
    typedef SizeType  size_type;
 
-   inline adaptive_xbuf()
+   BOOST_MOVE_FORCEINLINE adaptive_xbuf()
       : m_ptr(), m_size(0), m_capacity(0)
    {}
 
-   inline adaptive_xbuf(RandRawIt raw_memory, size_type cap)
+   BOOST_MOVE_FORCEINLINE adaptive_xbuf(RandRawIt raw_memory, size_type cap)
       : m_ptr(raw_memory), m_size(0), m_capacity(cap)
    {}
 
@@ -102,7 +102,7 @@ class adaptive_xbuf
       }
    }
 
-   inline void set_size(size_type sz)
+   BOOST_MOVE_FORCEINLINE void set_size(size_type sz)
    {
       m_size = sz;
    }
@@ -144,12 +144,12 @@ class adaptive_xbuf
 
    private:
    template<class RIt>
-   inline static bool is_raw_ptr(RIt)
+   BOOST_MOVE_FORCEINLINE static bool is_raw_ptr(RIt)
    {
       return false;
    }
 
-   inline static bool is_raw_ptr(T*)
+   BOOST_MOVE_FORCEINLINE static bool is_raw_ptr(T*)
    {
       return true;
    }
@@ -168,43 +168,43 @@ class adaptive_xbuf
    }
 
    template<class U>
-   inline U *aligned_trailing() const
+   BOOST_MOVE_FORCEINLINE U *aligned_trailing() const
    {
       return this->aligned_trailing<U>(this->size());
    }
 
    template<class U>
-   inline U *aligned_trailing(size_type pos) const
+   BOOST_MOVE_FORCEINLINE U *aligned_trailing(size_type pos) const
    {
       uintptr_t u_addr = uintptr_t(&*(this->data()+pos));
       u_addr = ((u_addr + sizeof(U)-1)/sizeof(U))*sizeof(U);
       return (U*)u_addr;
    }
 
-   inline ~adaptive_xbuf()
+   BOOST_MOVE_FORCEINLINE ~adaptive_xbuf()
    {
       this->clear();
    }
 
-   inline size_type capacity() const
+   BOOST_MOVE_FORCEINLINE size_type capacity() const
    {  return m_capacity;   }
 
-   inline iterator data() const
+   BOOST_MOVE_FORCEINLINE iterator data() const
    {  return m_ptr;   }
 
-   inline iterator begin() const
+   BOOST_MOVE_FORCEINLINE iterator begin() const
    {  return m_ptr;   }
 
-   inline iterator end() const
+   BOOST_MOVE_FORCEINLINE iterator end() const
    {  return m_ptr+m_size;   }
 
-   inline size_type size() const
+   BOOST_MOVE_FORCEINLINE size_type size() const
    {  return m_size;   }
 
-   inline bool empty() const
+   BOOST_MOVE_FORCEINLINE bool empty() const
    {  return !m_size;   }
 
-   inline void clear()
+   BOOST_MOVE_FORCEINLINE void clear()
    {
       this->shrink_to_fit(0u);
    }

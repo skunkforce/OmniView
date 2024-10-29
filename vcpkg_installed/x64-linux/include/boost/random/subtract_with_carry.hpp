@@ -244,10 +244,10 @@ public:
      * Returns true if the two generators will produce identical
      * sequences of values.
      */
-    BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(subtract_with_carry_engine, x_, y)
+    BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(subtract_with_carry_engine, x, y)
     {
         for(unsigned int j = 0; j < r; ++j)
-            if(x_.compute(j) != y.compute(j))
+            if(x.compute(j) != y.compute(j))
                 return false;
         return true;
     }
@@ -268,21 +268,21 @@ private:
 
     friend struct detail::subtract_with_carry_discard;
 
-    IntType do_update(std::size_t current, std::size_t short_index, IntType carry_)
+    IntType do_update(std::size_t current, std::size_t short_index, IntType carry)
     {
         IntType delta;
-        IntType temp = x[current] + carry_;
+        IntType temp = x[current] + carry;
         if (x[short_index] >= temp) {
             // x(n) >= 0
             delta =  x[short_index] - temp;
-            carry_ = 0;
+            carry = 0;
         } else {
             // x(n) < 0
             delta = modulus - temp + x[short_index];
-            carry_ = 1;
+            carry = 1;
         }
         x[current] = delta;
-        return carry_;
+        return carry;
     }
     /// \endcond
 
@@ -478,10 +478,10 @@ public:
     }
 
     /** Returns true if the two generators will produce identical sequences. */
-    BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(subtract_with_carry_01_engine, x_, y)
+    BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(subtract_with_carry_01_engine, x, y)
     {
         for(unsigned int j = 0; j < r; ++j)
-            if(x_.compute(j) != y.compute(j))
+            if(x.compute(j) != y.compute(j))
                 return false;
         return true;
     }
@@ -498,17 +498,17 @@ private:
 
     friend struct detail::subtract_with_carry_discard;
 
-    RealType do_update(std::size_t current, std::size_t short_index, RealType carry_)
+    RealType do_update(std::size_t current, std::size_t short_index, RealType carry)
     {
-        RealType delta = x[short_index] - x[current] - carry_;
+        RealType delta = x[short_index] - x[current] - carry;
         if(delta < 0) {
             delta += RealType(1);
-            carry_ = RealType(1)/_modulus;
+            carry = RealType(1)/_modulus;
         } else {
-            carry_ = 0;
+            carry = 0;
         }
         x[current] = delta;
-        return carry_;
+        return carry;
     }
     /// \endcond
     std::size_t k;

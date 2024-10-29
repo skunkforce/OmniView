@@ -1,4 +1,4 @@
-/* Fast open-addressing concurrent hashmap.
+/* Fast open-addressing concurrent hash table.
  *
  * Copyright 2023 Christian Mazakas.
  * Distributed under the Boost Software License, Version 1.0.
@@ -46,6 +46,9 @@ namespace boost {
   } // namespace unordered
 
   using boost::unordered::concurrent_flat_map;
+  using boost::unordered::swap;
+  using boost::unordered::operator==;
+  using boost::unordered::operator!=;
 } // namespace boost
 
 #endif // BOOST_UNORDERED_CONCURRENT_FLAT_MAP_HPP

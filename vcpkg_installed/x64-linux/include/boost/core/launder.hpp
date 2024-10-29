@@ -11,28 +11,14 @@
 //  Distributed under the Boost Software License, Version 1.0.
 //  https://www.boost.org/LICENSE_1_0.txt
 
-#include <boost/config.hpp>
-
 #if defined(__has_builtin)
 # if __has_builtin(__builtin_launder)
 #  define BOOST_CORE_HAS_BUILTIN_LAUNDER
 # endif
 #endif
 
-#if defined(BOOST_MSVC) && BOOST_MSVC < 1920
-
-// msvc-14.1 suffers from internal compiler errors when using std::launder
-// https://github.com/boostorg/core/issues/160
-// https://github.com/boostorg/optional/issues/122
-
-#elif (BOOST_CXX_VERSION >= 201703L) && !defined(BOOST_CORE_HAS_BUILTIN_LAUNDER)
-
-#include <new>
-
-#if defined(__cpp_lib_launder)
-# define BOOST_CORE_HAS_STD_LAUNDER
-#endif
-
+#if (__cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)) && !defined(BOOST_CORE_HAS_BUILTIN_LAUNDER)
+# include <new>
 #endif
 
 namespace boost
@@ -47,7 +33,7 @@ template<class T> T* launder( T* p )
     return __builtin_launder( p );
 }
 
-#elif defined(BOOST_CORE_HAS_STD_LAUNDER)
+#elif (__cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)) && defined(__cpp_lib_launder)
 
 template<class T> T* launder( T* p )
 {

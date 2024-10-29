@@ -13,7 +13,7 @@
 #include <boost/array.hpp>
 #include <boost/assert.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/core/noncopyable.hpp>
+#include <boost/noncopyable.hpp>
 
 namespace boost
 {

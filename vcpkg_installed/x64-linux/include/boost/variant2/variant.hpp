@@ -18,11 +18,13 @@
 #include <boost/assert/source_location.hpp>
 #include <boost/config.hpp>
 #include <boost/config/workaround.hpp>
+#include <boost/cstdint.hpp>
 #include <cstddef>
 #include <type_traits>
 #include <exception>
+#include <initializer_list>
 #include <utility>
-#include <typeindex> // std::hash
+#include <functional> // std::hash
 #include <iosfwd>
 #include <cstdint>
 #include <cerrno>
@@ -689,11 +691,8 @@ template<class T1, class... T> union variant_storage_impl<mp11::mp_true, T1, T..
 # pragma GCC diagnostic push
 // False positive in at least GCC 7 and GCC 10 ASAN triggered by monostate (via result<void>)
 # pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#if __GNUC__ >= 12
-// False positive in at least GCC 12 and GCC 13 ASAN and -Og triggered by monostate (via result<void>)
-# pragma GCC diagnostic ignored "-Wuninitialized"
 #endif
-#endif
+
         *this = variant_storage_impl( mp11::mp_size_t<I>(), std::forward<A>(a)... );
 
 #if defined(BOOST_GCC) && (__GNUC__ >= 7)
@@ -1634,17 +1633,7 @@ public:
     template<class U,
         class Ud = typename std::decay<U>::type,
         class E1 = typename std::enable_if< !std::is_same<Ud, variant>::value && !std::is_base_of<variant, Ud>::value && !detail::is_in_place_index<Ud>::value && !detail::is_in_place_type<Ud>::value >::type,
-
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1940)
-
-        class V = mp11::mp_apply_q< mp11::mp_bind_front<detail::resolve_overload_type, U&&>, variant >,
-
-#else
-
         class V = detail::resolve_overload_type<U&&, T...>,
-
-#endif
-
         class E2 = typename std::enable_if<std::is_constructible<V, U&&>::value>::type
         >
     constexpr variant( U&& u )
@@ -2330,8 +2319,8 @@ namespace detail
 
 inline std::size_t hash_value_impl_( mp11::mp_true, std::size_t index, std::size_t value )
 {
-    unsigned long long hv = 0xCBF29CE484222325ull;
-    unsigned long long const prime = 0x100000001B3ull;
+    boost::ulong_long_type hv = ( boost::ulong_long_type( 0xCBF29CE4 ) << 32 ) + 0x84222325;
+    boost::ulong_long_type const prime = ( boost::ulong_long_type( 0x00000100 ) << 32 ) + 0x000001B3;
 
     hv ^= index;
     hv *= prime;
@@ -2508,16 +2497,16 @@ template<class V> struct tag_invoke_L2
     boost::json::value const& v;
     typename boost::json::result_for<V, boost::json::value>::type& r;
 
-    template<class I> void operator()( I /*i*/ ) const
+    template<class I> void operator()( I i ) const
     {
         if( !r )
         {
-            using Ti = mp11::mp_at_c<V, I::value>;
+            using Ti = mp11::mp_at_c<V, i>;
             auto r2 = boost::json::try_value_to<Ti>( v );
 
             if( r2 )
             {
-                r.emplace( in_place_index_t<I::value>{}, std::move( *r2 ) );
+                r.emplace( in_place_index_t<i>{}, std::move( *r2 ) );
             }
         }
     }

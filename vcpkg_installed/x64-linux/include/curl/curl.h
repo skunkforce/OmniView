@@ -53,19 +53,28 @@
 #include "curlver.h"         /* libcurl version defines   */
 #include "system.h"          /* determine things run-time */
 
+/*
+ * Define CURL_WIN32 when build target is Win32 API
+ */
+
+#if (defined(_WIN32) || defined(__WIN32__) || defined(WIN32)) &&        \
+  !defined(__SYMBIAN32__)
+#define CURL_WIN32
+#endif
+
 #include <stdio.h>
 #include <limits.h>
 
-#if defined(__FreeBSD__) || defined(__MidnightBSD__)
+#if (defined(__FreeBSD__) && (__FreeBSD__ >= 2)) || defined(__MidnightBSD__)
 /* Needed for __FreeBSD_version or __MidnightBSD_version symbol definition */
-#include <sys/param.h>
+#include <osreldate.h>
 #endif
 
 /* The include stuff here below is mainly for time_t! */
 #include <sys/types.h>
 #include <time.h>
 
-#if defined(_WIN32) && !defined(_WIN32_WCE) && !defined(__CYGWIN__)
+#if defined(CURL_WIN32) && !defined(_WIN32_WCE) && !defined(__CYGWIN__)
 #if !(defined(_WINSOCKAPI_) || defined(_WINSOCK_H) || \
       defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H))
 /* The check above prevents the winsock2 inclusion if winsock.h already was
@@ -79,7 +88,7 @@
    libc5-based Linux systems. Only include it on systems that are known to
    require it! */
 #if defined(_AIX) || defined(__NOVELL_LIBC__) || defined(__NetBSD__) || \
-    defined(__minix) || defined(__INTEGRITY) || \
+    defined(__minix) || defined(__SYMBIAN32__) || defined(__INTEGRITY) || \
     defined(ANDROID) || defined(__ANDROID__) || defined(__OpenBSD__) || \
     defined(__CYGWIN__) || defined(AMIGA) || defined(__NuttX__) || \
    (defined(__FreeBSD_version) && (__FreeBSD_version < 800000)) || \
@@ -88,11 +97,11 @@
 #include <sys/select.h>
 #endif
 
-#if !defined(_WIN32) && !defined(_WIN32_WCE)
+#if !defined(CURL_WIN32) && !defined(_WIN32_WCE)
 #include <sys/socket.h>
 #endif
 
-#if !defined(_WIN32)
+#if !defined(CURL_WIN32)
 #include <sys/time.h>
 #endif
 
@@ -119,7 +128,7 @@ typedef void CURLSH;
 
 #if 1
 #  define CURL_EXTERN
-#elif defined(_WIN32) || \
+#elif defined(CURL_WIN32) || defined(__SYMBIAN32__) || \
      (__has_declspec_attribute(dllexport) && \
       __has_declspec_attribute(dllimport))
 #  if defined(BUILDING_LIBCURL)
@@ -135,7 +144,7 @@ typedef void CURLSH;
 
 #ifndef curl_socket_typedef
 /* socket typedef */
-#if defined(_WIN32) && !defined(__LWIP_OPT_H__) && !defined(LWIP_HDR_OPT_H)
+#if defined(CURL_WIN32) && !defined(__LWIP_OPT_H__) && !defined(LWIP_HDR_OPT_H)
 typedef SOCKET curl_socket_t;
 #define CURL_SOCKET_BAD INVALID_SOCKET
 #else
@@ -631,8 +640,6 @@ typedef enum {
   CURLE_PROXY,                   /* 97 - proxy handshake error */
   CURLE_SSL_CLIENTCERT,          /* 98 - client-side certificate required */
   CURLE_UNRECOVERABLE_POLL,      /* 99 - poll/select returned fatal error */
-  CURLE_TOO_LARGE,               /* 100 - a value/data met its maximum */
-  CURLE_ECH_REQUIRED,            /* 101 - ECH tried but failed */
   CURL_LAST /* never use! */
 } CURLcode;
 
@@ -812,10 +819,7 @@ typedef enum {
 #define CURLAUTH_GSSAPI CURLAUTH_NEGOTIATE
 #define CURLAUTH_NTLM         (((unsigned long)1)<<3)
 #define CURLAUTH_DIGEST_IE    (((unsigned long)1)<<4)
-#ifndef CURL_NO_OLDIES
-  /* functionality removed since 8.8.0 */
 #define CURLAUTH_NTLM_WB      (((unsigned long)1)<<5)
-#endif
 #define CURLAUTH_BEARER       (((unsigned long)1)<<6)
 #define CURLAUTH_AWS_SIGV4    (((unsigned long)1)<<7)
 #define CURLAUTH_ONLY         (((unsigned long)1)<<31)
@@ -1850,8 +1854,7 @@ typedef enum {
   /* allow GSSAPI credential delegation */
   CURLOPT(CURLOPT_GSSAPI_DELEGATION, CURLOPTTYPE_VALUES, 210),
 
-  /* Set the name servers to use for DNS resolution.
-   * Only supported by the c-ares DNS backend */
+  /* Set the name servers to use for DNS resolution */
   CURLOPT(CURLOPT_DNS_SERVERS, CURLOPTTYPE_STRINGPOINT, 211),
 
   /* Time-out accept operations (currently for FTP only) after this amount
@@ -2207,12 +2210,6 @@ typedef enum {
   /* set a specific client IP for HAProxy PROXY protocol header? */
   CURLOPT(CURLOPT_HAPROXY_CLIENT_IP, CURLOPTTYPE_STRINGPOINT, 323),
 
-  /* millisecond version */
-  CURLOPT(CURLOPT_SERVER_RESPONSE_TIMEOUT_MS, CURLOPTTYPE_LONG, 324),
-
-  /* set ECH configuration  */
-  CURLOPT(CURLOPT_ECH, CURLOPTTYPE_STRINGPOINT, 325),
-
   CURLOPT_LASTENTRY /* the last unused */
 } CURLoption;
 
@@ -2318,26 +2315,30 @@ enum CURL_NETRC_OPTION {
   CURL_NETRC_LAST
 };
 
-#define CURL_SSLVERSION_DEFAULT 0
-#define CURL_SSLVERSION_TLSv1   1 /* TLS 1.x */
-#define CURL_SSLVERSION_SSLv2   2
-#define CURL_SSLVERSION_SSLv3   3
-#define CURL_SSLVERSION_TLSv1_0 4
-#define CURL_SSLVERSION_TLSv1_1 5
-#define CURL_SSLVERSION_TLSv1_2 6
-#define CURL_SSLVERSION_TLSv1_3 7
+enum {
+  CURL_SSLVERSION_DEFAULT,
+  CURL_SSLVERSION_TLSv1, /* TLS 1.x */
+  CURL_SSLVERSION_SSLv2,
+  CURL_SSLVERSION_SSLv3,
+  CURL_SSLVERSION_TLSv1_0,
+  CURL_SSLVERSION_TLSv1_1,
+  CURL_SSLVERSION_TLSv1_2,
+  CURL_SSLVERSION_TLSv1_3,
 
-#define CURL_SSLVERSION_LAST 8 /* never use, keep last */
+  CURL_SSLVERSION_LAST /* never use, keep last */
+};
 
-#define CURL_SSLVERSION_MAX_NONE 0
-#define CURL_SSLVERSION_MAX_DEFAULT (CURL_SSLVERSION_TLSv1   << 16)
-#define CURL_SSLVERSION_MAX_TLSv1_0 (CURL_SSLVERSION_TLSv1_0 << 16)
-#define CURL_SSLVERSION_MAX_TLSv1_1 (CURL_SSLVERSION_TLSv1_1 << 16)
-#define CURL_SSLVERSION_MAX_TLSv1_2 (CURL_SSLVERSION_TLSv1_2 << 16)
-#define CURL_SSLVERSION_MAX_TLSv1_3 (CURL_SSLVERSION_TLSv1_3 << 16)
+enum {
+  CURL_SSLVERSION_MAX_NONE =     0,
+  CURL_SSLVERSION_MAX_DEFAULT =  (CURL_SSLVERSION_TLSv1   << 16),
+  CURL_SSLVERSION_MAX_TLSv1_0 =  (CURL_SSLVERSION_TLSv1_0 << 16),
+  CURL_SSLVERSION_MAX_TLSv1_1 =  (CURL_SSLVERSION_TLSv1_1 << 16),
+  CURL_SSLVERSION_MAX_TLSv1_2 =  (CURL_SSLVERSION_TLSv1_2 << 16),
+  CURL_SSLVERSION_MAX_TLSv1_3 =  (CURL_SSLVERSION_TLSv1_3 << 16),
 
   /* never use, keep last */
-#define CURL_SSLVERSION_MAX_LAST    (CURL_SSLVERSION_LAST    << 16)
+  CURL_SSLVERSION_MAX_LAST =     (CURL_SSLVERSION_LAST    << 16)
+};
 
 enum CURL_TLSAUTH {
   CURL_TLSAUTH_NONE,
@@ -2940,9 +2941,7 @@ typedef enum {
   CURLINFO_CAPATH           = CURLINFO_STRING + 62,
   CURLINFO_XFER_ID          = CURLINFO_OFF_T + 63,
   CURLINFO_CONN_ID          = CURLINFO_OFF_T + 64,
-  CURLINFO_QUEUE_TIME_T     = CURLINFO_OFF_T + 65,
-  CURLINFO_USED_PROXY       = CURLINFO_LONG + 66,
-  CURLINFO_LASTONE          = 66
+  CURLINFO_LASTONE          = 64
 } CURLINFO;
 
 /* CURLINFO_RESPONSE_CODE is the new name for the option previously known as
@@ -3038,18 +3037,17 @@ CURL_EXTERN CURLSHcode curl_share_cleanup(CURLSH *share);
  */
 
 typedef enum {
-  CURLVERSION_FIRST,    /* 7.10 */
-  CURLVERSION_SECOND,   /* 7.11.1 */
-  CURLVERSION_THIRD,    /* 7.12.0 */
-  CURLVERSION_FOURTH,   /* 7.16.1 */
-  CURLVERSION_FIFTH,    /* 7.57.0 */
-  CURLVERSION_SIXTH,    /* 7.66.0 */
-  CURLVERSION_SEVENTH,  /* 7.70.0 */
-  CURLVERSION_EIGHTH,   /* 7.72.0 */
-  CURLVERSION_NINTH,    /* 7.75.0 */
-  CURLVERSION_TENTH,    /* 7.77.0 */
-  CURLVERSION_ELEVENTH, /* 7.87.0 */
-  CURLVERSION_TWELFTH,  /* 8.8.0 */
+  CURLVERSION_FIRST,
+  CURLVERSION_SECOND,
+  CURLVERSION_THIRD,
+  CURLVERSION_FOURTH,
+  CURLVERSION_FIFTH,
+  CURLVERSION_SIXTH,
+  CURLVERSION_SEVENTH,
+  CURLVERSION_EIGHTH,
+  CURLVERSION_NINTH,
+  CURLVERSION_TENTH,
+  CURLVERSION_ELEVENTH,
   CURLVERSION_LAST /* never actually use this */
 } CURLversion;
 
@@ -3058,7 +3056,7 @@ typedef enum {
    meant to be a built-in version number for what kind of struct the caller
    expects. If the struct ever changes, we redefine the NOW to another enum
    from above. */
-#define CURLVERSION_NOW CURLVERSION_TWELFTH
+#define CURLVERSION_NOW CURLVERSION_ELEVENTH
 
 struct curl_version_info_data {
   CURLversion age;          /* age of the returned struct */
@@ -3118,9 +3116,6 @@ struct curl_version_info_data {
   /* These fields were added in CURLVERSION_ELEVENTH */
   /* feature_names is terminated by an entry with a NULL feature name */
   const char * const *feature_names;
-
-  /* These fields were added in CURLVERSION_TWELFTH */
-  const char *rtmp_version; /* human readable string. */
 };
 typedef struct curl_version_info_data curl_version_info_data;
 
@@ -3161,7 +3156,7 @@ typedef struct curl_version_info_data curl_version_info_data;
 #define CURL_VERSION_GSASL        (1<<29) /* libgsasl is supported */
 #define CURL_VERSION_THREADSAFE   (1<<30) /* libcurl API is thread-safe */
 
-/*
+ /*
  * NAME curl_version_info()
  *
  * DESCRIPTION
@@ -3225,7 +3220,6 @@ CURL_EXTERN CURLcode curl_easy_pause(CURL *handle, int bitmask);
 #include "options.h"
 #include "header.h"
 #include "websockets.h"
-#include "mprintf.h"
 
 /* the typechecker doesn't work in C++ (yet) */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && \

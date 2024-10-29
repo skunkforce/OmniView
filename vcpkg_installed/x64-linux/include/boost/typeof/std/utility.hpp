@@ -5,9 +5,11 @@
 #ifndef BOOST_TYPEOF_STD_utility_hpp_INCLUDED
 #define BOOST_TYPEOF_STD_utility_hpp_INCLUDED
 
-// This header is no longer useful and is only retained for compatibility
-
 #include <utility>
 #include <boost/typeof/typeof.hpp>
+
+#include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
+
+BOOST_TYPEOF_REGISTER_TEMPLATE(std::pair, 2)
 
 #endif//BOOST_TYPEOF_STD_utility_hpp_INCLUDED

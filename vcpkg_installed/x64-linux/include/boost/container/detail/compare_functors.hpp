@@ -32,11 +32,11 @@ class equal_to_value
    const value_type &t_;
 
    public:
-   inline explicit equal_to_value(const value_type &t)
+   BOOST_CONTAINER_FORCEINLINE explicit equal_to_value(const value_type &t)
       :  t_(t)
    {}
 
-   inline bool operator()(const value_type &t)const
+   BOOST_CONTAINER_FORCEINLINE bool operator()(const value_type &t)const
    {  return t_ == t;   }
 };
 
@@ -47,39 +47,39 @@ struct value_to_node_compare
    typedef Pred predicate_type;
    typedef Node node_type;
 
-   inline value_to_node_compare()
+   BOOST_CONTAINER_FORCEINLINE value_to_node_compare()
       : Pred()
    {}
 
-   inline explicit value_to_node_compare(Pred pred)
+   BOOST_CONTAINER_FORCEINLINE explicit value_to_node_compare(Pred pred)
       :  Pred(pred)
    {}
 
-   inline Ret operator()(const Node &a, const Node &b) const
+   BOOST_CONTAINER_FORCEINLINE Ret operator()(const Node &a, const Node &b) const
    {  return static_cast<const Pred&>(*this)(a.get_data(), b.get_data());  }
 
-   inline Ret operator()(const Node &a) const
+   BOOST_CONTAINER_FORCEINLINE Ret operator()(const Node &a) const
    {  return static_cast<const Pred&>(*this)(a.get_data());  }
 
-   inline Ret operator()(const Node &a, const Node &b)
+   BOOST_CONTAINER_FORCEINLINE Ret operator()(const Node &a, const Node &b)
    {  return static_cast<Pred&>(*this)(a.get_data(), b.get_data());  }
 
-   inline Ret operator()(const Node &a)
+   BOOST_CONTAINER_FORCEINLINE Ret operator()(const Node &a)
    {  return static_cast<Pred&>(*this)(a.get_data());  }
 
-   inline predicate_type &       predicate()        { return static_cast<predicate_type&>(*this); }
-   inline const predicate_type & predicate()  const { return static_cast<predicate_type&>(*this); }
+   BOOST_CONTAINER_FORCEINLINE predicate_type &       predicate()        { return static_cast<predicate_type&>(*this); }
+   BOOST_CONTAINER_FORCEINLINE const predicate_type & predicate()  const { return static_cast<predicate_type&>(*this); }
 };
 
 template<class KeyPred, class KeyOfValue, class Node, class Ret = bool>
 struct key_node_pred
    :  public boost::intrusive::detail::ebo_functor_holder<KeyPred>
 {
-   inline explicit key_node_pred(const KeyPred &comp)
+   BOOST_CONTAINER_FORCEINLINE explicit key_node_pred(const KeyPred &comp)
       :  base_t(comp)
    {}
 
-   inline explicit key_node_pred()
+   BOOST_CONTAINER_FORCEINLINE explicit key_node_pred()
    {}
 
    typedef boost::intrusive::detail::ebo_functor_holder<KeyPred> base_t;
@@ -88,42 +88,42 @@ struct key_node_pred
    typedef typename KeyOfValue::type   key_type;
 
 
-   inline static const key_type &key_from(const Node &n)
+   BOOST_CONTAINER_FORCEINLINE static const key_type &key_from(const Node &n)
    {
       return key_of_value()(n.get_data());
    }
 
    template <class T>
-   inline static const T &
+   BOOST_CONTAINER_FORCEINLINE static const T &
       key_from(const T &t)
    {  return t;  }
 
-   inline const key_predicate &key_pred() const
+   BOOST_CONTAINER_FORCEINLINE const key_predicate &key_pred() const
    {  return static_cast<const key_predicate &>(*this);  }
 
-   inline key_predicate &key_pred()
+   BOOST_CONTAINER_FORCEINLINE key_predicate &key_pred()
    {  return static_cast<key_predicate &>(*this);  }
 
-   inline Ret operator()(const key_type &key) const
+   BOOST_CONTAINER_FORCEINLINE Ret operator()(const key_type &key) const
    {  return this->key_pred()(key);  }
 
    template<class U>
-   inline Ret operator()(const U &nonkey) const
+   BOOST_CONTAINER_FORCEINLINE Ret operator()(const U &nonkey) const
    {  return this->key_pred()(this->key_from(nonkey));  }
 
-   inline bool operator()(const key_type &key1, const key_type &key2) const
+   BOOST_CONTAINER_FORCEINLINE bool operator()(const key_type &key1, const key_type &key2) const
    {  return this->key_pred()(key1, key2);  }
 
    template<class U>
-   inline bool operator()(const key_type &key1, const U &nonkey2) const
+   BOOST_CONTAINER_FORCEINLINE bool operator()(const key_type &key1, const U &nonkey2) const
    {  return this->key_pred()(key1, this->key_from(nonkey2));  }
 
    template<class U>
-   inline bool operator()(const U &nonkey1, const key_type &key2) const
+   BOOST_CONTAINER_FORCEINLINE bool operator()(const U &nonkey1, const key_type &key2) const
    {  return this->key_pred()(this->key_from(nonkey1), key2);  }
 
    template<class U, class V>
-   inline bool operator()(const U &nonkey1, const V &nonkey2) const
+   BOOST_CONTAINER_FORCEINLINE bool operator()(const U &nonkey1, const V &nonkey2) const
    {  return this->key_pred()(this->key_from(nonkey1), this->key_from(nonkey2));  }
 };
 

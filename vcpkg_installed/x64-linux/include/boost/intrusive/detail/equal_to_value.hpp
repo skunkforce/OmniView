@@ -39,7 +39,7 @@ class equal_to_value
       :  t_(t)
    {}
 
-   inline bool operator()(ConstReference t)const
+   BOOST_INTRUSIVE_FORCEINLINE bool operator()(ConstReference t)const
    {  return t_ == t;   }
 };
 

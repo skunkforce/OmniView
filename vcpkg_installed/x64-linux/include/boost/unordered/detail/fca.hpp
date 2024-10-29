@@ -1,4 +1,4 @@
-// Copyright (C) 2022-2024 Joaquin M Lopez Munoz.
+// Copyright (C) 2022 Joaquin M Lopez Munoz.
 // Copyright (C) 2022 Christian Mazakas
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -114,17 +114,18 @@ to normal separate chaining implementations.
 */
 
 #include <boost/unordered/detail/prime_fmod.hpp>
-#include <boost/unordered/detail/serialize_tracked_address.hpp>
-#include <boost/unordered/detail/opt_storage.hpp>
 
-#include <boost/assert.hpp>
+#include <boost/core/addressof.hpp>
 #include <boost/core/allocator_access.hpp>
 #include <boost/core/bit.hpp>
 #include <boost/core/empty_value.hpp>
-#include <boost/core/invoke_swap.hpp>
 #include <boost/core/no_exceptions_support.hpp>
-#include <boost/core/serialization.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/move/core.hpp>
+#include <boost/move/utility_core.hpp>
+#include <boost/swap.hpp>
+#include <boost/type_traits/aligned_storage.hpp>
+#include <boost/type_traits/alignment_of.hpp>
 
 #include <boost/config.hpp>
 
@@ -141,18 +142,19 @@ namespace boost {
           node>::type node_pointer;
 
         node_pointer next;
-        opt_storage<value_type> buf;
+        typename boost::aligned_storage<sizeof(value_type),
+          boost::alignment_of<value_type>::value>::type buf;
 
-        node() noexcept : next(), buf() {}
+        node() BOOST_NOEXCEPT : next(), buf() {}
 
-        value_type* value_ptr() noexcept
+        value_type* value_ptr() BOOST_NOEXCEPT
         {
-          return buf.address();
+          return reinterpret_cast<value_type*>(buf.address());
         }
 
-        value_type& value() noexcept
+        value_type& value() BOOST_NOEXCEPT
         {
-          return *buf.address();
+          return *reinterpret_cast<value_type*>(buf.address());
         }
       };
 
@@ -166,7 +168,7 @@ namespace boost {
 
         node_pointer next;
 
-        bucket() noexcept : next() {}
+        bucket() BOOST_NOEXCEPT : next() {}
       };
 
       template <class Bucket> struct bucket_group
@@ -182,7 +184,7 @@ namespace boost {
         std::size_t bitmask;
         bucket_group_pointer next, prev;
 
-        bucket_group() noexcept : buckets(), bitmask(0), next(), prev() {}
+        bucket_group() BOOST_NOEXCEPT : buckets(), bitmask(0), next(), prev() {}
         ~bucket_group() {}
       };
 
@@ -220,28 +222,33 @@ namespace boost {
       public:
         grouped_bucket_iterator() : p(), pbg() {}
 
-        reference operator*() const noexcept { return dereference(); }
-        pointer operator->() const noexcept { return boost::to_address(p); }
+        reference operator*() const BOOST_NOEXCEPT { return dereference(); }
+        pointer operator->() const BOOST_NOEXCEPT
+        {
+          return boost::to_address(p);
+        }
 
-        grouped_bucket_iterator& operator++() noexcept
+        grouped_bucket_iterator& operator++() BOOST_NOEXCEPT
         {
           increment();
           return *this;
         }
 
-        grouped_bucket_iterator operator++(int) noexcept
+        grouped_bucket_iterator operator++(int) BOOST_NOEXCEPT
         {
           grouped_bucket_iterator old = *this;
           increment();
           return old;
         }
 
-        bool operator==(grouped_bucket_iterator const& other) const noexcept
+        bool operator==(
+          grouped_bucket_iterator const& other) const BOOST_NOEXCEPT
         {
           return equal(other);
         }
 
-        bool operator!=(grouped_bucket_iterator const& other) const noexcept
+        bool operator!=(
+          grouped_bucket_iterator const& other) const BOOST_NOEXCEPT
         {
           return !equal(other);
         }
@@ -257,14 +264,14 @@ namespace boost {
         {
         }
 
-        Bucket& dereference() const noexcept { return *p; }
+        Bucket& dereference() const BOOST_NOEXCEPT { return *p; }
 
-        bool equal(const grouped_bucket_iterator& x) const noexcept
+        bool equal(const grouped_bucket_iterator& x) const BOOST_NOEXCEPT
         {
           return p == x.p;
         }
 
-        void increment() noexcept
+        void increment() BOOST_NOEXCEPT
         {
           std::size_t const offset = static_cast<std::size_t>(p - pbg->buckets);
 
@@ -279,24 +286,6 @@ namespace boost {
             std::ptrdiff_t x = boost::core::countr_zero(pbg->bitmask);
             p = pbg->buckets + x;
           }
-        }
-
-        template <typename Archive>
-        friend void serialization_track(
-          Archive& ar, grouped_bucket_iterator const& x)
-        {
-          // requires: not at end() position
-          track_address(ar, x.p);
-          track_address(ar, x.pbg);
-        }
-
-        friend class boost::serialization::access;
-
-        template <typename Archive> void serialize(Archive& ar, unsigned int)
-        {
-          // requires: not at end() position
-          serialize_tracked_address(ar, p);
-          serialize_tracked_address(ar, pbg);
         }
       };
 
@@ -316,20 +305,20 @@ namespace boost {
 
         grouped_local_bucket_iterator() : p() {}
 
-        reference operator*() const noexcept { return dereference(); }
+        reference operator*() const BOOST_NOEXCEPT { return dereference(); }
 
-        pointer operator->() const noexcept
+        pointer operator->() const BOOST_NOEXCEPT
         {
-          return std::addressof(dereference());
+          return boost::to_address(p);
         }
 
-        grouped_local_bucket_iterator& operator++() noexcept
+        grouped_local_bucket_iterator& operator++() BOOST_NOEXCEPT
         {
           increment();
           return *this;
         }
 
-        grouped_local_bucket_iterator operator++(int) noexcept
+        grouped_local_bucket_iterator operator++(int) BOOST_NOEXCEPT
         {
           grouped_local_bucket_iterator old = *this;
           increment();
@@ -337,13 +326,13 @@ namespace boost {
         }
 
         bool operator==(
-          grouped_local_bucket_iterator const& other) const noexcept
+          grouped_local_bucket_iterator const& other) const BOOST_NOEXCEPT
         {
           return equal(other);
         }
 
         bool operator!=(
-          grouped_local_bucket_iterator const& other) const noexcept
+          grouped_local_bucket_iterator const& other) const BOOST_NOEXCEPT
         {
           return !equal(other);
         }
@@ -356,14 +345,14 @@ namespace boost {
 
         grouped_local_bucket_iterator(node_pointer p_) : p(p_) {}
 
-        value_type& dereference() const noexcept { return p->value(); }
+        value_type& dereference() const BOOST_NOEXCEPT { return p->value(); }
 
-        bool equal(const grouped_local_bucket_iterator& x) const noexcept
+        bool equal(const grouped_local_bucket_iterator& x) const BOOST_NOEXCEPT
         {
           return p == x.p;
         }
 
-        void increment() noexcept { p = p->next; }
+        void increment() BOOST_NOEXCEPT { p = p->next; }
 
         node_pointer p;
       };
@@ -387,20 +376,20 @@ namespace boost {
         {
         }
 
-        reference operator*() const noexcept { return dereference(); }
+        reference operator*() const BOOST_NOEXCEPT { return dereference(); }
 
-        pointer operator->() const noexcept
+        pointer operator->() const BOOST_NOEXCEPT
         {
-          return std::addressof(dereference());
+          return boost::to_address(p);
         }
 
-        const_grouped_local_bucket_iterator& operator++() noexcept
+        const_grouped_local_bucket_iterator& operator++() BOOST_NOEXCEPT
         {
           increment();
           return *this;
         }
 
-        const_grouped_local_bucket_iterator operator++(int) noexcept
+        const_grouped_local_bucket_iterator operator++(int) BOOST_NOEXCEPT
         {
           const_grouped_local_bucket_iterator old = *this;
           increment();
@@ -408,13 +397,13 @@ namespace boost {
         }
 
         bool operator==(
-          const_grouped_local_bucket_iterator const& other) const noexcept
+          const_grouped_local_bucket_iterator const& other) const BOOST_NOEXCEPT
         {
           return equal(other);
         }
 
         bool operator!=(
-          const_grouped_local_bucket_iterator const& other) const noexcept
+          const_grouped_local_bucket_iterator const& other) const BOOST_NOEXCEPT
         {
           return !equal(other);
         }
@@ -425,22 +414,23 @@ namespace boost {
 
         const_grouped_local_bucket_iterator(node_pointer p_) : p(p_) {}
 
-        value_type& dereference() const noexcept { return p->value(); }
+        value_type& dereference() const BOOST_NOEXCEPT { return p->value(); }
 
-        bool equal(const const_grouped_local_bucket_iterator& x) const noexcept
+        bool equal(
+          const const_grouped_local_bucket_iterator& x) const BOOST_NOEXCEPT
         {
           return p == x.p;
         }
 
-        void increment() noexcept { p = p->next; }
+        void increment() BOOST_NOEXCEPT { p = p->next; }
 
         node_pointer p;
       };
 
       template <class T> struct span
       {
-        T* begin() const noexcept { return data; }
-        T* end() const noexcept { return data + size; }
+        T* begin() const BOOST_NOEXCEPT { return data; }
+        T* end() const BOOST_NOEXCEPT { return data + size; }
 
         T* data;
         std::size_t size;
@@ -455,6 +445,8 @@ namespace boost {
                 typename boost::allocator_void_pointer<Allocator>::type> >::
                 type>
       {
+        BOOST_MOVABLE_BUT_NOT_COPYABLE(grouped_bucket_array)
+
         typedef typename boost::allocator_value_type<Allocator>::type
           allocator_value_type;
         typedef
@@ -518,9 +510,9 @@ namespace boost {
         }
 
         grouped_bucket_array(size_type n, const Allocator& al)
-            : empty_value<node_allocator_type>(
-                empty_init_t(), node_allocator_type(al)),
-              size_index_(0), size_(0), buckets(), groups()
+            : empty_value<node_allocator_type>(empty_init_t(), al),
+              size_index_(0),
+              size_(0), buckets(), groups()
         {
           if (n == 0) {
             return;
@@ -569,10 +561,8 @@ namespace boost {
 
         ~grouped_bucket_array() { this->deallocate(); }
 
-        grouped_bucket_array(grouped_bucket_array const&) = delete;
-        grouped_bucket_array& operator=(grouped_bucket_array const&) = delete;
-
-        grouped_bucket_array(grouped_bucket_array&& other) noexcept
+        grouped_bucket_array(
+          BOOST_RV_REF(grouped_bucket_array) other) BOOST_NOEXCEPT
             : empty_value<node_allocator_type>(
                 empty_init_t(), other.get_node_allocator()),
               size_index_(other.size_index_),
@@ -586,12 +576,13 @@ namespace boost {
           other.groups = group_pointer();
         }
 
-        grouped_bucket_array& operator=(grouped_bucket_array&& other) noexcept
+        grouped_bucket_array& operator=(
+          BOOST_RV_REF(grouped_bucket_array) other) BOOST_NOEXCEPT
         {
           BOOST_ASSERT(
             this->get_node_allocator() == other.get_node_allocator());
 
-          if (this == std::addressof(other)) {
+          if (this == boost::addressof(other)) {
             return *this;
           }
 
@@ -610,47 +601,24 @@ namespace boost {
           return *this;
         }
 
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-#pragma warning(disable : 4100) // unreferenced formal parameter (dtor calls)
-#endif
-
-        void deallocate() noexcept
+        void deallocate() BOOST_NOEXCEPT
         {
           if (buckets) {
-            size_type const num_buckets = buckets_len();
-            bucket_type* pb = boost::to_address(buckets);
-            (void)pb; // VS complains when dtor is trivial
-
-            for (size_type i = 0; i < num_buckets; ++i) {
-              (pb + i)->~bucket_type();
-            }
-
             bucket_allocator_type bucket_alloc = this->get_bucket_allocator();
-            boost::allocator_deallocate(bucket_alloc, buckets, num_buckets);
+            boost::allocator_deallocate(
+              bucket_alloc, buckets, this->buckets_len());
 
             buckets = bucket_pointer();
           }
 
           if (groups) {
-            size_type const num_groups = groups_len();
-            group* pg = boost::to_address(groups);
-            (void)pg; // VS complains when dtor is trivial
-
-            for (size_type i = 0; i < num_groups; ++i) {
-              (pg + i)->~group();
-            }
-
             group_allocator_type group_alloc = this->get_group_allocator();
-            boost::allocator_deallocate(group_alloc, groups, num_groups);
+            boost::allocator_deallocate(
+              group_alloc, groups, this->groups_len());
 
             groups = group_pointer();
           }
         }
-
-#if defined(BOOST_MSVC)
-#pragma warning(pop)
-#endif
 
         void swap(grouped_bucket_array& other)
         {
@@ -662,8 +630,7 @@ namespace boost {
           bool b = boost::allocator_propagate_on_container_swap<
             allocator_type>::type::value;
           if (b) {
-            boost::core::invoke_swap(
-              get_node_allocator(), other.get_node_allocator());
+            boost::swap(get_node_allocator(), other.get_node_allocator());
           }
         }
 
@@ -679,22 +646,20 @@ namespace boost {
 
         bucket_allocator_type get_bucket_allocator() const
         {
-          return bucket_allocator_type(this->get_node_allocator());
+          return this->get_node_allocator();
         }
 
         group_allocator_type get_group_allocator() const
         {
-          return group_allocator_type(this->get_node_allocator());
+          return this->get_node_allocator();
         }
 
-        Allocator get_allocator() const
+        size_type buckets_len() const BOOST_NOEXCEPT { return size_ + 1; }
+
+        size_type groups_len() const BOOST_NOEXCEPT
         {
-          return Allocator(this->get_node_allocator());
+          return size_ / group::N + 1;
         }
-
-        size_type buckets_len() const noexcept { return size_ + 1; }
-
-        size_type groups_len() const noexcept { return size_ / group::N + 1; }
 
         void reset_allocator(Allocator const& allocator_)
         {
@@ -727,7 +692,7 @@ namespace boost {
 
         local_iterator end(size_type) const { return local_iterator(); }
 
-        size_type capacity() const noexcept { return size_; }
+        size_type capacity() const BOOST_NOEXCEPT { return size_; }
 
         iterator at(size_type n) const
         {
@@ -761,7 +726,7 @@ namespace boost {
           size_ = 0;
         }
 
-        void append_bucket_group(iterator itb) noexcept
+        void append_bucket_group(iterator itb) BOOST_NOEXCEPT
         {
           std::size_t const N = group::N;
 
@@ -791,7 +756,7 @@ namespace boost {
           }
         }
 
-        void insert_node(iterator itb, node_pointer p) noexcept
+        void insert_node(iterator itb, node_pointer p) BOOST_NOEXCEPT
         {
           this->append_bucket_group(itb);
 
@@ -800,7 +765,7 @@ namespace boost {
         }
 
         void insert_node_hint(
-          iterator itb, node_pointer p, node_pointer hint) noexcept
+          iterator itb, node_pointer p, node_pointer hint) BOOST_NOEXCEPT
         {
           this->append_bucket_group(itb);
 
@@ -813,24 +778,24 @@ namespace boost {
           }
         }
 
-        void extract_node(iterator itb, node_pointer p) noexcept
+        void extract_node(iterator itb, node_pointer p) BOOST_NOEXCEPT
         {
-          node_pointer* pp = std::addressof(itb->next);
+          node_pointer* pp = boost::addressof(itb->next);
           while ((*pp) != p)
-            pp = std::addressof((*pp)->next);
+            pp = boost::addressof((*pp)->next);
           *pp = p->next;
           if (!itb->next)
             unlink_bucket(itb);
         }
 
-        void extract_node_after(iterator itb, node_pointer* pp) noexcept
+        void extract_node_after(iterator itb, node_pointer* pp) BOOST_NOEXCEPT
         {
           *pp = (*pp)->next;
           if (!itb->next)
             unlink_bucket(itb);
         }
 
-        void unlink_empty_buckets() noexcept
+        void unlink_empty_buckets() BOOST_NOEXCEPT
         {
           std::size_t const N = group::N;
 
@@ -878,7 +843,7 @@ namespace boost {
         }
       };
     } // namespace detail
-  } // namespace unordered
+  }   // namespace unordered
 } // namespace boost
 
 #endif // BOOST_UNORDERED_DETAIL_FCA_HPP

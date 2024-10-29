@@ -29,7 +29,7 @@ namespace boost {
 namespace movelib {
 
 template<class I>
-inline typename iterator_traits<I>::pointer iterator_arrow_result(const I &i)
+BOOST_MOVE_FORCEINLINE typename iterator_traits<I>::pointer iterator_arrow_result(const I &i)
 {  return i.operator->();  }
 
 template<class T>
@@ -49,38 +49,38 @@ class reverse_iterator
 
    typedef It iterator_type;
 
-   inline reverse_iterator()
+   BOOST_MOVE_FORCEINLINE reverse_iterator()
       : m_current()  //Value initialization to achieve "null iterators" (N3644)
    {}
 
-   inline explicit reverse_iterator(It r)
+   BOOST_MOVE_FORCEINLINE explicit reverse_iterator(It r)
       : m_current(r)
    {}
 
-   inline reverse_iterator(const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE reverse_iterator(const reverse_iterator& r)
       : m_current(r.base())
    {}
 
    template<class OtherIt>
-   inline
+   BOOST_MOVE_FORCEINLINE
       reverse_iterator( const reverse_iterator<OtherIt>& r
                       , typename boost::move_detail::enable_if_convertible<OtherIt, It>::type* =0
                    )
       : m_current(r.base())
    {}
 
-   inline reverse_iterator & operator=( const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE reverse_iterator & operator=( const reverse_iterator& r)
    {  m_current = r.base();   return *this;  }
 
    template<class OtherIt>
-   inline typename boost::move_detail::enable_if_convertible<OtherIt, It, reverse_iterator &>::type
+   BOOST_MOVE_FORCEINLINE typename boost::move_detail::enable_if_convertible<OtherIt, It, reverse_iterator &>::type
          operator=( const reverse_iterator<OtherIt>& r)
    {  m_current = r.base();   return *this;  }
 
-   inline It base() const
+   BOOST_MOVE_FORCEINLINE It base() const
    {  return m_current;  }
 
-   inline reference operator*() const
+   BOOST_MOVE_FORCEINLINE reference operator*() const
    {
       It temp(m_current);
       --temp;
@@ -88,78 +88,78 @@ class reverse_iterator
       return r;
    }
 
-   inline pointer operator->() const
+   BOOST_MOVE_FORCEINLINE pointer operator->() const
    {
       It temp(m_current);
       --temp;
       return (iterator_arrow_result)(temp);
    }
 
-   inline reference operator[](difference_type off) const
+   BOOST_MOVE_FORCEINLINE reference operator[](difference_type off) const
    {
       return this->m_current[difference_type(-off - 1)];
    }
 
-   inline reverse_iterator& operator++()
+   BOOST_MOVE_FORCEINLINE reverse_iterator& operator++()
    {
       --m_current;
       return *this;
    }
 
-   inline reverse_iterator operator++(int)
+   BOOST_MOVE_FORCEINLINE reverse_iterator operator++(int)
    {
       reverse_iterator temp((*this));
       --m_current;
       return temp;
    }
 
-   inline reverse_iterator& operator--()
+   BOOST_MOVE_FORCEINLINE reverse_iterator& operator--()
    {
       ++m_current;
       return *this;
    }
 
-   inline reverse_iterator operator--(int)
+   BOOST_MOVE_FORCEINLINE reverse_iterator operator--(int)
    {
       reverse_iterator temp((*this));
       ++m_current;
       return temp;
    }
 
-   inline friend bool operator==(const reverse_iterator& l, const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE friend bool operator==(const reverse_iterator& l, const reverse_iterator& r)
    {  return l.m_current == r.m_current;  }
 
-   inline friend bool operator!=(const reverse_iterator& l, const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE friend bool operator!=(const reverse_iterator& l, const reverse_iterator& r)
    {  return l.m_current != r.m_current;  }
 
-   inline friend bool operator<(const reverse_iterator& l, const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE friend bool operator<(const reverse_iterator& l, const reverse_iterator& r)
    {  return l.m_current > r.m_current;  }
 
-   inline friend bool operator<=(const reverse_iterator& l, const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE friend bool operator<=(const reverse_iterator& l, const reverse_iterator& r)
    {  return l.m_current >= r.m_current;  }
 
-   inline friend bool operator>(const reverse_iterator& l, const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE friend bool operator>(const reverse_iterator& l, const reverse_iterator& r)
    {  return l.m_current < r.m_current;  }
 
-   inline friend bool operator>=(const reverse_iterator& l, const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE friend bool operator>=(const reverse_iterator& l, const reverse_iterator& r)
    {  return l.m_current <= r.m_current;  }
 
-   inline reverse_iterator& operator+=(difference_type off)
+   BOOST_MOVE_FORCEINLINE reverse_iterator& operator+=(difference_type off)
    {  m_current -= off; return *this;  }
 
-   inline reverse_iterator& operator-=(difference_type off)
+   BOOST_MOVE_FORCEINLINE reverse_iterator& operator-=(difference_type off)
    {  m_current += off; return *this;  }
 
-   inline friend reverse_iterator operator+(reverse_iterator l, difference_type off)
+   BOOST_MOVE_FORCEINLINE friend reverse_iterator operator+(reverse_iterator l, difference_type off)
    {  return (l += off);  }
 
-   inline friend reverse_iterator operator+(difference_type off, reverse_iterator r)
+   BOOST_MOVE_FORCEINLINE friend reverse_iterator operator+(difference_type off, reverse_iterator r)
    {  return (r += off);   }
 
-   inline friend reverse_iterator operator-(reverse_iterator l, difference_type off)
+   BOOST_MOVE_FORCEINLINE friend reverse_iterator operator-(reverse_iterator l, difference_type off)
    {  return (l-= off);  }
 
-   inline friend difference_type operator-(const reverse_iterator& l, const reverse_iterator& r)
+   BOOST_MOVE_FORCEINLINE friend difference_type operator-(const reverse_iterator& l, const reverse_iterator& r)
    {  return r.m_current - l.m_current;  }
 
    private:
@@ -167,7 +167,7 @@ class reverse_iterator
 };
 
 template< class Iterator >
-inline reverse_iterator<Iterator> make_reverse_iterator( Iterator i )
+BOOST_MOVE_FORCEINLINE reverse_iterator<Iterator> make_reverse_iterator( Iterator i )
 {  return reverse_iterator<Iterator>(i);  }
 
 } //namespace movelib {

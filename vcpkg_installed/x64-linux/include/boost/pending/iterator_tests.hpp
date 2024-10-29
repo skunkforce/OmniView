@@ -22,6 +22,7 @@
 # include <iterator>
 # include <boost/static_assert.hpp>
 # include <boost/concept_archetype.hpp> // for detail::dummy_constructor
+# include <boost/implicit_cast.hpp>
 # include <boost/core/ignore_unused.hpp>
 # include <boost/core/lightweight_test.hpp>
 # include <boost/type_traits/is_same.hpp>
@@ -222,15 +223,12 @@ void random_access_iterator_test(Iterator i, int N, TrueVals vals)
   int c;
 
   typedef typename std::iterator_traits<Iterator>::value_type value_type;
-  struct local
-  {
-    static value_type to_value_type(value_type v) { return v; }
-  };
+  boost::ignore_unused<value_type>();
 
   for (c = 0; c < N-1; ++c) {
     BOOST_TEST(i == j + c);
     BOOST_TEST(*i == vals[c]);
-    BOOST_TEST(*i == local::to_value_type(j[c]));
+    BOOST_TEST(*i == boost::implicit_cast<value_type>(j[c]));
     BOOST_TEST(*i == *(j + c));
     BOOST_TEST(*i == *(c + j));
     ++i;
@@ -244,7 +242,7 @@ void random_access_iterator_test(Iterator i, int N, TrueVals vals)
   for (c = 0; c < N-1; ++c) {
     BOOST_TEST(i == k - c);
     BOOST_TEST(*i == vals[N - 1 - c]);
-    BOOST_TEST(*i == local::to_value_type(j[N - 1 - c]));
+    BOOST_TEST(*i == boost::implicit_cast<value_type>(j[N - 1 - c]));
     Iterator q = k - c;
     boost::ignore_unused(q);
     BOOST_TEST(*i == *q);
