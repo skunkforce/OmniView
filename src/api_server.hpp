@@ -42,6 +42,9 @@ private:
     // Function for loading the DLL via the WebSocket server
     void loadDllEndpoint(const http_request& request);
 
+    // Function for unloading the DLL from the WebSocket server
+    void unloadDllEndpoint(const http_request& request);
+
     // Starts the WebSocket server
     void startWebSocket(const http_request& request);
 

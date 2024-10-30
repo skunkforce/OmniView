@@ -58,6 +58,9 @@ void ApiServer::handlePost(http_request request) {
     if (path == "/load_dll") {
         loadDllEndpoint(request);
     }
+    else if (path == "/unload_dll") {
+        unloadDllEndpoint(request);
+    }
     else if (path == "/start_websocket") {
         startWebSocket(request);
     }
@@ -179,6 +182,56 @@ void ApiServer::loadDllEndpoint(const http_request& request) {
             std::cout << "Failed to connect or send message: " << e.what() << std::endl;
             json::value response;
             response[U("status")] = json::value::string(U("Failed to send DLL paths"));
+            response[U("error")] = json::value::string(e.what());
+            request.reply(status_codes::InternalError, response);
+        }
+    }).wait();
+}
+
+// Function for unloading the DLL from the WebSocket server
+void ApiServer::unloadDllEndpoint(const http_request& request) {
+    std::cout << "Unload DLL endpoint called" << std::endl;
+
+    request.extract_json().then([=](json::value jsonData) {
+        if (!jsonData.has_field(U("dllPaths")) || !jsonData[U("dllPaths")].is_array()) {
+            request.reply(status_codes::BadRequest, "Missing dllPaths parameter or it is not an array");
+            return;
+        }
+
+        // Collect DLL paths
+        std::vector<json::value> dllPathVector;
+        for (const auto& dllPath : jsonData[U("dllPaths")].as_array()) {
+            dllPathVector.push_back(dllPath);
+        }
+
+        std::string wsUri = "ws://127.0.0.1:8081"; // Standard-WebSocket-URI
+        if (jsonData.has_field(U("wsUri"))) {
+            wsUri = jsonData[U("wsUri")].as_string();
+        }
+
+        // Connect to the WebSocket server
+        web::websockets::client::websocket_client ws_client;
+
+        try {
+            ws_client.connect(wsUri).wait();
+
+            // Send JSON message to unload the DLLs
+            json::value message;
+            message[U("unloadDllPaths")] = json::value::array(dllPathVector);
+
+            web::websockets::client::websocket_outgoing_message msg;
+            msg.set_utf8_message(message.serialize());
+
+            ws_client.send(msg).wait();
+            ws_client.close().wait();
+
+            json::value response;
+            response[U("status")] = json::value::string(U("DLL paths sent for unloading"));
+            request.reply(status_codes::OK, response);
+        }
+        catch (const web::websockets::client::websocket_exception& e) {
+            json::value response;
+            response[U("status")] = json::value::string(U("Failed to send DLL paths for unloading"));
             response[U("error")] = json::value::string(e.what());
             request.reply(status_codes::InternalError, response);
         }
