@@ -3,6 +3,8 @@
 
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
+#include <thread>
+#include <atomic>
 #include <string>
 
 using namespace web;
@@ -22,6 +24,9 @@ public:
 private:
     http_listener listener_;
 
+    std::atomic<bool> isWebSocketRunning{false};
+    std::thread webSocketThread;
+
     // Handler for GET-Requests
     void handleGet(http_request request);
 
@@ -36,6 +41,12 @@ private:
 
     // Function for loading the DLL via the WebSocket server
     void loadDllEndpoint(const http_request& request);
+
+    // Starts the WebSocket server
+    void startWebSocket(const http_request& request);
+
+    // Stops the WebSocket server
+    void stopWebSocket(const http_request& request);
 
 /*  
     // Konflikt mit fmt aus der OmniscopeSampler.hpp. Nicht lösbar ind er Kurzen Zeit

@@ -1,5 +1,6 @@
 #include "api_server.hpp"
 // #include "handler.hpp"
+#include <cstdlib>
 #include <cpprest/ws_client.h>
 #include <filesystem>
 #include <iostream>
@@ -24,7 +25,7 @@ void ApiServer::stop() {
     listener_.close().wait();
 }
 
-// Main GET handler, forwards requests to specific functions
+// GET handler
 void ApiServer::handleGet(http_request request) {
     auto path = uri::decode(request.relative_uri().path());
     if (path == "/status") {
@@ -51,12 +52,19 @@ void ApiServer::handleGet(http_request request) {
     }
 }
 
-// POST handler forwards to `loadDll` function
+// POST handler
 void ApiServer::handlePost(http_request request) {
     auto path = uri::decode(request.relative_uri().path());
     if (path == "/load_dll") {
         loadDllEndpoint(request);
-    } else {
+    }
+    else if (path == "/start_websocket") {
+        startWebSocket(request);
+    }
+    else if (path == "/stop_websocket") {
+        stopWebSocket(request);
+    }
+    else {
         request.reply(status_codes::NotFound, "Endpoint not found");
     }
 }
@@ -175,6 +183,50 @@ void ApiServer::loadDllEndpoint(const http_request& request) {
             request.reply(status_codes::InternalError, response);
         }
     }).wait();
+}
+
+// Starts the WebSocket server by executing the provided path to `wsDll` executable.
+void ApiServer::startWebSocket(const http_request& request) {
+    request.extract_json().then([this, &request](json::value jsonData) {
+        if (!jsonData.has_field(U("path"))) {
+            request.reply(status_codes::BadRequest, "Missing path parameter for WebSocket executable");
+            return;
+        }
+
+        std::string wsPath = jsonData[U("path")].as_string();
+        if (isWebSocketRunning.load()) {
+            request.reply(status_codes::BadRequest, "WebSocket server is already running");
+            return;
+        }
+
+        webSocketThread = std::thread([wsPath, this]() {
+            std::string command = wsPath + " &";
+            std::cout << "Starting WebSocket server with command: " << command << std::endl;
+            std::system(command.c_str());
+        });
+
+        isWebSocketRunning = true;
+        request.reply(status_codes::OK, "WebSocket server started successfully");
+    }).wait();
+}
+
+// Stop the WebSocket server
+void ApiServer::stopWebSocket(const http_request& request) {
+    if (!isWebSocketRunning.load()) {
+        request.reply(status_codes::BadRequest, "WebSocket server is not running");
+        return;
+    }
+
+    // Stoppen des WebSocket-Servers durch Beenden des Threads
+    if (webSocketThread.joinable()) {
+        std::cout << "Stopping WebSocket server..." << std::endl;
+        std::system("pkill -f wsDll");
+        webSocketThread.join();
+        isWebSocketRunning = false;
+        request.reply(status_codes::OK, "WebSocket server stopped successfully");
+    } else {
+        request.reply(status_codes::InternalError, "Failed to stop WebSocket server");
+    }
 }
 
 
