@@ -203,6 +203,17 @@ void ApiServer::startWebSocket(const http_request& request) {
             std::string command = wsPath + " &";
             std::cout << "Starting WebSocket server with command: " << command << std::endl;
             std::system(command.c_str());
+
+            // Short delay and check whether the process is running
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            if (std::system("pgrep -f wsDll") == 0) {
+                std::cout << "WebSocket server started successfully." << std::endl;
+                isWebSocketRunning = true;
+            }
+            else {
+                std::cerr << "Failed to start WebSocket server." << std::endl;
+                isWebSocketRunning = false;
+            }
         });
 
         isWebSocketRunning = true;
@@ -210,21 +221,21 @@ void ApiServer::startWebSocket(const http_request& request) {
     }).wait();
 }
 
-// Stop the WebSocket server
+// Stop the WebSocket server by terminating the thread
 void ApiServer::stopWebSocket(const http_request& request) {
     if (!isWebSocketRunning.load()) {
         request.reply(status_codes::BadRequest, "WebSocket server is not running");
         return;
     }
 
-    // Stoppen des WebSocket-Servers durch Beenden des Threads
     if (webSocketThread.joinable()) {
         std::cout << "Stopping WebSocket server..." << std::endl;
         std::system("pkill -f wsDll");
         webSocketThread.join();
         isWebSocketRunning = false;
         request.reply(status_codes::OK, "WebSocket server stopped successfully");
-    } else {
+    }
+    else {
         request.reply(status_codes::InternalError, "Failed to stop WebSocket server");
     }
 }
