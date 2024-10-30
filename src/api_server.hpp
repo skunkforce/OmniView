@@ -22,11 +22,26 @@ public:
 private:
     http_listener listener_;
 
-    // Handler for GET-Request
+    // Handler for GET-Requests
     void handleGet(http_request request);
+
+    // Handler for POST-Requests
+    void handlePost(http_request request);
 
     // Function for testing the WebSocket connection
     void checkWebSocket(const http_request& request);
+
+    // Function for searching for DLLs
+    void searchDllsEndpoint(const http_request& request);
+
+    // Function for loading the DLL via the WebSocket server
+    void loadDllEndpoint(const http_request& request);
+
+/*  
+    // Konflikt mit fmt aus der OmniscopeSampler.hpp. Nicht lösbar ind er Kurzen Zeit
+    // Function for searching for devices
+    void searchDevicesEndpoint(const http_request& request);
+*/
 };
 
 #endif // API_SERVER_HPP

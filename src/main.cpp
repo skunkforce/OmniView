@@ -1,4 +1,4 @@
-#include "api_server.hpp" // Einbindung des API-Servers
+#include "api_server.hpp"
 #include <iostream>
 
 int main() {
